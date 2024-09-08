@@ -137,7 +137,7 @@
                             </button>
                         </div>
                     </div>
-                    <div v-show="isHovered" class="group action-buttons">
+                    <div v-if="!replyLater" v-show="isHovered" class="group action-buttons">
                         <div class="relative group">
                             <div v-if="!email.read"
                                 class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4"
@@ -169,6 +169,24 @@
                                     <path d="M5 9l5 5 9-9"></path>
                                     <path d="M5 16l5 5 9-9"></path>
                                 </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div v-else v-show="isHovered" class="group action-buttons">
+                        <div class="relative group">
+                            <div
+                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10 w-[115px]"
+                            >
+                                {{ $t("homePage.unreplyLater") }}
+                            </div>
+                            <button
+                                @click="markEmailAsUnreplyLater"
+                                type="button"
+                                :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`"
+                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" :class="`w-5 h-5 text-${color}-400 group-hover:text-white`">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z" />
+                            </svg>
                             </button>
                         </div>
                     </div>
@@ -427,10 +445,12 @@ const props = withDefaults(
         email: Email;
         color?: string;
         block?: boolean;
+        replyLater?: boolean;
     }>(),
     {
         color: "gray",
         block: false,
+        replyLater: false,
     }
 );
 
@@ -551,6 +571,14 @@ async function markEmailReplyLater() {
         return;
     }
     result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {}); // We mark unread if the user click to replyLater to an email that is read=true (so it appears in replyLater correctly)
+}
+
+async function markEmailAsUnreplyLater() {
+    let result = await postData(`user/emails/${localEmail.value.id}/unmark_reply_later/`, {});
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
+        return;
+    }
 }
 
 async function openAnswer() {

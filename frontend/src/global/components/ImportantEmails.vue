@@ -47,7 +47,7 @@
                     >
                         <ul role="list" class="divide-y divide-gray-200">
                             <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
-                                <EmailItem :email="email" color="orange" />
+                                <EmailItem :email="email" color="orange" :replyLater=replyLater />
                             </li>
                         </ul>
                     </div>
@@ -66,6 +66,7 @@ import { formatSentDate } from "../preferences";
 
 const props = defineProps<{
     emails: Email[];
+    replyLater?: boolean;
 }>();
 
 const localEmails = ref<Email[]>([]);

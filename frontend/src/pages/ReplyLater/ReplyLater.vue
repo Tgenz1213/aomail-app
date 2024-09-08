@@ -43,7 +43,7 @@
                         </div>
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
-                        <ImportantEmail :emails="importantEmails" />
+                        <ImportantEmail :emails="importantEmails" :replyLater=true />
                         <InformativeEmail :emails="informativeEmails" />
                         <UselessEmail :emails="uselessEmails" />
                     </div>
@@ -63,11 +63,7 @@ import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { Email, FetchDataResult } from "@/global/types";
-import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
-import { useRouter } from "vue-router";
-import { i18n } from "@/global/preferences";
-
 
 const showNotification = ref(false);
 const notificationTitle = ref("");

@@ -84,7 +84,7 @@ import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
 import ReadEmail from "./components/ReadEmails.vue";
-import AssistantChat from "./components/AssistantChat.vue";
+//import AssistantChat from "./components/AssistantChat.vue"; DESACTIVATED FOR NOW DO NOT DELETE
 import Categories from "./components/Categories.vue";
 import SearchBar from "./components/SearchBar.vue";
 
@@ -105,7 +105,7 @@ const isModalNewCategoryOpen = ref(false);
 const isModalUpdateCategoryOpen = ref(false);
 const isModalNewFilterOpen = ref(false);
 const isModalUpdateFilterOpen = ref(false);
-const isHidden = ref(false);
+//const isHidden = ref(false); DESACTIVATED FOR NOW DO NOT DELETE
 const categories = ref<Category[]>([]);
 const filters = ref<{ [categoryName: string]: Filter[] }>({});
 const categoryTotals = ref<{ [key: string]: number }>({});

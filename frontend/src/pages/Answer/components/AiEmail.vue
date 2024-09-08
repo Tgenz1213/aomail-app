@@ -43,9 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, Ref, ref } from "vue";
-import { getData, postData } from "@/global/fetchData";
-import userImage from "@/assets/user.png";
+import { inject, Ref, ref } from "vue";
+import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import Quill from "quill";
 
@@ -53,28 +52,17 @@ const textareaValue = ref("");
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const AIContainer =
     inject<Ref<HTMLElement | null>>("AIContainer") || ref<HTMLElement | null>(document.getElementById("AIContainer"));
-const imageURL = ref<string>(userImage);
-const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const quill = inject<Ref<Quill | null>>("quill");
 const history = inject<Ref<Record<string, any>>>("history") || ref({});
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const importance = inject<Ref<string>>("importance") || ref("");
+const imageURL = inject<Ref<string>>("imageURL") || ref("");
 
 const scrollToBottom = inject<() => void>("scrollToBottom");
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const hideLoading = inject<() => void>("hideLoading");
 const loading = inject<() => void>("loading");
-
-onMounted(() => {
-    getProfileImage();
-});
-
-async function getProfileImage() {
-    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
-    if (!result.success) return;
-    imageURL.value = result.data.profileImageUrl;
-}
 
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {

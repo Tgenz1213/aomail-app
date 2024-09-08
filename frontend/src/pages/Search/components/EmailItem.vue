@@ -16,7 +16,7 @@
                 {{ localEmail.sender.name }}
                 - {{ localEmail.sender.email }}
                 <span class="font-normal ml-2 text-gray-600 text-xs">
-                    {{ localEmail.sentDate }}
+                    {{ formatSentDateAndTime(localEmail.sentDate, localEmail.sentTime) }}
                 </span>
             </span>
             <span class="text-sm gray-600">{{ localEmail.subject }} - {{ localEmail.oneLineSummary }}</span>
@@ -114,7 +114,7 @@ import { EyeIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import router from "@/router/router";
-import { i18n } from "@/global/preferences";
+import { i18n, formatSentDateAndTime } from "@/global/preferences";
 
 const props = defineProps<{
     email: Email;

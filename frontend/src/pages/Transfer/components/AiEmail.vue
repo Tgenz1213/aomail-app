@@ -45,10 +45,9 @@
 <script setup lang="ts">
 import { i18n } from "@/global/preferences";
 import { AiRecipient, EmailMapping, Recipient } from "@/global/types";
-import { inject, onMounted, Ref, ref } from "vue";
+import { inject, Ref, ref } from "vue";
 import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
-import userImage from "@/assets/user.png";
-import { getData, postData } from "@/global/fetchData";
+import { postData } from "@/global/fetchData";
 
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const AIContainer =
@@ -57,24 +56,13 @@ const textareaValue = ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
-const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
-const imageURL = ref<string>(userImage);
+const imageURL = inject<Ref<string>>("imageURL") || ref("");
 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const scrollToBottom = inject<() => void>("scrollToBottom");
 const loading = inject<() => void>("loading");
 const hideLoading = inject<() => void>("hideLoading");
-
-onMounted(() => {
-    getProfileImage();
-});
-
-async function getProfileImage() {
-    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
-    if (!result.success) return;
-    imageURL.value = result.data.profileImageUrl;
-}
 
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {

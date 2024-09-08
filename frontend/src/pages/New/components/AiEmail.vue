@@ -43,13 +43,12 @@
 </template>
 
 <script setup lang="ts">
-import { getData, postData } from "@/global/fetchData";
+import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { AiRecipient, EmailMapping, Recipient } from "@/global/types";
 import Quill from "quill";
-import { inject, onMounted, provide, Ref, ref, watch } from "vue";
+import { inject, provide, Ref, ref } from "vue";
 import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
-import userImage from "@/assets/user.png";
 
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const quill = inject<Ref<Quill | null>>("quill");
@@ -61,13 +60,12 @@ const textareaValue = ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
-const imageURL = ref<string>(userImage);
+const imageURL = inject<Ref<string>>("imageURL") || ref("");
 const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
 const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
 const emailBody = inject<Ref<string>>("emailBody") || ref("");
-const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const scrollToBottom = inject<() => void>("scrollToBottom");
@@ -77,10 +75,6 @@ const hideLoading = inject<() => void>("hideLoading");
 provide("askContent", askContent);
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);
-
-watch(emailSelected, () => {
-    getProfileImage();
-});
 
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
@@ -329,16 +323,6 @@ function adjustHeight(event: any) {
     const textarea = event.target;
     textarea.style.height = "auto";
     textarea.style.overflowY = "auto";
-}
-
-onMounted(() => {
-    getProfileImage();
-});
-
-async function getProfileImage() {
-    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
-    if (!result.success) return;
-    imageURL.value = result.data.profileImageUrl;
 }
 
 function askChoiceRecipier(list: any[], type: string) {

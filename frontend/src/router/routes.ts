@@ -17,6 +17,7 @@ import PasswordResetLink from "@/pages/ResetPassword/PasswordResetLink.vue";
 import ResetPasswordForm from "@/pages/ResetPassword/ResetPasswordForm.vue";
 import { Component } from "vue";
 import Labels from "@/pages/Labels/Labels.vue";
+import Logout from "@/pages/Logout/Logout.vue";
 
 export interface RouteConfig {
     path: string;
@@ -31,6 +32,13 @@ const login: RouteConfig = {
     path: "/",
     name: "login",
     component: Login,
+};
+
+const logout: RouteConfig = {
+    path: "/logout",
+    name: "logout",
+    meta: { requiresAuth: true },
+    component: Logout,
 };
 
 const signUp: RouteConfig = {
@@ -148,6 +156,7 @@ const notFound: RouteConfig = {
 
 const routes: RouteConfig[] = [
     login,
+    logout,
     signUp,
     signUpLink,
     home,

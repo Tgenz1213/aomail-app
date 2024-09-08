@@ -34,10 +34,11 @@ import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData } from "@/global/fetchData";
-import { i18n, timezoneSelected } from "@/global/preferences";
+import { formatSentDateAndTime, i18n } from "@/global/preferences";
 import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import userImage from "@/assets/user.png";
 
 const showNotification = ref(false);
 const isWriting = ref(false);
@@ -48,7 +49,7 @@ const backgroundColor = ref("");
 const subjectInput = ref("");
 const textareaValueSave = ref("");
 const subject = ref("");
-const emailSelected = ref(localStorage.getItem("email") || "");
+const emailSelected = ref("");
 const selectedLength = ref("short");
 const selectedFormality = ref("formal");
 const timerId = ref<number | null>(null);
@@ -65,6 +66,7 @@ const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
+const imageURL = ref<string>(userImage);
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -73,6 +75,7 @@ const scrollToBottom = async () => {
     element.scrollTop = element.scrollHeight;
 };
 
+provide("imageURL", imageURL);
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
 provide("selectedCC", selectedCC);
@@ -133,22 +136,20 @@ onMounted(async () => {
     const senderEmail = JSON.parse(sessionStorage.getItem("senderEmail") || "");
     selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
     emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
+    getProfileImage();
+
     const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");
     const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
     const date = JSON.parse(sessionStorage.getItem("date") || new Date().toISOString());
 
     const formattedDateVar = new Date(date);
-    const formattedDate = formattedDateVar.toLocaleString(i18n.global.locale, {
-        timeZone: timezoneSelected.value,
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        weekday: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        timeZoneName: "short",
-    });
+    const year = formattedDateVar.getUTCFullYear();
+    const month = (formattedDateVar.getUTCMonth() + 1).toString().padStart(2, "0");
+    const day = formattedDateVar.getUTCDate().toString().padStart(2, "0");
+    const dateString = `${year}-${month}-${day}`;
+    const hours = formattedDateVar.getUTCHours().toString().padStart(2, "0");
+    const minutes = formattedDateVar.getUTCMinutes().toString().padStart(2, "0");
+    const timeString = `${hours}:${minutes}`;
 
     subjectInput.value = "Tr : " + subject.value;
     let forwardedMessage = "";
@@ -156,7 +157,7 @@ onMounted(async () => {
     forwardedMessage += "\n\n";
     forwardedMessage += `${i18n.global.t("transferPage.messageDivider")}\n`;
     forwardedMessage += `${i18n.global.t("transferPage.from")} ${senderEmail}\n`;
-    forwardedMessage += `${i18n.global.t("transferPage.date")} ${formattedDate}\n`;
+    forwardedMessage += `${i18n.global.t("transferPage.date")} ${formatSentDateAndTime(dateString, timeString)}\n`;
     forwardedMessage += `${i18n.global.t("transferPage.subject")} ${subject.value}\n`;
 
     if (selectedCC.value.length > 0) {
@@ -190,6 +191,12 @@ onMounted(async () => {
 onUnmounted(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
 });
+
+async function getProfileImage() {
+    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+    if (!result.success) return;
+    imageURL.value = result.data.profileImageUrl;
+}
 
 const handleBeforeUnload = (event: BeforeUnloadEvent) => {
     if (

@@ -45,7 +45,6 @@ export async function fetchWithToken(url: string, options: RequestInit = {}): Pr
     if (accessToken) {
         (options.headers as Record<string, string>)["Authorization"] = `Bearer ${accessToken}`;
     } else {
-        window.location.href = `${BASE_URL}`;
         return;
     }
 

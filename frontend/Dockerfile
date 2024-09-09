@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS build
+FROM node:lts-alpine
 
 WORKDIR /app
 
@@ -6,4 +6,3 @@ COPY package*.json ./
 COPY .eslintrc.js ./
 
 RUN npm install
-RUN npm run build

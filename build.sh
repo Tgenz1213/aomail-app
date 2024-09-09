@@ -1,5 +1,5 @@
-export BACKEND_PORT=8000
-export FRONTEND_PORT=8080
+export BACKEND_PORT=8004
+export FRONTEND_PORT=8085
 export DB_PORT=5435
 export ENV="app"
 export TOPIC_NAME="sub_new_mail"

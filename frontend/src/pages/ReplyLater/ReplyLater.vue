@@ -44,7 +44,7 @@
                         </div>
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
-                        <ImportantEmail :emails="importantEmails" />
+                        <ImportantEmail :emails="importantEmails" :replyLater=true />
                         <InformativeEmail :emails="informativeEmails" />
                         <UselessEmail :emails="uselessEmails" />
                     </div>

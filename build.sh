@@ -1,13 +1,11 @@
-export BACKEND_PORT=8003
-export FRONTEND_PORT=8083
+export BACKEND_PORT=8002
+export FRONTEND_PORT=8082
 export DB_PORT=5435
-export ENV="jean"
-export TOPIC_NAME="jean"
+export ENV="app"
+export TOPIC_NAME="sub_new_mail"
 export POSTGRES_USER="django_admin"
 export POSTGRES_PASSWORD="admin@2"
 export POSTGRES_DB="mailassistantdb"
-
-
 
 # Create the folder backend/media/pictures if it doesn't exist
 if [ ! -d "backend/media" ]; then
@@ -17,16 +15,12 @@ fi
 if [ ! -d "backend/media/labels" ]; then
     mkdir -p backend/media/labels
 fi
-
-# docker compose -p augustin_project up --build
-# use this to force install reqs or delete backend instance
-#docker compose -p augustin_project build --no-cache && docker compose -p augustin_project up
-
+ 
 # Start the containers and build if necessary
-docker compose -p ${ENV}_project up --build -d
+docker compose -p ${ENV}_prod up --build -d
 
 # Wait for the backend container to be running
-container_name="${ENV}_project-backend-1"
+container_name="${ENV}_prod-backend"
 
 # Extract the ID of the Google renew subscription
 ID=""
@@ -40,7 +34,7 @@ done
 echo "ID found: $ID"
 
 # Define the cron job and add it if it doesn't exist
-CRON_JOB="0 3 * * * docker exec -i ${ENV}_project-backend-1 /usr/local/bin/python /app/manage.py crontab run $ID"
+CRON_JOB="0 3 * * * docker exec -i ${ENV}_prod-backend /usr/local/bin/python /app/manage.py crontab run $ID"
 (crontab -l | grep -F "$CRON_JOB") && echo "Cron job already exists" || (crontab -l; echo "$CRON_JOB") | crontab -
 
 

@@ -64,8 +64,10 @@ const displayMessage = inject<(message: string, aiIcon: string) => void>("displa
 const hideLoading = inject<() => void>("hideLoading");
 const loading = inject<() => void>("loading");
 
-function handleEnterKey(event: any) {
-    if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
+function handleEnterKey(event: KeyboardEvent) {
+    const target = event.target as HTMLElement | null;
+
+    if (target && target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         handleAIClick();
     }
@@ -145,9 +147,12 @@ const setWriting = () => {
     isWriting.value = true;
 };
 
-function adjustHeight(event: any) {
-    const textarea = event.target;
-    textarea.style.height = "auto";
-    textarea.style.overflowY = "auto";
+function adjustHeight(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement | null;
+
+    if (textarea) {
+        textarea.style.height = "auto";
+        textarea.style.overflowY = "auto";
+    }
 }
 </script>

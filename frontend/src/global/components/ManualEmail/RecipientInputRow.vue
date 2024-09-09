@@ -167,10 +167,14 @@ function handleFocus() {
     isFocus.value = true;
 }
 
-function handleEnterKey(event: any) {
+function handleEnterKey(event: KeyboardEvent) {
     if (isFocus.value) {
         event.preventDefault();
-        handleBlur(event);
+
+        const target = event.target as HTMLInputElement | null;
+        if (target && target.value !== undefined) {
+            handleBlur({ target: { value: target.value } });
+        }
     }
 }
 

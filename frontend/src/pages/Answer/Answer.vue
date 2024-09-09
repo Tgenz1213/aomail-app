@@ -189,10 +189,19 @@ onMounted(async () => {
     </div>
   `;
 
-    document.addEventListener("click", (event: any) => {
-        if (event.target.classList.contains("show-email-btn")) {
-            event.target.style.display = "none";
-            event.target.closest(".flex").querySelector(".email-content").style.display = "block";
+    document.addEventListener("click", (event: MouseEvent) => {
+        const target = event.target as HTMLElement | null;
+
+        if (target && target.classList.contains("show-email-btn")) {
+            target.style.display = "none";
+
+            const closestFlex = target.closest(".flex") as HTMLElement | null;
+            if (closestFlex) {
+                const emailContent = closestFlex.querySelector(".email-content") as HTMLElement | null;
+                if (emailContent) {
+                    emailContent.style.display = "block";
+                }
+            }
         }
     });
 

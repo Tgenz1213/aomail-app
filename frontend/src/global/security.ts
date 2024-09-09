@@ -1,5 +1,5 @@
 import router from "@/router/router";
-import { API_BASE_URL, BASE_URL } from "./const";
+import { API_BASE_URL } from "./const";
 
 interface AuthResponse {
     isAuthenticated: boolean;
@@ -36,19 +36,19 @@ export async function isUserAuthenticated(): Promise<boolean> {
 }
 
 export async function fetchWithToken(url: string, options: RequestInit = {}): Promise<Response | void> {
-    const accessToken = localStorage.getItem("accessToken");
-
-    if (!options.headers) {
-        options.headers = {};
-    }
-
-    if (accessToken) {
-        (options.headers as Record<string, string>)["Authorization"] = `Bearer ${accessToken}`;
-    } else {
-        return;
-    }
-
     try {
+        const accessToken = localStorage.getItem("accessToken");
+
+        if (!options.headers) {
+            options.headers = {};
+        }
+
+        if (accessToken) {
+            (options.headers as Record<string, string>)["Authorization"] = `Bearer ${accessToken}`;
+        } else {
+            return;
+        }
+
         let response = await fetch(url, options);
 
         if (response.status === 401) {

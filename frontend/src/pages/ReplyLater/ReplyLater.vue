@@ -14,7 +14,8 @@
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative divide-y divide-gray-200">
                     <div class="flex items-center justify-center h-[70px] 2xl:h-[80px] bg-gray-50">
-                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('constants.userActions.replyLater') }}
+                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500">
+                            {{ $t("constants.userActions.replyLater") }}
                         </h1>
                     </div>
                     <div v-if="!hasEmails" class="flex-1">
@@ -63,14 +64,12 @@ import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { Email, FetchDataResult } from "@/global/types";
-import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
-
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const currentPage = ref(1);
 const allEmailIds = ref<string[]>([]);
@@ -83,11 +82,10 @@ const fetchEmailsData = async () => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
-    let response : FetchDataResult;
+    let response: FetchDataResult;
 
     response = await postData("user/emails_ids/", { advanced: true, subject: "", replyLater: true });
 
-    
     allEmailIds.value = response.data.ids;
 
     await loadMoreEmails();
@@ -104,8 +102,6 @@ const loadMoreEmails = async () => {
     if (idsToFetch.length > 0) {
         const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
         const newEmails = emails_details.data.data;
-
-        console.log("Email DATA", emails_details.data.data);
 
         for (const category in newEmails) {
             if (!emails.value[category]) {
@@ -141,7 +137,7 @@ const scroll = () => {
     if (container) {
         container.addEventListener("scroll", handlescroll);
     }
-}
+};
 
 const importantEmails = computed(() => {
   if (!emails.value) return [];
@@ -171,7 +167,6 @@ const hasEmails = computed(() => {
   return allEmails.some(email => email.answerLater && !email.read && !email.archive);
 });
 
-
 function dismissPopup() {
     showNotification.value = false;
     if (timerId.value !== null) {
@@ -180,7 +175,6 @@ function dismissPopup() {
 }
 
 onMounted(async () => {
-
     await fetchEmailsData();
 
     console.log("EMAILS", emails.value);
@@ -188,5 +182,4 @@ onMounted(async () => {
 
     scroll();
 });
-
 </script>

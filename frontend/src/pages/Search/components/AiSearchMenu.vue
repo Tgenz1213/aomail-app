@@ -172,18 +172,20 @@ async function scrollToBottom() {
     }
 }
 
-const adjustHeight = (event: { target: any }) => {
-    const textarea = event.target;
+const adjustHeight = (event: Event) => {
+    const textarea = event.target as HTMLTextAreaElement | null;
     const maxHeight = 250;
 
-    textarea.style.height = "auto";
+    if (textarea) {
+        textarea.style.height = "auto";
 
-    if (textarea.scrollHeight > maxHeight) {
-        textarea.style.height = `${maxHeight}px`;
-        textarea.style.overflowY = "auto";
-    } else {
-        textarea.style.height = `${textarea.scrollHeight}px`;
-        textarea.style.overflowY = "hidden";
+        if (textarea.scrollHeight > maxHeight) {
+            textarea.style.height = `${maxHeight}px`;
+            textarea.style.overflowY = "auto";
+        } else {
+            textarea.style.height = `${textarea.scrollHeight}px`;
+            textarea.style.overflowY = "hidden";
+        }
     }
 };
 

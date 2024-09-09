@@ -64,8 +64,10 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const loading = inject<() => void>("loading");
 const hideLoading = inject<() => void>("hideLoading");
 
-function handleEnterKey(event: any) {
-    if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
+function handleEnterKey(event: KeyboardEvent) {
+    const target = event.target as HTMLElement | null;
+
+    if (target && target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         handleAIClick();
     }
@@ -132,7 +134,6 @@ async function findUserAi() {
 
 function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipient[], bccRecipients: AiRecipient[]) {
     let noUsersAdded = true;
-    let waitforUserChoice = false;
 
     noUsersAdded = processSingleEmailRecipients(mainRecipients, selectedPeople.value) && noUsersAdded;
     noUsersAdded = processSingleEmailRecipients(ccRecipients, selectedCC.value) && noUsersAdded;
@@ -142,11 +143,6 @@ function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipi
 
     if (mainRecipients.length > 0 || ccRecipients.length > 0 || bccRecipients.length > 0) {
         displayMultipleEmailsMessage();
-
-        waitforUserChoice = processMultipleEmailRecipients(mainRecipients, "main") || waitforUserChoice;
-        waitforUserChoice = processMultipleEmailRecipients(ccRecipients, "cc") || waitforUserChoice;
-        waitforUserChoice = processMultipleEmailRecipients(bccRecipients, "bcc") || waitforUserChoice;
-
         scrollToBottom?.();
     }
 
@@ -189,23 +185,6 @@ function displayMultipleEmailsMessage() {
     AIContainer.value.innerHTML += messageHTML;
 }
 
-function processMultipleEmailRecipients(recipients: AiRecipient[], type: string) {
-    if (recipients.length === 0) return false;
-
-    const emailList = [];
-    for (const user of recipients) {
-        for (const email of user.email) {
-            if (email !== "") {
-                const emailMapping: EmailMapping = {};
-                emailMapping[user.username] = email;
-                emailList.push(emailMapping);
-            }
-        }
-    }
-    askChoiceRecipier(emailList, type);
-    return true;
-}
-
 function displayNoRecipientsFoundMessage() {
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
     displayMessage?.(
@@ -214,7 +193,7 @@ function displayNoRecipientsFoundMessage() {
     );
 }
 
-function askChoiceRecipier(list: any[], type: string) {
+function askChoiceRecipier(list: EmailMapping[], type: string) {
     let buttonsHTML = "";
     const firstUsername = Object.keys(list[0])[0];
     const userLabel =
@@ -301,9 +280,12 @@ function askChoiceRecipier(list: any[], type: string) {
     });
 }
 
-function adjustHeight(event: any) {
-    const textarea = event.target;
-    textarea.style.height = "auto";
-    textarea.style.overflowY = "auto";
+function adjustHeight(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement | null;
+
+    if (textarea) {
+        textarea.style.height = "auto";
+        textarea.style.overflowY = "auto";
+    }
 }
 </script>

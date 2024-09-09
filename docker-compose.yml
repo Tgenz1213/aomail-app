@@ -34,7 +34,7 @@ services:
       - "${FRONTEND_PORT}:8080"
     volumes:
       - ./frontend:/app
-    command: [ "npm", "run", "serve" ]
+    # command: [ "npm", "run", "serve" ]
     depends_on:
       - backend
 

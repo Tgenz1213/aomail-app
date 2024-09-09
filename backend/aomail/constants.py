@@ -49,7 +49,7 @@ FREE_PLAN = "free_plan"
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
-CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json"))
+CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
 IMPORTANT = "important"
 INFORMATIVE = "informative"
 USELESS = "useless"

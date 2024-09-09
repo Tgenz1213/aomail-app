@@ -319,13 +319,16 @@ async function handleAIClick() {
     }
 }
 
-function adjustHeight(event: any) {
-    const textarea = event.target;
-    textarea.style.height = "auto";
-    textarea.style.overflowY = "auto";
+function adjustHeight(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement | null;
+
+    if (textarea) {
+        textarea.style.height = "auto";
+        textarea.style.overflowY = "auto";
+    }
 }
 
-function askChoiceRecipier(list: any[], type: string) {
+function askChoiceRecipier(list: EmailMapping[], type: string) {
     let buttonsHTML = "";
     const firstUsername = Object.keys(list[0])[0];
     const userLabel =

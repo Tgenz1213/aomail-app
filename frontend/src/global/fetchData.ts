@@ -11,38 +11,34 @@ export async function getData(path: string, headers?: Record<string, string>): P
         },
     };
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
+    const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
 
-        if (!response) {
-            return {
-                success: false,
-                error: "No server response",
-            };
-        }
-
-        const data = await response.json();
-
-        if (200 <= response.status && response.status <= 299) {
-            return {
-                success: true,
-                data: data,
-            };
-        } else {
-            return {
-                success: false,
-                error: data.error ? data.error : "",
-            };
-        }
-    } catch (error) {
+    if (!response) {
         return {
             success: false,
-            error: error instanceof Error ? error.message : String(error),
+            error: "No server response",
+        };
+    }
+
+    const data = await response.json();
+
+    if (response.ok) {
+        return {
+            success: true,
+            data: data,
+        };
+    } else {
+        return {
+            success: false,
+            error: data.error ? data.error : "",
         };
     }
 }
 
-export async function getDataRawResponse(path: string, headers?: Record<string, string>): Promise<Response | FetchDataResult> {
+export async function getDataRawResponse(
+    path: string,
+    headers?: Record<string, string>
+): Promise<Response | FetchDataResult> {
     const requestOptions = {
         method: "GET",
         headers: {
@@ -51,29 +47,22 @@ export async function getDataRawResponse(path: string, headers?: Record<string, 
         },
     };
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
+    const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
 
-        if (!response) {
-            return {
-                success: false,
-                error: "No server response",
-            };
-        }
-
-        if (200 <= response.status && response.status <= 299) {
-            return response; // Return the raw response object
-        } else {
-            const data = await response.json(); // Parse error response as JSON
-            return {
-                success: false,
-                error: data.error ? data.error : "Unknown error",
-            };
-        }
-    } catch (error) {
+    if (!response) {
         return {
             success: false,
-            error: error instanceof Error ? error.message : String(error),
+            error: "No server response",
+        };
+    }
+
+    if (response.ok) {
+        return response;
+    } else {
+        const data = await response.json();
+        return {
+            success: false,
+            error: data.error ? data.error : "Unknown error",
         };
     }
 }
@@ -87,32 +76,25 @@ export async function postData(path: string, body: Record<string, any>): Promise
         body: JSON.stringify(body),
     };
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
+    const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
 
-        if (!response) {
-            return {
-                success: false,
-                error: "No server response",
-            };
-        }
-
-        const data = await response.json();
-        if (200 <= response.status && response.status <= 299) {
-            return {
-                success: true,
-                data: data,
-            };
-        } else {
-            return {
-                success: false,
-                error: data.error ? data.error : "",
-            };
-        }
-    } catch (error) {
+    if (!response) {
         return {
             success: false,
-            error: error instanceof Error ? error.message : String(error),
+            error: "No server response",
+        };
+    }
+
+    const data = await response.json();
+    if (response.ok) {
+        return {
+            success: true,
+            data: data,
+        };
+    } else {
+        return {
+            success: false,
+            error: data.error ? data.error : "",
         };
     }
 }
@@ -129,33 +111,26 @@ export async function deleteData(path: string, body?: any): Promise<FetchDataRes
         requestOptions.body = JSON.stringify(body);
     }
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
+    const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
 
-        if (!response) {
-            return {
-                success: false,
-                error: "No server response",
-            };
-        }
-
-        const data = await response.json();
-
-        if (200 <= response.status && response.status <= 299) {
-            return {
-                success: true,
-                data: data,
-            };
-        } else {
-            return {
-                success: false,
-                error: data.error ? data.error : "",
-            };
-        }
-    } catch (error) {
+    if (!response) {
         return {
             success: false,
-            error: error instanceof Error ? error.message : String(error),
+            error: "No server response",
+        };
+    }
+
+    const data = await response.json();
+
+    if (response.ok) {
+        return {
+            success: true,
+            data: data,
+        };
+    } else {
+        return {
+            success: false,
+            error: data.error ? data.error : "",
         };
     }
 }
@@ -169,33 +144,26 @@ export async function putData(path: string, body: Record<string, any>): Promise<
         body: JSON.stringify(body),
     };
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
+    const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
 
-        if (!response) {
-            return {
-                success: false,
-                error: "No server response",
-            };
-        }
-
-        const data = await response.json();
-
-        if (200 <= response.status && response.status <= 299) {
-            return {
-                success: true,
-                data: data,
-            };
-        } else {
-            return {
-                success: false,
-                error: data.error ? data.error : "",
-            };
-        }
-    } catch (error) {
+    if (!response) {
         return {
             success: false,
-            error: error instanceof Error ? error.message : String(error),
+            error: "No server response",
+        };
+    }
+
+    const data = await response.json();
+
+    if (response.ok) {
+        return {
+            success: true,
+            data: data,
+        };
+    } else {
+        return {
+            success: false,
+            error: data.error ? data.error : "",
         };
     }
 }

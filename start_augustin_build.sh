@@ -1,5 +1,5 @@
-export BACKEND_PORT=8002
-export FRONTEND_PORT=8082
+export BACKEND_PORT=8004
+export FRONTEND_PORT=8084
 export DB_PORT=5434
 export ENV="augustin"
 export TOPIC_NAME="sub_new_mail2"

@@ -12,8 +12,6 @@
 - ⌚ Email and response generation
 - 📑 Auto classification & summary
 - 🔗 Multi accounts in 1 app
-
-**Development**
 - 🔍 Search response among emails
 
 ## Quick Setup
@@ -31,3 +29,8 @@ docker exec -it augustin_project-backend-1 python manage.py makemigrations --emp
 ./start_{theo}_build.sh
 ./start_{theo}_build.sh
 ```
+
+# Adding a New Subdomain
+1) Add the subdomain in Nginx Proxy Manager.
+2) Open the required port: ```sudo ufw allow PORT_NUMBER``` 
+3) Update vue.config.js: Add the new domain to the list of allowedHosts.

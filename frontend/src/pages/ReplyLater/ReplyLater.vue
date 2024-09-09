@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, provide } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
@@ -77,6 +77,7 @@ const allEmailIds = ref<string[]>([]);
 const isLoading = ref(false);
 const emailsPerPage = 10;
 
+provide("emails", emails);
 
 const fetchEmailsData = async () => {
     currentPage.value = 1;
@@ -145,19 +146,19 @@ const scroll = () => {
 const importantEmails = computed(() => {
   if (!emails.value) return [];
   const allEmails = Object.values(emails.value).flatMap(category => category.important || []);
-  return allEmails.filter(email => email.answerLater && !email.read);
+  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
 });
 
 const informativeEmails = computed(() => {
   if (!emails.value) return [];
   const allEmails = Object.values(emails.value).flatMap(category => category.informative || []);
-  return allEmails.filter(email => email.answerLater && !email.read);
+  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
 });
 
 const uselessEmails = computed(() => {
   if (!emails.value) return [];
   const allEmails = Object.values(emails.value).flatMap(category => category.useless || []);
-  return allEmails.filter(email => email.answerLater && !email.read);
+  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
 });
 
 const hasEmails = computed(() => {
@@ -167,7 +168,7 @@ const hasEmails = computed(() => {
     ...(category.informative || []),
     ...(category.useless || []),
   ]);
-  return allEmails.some(email => email.answerLater && !email.read);
+  return allEmails.some(email => email.answerLater && !email.read && !email.archive);
 });
 
 
@@ -181,6 +182,9 @@ function dismissPopup() {
 onMounted(async () => {
 
     await fetchEmailsData();
+
+    console.log("EMAILS", emails.value);
+    console.log("IMPORTANT EMAILS", importantEmails.value);
 
     scroll();
 });

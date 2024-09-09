@@ -45,8 +45,8 @@
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
                         <ImportantEmail :emails="importantEmails" :replyLater=true />
-                        <InformativeEmail :emails="informativeEmails" />
-                        <UselessEmail :emails="uselessEmails" />
+                        <InformativeEmail :emails="informativeEmails" :replyLater=true />
+                        <UselessEmail :emails="uselessEmails" :replyLater=true />
                     </div>
                 </div>
             </div>
@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, provide } from "vue";
-import { getData, postData } from "@/global/fetchData";
+import { postData } from "@/global/fetchData";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
@@ -175,10 +175,8 @@ function dismissPopup() {
 }
 
 onMounted(async () => {
-    await fetchEmailsData();
 
-    console.log("EMAILS", emails.value);
-    console.log("IMPORTANT EMAILS", importantEmails.value);
+    await fetchEmailsData();
 
     scroll();
 });

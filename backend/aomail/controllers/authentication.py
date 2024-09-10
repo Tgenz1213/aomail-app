@@ -40,8 +40,8 @@ from aomail.utils import security
 from aomail.utils.security import subscription
 from aomail.constants import (
     BASE_URL,
+    EMAIL_ADMIN,
     FREE_PLAN,
-    ADMIN_EMAIL_LIST,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
@@ -291,24 +291,24 @@ def unsubscribe_listeners(user: User, email: str = None):
                         LOGGER.critical(
                             f"[Attempt {i+1}] Failed to unsubscribe from Google: {social_api.email}"
                         )
-                        # context = {
-                        #     "title": "Critical Alert: Google Unsubscription Failure",
-                        #     "attempt_number": i + 1,
-                        #     "subscription_id": social_api.email,
-                        #     "email_provider": GOOGLE,
-                        #     "user": user,
-                        # }
-                        # email_html = render_to_string(
-                        #     "unsubscribe_failure.html", context
-                        # )
-                        # send_mail(
-                        #     subject="Critical Alert: Google Unsubscription Failure",
-                        #     message="",
-                        #     recipient_list=ADMIN_EMAIL_LIST,
-                        #     from_email=EMAIL_NO_REPLY,
-                        #     html_message=email_html,
-                        #     fail_silently=False,
-                        # )
+                        context = {
+                            "title": "Critical Alert: Google Unsubscription Failure",
+                            "attempt_number": i + 1,
+                            "subscription_id": social_api.email,
+                            "email_provider": GOOGLE,
+                            "user": user,
+                        }
+                        email_html = render_to_string(
+                            "unsubscribe_failure.html", context
+                        )
+                        send_mail(
+                            subject="Critical Alert: Google Unsubscription Failure",
+                            message="",
+                            recipient_list=[EMAIL_ADMIN],
+                            from_email=EMAIL_NO_REPLY,
+                            html_message=email_html,
+                            fail_silently=False,
+                        )
 
     # Unsubscribe from Microsoft listeners
     if email:
@@ -327,22 +327,22 @@ def unsubscribe_listeners(user: User, email: str = None):
                     LOGGER.critical(
                         f"[Attempt {i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
                     )
-                    # context = {
-                    #     "title": "Critical Alert: Microsoft Unsubscription Failure",
-                    #     "attempt_number": i + 1,
-                    #     "subscription_id": listener.subscription_id,
-                    #     "email_provider": MICROSOFT,
-                    #     "user": user,
-                    # }
-                    # email_html = render_to_string("unsubscribe_failure.html", context)
-                    # send_mail(
-                    #     subject="Critical Alert: Microsoft Unsubscription Failure",
-                    #     message="",
-                    #     recipient_list=ADMIN_EMAIL_LIST,
-                    #     from_email=EMAIL_NO_REPLY,
-                    #     html_message=email_html,
-                    #     fail_silently=False,
-                    # )
+                    context = {
+                        "title": "Critical Alert: Microsoft Unsubscription Failure",
+                        "attempt_number": i + 1,
+                        "subscription_id": listener.subscription_id,
+                        "email_provider": MICROSOFT,
+                        "user": user,
+                    }
+                    email_html = render_to_string("unsubscribe_failure.html", context)
+                    send_mail(
+                        subject="Critical Alert: Microsoft Unsubscription Failure",
+                        message="",
+                        recipient_list=[EMAIL_ADMIN],
+                        from_email=EMAIL_NO_REPLY,
+                        html_message=email_html,
+                        fail_silently=False,
+                    )
 
 
 def validate_authorization_code(type_api: str, code: str) -> dict:
@@ -845,7 +845,7 @@ def generate_reset_token(request: HttpRequest) -> Response:
         uidb64 = urlsafe_base64_encode(str(social_api.user.pk).encode())
         reset_link = f"{BASE_URL_MA}reset_password/{uidb64}/{token}/"
 
-        context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
+        context = {"reset_link": reset_link, "email": EMAIL_ADMIN}
         email_html = render_to_string("password_reset_email.html", context)
 
         send_mail(

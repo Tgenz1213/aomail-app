@@ -30,7 +30,7 @@ CORS_ALLOWED_ORIGINS = [DOMAIN]
 EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))
 EMAIL_NO_REPLY = EMAILS_CREDS["email"]
 EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
-ADMIN_EMAIL_LIST = EMAILS_CREDS["email_admins"]
+EMAIL_ADMIN = EMAILS_CREDS["email_admin"]
 
 
 ######################## STRIPE ########################

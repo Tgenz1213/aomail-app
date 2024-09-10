@@ -17,7 +17,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.template.loader import render_to_string
+from django.core.mail import send_mail
 from aomail.constants import (
+    EMAIL_ADMIN,
+    EMAIL_NO_REPLY,
     GOOGLE,
     GOOGLE_PROJECT_ID,
     GOOGLE_TOPIC_NAME,
@@ -76,14 +79,14 @@ def receive_mail_notifications(request: HttpRequest) -> Response:
                             "user": social_api.user,
                         }
                         email_html = render_to_string("ai_failed_email.html", context)
-                        # send_mail(
-                        #     subject="Critical Alert: Email Processing Failure",
-                        #     message="",
-                        #     recipient_list=ADMIN_EMAIL_LIST,
-                        #     from_email=EMAIL_NO_REPLY,
-                        #     html_message=email_html,
-                        #     fail_silently=False,
-                        # )
+                        send_mail(
+                            subject="Critical Alert: Email Processing Failure",
+                            message="",
+                            recipient_list=[EMAIL_ADMIN],
+                            from_email=EMAIL_NO_REPLY,
+                            html_message=email_html,
+                            fail_silently=False,
+                        )
 
             threading.Thread(target=process_email).start()
 

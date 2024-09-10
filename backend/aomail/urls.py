@@ -16,6 +16,7 @@ from aomail.controllers import search_labels
 from aomail.controllers import labels
 from .controllers import views
 
+app_name = "aomail"
 
 urlpatterns = [
     #----------------------- AUTHENTICATION -----------------------#

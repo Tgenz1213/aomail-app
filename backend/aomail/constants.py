@@ -20,7 +20,7 @@ MEDIA_ROOT = os.path.join(BACKEND_DIR, "media")
 # ----------------------- URLS AND CORS -----------------------#
 DOMAIN = f"https://{ENV}.aomail.ai"
 BASE_URL = f"{DOMAIN}/"
-BASE_URL_MA = f"{BASE_URL}MailAssistant/"
+BASE_URL_MA = f"{BASE_URL}aomail/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aomail.ai"]

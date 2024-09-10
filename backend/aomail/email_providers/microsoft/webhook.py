@@ -87,9 +87,9 @@ def subscribe_to_email_notifications(user: User, email: str) -> bool:
         f"Initiating subscription to Microsoft email notifications for user ID: {user.id} with email: {email}"
     )
     access_token = refresh_access_token(get_social_api(user, email))
-    notification_url = f"{BASE_URL}MailAssistant/microsoft/receive_mail_notifications/"
+    notification_url = f"{BASE_URL}aomail/microsoft/receive_mail_notifications/"
     lifecycle_notification_url = (
-        f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
+        f"{BASE_URL}aomail/microsoft/receive_subscription_notifications/"
     )
     subscription_body = {
         "changeType": "created,deleted",
@@ -149,10 +149,10 @@ def subscribe_to_contact_notifications(user: User, email: str) -> bool:
     )
     access_token = refresh_access_token(get_social_api(user, email))
     notification_url = (
-        f"{BASE_URL}MailAssistant/microsoft/receive_contact_notifications/"
+        f"{BASE_URL}aomail/microsoft/receive_contact_notifications/"
     )
     lifecycle_notification_url = (
-        f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
+        f"{BASE_URL}aomail/microsoft/receive_subscription_notifications/"
     )
     subscription_body = {
         "changeType": "created,updated,deleted",

@@ -1,5 +1,5 @@
 """
-Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
+Django Rest Framework (DRF) URL Configuration for Aomail RESTful API.
 """
 
 from django.urls import path
@@ -16,7 +16,7 @@ from aomail.controllers import search_labels
 from aomail.controllers import labels
 from .controllers import views
 
-app_name = 'MailAssistant'
+app_name = "aomail"
 
 urlpatterns = [
     #----------------------- AUTHENTICATION -----------------------#

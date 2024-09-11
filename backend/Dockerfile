@@ -10,12 +10,18 @@ WORKDIR /app
 # Copy the requirements file into the container
 COPY ./requirements.txt .
 
-# Install the dependencies
+# Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entrypoint script and set it as the entrypoint
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# Copy the application code into the container
+COPY . .
+
 # Set the entrypoint script
 ENTRYPOINT ["entrypoint.sh"]
+
+# Expose the port the app runs on
+EXPOSE 8000

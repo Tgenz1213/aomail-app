@@ -1,7 +1,5 @@
 """
-Mail Assistant Project - Django settings
-
-QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
+Aomail Project - Django settings
 """
 
 import json
@@ -13,27 +11,6 @@ from aomail.constants import (
     HOSTS_URLS,
     CORS_ALLOWED_ORIGINS,
 )
-
-
-######################## CHECKLIST FOR PRODUCTION ########################
-"""
-1. Debug Mode:
-   - Turn off debug mode in production.
-     DEBUG = False
-
-2. Logging Configuration:
-   - Set appropriate logging configurations for production.
-   - Avoid logging sensitive information like passwords or tokens.
-   - Adjust log levels and handlers for effective monitoring.
-
-3. Backup and Recovery:
-   - Implement a backup strategy for the database and logging files.
-   - Set up a reliable backup server for data recovery.
-
-4. Setup Critical Auto Email:
-   - Establish monitoring systems to detect critical issues.
-   - Configure automatic email alerts for timely response to critical alerts.
-"""
 
 
 ######################## CREDENTIALS ########################
@@ -79,6 +56,9 @@ INSTALLED_APPS = [
     "django_crontab",
 ]
 MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",  # Enable Security Middleware
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",  # Prevent Clickjacking
+    "django.middleware.csrf.CsrfViewMiddleware",  # Protect against Cross-Site Request Forgery
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -153,9 +133,22 @@ LOGGING = {
 
 
 ######################## SECURITY ########################
-DEBUG = True
+SILENCED_SYSTEM_CHECKS = [
+    "security.W004",  # SECURE_HSTS_SECONDS not set
+    "security.W008",  # SECURE_SSL_REDIRECT not set
+    "security.W012",  # SESSION_COOKIE_SECURE not set
+    "security.W016",  # CSRF_COOKIE_SECURE not set
+]
+DEBUG = False
 ALLOWED_HOSTS = HOSTS_URLS
 CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME-based attacks
+SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filtering
+SECURE_SSL_REDIRECT = False  # No redirection since we are using HTTP
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"  # Limit referrer info
+SESSION_COOKIE_SECURE = False  # Allow cookies over HTTP
+CSRF_COOKIE_SECURE = False  # Allow CSRF tokens over HTTP
+
 
 # ----------------------- DATABASE CONFIGURATION -----------------------#
 DATABASES = CONFIG["database_conf"]
@@ -167,7 +160,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = EMAIL_NO_REPLY
 EMAIL_HOST_PASSWORD = EMAIL_NO_REPLY_PASSWORD
-PASSWORD_RESET_TIMEOUT = 3600 * 1 # time in seconds
+PASSWORD_RESET_TIMEOUT = 3600 * 1  # time in seconds
 
 # ----------------------- AUTHENTICATION SETTINGS -----------------------#
 SIMPLE_JWT = {

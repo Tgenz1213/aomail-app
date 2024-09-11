@@ -1,5 +1,5 @@
 {
-    "secret_key": "django-insecure-eglv0w%qyggc072=++va@*4qk$j(&(330+h8n80a4p*a87&n7y",
+    "secret_key": "=b-@4p-3vxcrh@zgz#i=o_tm!eg(#wt=kg6o3xbd6k_gv#q#xli$0t^klw8h=fbtq*(h6zn2hoj(8_wr4kr0jcgi5vxsd6%njh#^hxh%yhst9gdn-85_umfye)y$z%p@@^g4s#%ia(s-8&f^cl+qzb",
     "database_conf": {
         "default": {
             "ENGINE": "django.db.backends.postgresql",

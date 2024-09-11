@@ -1,3 +1,4 @@
+uvicorn
 chardet
 PyPDF2
 reportlab

@@ -45,8 +45,8 @@
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
                         <ImportantEmail :emails="importantEmails" :replyLater=true />
-                        <InformativeEmail :emails="informativeEmails" />
-                        <UselessEmail :emails="uselessEmails" />
+                        <InformativeEmail :emails="informativeEmails" :replyLater=true />
+                        <UselessEmail :emails="uselessEmails" :replyLater=true />
                     </div>
                 </div>
             </div>
@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, provide } from "vue";
 import { postData } from "@/global/fetchData";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
@@ -75,6 +75,8 @@ const currentPage = ref(1);
 const allEmailIds = ref<string[]>([]);
 const isLoading = ref(false);
 const emailsPerPage = 10;
+
+provide("emails", emails);
 
 const fetchEmailsData = async () => {
     currentPage.value = 1;
@@ -138,31 +140,31 @@ const scroll = () => {
 };
 
 const importantEmails = computed(() => {
-    if (!emails.value) return [];
-    const allEmails = Object.values(emails.value).flatMap((category) => category.important || []);
-    return allEmails.filter((email) => email.answerLater && !email.read);
+  if (!emails.value) return [];
+  const allEmails = Object.values(emails.value).flatMap(category => category.important || []);
+  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
 });
 
 const informativeEmails = computed(() => {
-    if (!emails.value) return [];
-    const allEmails = Object.values(emails.value).flatMap((category) => category.informative || []);
-    return allEmails.filter((email) => email.answerLater && !email.read);
+  if (!emails.value) return [];
+  const allEmails = Object.values(emails.value).flatMap(category => category.informative || []);
+  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
 });
 
 const uselessEmails = computed(() => {
-    if (!emails.value) return [];
-    const allEmails = Object.values(emails.value).flatMap((category) => category.useless || []);
-    return allEmails.filter((email) => email.answerLater && !email.read);
+  if (!emails.value) return [];
+  const allEmails = Object.values(emails.value).flatMap(category => category.useless || []);
+  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
 });
 
 const hasEmails = computed(() => {
-    if (!emails.value) return false;
-    const allEmails = Object.values(emails.value).flatMap((category) => [
-        ...(category.important || []),
-        ...(category.informative || []),
-        ...(category.useless || []),
-    ]);
-    return allEmails.some((email) => email.answerLater && !email.read);
+  if (!emails.value) return false;
+  const allEmails = Object.values(emails.value).flatMap(category => [
+    ...(category.important || []),
+    ...(category.informative || []),
+    ...(category.useless || []),
+  ]);
+  return allEmails.some(email => email.answerLater && !email.read && !email.archive);
 });
 
 function dismissPopup() {
@@ -173,6 +175,7 @@ function dismissPopup() {
 }
 
 onMounted(async () => {
+
     await fetchEmailsData();
 
     scroll();

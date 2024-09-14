@@ -13,6 +13,9 @@ COPY ./requirements.txt .
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create the folders backend/media/pictures and backend/media/labels if they don't exist
+RUN mkdir -p backend/media/pictures backend/media/labels
+
 # Copy the entrypoint script and set it as the entrypoint
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh

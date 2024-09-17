@@ -1,4 +1,5 @@
 uvicorn
+gunicorn
 chardet
 PyPDF2
 reportlab

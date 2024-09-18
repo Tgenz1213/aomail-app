@@ -1,5 +1,6 @@
 export BACKEND_PORT=8004
 export FRONTEND_PORT=8084
+export SERVER_FRONTEND_PORT=8080
 export DB_PORT=5434
 export ENV="augustin"
 export NODE_ENV="development"

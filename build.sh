@@ -1,5 +1,6 @@
 export BACKEND_PORT=8002
 export FRONTEND_PORT=8082
+export SERVER_FRONTEND_PORT=80
 export DB_PORT=5435
 export ENV="app"
 export NODE_ENV="production"

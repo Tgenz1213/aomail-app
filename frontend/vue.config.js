@@ -5,6 +5,11 @@ const WebpackObfuscator = require("webpack-obfuscator");
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
+    ...(process.env.NODE_ENV === "development" && {
+      server: {
+        type: "https",
+      },
+    }),
     headers: {
       "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
       "Cross-Origin-Embedder-Policy": "unsafe-none",

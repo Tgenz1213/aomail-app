@@ -25,14 +25,13 @@ module.exports = defineConfig({
             productionSourceMap: true,
             headers: {
                 "Content-Security-Policy":
-                    "default-src 'self'; img-src https: data:; script-src 'self' https://cdn.quilljs.com/;",
+                    "default-src 'self'; frame-ancestors 'self'; img-src https: data:; script-src 'self' https://cdn.quilljs.com/;",
                 "X-Frame-Options": "DENY",
                 "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
                 "X-Content-Type-Options": "nosniff",
-                "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-                "Cross-Origin-Embedder-Policy": "unsafe-none",
                 "Referrer-Policy": "strict-origin-when-cross-origin",
                 "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
             },
             allowedHosts: ["aomail.ai", "app.aomail.ai"],
         }),

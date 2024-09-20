@@ -118,6 +118,7 @@ import logo from "@/assets/logo-aomail.png";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
 import { API_BASE_URL } from "@/global/const";
+import { i18n } from "@/global/preferences";
 
 const username = ref<string>("");
 const password = ref<string>("");
@@ -169,7 +170,7 @@ function displayPopup(type: "success" | "error", title: string, message: string)
 
 async function login() {
     if (username.value.length > 150) {
-        displayPopup("error", "userLoginPage.loginError", "userLoginPage.maxUsernameLength");
+        displayPopup("error", i18n.global.t("userLoginPage.loginError"), i18n.global.t("userLoginPage.maxUsernameLength"));
         return;
     }
 
@@ -192,10 +193,10 @@ async function login() {
             localStorage.setItem("accessToken", data.accessToken);
             router.push({ name: "home" });
         } else {
-            displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
+            displayPopup("error", i18n.global.t("userLoginPage.loginError"), i18n.global.t("userLoginPage.invalidCredentials"));
         }
     } catch (error) {
-        displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
+        displayPopup("error", i18n.global.t("userLoginPage.loginError"), i18n.global.t("userLoginPage.invalidCredentials"));
     }
 }
 </script>

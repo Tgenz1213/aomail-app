@@ -97,7 +97,7 @@ async function deleteAccount() {
     closeModal();
     displayPopup?.(
         "success",
-        i18n.global.t("settingsPage.accountPage.redirectionInProgress"),
+        i18n.global.t("constants.redirectionInProgress"),
         i18n.global.t("settingsPage.accountPage.accountDeletedSuccess")
     );
 

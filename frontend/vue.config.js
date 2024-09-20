@@ -11,8 +11,14 @@ module.exports = defineConfig({
       },
     }),
     headers: {
+      "Content-Security-Policy": "default-src 'self'; img-src https: data:; script-src 'self' https://cdn.quilljs.com/;",
+      "X-Frame-Options": "DENY",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+      "X-Content-Type-Options": "nosniff",
       "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
       "Cross-Origin-Embedder-Policy": "unsafe-none",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
     },
     liveReload: true,
     watchFiles: {

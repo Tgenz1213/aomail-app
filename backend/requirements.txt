@@ -6,7 +6,6 @@ reportlab
 pillow
 groq
 stripe
-tiktoken
 django-crontab
 python-json-logger
 aiohttp

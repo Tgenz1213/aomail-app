@@ -266,11 +266,6 @@ def authenticate_service(user: User, email: str) -> dict | None:
         dict or None: A dictionary of Google API service endpoints, or None if authentication fails.
     """
     creds = get_credentials(user, email)
-    # TODO: delete
-    LOGGER.warning(creds)
-    LOGGER.warning(f"CREDS valid {creds.valid}")
-    LOGGER.warning(f"CREDS expired {creds.expired}")
-    LOGGER.warning(f"CREDS refresh_token {creds.refresh_token}")
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds = refresh_credentials(creds)

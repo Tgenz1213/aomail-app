@@ -1,4 +1,3 @@
-import tiktoken
 from aomail.models import Statistics
 from django.contrib.auth.models import User
 

@@ -32,10 +32,28 @@ services:
     networks:
       - backend_network
 
-  frontend:
+  frontend_dev:
     build:
       context: ./frontend
-      target: ${NODE_ENV}
+      target: development
+      args:
+        VUE_APP_ENV: ${ENV}
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - VUE_APP_ENV=${ENV}
+    ports:
+      - "${FRONTEND_PORT}:${SERVER_FRONTEND_PORT}"
+    depends_on:
+      - backend
+    networks:
+      - frontend_network
+    volumes:
+      - ./frontend:/app
+
+  frontend_prod:
+    build:
+      context: ./frontend
+      target: production
       args:
         VUE_APP_ENV: ${ENV}
     environment:

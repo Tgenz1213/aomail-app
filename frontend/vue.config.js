@@ -19,7 +19,7 @@ module.exports = defineConfig({
                     usePolling: true,
                 },
             },
-            allowedHosts: ["aomail.ai", "jean.aomail.ai", "augustin.aomail.ai", "theo.aomail.ai", "localhost"],
+            allowedHosts: ["aomail.ai", "augustin.aomail.ai", "theo.aomail.ai", "localhost"],
         }),
         ...(process.env.NODE_ENV === "production" && {
             productionSourceMap: true,
@@ -30,7 +30,6 @@ module.exports = defineConfig({
                 "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
                 "X-Content-Type-Options": "nosniff",
                 "Referrer-Policy": "strict-origin-when-cross-origin",
-                "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
                 "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
             },
             allowedHosts: ["aomail.ai", "app.aomail.ai"],

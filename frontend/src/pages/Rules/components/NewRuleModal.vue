@@ -219,7 +219,7 @@ const filteredPeople = computed(() => {
     return props.emailSenders.filter((person) => person.username?.toLowerCase()?.includes(normalizedQuery) ?? false);
 });
 const errorMessage = computed(() =>
-    filteredPeople.value.length === 0 && query.value ? i18n.global.t("rulesPage.contactField.errorMessage") : ""
+    filteredPeople.value.length === 0 && query.value ? i18n.global.t("rulesPage.noContactFound") : ""
 );
 
 watch(
@@ -255,7 +255,7 @@ const handleInputClick = (e: MouseEvent) => {
 
 const createEmailSenderRule = async () => {
     if (!selectedPerson.value) {
-        displayPopup?.("error", i18n.global.t("rulesPage.contactField.errorMessage"), "");
+        displayPopup?.("error", i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress"), "");
         return;
     }
 

@@ -378,6 +378,7 @@
     "priorityField": "Priorité",
     "blockedEmail": "E-mail bloqué",
     "createRule": "Cliquez pour créer une règle",
+    "noContactFound": "Aucun contact trouvé",
     "priorityRule": {
       "important": "Important",
       "informative": "Informatif",

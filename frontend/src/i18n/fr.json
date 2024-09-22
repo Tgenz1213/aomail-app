@@ -311,17 +311,36 @@
       "perYear": "/an",
       "yearly": "Annuel",
       "monthly": "Mensuel",
-      "numberOfEmailAddress": "Nombre d'adresse e-mail",
-      "numberOfEmailAddresses": "Nombre d'adresses e-mail",
-      "emailServiceProviders": "Fournisseurs",
-      "emailServiceProvider": "Fournisseur",
-      "prioritySupport": "Support prioritaire",
-      "youAreUsingATestVersionOfAomail": "Vous utilisez une version de test d'Aomail",
-      "aiModels": "Modèles IA",
-      "aiModel": "Modèle IA",
-      "gptLlmProvider": "GPT",
-      "claudeLlmProvider": "Claude",
-      "mistalLlmProvider": "Mistral"
+      "basic": {
+        "description": "",
+        "features": [
+          "Jusqu'à 1 email lié",
+          "Tri automatique",
+          "Filtrage personnalisé",
+          "Recherche API"
+        ]
+      },
+      "premium": {
+        "description": "",
+        "features": [
+          "Emails illimités liés",
+          "Tri automatique",
+          "Filtrage personnalisé",
+          "Recherche intelligente et API",
+          "Personnalisation automatique des bordereaux Vinted"
+        ]
+      },
+      "entreprise": {
+        "description": "",
+        "features": [
+          "Emails illimités liés",
+          "Tri automatique",
+          "Filtrage personnalisé",
+          "Recherche intelligente et API",
+          "Synchronisation de tous les emails existants",
+          "Personnalisation avancée de la catégorisation des emails"
+        ]
+      }
     },
     "accountPage": {
       "unableToDeletePrimaryEmail": "Impossibilité de supprimer l'email principal",

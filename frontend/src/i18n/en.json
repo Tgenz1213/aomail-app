@@ -311,17 +311,36 @@
       "perYear": "/year",
       "yearly": "Yearly",
       "monthly": "Monthly",
-      "numberOfEmailAddress": "Number of email address",
-      "numberOfEmailAddresses": "Number of email addresses",
-      "emailServiceProviders": "Providers",
-      "emailServiceProvider": "Provider",
-      "prioritySupport": "Priority Support",
-      "youAreUsingATestVersionOfAomail": "You are using a test version of Aomail",
-      "aiModels": "AI models",
-      "aiModel": "AI model",
-      "gptLlmProvider": "GPT",
-      "claudeLlmProvider": "Claude",
-      "mistalLlmProvider": "Mistral"
+      "basic": {
+        "description": "",
+        "features": [
+          "Up to 1 linked email",
+          "Automatic sorting",
+          "Custom filtering",
+          "API search"
+        ]
+      },
+      "premium": {
+        "description": "",
+        "features": [
+          "Unlimited linked emails",
+          "Automatic sorting",
+          "Custom filtering",
+          "Smart and API search",
+          "Automatic customization of shipping labels for Vinted"
+        ]
+      },
+      "entreprise": {
+        "description": "",
+        "features": [
+          "Unlimited linked emails",
+          "Automatic sorting",
+          "Custom filtering",
+          "Smart and API search",
+          "Sync all emails from inbox",
+          "Advanced email categorization customization"
+        ]
+      }
     },
     "accountPage": {
       "unableToDeletePrimaryEmail": "Unable to delete primary email",

@@ -46,7 +46,7 @@
                 <p class="mt-4 text-sm leading-6 text-gray-600">{{ tier.description }}</p>
                 <p class="mt-6 flex items-baseline gap-x-1">
                     <span class="text-4xl font-bold tracking-tight text-gray-900">
-                        {{ tier.price[selectedFrequency.key] }}
+                        {{ tier.price[selectedFrequency.key] }}{{ UNIT }}
                     </span>
                     <span class="text-sm font-semibold leading-6 text-gray-600">
                         {{ $t(selectedFrequency.priceSuffix) }}
@@ -97,6 +97,8 @@ interface Tier {
     mostPopular: boolean;
 }
 
+const UNIT = ref("€");
+
 const frequencies: Frequency[] = [
     {
         key: "monthly",
@@ -112,35 +114,30 @@ const frequencies: Frequency[] = [
 
 const tiers: Tier[] = [
     {
-        name: "Start",
+        name: "Basic",
         id: "tier-freelancer",
         href: "#",
-        price: { monthly: "x€", yearly: "x€" },
-        description: "En cours de développement",
-        features: ["Nombre d'email: 1", "Modèle IA: Claude", "Fournisseurs: Gmail"],
+        price: { monthly: "10", yearly: "85" },
+        description: i18n.global.t("settingsPage.subscriptionPage.basic.description"),
+        features: i18n.global.tm("settingsPage.subscriptionPage.basic.features"),
         mostPopular: false,
     },
     {
-        name: "Testeur",
+        name: "Premium",
         id: "tier-startup",
         href: "#",
-        price: { monthly: "0€", yearly: "0€" },
-        description: "Vous utilisez une version test de l'outil",
-        features: ["Nombre d'email: 1", "Modèles IA: Claude", "Fournisseurs: Outlook, Gmail"],
+        price: { monthly: "15", yearly: "100" },
+        description: i18n.global.t("settingsPage.subscriptionPage.premium.description"),
+        features: i18n.global.tm("settingsPage.subscriptionPage.premium.features"),
         mostPopular: true,
     },
     {
-        name: "Pro",
+        name: "Entreprise",
         id: "tier-enterprise",
         href: "#",
-        price: { monthly: "x€", yearly: "x€" },
-        description: "En cours de développement",
-        features: [
-            "Nombre d'email: 10",
-            "Modèles IA: GPT, Claude, Mistral",
-            "Support prioritaire",
-            "Fournisseurs: Outlook, Gmail, Apple",
-        ],
+        price: { monthly: "50", yearly: "500" },
+        description: i18n.global.t("settingsPage.subscriptionPage.entreprise.description"),
+        features: i18n.global.tm("settingsPage.subscriptionPage.entreprise.features"),
         mostPopular: false,
     },
 ];

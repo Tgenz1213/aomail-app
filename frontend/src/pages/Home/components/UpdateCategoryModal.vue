@@ -155,7 +155,7 @@ const updateCategory = async () => {
         return;
     }
 
-    const result = await putData(`api/update_category/`, {
+    const result = await putData(`update_category/`, {
         newCategoryName: categoryName.value,
         description: categoryDescription.value,
         categoryName: props.category?.name,
@@ -192,7 +192,7 @@ const updateCategory = async () => {
 };
 
 const deleteCategory = async () => {
-    const result = await postData(`api/get_rules_linked/`, { categoryName: categoryName.value });
+    const result = await postData(`get_rules_linked/`, { categoryName: categoryName.value });
     // TO UPDATE with warning
     if (!result.success || result.data.nb_rules > 0) {
         closeModal();
@@ -202,7 +202,7 @@ const deleteCategory = async () => {
             i18n.global.t("constants.popUpConstants.errorMessages.deleteCategoryError")
         );
     } else {
-        await deleteData(`api/delete_category/`, { categoryName: categoryName.value });
+        await deleteData(`delete_category/`, { categoryName: categoryName.value });
         const index = categories.value.findIndex((category) => category.name === categoryName.value);
         if (index !== -1) {
             categories.value.splice(index, 1);

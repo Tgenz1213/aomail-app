@@ -259,7 +259,7 @@ const createEmailSenderRule = async () => {
         return;
     }
 
-    const result = await postData("api/check_sender", {
+    const result = await postData("check_sender", {
         email: selectedPerson.value.email,
     });
 
@@ -278,7 +278,7 @@ const createEmailSenderRule = async () => {
             name: selectedPerson.value.username || selectedPerson.value.email.split("@")[0],
             email: selectedPerson.value.email,
         };
-        const newSenderResult = await postData("api/create_sender", senderData);
+        const newSenderResult = await postData("create_sender", senderData);
         if (!newSenderResult.success) {
             displayPopup?.(
                 "error",
@@ -294,7 +294,7 @@ const createEmailSenderRule = async () => {
 
     let categoryId: number | undefined;
     if (formData.value.category) {
-        const categoryResult = await postData("api/get_category_id/", {
+        const categoryResult = await postData("get_category_id/", {
             categoryName: formData.value.category,
         });
         if (!categoryResult.success) {

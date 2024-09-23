@@ -204,7 +204,7 @@ const updateFilter = async () => {
     return;
   }
 
-  const response = await putData(`api/update_filter/`, { ...filterData.value, filterName: props.filter?.name});
+  const response = await putData(`update_filter/`, { ...filterData.value, filterName: props.filter?.name});
   if (response.success) {
     const index = filters.value.findIndex(f => f.name === props.filter?.name);
     if (index !== -1) {
@@ -218,7 +218,7 @@ const updateFilter = async () => {
 };
 
 const deleteFilter = async () => {
-  const response = await deleteData(`api/delete_filter/`, { filterName: props.filter?.name});
+  const response = await deleteData(`delete_filter/`, { filterName: props.filter?.name});
   if (response.success) {
     const index = filters.value.findIndex(f => f.name === props.filter?.name);
     if (index !== -1) {

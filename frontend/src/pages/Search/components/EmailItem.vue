@@ -189,7 +189,7 @@ async function markEmailReplyLater() {
 }
 
 async function openAnswer() {
-    const result = await getData(`api/get_mail_by_id?email_id=${localEmail.value.providerId}`);
+    const result = await getData(`get_mail_by_id?email_id=${localEmail.value.providerId}`);
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("constants.popUpConstants.openReplyPageFailure"), result.error as string);
         return;
@@ -209,7 +209,7 @@ async function openAnswer() {
 }
 
 async function transferEmail() {
-    const result = await getData(`api/get_mail_by_id?email_id=${localEmail.value.providerId}`);
+    const result = await getData(`get_mail_by_id?email_id=${localEmail.value.providerId}`);
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.transferEmailFailure"), result.error as string);
         return;

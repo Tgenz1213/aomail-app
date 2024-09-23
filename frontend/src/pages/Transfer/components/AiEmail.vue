@@ -130,7 +130,7 @@ async function findUserAi() {
     loading?.();
     scrollToBottom?.();
 
-    const result = await postData("api/find_user_ai/", {
+    const result = await postData("find_user_ai/", {
       query: textareaValueSave.value,
     });
     if (!result.success) {

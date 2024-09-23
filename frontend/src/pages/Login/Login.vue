@@ -186,7 +186,7 @@ async function login() {
     };
 
     try {
-        const response = await fetch(`${API_BASE_URL}api/login/`, requestOptions);
+        const response = await fetch(`${API_BASE_URL}login/`, requestOptions);
 
         if (response.ok) {
             const data = await response.json();

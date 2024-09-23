@@ -236,7 +236,7 @@ const addFilter = async () => {
     return;
   }
 
-  const response = await postData('api/create_filter/', newFilter.value);
+  const response = await postData('create_filter/', newFilter.value);
   if (response.success) {
     filters.value.push(newFilter.value);
     closeModal();

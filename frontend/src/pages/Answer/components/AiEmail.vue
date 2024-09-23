@@ -116,7 +116,7 @@ const generateNewEmailResponse = async () => {
     loading?.();
     scrollToBottom?.();
 
-    const result = await postData("api/get_new_email_response/", {
+    const result = await postData("get_new_email_response/", {
         body: quill?.value.root.innerHTML,
         userInput: textareaValueSave.value,
         subject: subjectInput.value,

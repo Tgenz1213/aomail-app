@@ -86,7 +86,7 @@ const closeModal = () => {
 };
 
 async function deleteAccount() {
-    const result = await deleteData("api/delete_account/");
+    const result = await deleteData("delete_account/");
     closeModal();
 
     if (!result.success) {

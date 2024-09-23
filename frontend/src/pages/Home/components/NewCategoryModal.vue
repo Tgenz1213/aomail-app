@@ -103,7 +103,7 @@
       return;
     }
 
-    const result = await postData(`api/create_category/`, { name: categoryName.value, description: categoryDescription.value });
+    const result = await postData(`create_category/`, { name: categoryName.value, description: categoryDescription.value });
     if (result.success) {
       categories.value.push({
         name: categoryName.value,

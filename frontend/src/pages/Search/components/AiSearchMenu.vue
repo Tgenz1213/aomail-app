@@ -109,7 +109,7 @@ async function handleAIClick() {
 
     await displayMessage(userMessage, aiIcon);
 
-    const result = await postData(`api/search_tree_knowledge/`, {
+    const result = await postData(`search_tree_knowledge/`, {
         question: userMessage,
     });
 

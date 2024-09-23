@@ -401,7 +401,7 @@ async function handleButtonClick(keyword: string | null) {
     loading();
     scrollToBottom();
 
-    const result = await postData("api/generate_email_answer/", {
+    const result = await postData("generate_email_answer/", {
         subject: subjectInput.value,
         body: emailContent.value,
         keyword: keyword,
@@ -423,7 +423,7 @@ async function handleButtonClick(keyword: string | null) {
 
 async function fetchResponseKeywords() {
     loading();
-    const result = await postData("api/generate_email_response_keywords/", {
+    const result = await postData("generate_email_response_keywords/", {
         subject: subject.value,
         body: emailContent.value,
     });

@@ -23,7 +23,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
             },
         };
 
-        const response = await fetchWithToken(`${API_BASE_URL}api/is_authenticated/`, requestOptions);
+        const response = await fetchWithToken(`${API_BASE_URL}is_authenticated/`, requestOptions);
         if (!response) {
             return false;
         }
@@ -52,7 +52,7 @@ export async function fetchWithToken(url: string, options: RequestInit = {}): Pr
         let response = await fetch(url, options);
 
         if (response.status === 401) {
-            const refreshResponse = await fetch(`${API_BASE_URL}api/token/refresh/`, {
+            const refreshResponse = await fetch(`${API_BASE_URL}token/refresh/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -116,7 +116,7 @@ async function findUserAi() {
         loading?.();
         scrollToBottom?.();
 
-        const result = await postData("api/find_user_ai/", { query: textareaValueSave.value });
+        const result = await postData("find_user_ai/", { query: textareaValueSave.value });
         if (!result.success) {
             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
             displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
@@ -228,7 +228,7 @@ async function newEmailAi() {
     } else {
         loading?.();
         scrollToBottom?.();
-        const result = await postData("api/new_email_ai/", {
+        const result = await postData("new_email_ai/", {
             inputData: textareaValueSave.value,
             length: selectedLength.value,
             formality: selectedFormality.value,
@@ -258,7 +258,7 @@ async function improveDraft() {
 
         loading?.();
         scrollToBottom?.();
-        const result = await postData("api/improve_draft/", {
+        const result = await postData("improve_draft/", {
             userInput: textareaValueSave.value,
             length: selectedLength.value,
             formality: selectedFormality.value,

@@ -473,7 +473,7 @@ async function checkSpelling() {
     if (!AIContainer.value || !quill.value) return;
     loading();
 
-    const result = await postData("api/correct_email_language/", {
+    const result = await postData("correct_email_language/", {
         subject: subjectInput.value,
         body: emailBody.value,
     });
@@ -515,7 +515,7 @@ async function checkCopyWriting() {
     if (!AIContainer.value) return;
     loading();
 
-    const result = await postData("api/check_email_copywriting/", {
+    const result = await postData("check_email_copywriting/", {
         subject: subjectInput.value,
         body: emailBody.value,
     });
@@ -553,7 +553,7 @@ async function writeBetter() {
     if (!AIContainer.value || !quill.value) return;
     loading();
 
-    const result = await postData("api/improve_draft/", {
+    const result = await postData("improve_draft/", {
         userInput: textareaValueSave.value,
         length: selectedLength.value,
         formality: selectedFormality.value,

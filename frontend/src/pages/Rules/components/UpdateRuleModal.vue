@@ -384,7 +384,7 @@ async function postSender(): Promise<number | null> {
         email: selectedPerson.value.email,
     };
 
-    const result = await postData(`api/create_sender`, senderData);
+    const result = await postData(`create_sender`, senderData);
 
     if (!result.success) {
         displayPopup?.(
@@ -407,7 +407,7 @@ async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number
 
     const senderData = { email: selectedPerson.value.email };
 
-    const result = await postData(`api/check_sender`, senderData);
+    const result = await postData(`check_sender`, senderData);
 
     if (!result.success) {
         displayPopup?.(
@@ -458,7 +458,7 @@ async function updateUserRule() {
     let ruleData: any = { ...formData.value, sender: senderId, infoAI: "" };
 
     if (formData.value.category) {
-        const categoryResult = await postData(`api/get_category_id/`, { categoryName: formData.value.category });
+        const categoryResult = await postData(`get_category_id/`, { categoryName: formData.value.category });
 
         if (!categoryResult.success) {
             displayPopup?.(

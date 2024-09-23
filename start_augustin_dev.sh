@@ -10,7 +10,7 @@ export POSTGRES_PASSWORD="admin@2"
 export POSTGRES_DB="mailassistantdb"
 
 # Start the containers and build if necessary
-docker compose -p ${ENV}_project up --build -d frontend_dev
+docker compose -p ${ENV}_project up --build -d frontend_dev backend_dev
 
 # Wait for the backend container to be running
 container_name="${ENV}_project-backend-1"

@@ -17,8 +17,29 @@ services:
     networks:
       - backend_network
 
-  backend:
-    build: ./backend
+  backend_dev:
+    build:
+      context: ./backend
+      target: development
+    environment:
+      - ENV=${ENV}
+      - TOPIC_NAME=${TOPIC_NAME}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    ports:
+      - "${BACKEND_PORT}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+    networks:
+      - backend_network
+    volumes:
+      - ./backend:/app
+
+  backend_prod:
+    build:
+      context: ./backend
+      target: production
     environment:
       - ENV=${ENV}
       - TOPIC_NAME=${TOPIC_NAME}
@@ -44,7 +65,7 @@ services:
     ports:
       - "${FRONTEND_PORT}:${SERVER_FRONTEND_PORT}"
     depends_on:
-      - backend
+      - backend_dev
     networks:
       - frontend_network
     volumes:
@@ -62,7 +83,7 @@ services:
     ports:
       - "${FRONTEND_PORT}:${SERVER_FRONTEND_PORT}"
     depends_on:
-      - backend
+      - backend_prod
     networks:
       - frontend_network
 

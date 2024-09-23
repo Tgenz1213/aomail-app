@@ -1,30 +1,20 @@
-# Use the official Python image as the base image
-FROM python:3.11
-
-# Install cron
-RUN apt-get update && apt-get install -y cron
-
-# Set the working directory in the container
+# Base stage for building the application
+FROM python:3.11 AS base
 WORKDIR /app
-
-# Copy the requirements file into the container
+RUN apt-get update && apt-get install -y cron
 COPY ./requirements.txt .
-
-# Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Create the folders backend/media/pictures and backend/media/labels if they don't exist
 RUN mkdir -p backend/media/pictures backend/media/labels
-
-# Copy the entrypoint script and set it as the entrypoint
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Copy the application code into the container
 COPY . .
 
-# Set the entrypoint script
+# Development mode
+FROM base AS development
 ENTRYPOINT ["entrypoint.sh"]
+EXPOSE 8000
 
-# Expose the port the app runs on
+# Production mode
+FROM base AS production
+ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 8000

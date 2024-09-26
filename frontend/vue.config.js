@@ -24,13 +24,7 @@ module.exports = defineConfig({
         ...(process.env.NODE_ENV === "production" && {
             productionSourceMap: true,
             headers: {
-                "Content-Security-Policy":
-                    "default-src 'self'; frame-ancestors 'self'; img-src https: data:; script-src 'self' https://cdn.quilljs.com/;",
-                "X-Frame-Options": "DENY",
-                "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
-                "X-Content-Type-Options": "nosniff",
-                "Referrer-Policy": "strict-origin-when-cross-origin",
-                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+                // Handled by Nginx
             },
             allowedHosts: ["aomail.ai", "app.aomail.ai"],
         }),

@@ -407,7 +407,7 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
             f"An error occurred while searching email with search tree knowledge feature: {str(e)}"
         )
         return Response(
-            {"error": str(e)},
+            {"error": "An error occurred while searching email"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

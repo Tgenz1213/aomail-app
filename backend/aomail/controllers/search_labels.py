@@ -140,7 +140,7 @@ def get_labels_data(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Error retrieving label data: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -202,7 +202,7 @@ def get_user_label_ids(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Unexpected error: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

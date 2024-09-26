@@ -80,11 +80,10 @@ def get_email(access_token: str) -> dict:
             email = json_data["mail"]
             return {"email": email}
         else:
-            error = json_data.get("error_description", response.reason)
-            return {"error": f"Failed to get email from Microsoft API: {error}"}
+            return {"error": "Failed to get email from Microsoft API"}
 
     except Exception as e:
-        return {"error": f"Failed to get email from Microsoft API: {str(e)}"}
+        return {"error": "Internal server error"}
 
 
 def get_info_contacts(access_token: str) -> list:
@@ -229,7 +228,7 @@ def get_profile_image(request: HttpRequest) -> Response:
             f"Failed to retrieve profile image for user ID {user.id}: {str(e)}"
         )
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

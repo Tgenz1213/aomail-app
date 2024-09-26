@@ -102,7 +102,7 @@ def receive_mail_notifications(request: HttpRequest) -> Response:
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def subscribe_to_email_notifications(user: User, email: str) -> bool:

@@ -90,7 +90,7 @@ def get_statistics(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Error in get statistics for user ID {user_id}: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

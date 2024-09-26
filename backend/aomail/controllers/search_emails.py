@@ -134,7 +134,7 @@ def get_emails_data(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error retrieving emails data from ids: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -177,7 +177,7 @@ def get_email_content(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error retrieving email content from id: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def validate_and_parse_parameters(request: HttpRequest) -> dict:
@@ -392,7 +392,7 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             status=status.HTTP_200_OK,
         )
     except ValueError as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
     except KeyError:
         return Response(
             {"error": "Invalid JSON keys in request body"},
@@ -406,6 +406,6 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Error filtering and sorting emails: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

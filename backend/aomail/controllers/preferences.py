@@ -126,7 +126,7 @@ def get_user_language(request: HttpRequest) -> Response:
         LOGGER.error(
             f"Unexpected error occurred when retrieving user language: {str(e)}"
         )
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -164,7 +164,7 @@ def set_user_language(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Unexpected error occurred when changing user language: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])
@@ -186,7 +186,7 @@ def get_user_theme(request: HttpRequest) -> Response:
         return Response({"theme": theme}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Failed to retrieve user theme: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -225,7 +225,7 @@ def set_user_theme(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Failed to update user theme: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])
@@ -247,7 +247,7 @@ def get_user_timezone(request: HttpRequest) -> Response:
         return Response({"timezone": timezone}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Failed to retrieve user timezone: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -281,7 +281,7 @@ def set_user_timezone(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Failed to update timezone: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])

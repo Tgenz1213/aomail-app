@@ -118,7 +118,7 @@ def send_email(request: HttpRequest) -> Response:
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def delete_email(user: User, email: str, email_id: str) -> dict:
@@ -153,7 +153,7 @@ def delete_email(user: User, email: str, email_id: str) -> dict:
             LOGGER.error(
                 f"Error when deleting email for user ID: {user.id}. Error: {str(e)}"
             )
-            return {"error": str(e)}
+            return {"error": "Internal server error"}
 
 
 def set_email_read(user: User, email: str, mail_id: str) -> dict:
@@ -176,7 +176,7 @@ def set_email_read(user: User, email: str, mail_id: str) -> dict:
         return {"message": "Email marked as read successfully!"}
     except Exception as e:
         LOGGER.error(f"Failed to mark email ID {mail_id} as read: {str(e)}")
-        return {"error": str(e)}
+        return {"error": "Internal server error"}
 
 
 def set_email_unread(user: User, email: str, mail_id: str) -> dict:
@@ -199,7 +199,7 @@ def set_email_unread(user: User, email: str, mail_id: str) -> dict:
         return {"message": "Email marked as unread successfully!"}
     except Exception as e:
         LOGGER.error(f"Failed to mark email ID {mail_id} as unread: {str(e)}")
-        return {"error": str(e)}
+        return {"error": "Internal server error"}
 
 
 def search_emails_ai(

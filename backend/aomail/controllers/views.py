@@ -254,7 +254,7 @@ def get_emails_linked(request: HttpRequest) -> Response:
             )
         return Response(emails_linked, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -538,7 +538,7 @@ def get_batch_emails(request: HttpRequest) -> Response:
         return Response(email_info, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ######################## STRIPE ########################
@@ -555,9 +555,9 @@ def receive_payment_notifications(request):
                 payload, sig_header, STRIPE_SECRET_KEY
             )
         except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
         except stripe.WebhookSignature as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
 
         if event["type"] == "invoice.payment_succeeded":
             # TODO: Handle successful + informations for customer

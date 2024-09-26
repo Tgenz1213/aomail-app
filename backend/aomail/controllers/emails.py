@@ -152,7 +152,7 @@ def set_email_read(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReadUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -187,7 +187,7 @@ def set_email_unread(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReadUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -213,7 +213,7 @@ def set_email_reply_later(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReplyLaterUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -239,7 +239,7 @@ def set_email_not_reply_later(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReplyLaterUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # TODO: delete this comment after front-end implementation
@@ -341,7 +341,7 @@ def delete_email(request: HttpRequest, email_id: int) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["DELETE"])
@@ -372,7 +372,7 @@ def archive_email(request: HttpRequest, email_id: int) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error when archiving email: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ####################################################################

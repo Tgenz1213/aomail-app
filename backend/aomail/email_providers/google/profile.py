@@ -320,6 +320,6 @@ def get_profile_image(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Error retrieving profile image for user ID {user.id}: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

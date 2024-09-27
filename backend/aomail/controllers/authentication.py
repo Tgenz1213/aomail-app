@@ -99,6 +99,11 @@ def signup(request: HttpRequest) -> Response:
     ip = security.get_ip_with_port(request)
     LOGGER.info(f"Signup request received from IP: {ip}")
 
+    if User.objects.all().count() >= 250:
+        return Response(
+            {"error": "Limit of 250 users reached"}, status=status.HTTP_403_FORBIDDEN
+        )
+
     parameters: dict = json.loads(request.body)
     type_api: str = parameters.get("typeApi", "")
     code: str = parameters.get("code", "")
@@ -159,7 +164,9 @@ def signup(request: HttpRequest) -> Response:
         LOGGER.error(f"Failed to generate access token: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     result = save_user_data(
         user,
@@ -203,7 +210,10 @@ def signup(request: HttpRequest) -> Response:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
     end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
@@ -633,7 +643,10 @@ def refresh_token(request: HttpRequest) -> Response:
         LOGGER.error(
             f"Unexpected error occured when refreshing Django access token: {str(e)}"
         )
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["DELETE"])
@@ -664,7 +677,10 @@ def delete_account(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
@@ -698,7 +714,10 @@ def unlink_email(request: HttpRequest) -> Response:
             {"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
@@ -766,7 +785,10 @@ def link_email(request: HttpRequest) -> Response:
                 target=profile_microsoft.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
@@ -867,7 +889,10 @@ def generate_reset_token(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error generating reset token: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["GET", "POST"])
@@ -894,7 +919,10 @@ def reset_password(
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
         LOGGER.error(f"Error decoding user ID or finding user: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     if not PasswordResetTokenGenerator().check_token(user, token):
         return Response(

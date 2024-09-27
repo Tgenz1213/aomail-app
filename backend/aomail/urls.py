@@ -28,8 +28,8 @@ urlpatterns = [
     path('delete_account/', auth.delete_account, name='delete_account'), # ok
     path('signup/', auth.signup, name='signup'), # ok
     path('check_username/', auth.check_username, name='check_username'), # ok
-    path('user/social_unlink/', auth.unlink_email, name='unlink_email'), # ok
-    path('user/social_link/', auth.link_email, name='link_email'), # ok
+    path('user/social_api/unlink/', auth.unlink_email, name='unlink_email'), # ok
+    path('user/social_api/link/', auth.link_email, name='link_email'), # ok
     #----------------------- CATEGORIES -----------------------#
     path('user/categories/', categories.get_user_categories, name='get_user_categories'), # ok
     path('create_category/', categories.create_category, name='create_category'), # ok
@@ -81,11 +81,11 @@ urlpatterns = [
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
-    path('user/social_send_email/', views.send_email, name='send_email'), # ok
-    path('user/social_send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # ok
-    path('user/social_get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
-    path('user/social_update_user_description/', views.update_user_description, name='update_user_description'), # ok
-    path('user/social_get_user_description/', views.get_user_description, name='get_user_description'), # ok
+    path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
+    path('user/social_api/send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # ok
+    path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
+    path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
+    path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
     path('create_sender', views.create_sender, name='create_sender'), # ok
     path('check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
     #----------------------- STATISTICS -----------------------#

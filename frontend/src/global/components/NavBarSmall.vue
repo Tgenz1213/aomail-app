@@ -83,7 +83,7 @@
         <div class="flex flex-col items-center justify-center h-full">
             <a href="/" class="button">
                 <button type="button" class="h-8 w-auto">
-                    <img class="h-8 w-auto" :src="logo" alt="LOGO Mail Assistant" />
+                    <img class="h-8 w-auto" :src="logo" alt="Aomail logo" />
                 </button>
             </a>
             <nav class="h-5/6 flex items-center justify-center">

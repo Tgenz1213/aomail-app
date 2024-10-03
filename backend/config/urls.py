@@ -1,5 +1,5 @@
 """
-Mail Assistant Project URL Configuration.
+Aomail Project base URL Configuration.
 """
 
 from django.contrib import admin

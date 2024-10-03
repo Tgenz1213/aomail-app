@@ -16,9 +16,11 @@ from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
+from django.http import HttpResponseForbidden
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from aomail.constants import BASE_URL
-from aomail.models import Subscription
+from aomail.models import Admin, Subscription
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -81,7 +83,28 @@ def subscription(allowed_plans):
 
         return _wrapped_view
 
-    return decorator
+
+def admin_access_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        try:
+            jwt_auth = JWTAuthentication()
+            user, token = jwt_auth.authenticate(request)
+
+            if not isinstance(user, Admin):
+                return HttpResponseForbidden(
+                    "Forbidden: You must be an admin to access this resource."
+                )
+
+            return view_func(request, *args, **kwargs)
+
+        except Exception as e:
+            LOGGER.error(
+                f"Error occurred when admin trying to access a resource. IP: {get_ip_with_port(request)}. Error: {str(e)}"
+            )
+            return HttpResponseForbidden("Forbidden: Invalid or missing access token.")
+
+    return _wrapped_view
 
 
 # ----------------------- CRYPTOGRAPHY -----------------------#

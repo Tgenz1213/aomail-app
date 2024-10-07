@@ -7,20 +7,21 @@ TODO:
 """
 
 import logging
-from functools import wraps
 import base64
+from functools import wraps
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
 from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
-from django.http import HttpResponseForbidden
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from aomail.constants import BASE_URL
-from aomail.models import Admin, Subscription
+from aomail.models import Subscription
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import HttpRequest
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -83,26 +84,47 @@ def subscription(allowed_plans):
 
         return _wrapped_view
 
+    return decorator
+
 
 def admin_access_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        try:
-            jwt_auth = JWTAuthentication()
-            user, token = jwt_auth.authenticate(request)
+    """
+    Decorator to ensure that the requesting user is an authenticated admin (superuser).
 
-            if not isinstance(user, Admin):
-                return HttpResponseForbidden(
-                    "Forbidden: You must be an admin to access this resource."
+    Args:
+        view_func: The view function to be wrapped.
+
+    Returns:
+        The wrapped view function.
+    """
+
+    @wraps(view_func)
+    def _wrapped_view(request: HttpRequest, *args, **kwargs):
+        try:
+            user = request.user
+
+            if not user.is_authenticated:
+                return Response(
+                    {"error": "Unauthorized: User is not authenticated."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            if not user.is_superuser:
+                return Response(
+                    {"error": "Forbidden: Admin access required."},
+                    status=status.HTTP_403_FORBIDDEN,
                 )
 
             return view_func(request, *args, **kwargs)
 
         except Exception as e:
             LOGGER.error(
-                f"Error occurred when admin trying to access a resource. IP: {get_ip_with_port(request)}. Error: {str(e)}"
+                f"Error occurred when trying to access admin resource: {str(e)}"
             )
-            return HttpResponseForbidden("Forbidden: Invalid or missing access token.")
+            return Response(
+                {"error": "Internal server error."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     return _wrapped_view
 

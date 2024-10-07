@@ -14,6 +14,7 @@ from aomail.controllers import categories, filters, rules, emails, search_emails
 from aomail.controllers import statistics
 from aomail.controllers import search_labels
 from aomail.controllers import labels
+from aomail.administration import dashboard
 from .controllers import views
 
 app_name = "aomail"
@@ -115,6 +116,13 @@ urlpatterns = [
     path('user/labels_data', search_labels.get_labels_data, name='get_labels_data'),
     path('user/label_pdf', search_labels.get_label_pdf, name='get_label_pdf'),
     path('user/delete_labels', labels.delete_labels, name='delete_labels'),
+    #----------------------- ADMIN RESSOURCES -----------------------#
+    path('admin/login/', dashboard.login, name='admin_login'),
+    path('admin/create_superuser/', dashboard.create_superuser, name='create_superuser'),
+    path('admin/update_admin_data/', dashboard.update_admin_data, name='update_admin_data'),
+    path('admin/get_dashboard_data/', dashboard.get_dashboard_data, name='get_dashboard_data'),
+    path('admin/search_user_info/', dashboard.search_user_info, name='search_user_info'),
+    path('admin/get_costs_info/', dashboard.get_costs_info, name='get_costs_info'),
     #----------------------- PAYMENT PROVIDER API -----------------------#
     # path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
 ]

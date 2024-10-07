@@ -48,8 +48,7 @@ from aomail.models import (
     SocialAPI,
     Preference,
     Contact,
-    Email,
-    Statistics,
+    Email, 
 )
 from aomail.utils.serializers import (
     NewEmailAISerializer,

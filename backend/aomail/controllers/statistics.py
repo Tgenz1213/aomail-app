@@ -76,8 +76,7 @@ def get_statistics(request: HttpRequest) -> Response:
     For each period: avg, min, max (any combination)
     """
     try:
-        user_id = 1
-        user = User.objects.get(id=user_id)
+        user = request.user
         parameters: dict = json.loads(request.body)
         statistics = Statistics.objects.get(user=user)
 
@@ -88,7 +87,7 @@ def get_statistics(request: HttpRequest) -> Response:
             status=status.HTTP_200_OK,
         )
     except Exception as e:
-        LOGGER.error(f"Error in get statistics for user ID {user_id}: {str(e)}")
+        LOGGER.error(f"Error in get statistics for user ID {user.id}: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,

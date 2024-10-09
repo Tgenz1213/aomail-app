@@ -24,7 +24,7 @@ BASE_URL_MA = f"{BASE_URL}aomail/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aomail.ai"]
-CORS_ALLOWED_ORIGINS = [DOMAIN]
+CORS_ALLOWED_ORIGINS = [DOMAIN, "https://admin.aomail.ai"]
 
 # ----------------------- EMAIL CREDS -----------------------#
 EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))

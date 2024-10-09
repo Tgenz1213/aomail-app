@@ -37,7 +37,7 @@ from rest_framework.response import Response
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from aomail.utils import security
-from aomail.utils.security import subscription
+from aomail.utils.security import subscription, admin_access_required
 from aomail.constants import (
     BASE_URL,
     EMAIL_ADMIN,
@@ -822,6 +822,21 @@ def is_authenticated(request: HttpRequest) -> Response:
         Response: {"isAuthenticated": True} indicating the user is authenticated.
     """
     return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@admin_access_required
+def is_admin(request: HttpRequest) -> Response:
+    """
+    Check if the user is authenticated.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+
+    Returns:
+        Response: {"is_admin": True} indicating the user is authenticated.
+    """
+    return Response({"isAdmin": True}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

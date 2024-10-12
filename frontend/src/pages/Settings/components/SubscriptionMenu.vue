@@ -45,8 +45,8 @@
                 </div>
                 <p class="mt-4 text-sm leading-6 text-gray-600">{{ tier.description }}</p>
                 <p class="mt-6 flex items-baseline gap-x-1">
-                    <span class="text-4xl font-bold tracking-tight text-gray-900">
-                        {{ tier.price[selectedFrequency.key] }}{{ UNIT }}
+                    <span class="text-md font-semibold tracking-tight text-gray-900">
+                        {{ $t("constants.announcedPricingAfterBeta") }}
                     </span>
                     <span class="text-sm font-semibold leading-6 text-gray-600">
                         {{ $t(selectedFrequency.priceSuffix) }}

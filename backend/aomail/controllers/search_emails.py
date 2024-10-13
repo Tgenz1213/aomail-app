@@ -390,18 +390,11 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         parameters: dict = valid_data["parameters"]
         sort = valid_data["sort"]
 
-        LOGGER.info("IT IS OK 1")
-
         and_filters, or_filters = construct_filters(user, parameters)
-        LOGGER.info("IT IS OK 2")
         queryset = get_sorted_queryset(
             and_filters, or_filters, sort, parameters.get("advanced")
         )
-        LOGGER.info("IT IS OK 3")
-        LOGGER.info(queryset)
         email_count, email_ids = format_email_data(queryset)
-        LOGGER.info("TEST")
-        LOGGER.info(f"IT IS OK 4, count {email_count}, emails_id{email_ids}")
 
         return Response(
             {"count": email_count, "ids": email_ids},

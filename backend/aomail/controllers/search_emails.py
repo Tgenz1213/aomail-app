@@ -16,9 +16,9 @@ from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.constants import FREE_PLAN
+from aomail.constants import FREE_PLAN, ENCRYPTION_KEYS
 from aomail.models import Category, SocialAPI, Email, Rule
-from aomail.utils.security import subscription
+from aomail.utils.security import subscription, decrypt_text
 from django.contrib.auth.models import User
 from aomail.models import (
     Category,
@@ -68,14 +68,14 @@ def get_emails_data(request: HttpRequest) -> Response:
         for email in queryset:
             email_data = {
                 "id": email.id,
-                "subject": email.subject,
+                "subject": decrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email.subject),
                 "sender": {
                     "email": email.sender.email,
                     "name": email.sender.name,
                 },
                 "providerId": email.provider_id,
-                "shortSummary": email.short_summary,
-                "oneLineSummary": email.one_line_summary,
+                "shortSummary": decrypt_text(ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary),
+                "oneLineSummary": decrypt_text(ENCRYPTION_KEYS["Email"]["one_line_summary"], email.one_line_summary),
                 "cc": [
                     {"email": cc.email, "name": cc.name}
                     for cc in email.cc_senders.all()
@@ -160,7 +160,8 @@ def get_email_content(request: HttpRequest) -> Response:
 
     try:
         email = Email.objects.get(id=email_id)
-        return Response({"content": email.html_content}, status=status.HTTP_200_OK)
+        decrypted_content = decrypt_text(ENCRYPTION_KEYS["Email"]["html_content"], email.html_content)
+        return Response({"content": decrypted_content}, status=status.HTTP_200_OK)
     except Email.DoesNotExist:
         return Response(
             {"error": "email does not exist"}, status=status.HTTP_400_BAD_REQUEST
@@ -246,7 +247,8 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
         if "emailProvider" in parameters:
             and_filters["email_provider__in"] = parameters["emailProvider"]
         if "subject" in parameters:
-            and_filters["subject__icontains"] = parameters["subject"]
+            subject_query = parameters["subject"].lower()
+            and_filters["_subject_query"] = subject_query
         if "senderEmail" in parameters:
             and_filters["sender__email__icontains"] = parameters["senderEmail"]
         if "senderName" in parameters:
@@ -273,13 +275,14 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
         if "category" in parameters:
             category_obj = Category.objects.get(name=parameters["category"], user=user)
             and_filters["category"] = category_obj
-        subject = parameters.get("subject")
+        if "subject" in parameters:
+            subject_query = parameters["subject"].lower()
+            and_filters["_subject_query"] = subject_query
         or_filters |= (
-            Q(subject__icontains=subject)
-            | Q(sender__email__icontains=subject)
-            | Q(sender__name__icontains=subject)
-            | Q(cc_senders__email__icontains=subject)
-            | Q(cc_senders__name__icontains=subject)
+            Q(sender__email__icontains=subject_query)
+            | Q(sender__name__icontains=subject_query)
+            | Q(cc_senders__email__icontains=subject_query)
+            | Q(cc_senders__name__icontains=subject_query)
         )
 
     return and_filters, or_filters
@@ -288,6 +291,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
 def get_sorted_queryset(
     and_filters: dict, or_filters: Q, sort: str, advanced: bool | None
 ) -> BaseManager[Email]:
+    subject_query = and_filters.pop("_subject_query", None)
     queryset = Email.objects.filter(**and_filters)
 
     if or_filters:
@@ -301,7 +305,6 @@ def get_sorted_queryset(
         has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
     )
 
-    # Apply the sorting
     if sort == "asc":
         queryset = queryset.order_by(
             F("priority").asc(nulls_last=True), F("read").asc(), "-date"
@@ -310,6 +313,12 @@ def get_sorted_queryset(
         queryset = queryset.order_by(
             F("priority").asc(nulls_last=True), F("read").asc(), "date"
         )
+
+    if subject_query:
+        queryset = [
+            email for email in queryset
+            if subject_query in decrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email.subject).lower()
+        ]
 
     return queryset
 
@@ -381,11 +390,18 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         parameters: dict = valid_data["parameters"]
         sort = valid_data["sort"]
 
+        LOGGER.info("IT IS OK 1")
+
         and_filters, or_filters = construct_filters(user, parameters)
+        LOGGER.info("IT IS OK 2")
         queryset = get_sorted_queryset(
             and_filters, or_filters, sort, parameters.get("advanced")
         )
+        LOGGER.info("IT IS OK 3")
+        LOGGER.info(queryset)
         email_count, email_ids = format_email_data(queryset)
+        LOGGER.info("TEST")
+        LOGGER.info(f"IT IS OK 4, count {email_count}, emails_id{email_ids}")
 
         return Response(
             {"count": email_count, "ids": email_ids},

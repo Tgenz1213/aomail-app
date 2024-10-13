@@ -24,6 +24,7 @@ from aomail.constants import (
     NOT_RELEVANT,
     POSSIBLY_RELEVANT,
     USELESS,
+    ENCRYPTION_KEYS,
 )
 from aomail.utils.tree_knowledge import Search
 from aomail.utils import email_processing
@@ -50,6 +51,7 @@ from aomail.email_providers.google import (
 )
 from aomail.ai_providers.utils import update_tokens_stats
 from aomail.controllers.labels import is_shipping_label, process_label
+from aomail.utils.security import encrypt_text
 
 
 LOGGER = logging.getLogger(__name__)
@@ -335,10 +337,10 @@ def create_email_entry(
         social_api=social_api,
         provider_id=email_data["email_id"],
         email_provider=social_api.type_api,
-        short_summary=email_ai["summary"]["short"],
-        one_line_summary=email_ai["summary"]["one_line"],
-        html_content=email_data.get("safe_html", ""),
-        subject=email_data["subject"],
+        short_summary=encrypt_text(ENCRYPTION_KEYS["Email"]["short_summary"], email_ai["summary"]["short"]),
+        one_line_summary=encrypt_text(ENCRYPTION_KEYS["Email"]["one_line_summary"], email_ai["summary"]["one_line"]),
+        html_content=encrypt_text(ENCRYPTION_KEYS["Email"]["html_content"], email_data.get("safe_html", "")),
+        subject=encrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email_data["subject"]),
         priority=email_ai["importance"],
         sender=sender,
         category=category,

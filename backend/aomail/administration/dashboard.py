@@ -98,8 +98,8 @@ def get_costs_info(request: HttpRequest) -> Response:
                 min_nb_tokens_output = statistic.nb_tokens_output
 
         # Estimate costs
-        estimated_cost_input = total_nb_tokens_input / 1_000_000 * 3
-        estimated_cost_output = total_nb_tokens_output / 1_000_000 * 15
+        estimated_cost_input = total_nb_tokens_input / 1_000_000 * 0.25
+        estimated_cost_output = total_nb_tokens_output / 1_000_000 * 1.25
         total_estimated_cost = estimated_cost_input + estimated_cost_output
 
         # Average tokens per user
@@ -107,8 +107,8 @@ def get_costs_info(request: HttpRequest) -> Response:
         avg_tokens_output_per_user = total_nb_tokens_output / user_count
 
         # Costs per user
-        avg_cost_input_per_user = avg_tokens_input_per_user / 1_000_000 * 3
-        avg_cost_output_per_user = avg_tokens_output_per_user / 1_000_000 * 15
+        avg_cost_input_per_user = avg_tokens_input_per_user / 1_000_000 * 0.25
+        avg_cost_output_per_user = avg_tokens_output_per_user / 1_000_000 * 1.25
         avg_total_cost_per_user = avg_cost_input_per_user + avg_cost_output_per_user
 
         LOGGER.info(
@@ -265,8 +265,8 @@ def search_user_info(request: HttpRequest) -> Response:
 
         nb_tokens_input = statistics.nb_tokens_input
         nb_tokens_output = statistics.nb_tokens_output
-        price_tokens_input = nb_tokens_input / 1_000_000 * 3
-        price_tokens_output = nb_tokens_output / 1_000_000 * 15
+        price_tokens_input = nb_tokens_input / 1_000_000 * 0.25
+        price_tokens_output = nb_tokens_output / 1_000_000 * 1.25
         computed_stats = compute_statistics(statistics, email_stats_param)
 
         LOGGER.info(

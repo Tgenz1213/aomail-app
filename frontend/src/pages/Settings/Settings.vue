@@ -206,7 +206,30 @@ function closeUpdateUserDescriptionModal() {
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
+    checkStripePaymentStatus();
 });
+
+function checkStripePaymentStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const stripePaymentSuccess = urlParams.get("stripe-payment-success");
+
+    if (stripePaymentSuccess) {
+        activeSection.value = "subscription";
+        if (stripePaymentSuccess === "true") {
+            displayPopup(
+                "success",
+                "Payment Successful",
+                "Your subscription has been activated successfully. Thank you for your purchase!"
+            );
+        } else if (stripePaymentSuccess === "false") {
+            displayPopup(
+                "error",
+                "Payment Failed",
+                "There was an issue with your payment. Please try again or contact support."
+            );
+        }
+    }
+}
 
 async function openUnLinkModal(email: string) {
     emailSelected.value = email;

@@ -31,7 +31,7 @@ from aomail.email_providers.microsoft.authentication import (
 )
 from aomail.utils import email_processing
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
     GRAPH_URL,
 )
 from aomail.models import SocialAPI
@@ -104,7 +104,7 @@ def parse_message_body(message_data: dict) -> str | None:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def send_schedule_email(request: HttpRequest) -> Response:
     """
     Schedule the sending of an email using the Microsoft Graph API with deferred delivery.
@@ -218,7 +218,7 @@ def send_schedule_email(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Microsoft Graph API.

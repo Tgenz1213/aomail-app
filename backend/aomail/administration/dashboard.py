@@ -9,6 +9,7 @@ Endpoints:
 - ✅ update_admin_data: Update details (username, password, etc.) of the authenticated admin.
 - ✅ delete_admin: Delete admin account.
 - ✅ login: Authenticate admin user and return access token.
+- ✅ update_user_info: Update information (plan, email, username) for a specified user.
 """
 
 import json
@@ -23,8 +24,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from aomail.controllers.statistics import compute_statistics
 from aomail.utils.security import admin_access_required
-from aomail.models import Email, SocialAPI, Statistics
+from aomail.models import Email, SocialAPI, Statistics, Subscription
 from aomail.utils import security
+from aomail.constants import ALLOWED_PLANS
 
 
 LOGGER = logging.getLogger(__name__)
@@ -538,3 +540,83 @@ def login(request: HttpRequest) -> Response:
         {"accessToken": access_token},
         status=status.HTTP_200_OK,
     )
+
+
+@api_view(["PUT"])
+@admin_access_required
+def update_user_info(request: HttpRequest) -> Response:
+    """
+    Updates the information of a specified user (admin).
+
+    Parameters:
+        request (HttpRequest): The HTTP request object containing the following parameters in the body:
+            - id (int, optional): The ID of the user to be updated.
+            - username (str, optional): The username of the user to be updated.
+            - emailAddress (str, optional): The email address of the user to be updated.
+            - plan (str, optional): The new subscription plan to assign to the user.
+
+    Returns:
+        Response: JSON response indicating success or failure.
+    """
+    admin = request.user
+    ip = security.get_ip_with_port(request)
+    LOGGER.info(
+        f"Update user info request received from admin {admin.username} (ID: {admin.id}) from IP: {ip}"
+    )
+
+    parameters: dict = json.loads(request.body)
+    user_id = parameters.get("id")
+    username = parameters.get("username")
+    email_address = parameters.get("emailAddress")
+    plan = parameters.get("plan")
+
+    user = None
+
+    try:
+        if email_address:
+            user = SocialAPI.objects.get(email=email_address).user
+        elif user_id:
+            user = User.objects.get(id=user_id)
+        elif username:
+            user = User.objects.get(username=username)
+
+        if not user:
+            raise User.DoesNotExist()
+
+        if plan not in ALLOWED_PLANS:
+            raise ValueError("Plan not allowed")
+
+        subscription = Subscription.objects.get(user=user)
+        subscription.plan = plan
+        subscription.is_trial = False
+        subscription.save()
+
+        LOGGER.info(
+            f"Admin {admin.id} ({admin.username}) updated the plan for user {user.username} to '{plan}'."
+        )
+        return Response(
+            {"message": "User information updated successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+    except (SocialAPI.DoesNotExist, User.DoesNotExist) as e:
+        LOGGER.error(f"Admin {admin.id} ({admin.username}) from IP {ip} - {str(e)}.")
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except ValueError as e:
+        LOGGER.error(f"Admin {admin.id} ({admin.username}) from IP {ip} - {str(e)}.")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Subscription.DoesNotExist:
+        LOGGER.error(
+            f"Admin {admin.id} ({admin.username}) from IP {ip} - Subscription not found for user {user.username}."
+        )
+        return Response(
+            {"error": "Subscription not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        LOGGER.error(
+            f"Admin {admin.id} ({admin.username}) from IP {ip} - Unexpected error: {str(e)}."
+        )
+        return Response(
+            {"error": "An unexpected error occurred."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

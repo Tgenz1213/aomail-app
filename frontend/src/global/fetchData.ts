@@ -27,10 +27,22 @@ export async function getData(path: string, headers?: Record<string, string>): P
             success: true,
             data: data,
         };
+    } else if (response.status === 403) {
+        if (data.allowedPlans) {
+            return {
+                success: false,
+                error: "Plan not allowed. Allowed plans: " + data.allowedPlans,
+            };
+        } else {
+            return {
+                success: false,
+                error: "Subscription is inactive",
+            };
+        }
     } else {
         return {
             success: false,
-            error: data.error ? data.error : "",
+            error: data.error ? data.error : "Unknown error",
         };
     }
 }
@@ -58,8 +70,23 @@ export async function getDataRawResponse(
 
     if (response.ok) {
         return response;
+    }
+
+    const data = await response.json();
+
+    if (response.status === 403) {
+        if (data.allowedPlans) {
+            return {
+                success: false,
+                error: "Plan not allowed. Allowed plans: " + data.allowedPlans,
+            };
+        } else {
+            return {
+                success: false,
+                error: "Subscription is inactive",
+            };
+        }
     } else {
-        const data = await response.json();
         return {
             success: false,
             error: data.error ? data.error : "Unknown error",
@@ -86,15 +113,28 @@ export async function postData(path: string, body: Record<string, any>): Promise
     }
 
     const data = await response.json();
+
     if (response.ok) {
         return {
             success: true,
             data: data,
         };
+    } else if (response.status === 403) {
+        if (data.allowedPlans) {
+            return {
+                success: false,
+                error: "Plan not allowed. Allowed plans: " + data.allowedPlans,
+            };
+        } else {
+            return {
+                success: false,
+                error: "Subscription is inactive",
+            };
+        }
     } else {
         return {
             success: false,
-            error: data.error ? data.error : "",
+            error: data.error ? data.error : "Unknown error",
         };
     }
 }
@@ -127,10 +167,22 @@ export async function deleteData(path: string, body?: any): Promise<FetchDataRes
             success: true,
             data: data,
         };
+    } else if (response.status === 403) {
+        if (data.allowedPlans) {
+            return {
+                success: false,
+                error: "Plan not allowed. Allowed plans: " + data.allowedPlans,
+            };
+        } else {
+            return {
+                success: false,
+                error: "Subscription is inactive",
+            };
+        }
     } else {
         return {
             success: false,
-            error: data.error ? data.error : "",
+            error: data.error ? data.error : "Unknown error",
         };
     }
 }
@@ -160,10 +212,22 @@ export async function putData(path: string, body: Record<string, any>): Promise<
             success: true,
             data: data,
         };
+    } else if (response.status === 403) {
+        if (data.allowedPlans) {
+            return {
+                success: false,
+                error: "Plan not allowed. Allowed plans: " + data.allowedPlans,
+            };
+        } else {
+            return {
+                success: false,
+                error: "Subscription is inactive",
+            };
+        }
     } else {
         return {
             success: false,
-            error: data.error ? data.error : "",
+            error: data.error ? data.error : "Unknown error",
         };
     }
 }

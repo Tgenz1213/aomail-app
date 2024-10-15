@@ -14,7 +14,6 @@ Endpoints:
 - ✅ reset_password: Handle password reset requests
 """
 
-import datetime
 import json
 import logging
 import threading
@@ -41,16 +40,18 @@ from aomail.utils.security import subscription, admin_access_required
 from aomail.constants import (
     BASE_URL,
     EMAIL_ADMIN,
-    FREE_PLAN,
+    ALLOWED_PLANS,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
+    ENTREPRISE_PLAN,
     GOOGLE,
     GOOGLE,
     MAX_RETRIES,
     MICROSOFT,
     MICROSOFT,
+    PREMIUM_PLAN,
 )
 from aomail.email_providers.google import profile as profile_google
 from aomail.email_providers.microsoft import profile as profile_microsoft
@@ -101,7 +102,7 @@ def signup(request: HttpRequest) -> Response:
 
     if User.objects.all().count() >= 250:
         return Response(
-            {"error": "Limit of 250 users reached"}, status=status.HTTP_403_FORBIDDEN
+            {"error": "Limit of 250 users reached"}, status=status.HTTP_409_CONFLICT
         )
 
     parameters: dict = json.loads(request.body)
@@ -215,15 +216,9 @@ def signup(request: HttpRequest) -> Response:
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
-    end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
     Subscription.objects.create(
         user=user,
-        plan=FREE_PLAN,
-        stripe_subscription_id=None,
-        end_date=end_date_utc,
-        billing_interval=None,
-        amount=0.0,
+        plan=ALLOWED_PLANS,
     )
     LOGGER.info(f"User {username} subscribed to free plan")
 
@@ -650,7 +645,7 @@ def refresh_token(request: HttpRequest) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def delete_account(request: HttpRequest) -> Response:
     """
     Removes the authenticated user account from the database.
@@ -684,7 +679,7 @@ def delete_account(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def unlink_email(request: HttpRequest) -> Response:
     """
     Unlinks the specified email and deletes all stored emails associated with the user's account.
@@ -721,7 +716,7 @@ def unlink_email(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([PREMIUM_PLAN, ENTREPRISE_PLAN])
 def link_email(request: HttpRequest) -> Response:
     """
     Links the specified email with the authenticated user's account.
@@ -810,7 +805,7 @@ def link_email(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def is_authenticated(request: HttpRequest) -> Response:
     """
     Check if the user is authenticated.

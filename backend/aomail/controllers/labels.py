@@ -19,7 +19,7 @@ from rest_framework.response import Response
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.lib.pagesizes import landscape, letter
 from reportlab.pdfgen import canvas
-from aomail.constants import FREE_PLAN, GOOGLE, MEDIA_ROOT, MICROSOFT
+from aomail.constants import ALLOWED_PLANS, GOOGLE, MEDIA_ROOT, MICROSOFT
 from aomail.email_providers.google import email_operations as email_operations_google
 from aomail.models import Attachment, Email, Label
 from aomail.utils.security import subscription
@@ -379,7 +379,7 @@ def is_shipping_label(subject: str) -> bool:
 
 
 @api_view(["DELETE"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def delete_labels(request: HttpRequest) -> Response:
     """
     Deletes multiple labels associated with the authenticated user.

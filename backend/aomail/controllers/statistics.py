@@ -17,7 +17,7 @@ from rest_framework.decorators import api_view
 from aomail.utils.security import subscription
 from aomail.constants import (
     ANSWER_REQUIRED,
-    FREE_PLAN,
+    ALLOWED_PLANS,
     HIGHLY_RELEVANT,
     IMPORTANT,
     INFORMATIVE,
@@ -40,7 +40,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_statistics(request: HttpRequest) -> Response:
     """
     Compute and return statistics for a user based on provided parameters.

@@ -24,7 +24,7 @@ from aomail.email_providers.microsoft.authentication import (
 )
 from aomail.utils import email_processing
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
     GRAPH_URL,
 )
 
@@ -168,7 +168,7 @@ def get_unique_senders(access_token: str) -> dict:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Microsoft Graph API.

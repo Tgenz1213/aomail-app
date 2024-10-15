@@ -19,7 +19,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
     GOOGLE_CONFIG,
     GOOGLE_SCOPES,
 )
@@ -282,7 +282,7 @@ def get_unique_senders(services: dict) -> dict:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Google People API.

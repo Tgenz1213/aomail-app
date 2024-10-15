@@ -17,12 +17,13 @@ import json
 import logging
 from django.contrib.auth.models import User
 from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
-from aomail.constants import FREE_PLAN
-from aomail.models import Preference
+from aomail.constants import ALLOWED_PLANS
+from aomail.models import Preference, Subscription
 
 
 LOGGER = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ THEMES = ["dark", "light"]
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def update_username(request: HttpRequest) -> Response:
     """
     Update the username for the authenticated user.
@@ -70,7 +71,7 @@ def update_username(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def update_password(request: HttpRequest) -> Response:
     """
     Update the password for the authenticated user.
@@ -105,7 +106,7 @@ def update_password(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_language(request: HttpRequest) -> Response:
     """
     Retrieve the language setting for the authenticated user.
@@ -126,11 +127,14 @@ def get_user_language(request: HttpRequest) -> Response:
         LOGGER.error(
             f"Unexpected error occurred when retrieving user language: {str(e)}"
         )
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def set_user_language(request: HttpRequest) -> Response:
     """
     Set the language for the authenticated user.
@@ -164,11 +168,14 @@ def set_user_language(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Unexpected error occurred when changing user language: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_theme(request: HttpRequest) -> Response:
     """
     Retrieve the theme setting for the authenticated user.
@@ -186,11 +193,14 @@ def get_user_theme(request: HttpRequest) -> Response:
         return Response({"theme": theme}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Failed to retrieve user theme: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def set_user_theme(request: HttpRequest) -> Response:
     """
     Set the theme for the authenticated user.
@@ -225,11 +235,14 @@ def set_user_theme(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Failed to update user theme: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_timezone(request: HttpRequest) -> Response:
     """
     Retrieve the timezone setting for the authenticated user.
@@ -247,11 +260,14 @@ def get_user_timezone(request: HttpRequest) -> Response:
         return Response({"timezone": timezone}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Failed to retrieve user timezone: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def set_user_timezone(request: HttpRequest) -> Response:
     """
     Set the timezone for the authenticated user.
@@ -281,11 +297,23 @@ def set_user_timezone(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Failed to update timezone: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_details(request: HttpRequest) -> Response:
     """Returns the username of authenticated user."""
-    return Response({"username": request.user.username})
+    return Response({"username": request.user.username}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@subscription([ALLOWED_PLANS])
+def get_user_plan(request: HttpRequest) -> Response:
+    """Returns the subscription plan of the authenticated user."""
+    user = request.user
+    subscription = get_object_or_404(Subscription, user=user)
+    return Response({"plan": subscription.plan}, status=status.HTTP_200_OK)

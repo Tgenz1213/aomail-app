@@ -32,19 +32,11 @@ EMAIL_NO_REPLY = EMAILS_CREDS["email"]
 EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 EMAIL_ADMIN = EMAILS_CREDS["email_admin"]
 
-
-######################## STRIPE ########################
-# under dev
-STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json"))
-STRIPE_SECRET_KEY = STRIPE_CREDS["secret_key"]
-STRIPE_PUBLISHABLE_KEY = STRIPE_CREDS["publishable_key"]
-STRIPE_PAYMENT_FAILED_URL = f"{BASE_URL}stripe/payment_failed/"
-STRIPE_PAYMENT_SUCCESS_URL = f"{BASE_URL}stripe/payment_successful/"
-STRIPE_PRICES = {
-    "start_plan_id": {"name": "start_plan", "price": 0.0},
-    "pro_plan_id": {"name": "pro_plan", "price": 0.0},
-}
-FREE_PLAN = "free_plan"
+######################## PAYMENTS ########################
+START_PLAN = "start"
+PREMIUM_PLAN = "premium"
+ENTREPRISE_PLAN = "entreprise"
+ALLOWED_PLANS = [START_PLAN, PREMIUM_PLAN, ENTREPRISE_PLAN]
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))

@@ -16,7 +16,7 @@ from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.constants import FREE_PLAN
+from aomail.constants import ALLOWED_PLANS
 from aomail.models import Category, SocialAPI, Email, Rule
 from aomail.utils.security import subscription
 from django.contrib.auth.models import User
@@ -33,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_emails_data(request: HttpRequest) -> Response:
     """
     Retrieves detailed data for multiple emails based on provided email IDs.
@@ -134,11 +134,14 @@ def get_emails_data(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error retrieving emails data from ids: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_email_content(request: HttpRequest) -> Response:
     """
     Retrieves the HTML content of an email based on the provided email ID.
@@ -177,7 +180,10 @@ def get_email_content(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error retrieving email content from id: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def validate_and_parse_parameters(request: HttpRequest) -> dict:
@@ -333,7 +339,7 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_emails_ids(request: HttpRequest) -> Response:
     """
     Retrieves filtered user emails ids based on provided criteria and formats them grouped by category and priority.
@@ -392,7 +398,9 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             status=status.HTTP_200_OK,
         )
     except ValueError as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except KeyError:
         return Response(
             {"error": "Invalid JSON keys in request body"},

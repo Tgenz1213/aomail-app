@@ -29,7 +29,7 @@ from email.utils import parsedate_to_datetime
 from aomail.utils.serializers import EmailDataSerializer
 from aomail.utils.security import subscription
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
     MEDIA_URL,
     BASE_URL_MA,
 )
@@ -45,7 +45,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Gmail API.

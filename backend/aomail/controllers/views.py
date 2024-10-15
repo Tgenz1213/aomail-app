@@ -13,18 +13,14 @@ Endpoints:
 - ✅ update_user_description: Updates the user description of the given email.
 """
 
-import datetime
 import importlib
 import json
 import logging
 import os
 import threading
-import stripe
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest, FileResponse, Http404
-from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
@@ -39,23 +35,17 @@ from aomail.email_providers.google import (
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
     GOOGLE,
     GOOGLE,
     MICROSOFT,
     MICROSOFT,
-    STRIPE_PAYMENT_FAILED_URL,
-    STRIPE_PAYMENT_SUCCESS_URL,
-    STRIPE_PRICES,
-    STRIPE_SECRET_KEY,
     MEDIA_ROOT,
 )
 from aomail.models import (
-    Email,
     SocialAPI,
     Sender,
     Contact,
-    Subscription,
 )
 from aomail.utils.serializers import (
     SenderSerializer,
@@ -69,19 +59,19 @@ LOGGER = logging.getLogger(__name__)
 
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_profile_image(request: Request):
     return forward_request(request._request, "profile", "get_profile_image")
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def send_email(request: Request):
     return forward_request(request._request, "email_operations", "send_email")
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def send_schedule_email(request: Request):
     return forward_request(request._request, "email_operations", "send_schedule_email")
 
@@ -182,7 +172,7 @@ def serve_image(request: HttpRequest, image_name: str) -> Response:
 
 ############################# CONTACT ##############################
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_contacts(request: HttpRequest) -> Response:
     """
     Retrieve contacts associated with the authenticated user.
@@ -206,7 +196,7 @@ def get_user_contacts(request: HttpRequest) -> Response:
 
 ######################## DATABASE OPERATIONS ########################
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def check_sender_for_user(request: HttpRequest) -> Response:
     """
     Check if a sender with the specified email exists.
@@ -233,7 +223,7 @@ def check_sender_for_user(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_emails_linked(request: HttpRequest) -> Response:
     """
     Returns the list of emails linked to the authenticated user's account.
@@ -254,11 +244,14 @@ def get_emails_linked(request: HttpRequest) -> Response:
             )
         return Response(emails_linked, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def search_emails(request: HttpRequest) -> Response:
     """
     Searches emails based on user-specified parameters.
@@ -361,7 +354,7 @@ def search_emails(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def update_user_description(request: HttpRequest) -> Response:
     """
     Updates the user description of the given email.
@@ -399,7 +392,7 @@ def update_user_description(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_description(request: HttpRequest) -> Response:
     """
     Retrieves user description of the given email.
@@ -434,7 +427,7 @@ def get_user_description(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def create_sender(request: HttpRequest) -> Response:
     """
     Create a new sender associated with the authenticated user.
@@ -459,148 +452,3 @@ def create_sender(request: HttpRequest) -> Response:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
-
-
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
-
-
-######################## SEARCH ########################
-# -------------------- SEARCH GET EMAIL----------------------#
-# TODO: put in emails.py
-@api_view(["POST"])
-@subscription([FREE_PLAN])
-def get_batch_emails(request: HttpRequest) -> Response:
-    try:
-        data: dict = json.loads(request.body)
-        email_ids = data.get("email_ids")
-
-        LOGGER.info(f"Processing request for user")
-
-        if not email_ids or not isinstance(email_ids, list):
-            return Response(
-                {"error": "Invalid or missing email_ids"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user = request.user
-
-        first_email = Email.objects.filter(user=user, provider_id=email_ids[0]).first()
-
-        if not first_email:
-            return Response(
-                {"error": "No matching email found"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        social_api = first_email.social_api
-
-        if not social_api:
-            return Response(
-                {"error": "No linked email account found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        email = social_api.email
-        type_api = social_api.type_api
-
-        result = {}
-
-        def append_to_result(provider: str, email: str, data: list):
-            if len(data) > 0:
-                if provider not in result:
-                    result[provider] = {}
-                result[provider][email] = data
-
-        if type_api == GOOGLE:
-            LOGGER.info(f"-------------------- API Google DETECTED -----------------")
-            services = auth_google.authenticate_service(user, email)
-            LOGGER.info(f"-------------------- SERVICES -----------------")
-            email_info = email_operations_google.get_mails_batch(services, email_ids)
-            LOGGER.info(email_info)
-        elif type_api == MICROSOFT:
-            # TO FINISH --------------------------------------------------------------------
-            access_token = auth_microsoft.refresh_access_token(social_api)
-            email_info_thread = threading.Thread(
-                target=append_to_result,
-                args=(
-                    MICROSOFT,
-                    email,
-                    email_operations_microsoft.get_mails_batch(access_token, email_ids),
-                ),
-            )
-        else:
-            return Response(
-                {"error": "Unsupported email provider"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        return Response(email_info, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-######################## STRIPE ########################
-@csrf_exempt
-def receive_payment_notifications(request):
-    """Handles Stripe notifications"""
-
-    if request.method == "POST":
-        payload = request.body
-        sig_header = request.headers["Stripe-Signature"]
-
-        try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, STRIPE_SECRET_KEY
-            )
-        except ValueError as e:
-            return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
-        except stripe.WebhookSignature as e:
-            return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if event["type"] == "invoice.payment_succeeded":
-            # TODO: Handle successful + informations for customer
-            # use create_subscription
-            ...  # data base operations
-            # Subscription.objects.get(...)
-            redirect(STRIPE_PAYMENT_SUCCESS_URL)
-        elif event["type"] == "invoice.payment_failed":
-            # TODO: Handle failed payment + add error message
-            redirect(STRIPE_PAYMENT_FAILED_URL)
-        else:
-            return Response(
-                {"error": "Unhandled event type"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        return Response({"message": "Received"}, status=status.HTTP_200_OK)
-    else:
-        return Response(
-            {"error": "Invalid request method"},
-            status=status.HTTP_405_METHOD_NOT_ALLOWED,
-        )
-
-
-def create_subscription(user, stripe_plan_id, email="nothingForNow"):
-    stripe_customer = stripe.Customer.create(email=email)
-    stripe_customer_id = stripe_customer.id
-
-    stripe_subscription = stripe.Subscription.create(
-        customer=stripe_customer_id,
-        items=[
-            {
-                "plan": stripe_plan_id,
-            },
-        ],
-        trial_period_days=30,
-    )
-
-    # Creation of default subscription plan
-    Subscription.objects.create(
-        user=user,
-        plan="start_plan",
-        stripe_subscription_id=stripe_subscription.id,
-        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
-        billing_interval=None,
-        amount=STRIPE_PRICES[stripe_plan_id],
-    )

@@ -19,7 +19,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
 )
 from aomail.models import (
     Email,
@@ -36,7 +36,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:
     """
     Sets a blocking rule for the sender of the specified email associated with the authenticated user.
@@ -63,7 +63,7 @@ def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_rules(request: HttpRequest) -> Response:
     """
     Retrieves rules associated with the authenticated user.
@@ -95,7 +95,7 @@ def get_user_rules(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     """
     Retrieves details of a specific rule owned by the authenticated user.
@@ -128,7 +128,7 @@ def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def delete_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     """
     Deletes a specific rule owned by the authenticated user.
@@ -152,7 +152,7 @@ def delete_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def create_user_rule(request: HttpRequest) -> Response:
     """
     Creates a new rule for the authenticated user based on the request data.
@@ -193,7 +193,7 @@ def create_user_rule(request: HttpRequest) -> Response:
 
 
 @api_view(["PUT"])
-@subscription([FREE_PLAN])
+@subscription([ALLOWED_PLANS])
 def update_user_rule(request: HttpRequest) -> Response:
     """
     Updates an existing rule for the authenticated user based on the request data.

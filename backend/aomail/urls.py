@@ -14,15 +14,16 @@ from aomail.controllers import categories, filters, rules, emails, search_emails
 from aomail.controllers import statistics
 from aomail.controllers import search_labels
 from aomail.controllers import labels
+from aomail.payment_providers import stripe
 from aomail.administration import dashboard
 from .controllers import views
 
-app_name = "aomail"
+app_name = 'aomail'
 
 urlpatterns = [
     #----------------------- AUTHENTICATION -----------------------#
-    path("generate_reset_token/", auth.generate_reset_token, name="generate_reset_token"), # ok
-    path("reset_password/<str:uidb64>/<str:token>/", auth.reset_password, name="reset_password"), # ok
+    path('generate_reset_token/', auth.generate_reset_token, name='generate_reset_token'), # ok
+    path('reset_password/<str:uidb64>/<str:token>/', auth.reset_password, name='reset_password'), # ok
     path('is_authenticated/', auth.is_authenticated, name='is_authenticated'), # ok
     path('is_admin/', auth.is_admin, name='is_admin'),
     path('login/', auth.login, name='login'), # ok
@@ -61,6 +62,7 @@ urlpatterns = [
     path('user/preferences/timezone/', prefs.get_user_timezone, name='get_user_timezone'), # ok
     path('user/preferences/set_timezone/', prefs.set_user_timezone, name='set_user_timezone'), # ok
     path('user/preferences/username/', prefs.get_user_details, name='get_user_details'), # ok
+    path('user/preferences/plan/', prefs.get_user_plan, name='get_user_plan'), # ok
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
     path('user/emails/<int:email_id>/archive/', emails.archive_email, name='archive_email'), # waiting for implementation in FE
@@ -78,7 +80,6 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'), # ok
     #----------------------- VIEWS -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
-    path('user/get_batch_emails/', views.get_batch_emails, name='get_batch_emails'), # dev
 
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
@@ -125,6 +126,8 @@ urlpatterns = [
     path('admin/get_dashboard_data/', dashboard.get_dashboard_data, name='get_dashboard_data'),
     path('admin/search_user_info/', dashboard.search_user_info, name='search_user_info'),
     path('admin/get_costs_info/', dashboard.get_costs_info, name='get_costs_info'),
-    #----------------------- PAYMENT PROVIDER API -----------------------#
-    # path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
+    path('admin/update_user_info/', dashboard.update_user_info, name='update_user_info'),
+    #----------------------- PAYMENT PROVIDER API -----------------------# 
+    path('stripe/create_checkout_session/', stripe.create_checkout_session, name='stripe_create_checkout_session'),
+    path('stripe/webhook/', stripe.webhook, name='stripe_webhook'), 
 ]

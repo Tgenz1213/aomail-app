@@ -181,7 +181,7 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-const filters = inject("filters") as Ref<Filter[]>;
+const filters = inject("filters") as Ref<{ [categoryName: string]: Filter[] }>;
 const selectedCategory = inject('selectedCategory') as Ref<string>;
 
 const newFilter = ref<Filter>({
@@ -229,7 +229,12 @@ const addFilter = async () => {
   }
 
   newFilter.value.category = selectedCategory.value;
-  const filterExists = filters.value.some(filter => filter.name === newFilter.value.name);
+  
+  if (!filters.value[selectedCategory.value]) {
+    filters.value[selectedCategory.value] = [];
+  }
+
+  const filterExists = filters.value[selectedCategory.value].some(filter => filter.name === newFilter.value.name);
   
   if (filterExists) {
     errorMessage.value = i18n.global.t('homePage.modals.filterModal.filterAlreadyExists');
@@ -238,11 +243,12 @@ const addFilter = async () => {
 
   const response = await postData('create_filter/', newFilter.value);
   if (response.success) {
-    filters.value.push(newFilter.value);
+    filters.value[selectedCategory.value].push(newFilter.value);
     closeModal();
     displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.filterAddedSuccess'));
   } else {
     errorMessage.value = i18n.global.t('constants.popUpConstants.errorMessages.addFilterError');
   }
 };
+
 </script>

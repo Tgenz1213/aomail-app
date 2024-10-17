@@ -220,7 +220,7 @@ const loadMoreEmails = async () => {
     isLoading.value = false;
 };
 
-const handlescroll = () => {
+const handleScroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
         const { scrollTop, scrollHeight, clientHeight } = container;
@@ -234,7 +234,7 @@ const handlescroll = () => {
 const scroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
-        container.addEventListener("scroll", handlescroll);
+        container.addEventListener("scroll", handleScroll);
     }
 };
 
@@ -273,7 +273,7 @@ provide("openNewFilterModal", openNewFilterModal);
 provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
 provide("scroll", scroll);
-provide("handlescroll", handlescroll);
+provide("handleScroll", handleScroll);
 provide("emails", emails);
 provide("categories", categories);
 provide("filters", filters);
@@ -429,7 +429,7 @@ onMounted(async () => {
 onUnmounted(() => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
-        container.removeEventListener("scroll", handlescroll);
+        container.removeEventListener("scroll", handleScroll);
     }
 });
 </script>

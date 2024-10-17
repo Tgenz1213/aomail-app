@@ -75,6 +75,7 @@ const hideLoading = inject<() => void>("hideLoading");
 provide("askContent", askContent);
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);
+provide("handleAIClick", handleAIClick);
 
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {

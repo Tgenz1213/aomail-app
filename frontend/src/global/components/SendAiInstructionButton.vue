@@ -29,7 +29,7 @@
                     type="button"
                     class="2xl:w-[100px] w-[100px] rounded-md bg-gray-700 px-6 py-2.5 2xl:px-6 2xl:py-3 text-sm 2xl:text-base text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
-                    {{ $t("constants.userActions.send") }}
+                    {{ $t("constants.userActions.ask") }}
                 </button>
             </div>
         </div>
@@ -40,7 +40,7 @@
             type="button"
             class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-            {{ $t("constants.userActions.send") }}
+            {{ $t("constants.userActions.ask") }}
         </button>
     </div>
 </template>

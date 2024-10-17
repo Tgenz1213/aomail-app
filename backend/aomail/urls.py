@@ -128,6 +128,6 @@ urlpatterns = [
     path('admin/get_costs_info/', dashboard.get_costs_info, name='get_costs_info'),
     path('admin/update_user_info/', dashboard.update_user_info, name='update_user_info'),
     #----------------------- PAYMENT PROVIDER API -----------------------# 
-    path('stripe/create_checkout_session/', stripe.create_checkout_session, name='stripe_create_checkout_session'),
+    path('stripe/create_checkout_session/', stripe.create_checkout_session, name='stripe_create_checkout_session'), 
     path('stripe/webhook/', stripe.webhook, name='stripe_webhook'), 
 ]

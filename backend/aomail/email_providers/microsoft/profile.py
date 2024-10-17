@@ -168,7 +168,7 @@ def get_unique_senders(access_token: str) -> dict:
 
 
 @api_view(["GET"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Microsoft Graph API.

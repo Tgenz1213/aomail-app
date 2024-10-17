@@ -8,6 +8,9 @@ Endpoints:
 
 import logging
 from django.http import HttpRequest, HttpResponseRedirect
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from google.auth import exceptions as auth_exceptions
@@ -16,7 +19,9 @@ from google.oauth2 import credentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 from aomail.utils import security
+from aomail.utils.security import subscription
 from aomail.constants import (
+    ALLOWED_PLANS,
     ENCRYPTION_KEYS,
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
@@ -24,7 +29,7 @@ from aomail.constants import (
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
 )
-from aomail.models import SocialAPI
+from aomail.models import SocialAPI, Subscription
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -89,6 +94,8 @@ def exchange_code_for_tokens(
         return None, None
 
 
+@api_view(["GET"])
+@subscription(ALLOWED_PLANS)
 def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
     """
     Generates a connection URL to obtain the authorization code for linking an email account.
@@ -100,6 +107,12 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         HttpResponseRedirect: Redirects the user to the generated authorization URL.
     """
     try:
+        subscription = Subscription.objects.get(user=request.user)
+        if subscription.is_trial:
+            return Response(
+                {"error": "User can only link 1 email with a free trial"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         ip = security.get_ip_with_port(request)
         LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
 
@@ -112,10 +125,17 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         LOGGER.info(
             f"Successfully redirected to Google authorization URL from IP: {ip}"
         )
-        return redirect(authorization_url)
+        return Response(
+            {"authorizationUrl": authorization_url},
+            status=status.HTTP_200_OK,
+        )
 
     except Exception as e:
         LOGGER.error(f"Error generating Google OAuth URL: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, None]:

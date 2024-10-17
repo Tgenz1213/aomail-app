@@ -379,7 +379,7 @@ def is_shipping_label(subject: str) -> bool:
 
 
 @api_view(["DELETE"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def delete_labels(request: HttpRequest) -> Response:
     """
     Deletes multiple labels associated with the authenticated user.

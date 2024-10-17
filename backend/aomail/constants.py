@@ -33,6 +33,7 @@ EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 EMAIL_ADMIN = EMAILS_CREDS["email_admin"]
 
 ######################## PAYMENTS ########################
+INACTIVE = "inactive"
 START_PLAN = "start"
 PREMIUM_PLAN = "premium"
 ENTREPRISE_PLAN = "entreprise"

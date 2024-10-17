@@ -156,8 +156,9 @@ import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { i18n } from "@/global/preferences";
-import { postData } from "@/global/fetchData";
+import { getData, postData } from "@/global/fetchData";
 import { EmailLinked } from "@/global/types";
+import { Plan } from "./utils/types";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -165,6 +166,7 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
+const userPlan = ref<Plan | null>(null);
 const activeSection = ref("account");
 const isAddUserDescriptionModalOpen = ref(false);
 const isAccountDeletionModalOpen = ref(false);
@@ -188,13 +190,26 @@ provide("isDeleteRadioButtonChecked", isDeleteRadioButtonChecked);
 provide("isUpdateUserDescriptionModalOpen", isUpdateUserDescriptionModalOpen);
 provide("isAccountDeletionModalOpen", isAccountDeletionModalOpen);
 provide("isAddUserDescriptionModalOpen", isAddUserDescriptionModalOpen);
+provide("userPlan", userPlan);
 provide("isUnlinkEmailModalOpen", isUnlinkEmailModalOpen);
 provide("emailSelected", emailSelected);
 provide("emailsLinked", emailsLinked);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
+    getUserPlan();
+    checkStripePaymentStatus();
 });
+
+async function getUserPlan() {
+    const result = await getData("user/preferences/plan/");
+    if (!result.success) {
+        displayPopup("error", "Failed to fetch plan", result.error as string);
+    } else {
+        userPlan.value = result.data;
+        console.log("User PLan fetched successfully", userPlan.value);
+    }
+}
 
 function closeUnlinkEmailModal() {
     isUnlinkEmailModalOpen.value = false;
@@ -204,16 +219,22 @@ function closeUpdateUserDescriptionModal() {
     isUpdateUserDescriptionModalOpen.value = false;
 }
 
-onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    checkStripePaymentStatus();
-});
-
 function checkStripePaymentStatus() {
     const urlParams = new URLSearchParams(window.location.search);
     const stripePaymentSuccess = urlParams.get("stripe-payment-success");
+    const subscriptionUpdated = urlParams.get("subscription-updated");
 
-    if (stripePaymentSuccess) {
+    const modifiedUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, modifiedUrl);
+
+    if (subscriptionUpdated === "true") {
+        activeSection.value = "subscription";
+        displayPopup(
+            "success",
+            "Subscription Updated",
+            "Your subscription has been successfully updated. The available features have been updated accordingly."
+        );
+    } else if (stripePaymentSuccess) {
         activeSection.value = "subscription";
         if (stripePaymentSuccess === "true") {
             displayPopup(

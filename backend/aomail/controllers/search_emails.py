@@ -33,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_emails_data(request: HttpRequest) -> Response:
     """
     Retrieves detailed data for multiple emails based on provided email IDs.
@@ -141,7 +141,7 @@ def get_emails_data(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_email_content(request: HttpRequest) -> Response:
     """
     Retrieves the HTML content of an email based on the provided email ID.
@@ -339,7 +339,7 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_user_emails_ids(request: HttpRequest) -> Response:
     """
     Retrieves filtered user emails ids based on provided criteria and formats them grouped by category and priority.

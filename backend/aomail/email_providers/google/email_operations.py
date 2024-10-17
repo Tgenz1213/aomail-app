@@ -45,7 +45,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Gmail API.

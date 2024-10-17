@@ -48,6 +48,7 @@ from aomail.constants import (
     ENTREPRISE_PLAN,
     GOOGLE,
     GOOGLE,
+    INACTIVE,
     MAX_RETRIES,
     MICROSOFT,
     MICROSOFT,
@@ -137,7 +138,8 @@ def signup(request: HttpRequest) -> Response:
     email = authorization_result.get("email", "")
 
     if email:
-        if SocialAPI.objects.filter(email=email).exists():
+        social_api = SocialAPI.objects.filter(email=email)
+        if social_api.exists() and social_api.first().user:
             LOGGER.error("Email address already used by another account")
             return Response(
                 {"error": "Email address already used by another account"},
@@ -218,7 +220,7 @@ def signup(request: HttpRequest) -> Response:
 
     Subscription.objects.create(
         user=user,
-        plan=ALLOWED_PLANS,
+        plan=PREMIUM_PLAN,
     )
     LOGGER.info(f"User {username} subscribed to free plan")
 
@@ -553,6 +555,7 @@ def save_user_data(
         return {"message": "User data saved successfully"}
 
     except Exception as e:
+        LOGGER.error(f"Unexpected error occured while saving user data: {str(e)}")
         return {"error": "Internal server error"}
 
 
@@ -645,7 +648,7 @@ def refresh_token(request: HttpRequest) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def delete_account(request: HttpRequest) -> Response:
     """
     Removes the authenticated user account from the database.
@@ -679,7 +682,7 @@ def delete_account(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def unlink_email(request: HttpRequest) -> Response:
     """
     Unlinks the specified email and deletes all stored emails associated with the user's account.
@@ -691,24 +694,50 @@ def unlink_email(request: HttpRequest) -> Response:
 
     Returns:
         Response: {"message": "Email unlinked successfully!"} if the unlinking is successful,
-                      or {"error": "Details of the specific error."} if there's an issue with the unlinking.
+                  or {"error": "Details of the specific error."} if there's an issue with the unlinking.
     """
     parameters: dict = json.loads(request.body)
     user = request.user
     email = parameters.get("email")
 
+    ip = security.get_ip_with_port(request)
+    LOGGER.info(f"Unlink email request received from IP: {ip} and user ID: {user.id}.")
+
+    if not email:
+        LOGGER.warning(
+            f"Unlinking failed: No email provided from IP: {ip} for user ID: {user.id}."
+        )
+        return Response(
+            {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
     try:
+        LOGGER.info(
+            f"Attempting to unlink email '{email}' for user ID: {user.id} from IP: {ip}."
+        )
+
         social_api = SocialAPI.objects.get(user=user, email=email)
+
         unsubscribe_listeners(user, email)
         social_api.delete()
+
+        LOGGER.info(
+            f"Email '{email}' successfully unlinked for user ID: {user.id} from IP: {ip}."
+        )
         return Response(
             {"message": "Email unlinked successfully!"}, status=status.HTTP_202_ACCEPTED
         )
     except SocialAPI.DoesNotExist:
+        LOGGER.error(
+            f"Unlinking failed: SocialAPI entry not found for email '{email}' and user ID: {user.id} from IP: {ip}."
+        )
         return Response(
             {"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
+        LOGGER.error(
+            f"Unlinking failed: An unexpected error occurred for user ID: {user.id} while unlinking email '{email}' from IP: {ip}: {str(e)}"
+        )
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -805,18 +834,30 @@ def link_email(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def is_authenticated(request: HttpRequest) -> Response:
     """
-    Check if the user is authenticated.
+    Check if the user is authenticated and return their subscription status.
 
     Args:
         request (HttpRequest): HTTP request object.
 
     Returns:
-        Response: {"isAuthenticated": True} indicating the user is authenticated.
+        Response:
+            - {"isAuthenticated": True, "isActive": bool} indicating the user is authenticated and if their subscription is active.
+            - If no subscription is found, returns an error response.
     """
-    return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
+    try:
+        subscription = Subscription.objects.get(user=request.user)
+        return Response(
+            {"isAuthenticated": True, "isActive": subscription.is_active},
+            status=status.HTTP_200_OK,
+        )
+    except Subscription.DoesNotExist:
+        return Response(
+            {"error": "No subscription found for the user."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @api_view(["GET"])

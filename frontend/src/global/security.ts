@@ -3,13 +3,14 @@ import { API_BASE_URL } from "./const";
 
 interface AuthResponse {
     isAuthenticated: boolean;
+    isActive: boolean;
 }
 
 interface RefreshTokenResponse {
     accessToken: string;
 }
 
-export async function isUserAuthenticated(): Promise<boolean> {
+export async function isUserAuthenticated(): Promise<AuthResponse | boolean> {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
         return false;
@@ -29,7 +30,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
         }
 
         const data: AuthResponse = await response.json();
-        return data.isAuthenticated;
+        return data;
     } catch (error) {
         return false;
     }

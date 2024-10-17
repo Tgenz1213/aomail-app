@@ -11,12 +11,24 @@ router.beforeEach(async (to: RouteLocationNormalized, _from: RouteLocationNormal
     try {
         const requiresAuth = (to.meta as { requiresAuth?: boolean }).requiresAuth;
         if (requiresAuth) {
-            const isAuthenticated = await isUserAuthenticated();
-            if (!isAuthenticated) {
+            const authCheck = await isUserAuthenticated();
+
+            if (!authCheck || typeof authCheck !== "object" || !authCheck.isAuthenticated) {
                 next({ name: "not-authorized" });
-            } else {
-                next();
+                return;
             }
+
+            if (!authCheck.isActive && to.meta.allowInactive) {
+                next();
+                return;
+            }
+
+            if (!authCheck.isActive) {
+                next({ name: "settings" });
+                return;
+            }
+
+            next();
         } else {
             next();
         }

@@ -28,7 +28,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_label_pdf(request: HttpRequest) -> Response:
     """
     Retrieves a PDF file for a given label ID and returns it as a binary response.
@@ -80,7 +80,7 @@ def get_label_pdf(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_labels_data(request: HttpRequest) -> Response:
     """
     Retrieves detailed data for multiple labels based on provided label IDs.
@@ -146,7 +146,7 @@ def get_labels_data(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_user_label_ids(request: HttpRequest) -> Response:
     """
     Retrieve filtered user label IDs based on provided criteria and format them grouped by category and priority.

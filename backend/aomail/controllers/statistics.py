@@ -20,6 +20,7 @@ from aomail.constants import (
     ALLOWED_PLANS,
     HIGHLY_RELEVANT,
     IMPORTANT,
+    INACTIVE,
     INFORMATIVE,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
@@ -40,7 +41,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def get_statistics(request: HttpRequest) -> Response:
     """
     Compute and return statistics for a user based on provided parameters.

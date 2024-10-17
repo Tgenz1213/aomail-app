@@ -104,7 +104,7 @@ def parse_message_body(message_data: dict) -> str | None:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def send_schedule_email(request: HttpRequest) -> Response:
     """
     Schedule the sending of an email using the Microsoft Graph API with deferred delivery.
@@ -218,7 +218,7 @@ def send_schedule_email(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Microsoft Graph API.

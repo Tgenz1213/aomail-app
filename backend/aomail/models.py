@@ -14,6 +14,7 @@ class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plan = models.CharField(max_length=50)
     subscription_id = models.CharField(max_length=255, null=True)
+    created_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_trial = models.BooleanField(default=True)
 

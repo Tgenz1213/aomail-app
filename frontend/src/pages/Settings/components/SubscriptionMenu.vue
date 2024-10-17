@@ -1,5 +1,31 @@
 <template>
     <div class="flex flex-col h-full">
+        <!-- Banner Section -->
+        <div
+            v-if="userPlan?.isTrial"
+            class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4"
+            role="alert"
+        >
+            <p class="font-bold">Free Trial</p>
+            <p>
+                You're using a free trial and have access to all premium features during the beta period
+                <!-- that expires on -->
+                <!-- <span class="font-semibold">{{ formatDate(new Date(userPlan?.expiresThe)) }}</span>
+                ({{ daysLeft(new Date(userPlan?.expiresThe)) }} days left). -->
+            </p>
+        </div>
+        <div
+            v-else-if="!userPlan?.isActive"
+            class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
+            role="alert"
+        >
+            <p class="font-bold">Account Inactive</p>
+            <p>
+                Your account is inactive. You must subscribe to a plan to regain full access. Your last plan was:
+                <span class="font-semibold">{{ userPlan?.plan }}</span>
+            </p>
+        </div>
+
         <div class="flex justify-center w-full">
             <RadioGroup
                 v-model="selectedFrequency"
@@ -47,6 +73,21 @@
                     </span>
                 </p>
                 <div
+                    v-if="!userPlan?.isTrial && userPlan?.isActive"
+                    @click="redirectToPortal"
+                    :class="[
+                        tier.selected
+                            ? 'bg-gray-800 text-white shadow-sm hover:bg-gray-600 cursor-pointer'
+                            : 'text-gray-800 ring-1 ring-inset ring-gray-200 hover:ring-gray-300',
+                        'mt-6 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800 cursor-pointer',
+                    ]"
+                >
+                    {{ getActionLabel(tier.plan as PlanType) }}
+                </div>
+
+                <!-- Select Plan Button -->
+                <div
+                    v-else
                     @click="redirectPaymentPage(tier.plan)"
                     :class="[
                         tier.selected
@@ -69,25 +110,43 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, reactive, ref } from "vue";
+import { inject, onMounted, reactive, Ref, ref, watch } from "vue";
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from "@headlessui/vue";
 import { CheckIcon } from "@heroicons/vue/20/solid";
 import { i18n } from "@/global/preferences";
-import { getData, postData } from "@/global/fetchData";
+import { postData } from "@/global/fetchData";
 import { loadStripe } from "@stripe/stripe-js";
-import { STRIPE_PUBLISHABLE_KEY } from "@/global/const";
+import { STRIPE_PUBLISHABLE_KEY, SUBSCRIPTION_MANAGEMENT_URL } from "@/global/const";
+import { Plan } from "../utils/types";
+
+const PLAN_LEVELS = {
+    start: 0,
+    premium: 1,
+    entreprise: 2,
+} as const;
+
+type PlanType = keyof typeof PLAN_LEVELS;
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-onMounted(async () => {
-    const result = await getData("user/preferences/plan/");
-    if (!result.success) {
-        displayPopup?.("error", "Failed to fetch plan", result.error as string);
-    }
+const userPlan = inject<Ref<Plan>>("userPlan");
 
-    for (const tier of tiers) {
-        if (tier.plan === result.data.plan) {
-            tier.selected = true;
+onMounted(() => {
+    if (userPlan?.value && userPlan.value.isActive) {
+        for (const tier of tiers) {
+            if (tier.plan === userPlan?.value.plan) {
+                tier.selected = true;
+            }
+        }
+    }
+});
+
+watch(userPlan as any, () => {
+    if (userPlan?.value && userPlan.value.isActive) {
+        for (const tier of tiers) {
+            if (tier.plan === userPlan?.value.plan) {
+                tier.selected = true;
+            }
         }
     }
 });
@@ -153,6 +212,27 @@ const tiers: Tier[] = reactive([
 
 const selectedFrequency = ref<Frequency>(frequencies[0]);
 
+const getActionLabel = (plan: PlanType): string => {
+    const currentPlanLevel = PLAN_LEVELS[userPlan?.value.plan as PlanType];
+    const targetPlanLevel = PLAN_LEVELS[plan];
+
+    if (currentPlanLevel === targetPlanLevel) {
+        return "Manage";
+    }
+
+    return currentPlanLevel < targetPlanLevel ? "Upgrade" : "Downgrade";
+};
+
+// function formatDate(date: Date): string {
+//     return date.toLocaleDateString();
+// }
+
+// function daysLeft(expirationDate: Date): number {
+//     const today = new Date();
+//     const timeDiff = expirationDate.getTime() - today.getTime();
+//     return Math.ceil(timeDiff / (1000 * 3600 * 24));
+// }
+
 const redirectPaymentPage = async (product: string) => {
     const result = await postData("stripe/create_checkout_session/", {
         product,
@@ -176,5 +256,9 @@ const redirectPaymentPage = async (product: string) => {
         return;
     }
     await stripe.redirectToCheckout({ sessionId });
+};
+
+const redirectToPortal = () => {
+    window.location.href = SUBSCRIPTION_MANAGEMENT_URL;
 };
 </script>

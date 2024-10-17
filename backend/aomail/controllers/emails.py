@@ -45,7 +45,7 @@ READ_EMAILS_MARKER = "read"
 
 
 @api_view(["GET"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_first_email(request: HttpRequest) -> Response:
     """
     Returns the first email associated with the user in the database.
@@ -63,7 +63,7 @@ def get_first_email(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def get_mail_by_id(request: HttpRequest) -> Response:
     """
     Retrieves details of an email by its ID associated with the authenticated user.
@@ -156,7 +156,7 @@ def set_email_read(request: HttpRequest, email_id: int) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def set_email_unread(request: HttpRequest, email_id: int) -> Response:
     """
     Marks a specific email as unread for the authenticated user.
@@ -191,7 +191,7 @@ def set_email_unread(request: HttpRequest, email_id: int) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def set_email_reply_later(request: HttpRequest, email_id: int) -> Response:
     """
     Marks a specific email for later reply for the authenticated user.
@@ -217,7 +217,7 @@ def set_email_reply_later(request: HttpRequest, email_id: int) -> Response:
 
 
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def set_email_not_reply_later(request: HttpRequest, email_id: int) -> Response:
     """
     Unmarks a specific email for later reply for the authenticated user.
@@ -245,7 +245,7 @@ def set_email_not_reply_later(request: HttpRequest, email_id: int) -> Response:
 # TODO: delete this comment after front-end implementation
 # ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS
 @api_view(["POST"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def delete_emails(request: HttpRequest) -> Response:
     """
     Delete emails based on the priority or specific email IDs provided in the request body.
@@ -298,7 +298,7 @@ def delete_emails(request: HttpRequest) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def delete_email(request: HttpRequest, email_id: int) -> Response:
     """
     Deletes an email associated with the authenticated user.
@@ -345,7 +345,7 @@ def delete_email(request: HttpRequest, email_id: int) -> Response:
 
 
 @api_view(["PUT"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def archive_email(request: HttpRequest, email_id: int) -> Response:
     """
     Archives an email associated with the authenticated user.
@@ -379,7 +379,7 @@ def archive_email(request: HttpRequest, email_id: int) -> Response:
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
 @api_view(["GET"])
-@subscription([ALLOWED_PLANS])
+@subscription(ALLOWED_PLANS)
 def retrieve_attachment_data(
     request: HttpRequest, email_id: str, attachment_name: str
 ) -> Response:

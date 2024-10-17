@@ -3,7 +3,7 @@ Handles Stripe payment processes, including subscription management and webhook 
 
 Endpoints:
 - ✅ create_checkout_session: Creates a Stripe Checkout session for a subscription.
-- ✅ webhook: Unified Stripe webhook listener that processes various Stripe events.
+- ✅ webhook: Unified Stripe webhook listener that processes various Stripe events. 
 """
 
 import stripe
@@ -11,11 +11,14 @@ import json
 import logging
 from rest_framework import status
 from django.http import HttpRequest
+from django.contrib.auth.models import User
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
-from aomail.constants import BASE_URL, CREDS_PATH, ENV
+from aomail.constants import ALLOWED_PLANS, BASE_URL, CREDS_PATH, ENV, INACTIVE
 from aomail.models import Subscription
+from aomail.utils.security import subscription
 
 
 LOGGER = logging.getLogger(__name__)
@@ -36,8 +39,6 @@ PRODUCTS = {
         "monthly": "price_1Q9nbjK8H3QtVm1piHUqrxEf",
         "yearly": "price_1Q9nc3K8H3QtVm1p9qgl2Udi",
     },
-}
-PLANS = {
     "prod_R1r1SojHfBmNRn": "start",
     "prod_R1rIjwktRkHlkX": "premium",
     "prod_R1rKdtMxUxyRER": "entreprise",
@@ -48,6 +49,7 @@ stripe.api_key = SECRET_KEY
 
 
 @api_view(["POST"])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def create_checkout_session(request: HttpRequest):
     """
     Creates a Stripe Checkout session for a subscription.
@@ -59,6 +61,7 @@ def create_checkout_session(request: HttpRequest):
         Response: A JSON response containing the session ID or an error message.
     """
     try:
+        user = request.user
         parameters: dict = json.loads(request.body)
         product = parameters.get("product")
         frequency = parameters.get("frequency")
@@ -80,6 +83,7 @@ def create_checkout_session(request: HttpRequest):
                     "quantity": 1,
                 }
             ],
+            metadata={"user_id": user.id, "plan": product},
         )
 
         return Response(
@@ -90,30 +94,26 @@ def create_checkout_session(request: HttpRequest):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(["POST"])
+@permission_classes([AllowAny])
 @csrf_exempt
 def webhook(request: HttpRequest) -> Response:
     """
     Unified Stripe webhook listener that processes various Stripe events.
-
-    Args:
-        request (HttpRequest): The HTTP request object containing the event data.
-
-    Returns:
-        Response: A JSON response indicating the status of the webhook processing.
     """
     payload = request.body
-    sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", None)
     event = None
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, WEBHOOK_SECRET)
     except ValueError as e:
-        LOGGER.error(f"Invalid payload: {str(e)}")
+        LOGGER.error(f"Stripe webhook invalid payload: {str(e)}")
         return Response(
             {"error": "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST
         )
     except stripe.SignatureVerificationError as e:
-        LOGGER.error(f"Invalid signature: {str(e)}")
+        LOGGER.error(f"Stripe webhook Invalid signature: {str(e)}")
         return Response(
             {"error": "Invalid signature"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -126,90 +126,186 @@ def webhook(request: HttpRequest) -> Response:
         handle_payment_failed(event)
     elif event["type"] == "invoice.payment_succeeded":
         handle_payment_succeeded(event)
+    elif event["type"] == "checkout.session.completed":
+        handle_checkout_session_completed(event)
     else:
         LOGGER.warning(f"Unhandled event type: {event['type']}")
 
     return Response({"status": "success"}, status=status.HTTP_200_OK)
 
 
-def handle_cancelled_subscription(event: dict):
+def handle_checkout_session_completed(event: dict):
     """
-    Handle customer.subscription.deleted event to deactivate the subscription.
+    Handle checkout.session.completed event.
 
-    Args:
-        event (dict): The Stripe event data containing subscription information.
+    This function activates a subscription after a successful checkout session.
+    It updates the user's subscription status and the selected plan in the database.
     """
-    subscription_data = event["data"]["object"]
-    subscription_id = subscription_data["id"]
+
+    LOGGER.info(f"Received Stripe webhook for event: {event['type']}")
 
     try:
+        payload: dict = event["data"]["object"]
+        metadata: dict = payload.get("metadata")
+
+        if not metadata:
+            LOGGER.warning(
+                f"Received empty metadata in checkout.session.completed event. Payload: {payload}"
+            )
+            return
+
+        plan = metadata.get("plan")
+        user_id = metadata.get("user_id")
+
+        if not user_id or not plan:
+            LOGGER.warning(f"Metadata missing 'user_id' or 'plan'. Payload: {payload}")
+            return
+
+        user = User.objects.get(id=user_id)
+        subscription = Subscription.objects.get(user=user)
+
+        subscription.is_trial = False
+        subscription.is_active = True
+        subscription.subscription_id = payload.get("subscription")
+        subscription.plan = plan
+        subscription.save()
+
+        LOGGER.info(
+            f"Payment succeeded for user ID {user.id}, Plan: {plan} activated successfully."
+        )
+
+    except User.DoesNotExist:
+        LOGGER.error(f"User with ID {user_id} not found. Payload: {payload}")
+    except Subscription.DoesNotExist:
+        LOGGER.error(
+            f"Subscription for user ID {user_id} not found. Payload: {payload}"
+        )
+    except Exception as e:
+        LOGGER.error(
+            f"Error processing checkout.session.completed: {str(e)}. Payload: {payload}"
+        )
+
+
+def handle_cancelled_subscription(event: dict):
+    """
+    Handle customer.subscription.deleted event.
+
+    This function deactivates a user's subscription in the application when Stripe sends a cancellation event.
+    If the subscription exists in the database, it is marked as inactive.
+    """
+
+    LOGGER.info(f"Received Stripe webhook for event: {event['type']}")
+
+    try:
+        subscription_data = event["data"]["object"]
+        subscription_id = subscription_data["id"]
+
         subscription = Subscription.objects.get(subscription_id=subscription_id)
         subscription.is_active = False
         subscription.save()
 
-        LOGGER.info(f"Subscription {subscription_id} cancelled successfully.")
+        LOGGER.info(
+            f"Subscription {subscription_id} for user ID {subscription.user.id} cancelled successfully."
+        )
+
     except Subscription.DoesNotExist:
-        LOGGER.error(f"Subscription {subscription_id} not found.")
+        LOGGER.warning(
+            f"Subscription ID {subscription_id} not found in the database. Ignoring cancellation event."
+        )
+    except Exception as e:
+        LOGGER.error(
+            f"Error handling subscription cancellation: {str(e)}. Subscription data: {subscription_data}"
+        )
 
 
 def handle_updated_subscription(event: dict):
     """
-    Handle customer.subscription.updated event to update subscription details.
+    Handle customer.subscription.updated event.
 
-    Args:
-        event (dict): The Stripe event data containing updated subscription information.
+    This function updates the subscription plan when Stripe sends an update event.
+    The new plan is reflected in the user's subscription in the application.
     """
-    subscription_data = event["data"]["object"]
-    subscription_id = subscription_data["id"]
-    plan = PLANS[subscription_data["plan"]["id"]]
+
+    LOGGER.info(f"Received Stripe webhook for event: {event['type']}")
 
     try:
+        subscription_data = event["data"]["object"]
+        subscription_id = subscription_data["id"]
+        product_id = subscription_data["plan"]["product"]
+        plan = PRODUCTS[product_id]
+
         subscription = Subscription.objects.get(subscription_id=subscription_id)
         subscription.plan = plan
         subscription.save()
 
-        LOGGER.info(f"Subscription {subscription_id} updated successfully.")
-    except Subscription.DoesNotExist:
-        LOGGER.error(f"Subscription {subscription_id} not found.")
+        LOGGER.info(
+            f"Subscription {subscription_id} for user ID {subscription.user.id} updated to {plan} plan successfully."
+        )
+    except (KeyError, Subscription.DoesNotExist) as e:
+        LOGGER.error(f"Failed to update subscription {subscription_id}: {str(e)}")
+    except Exception as e:
+        LOGGER.error(
+            f"Unexpected error while updating subscription {subscription_id}: {str(e)}"
+        )
 
 
 def handle_payment_failed(event: dict):
     """
-    Handle invoice.payment_failed event to deactivate the subscription.
+    Handle invoice.payment_failed event.
 
-    Args:
-        event (dict): The Stripe event data containing payment failure information.
+    This function marks a subscription as inactive in the application when a payment fails.
+    If the subscription is found, it is deactivated.
     """
-    invoice_data = event["data"]["object"]
-    subscription_id = invoice_data["subscription"]
+
+    LOGGER.info(f"Received Stripe webhook for event: {event['type']}")
 
     try:
+        invoice_data = event["data"]["object"]
+        subscription_id = invoice_data["subscription"]
+
         subscription = Subscription.objects.get(subscription_id=subscription_id)
         subscription.is_active = False
         subscription.save()
 
         LOGGER.warning(
-            f"Payment failed for subscription {subscription_id}. Subscription marked as inactive."
+            f"Payment failed for subscription {subscription_id} for user ID {subscription.user.id}. Subscription marked as inactive."
         )
     except Subscription.DoesNotExist:
-        LOGGER.error(f"Subscription {subscription_id} not found.")
+        LOGGER.error(
+            f"Subscription ID {subscription_id} not found in the database. Unable to mark as inactive."
+        )
+    except Exception as e:
+        LOGGER.error(
+            f"Error handling payment_failed event: {str(e)}. Invoice data: {invoice_data}"
+        )
 
 
 def handle_payment_succeeded(event: dict):
     """
-    Handle invoice.payment_succeeded event to reactivate the subscription.
+    Handle the invoice.payment_succeeded event.
 
-    Args:
-        event (dict): The Stripe event data containing payment success information.
+    This function reactivates a subscription when an invoice is successfully paid.
+    If the subscription is found in the database, it is marked as active again.
     """
-    invoice_data = event["data"]["object"]
-    subscription_id = invoice_data["subscription"]
+
+    LOGGER.info(f"Received Stripe webhook for event: {event['type']}")
 
     try:
+        invoice_data = event["data"]["object"]
+        subscription_id = invoice_data["subscription"]
+
         subscription = Subscription.objects.get(subscription_id=subscription_id)
         subscription.is_active = True
         subscription.save()
 
-        LOGGER.info(f"Payment succeeded for subscription {subscription_id}.")
+        LOGGER.info(
+            f"Subscription {subscription_id} for user ID {subscription.user.id} reactivated successfully."
+        )
     except Subscription.DoesNotExist:
-        LOGGER.error(f"Subscription {subscription_id} not found.")
+        LOGGER.warning(
+            f"Subscription ID {subscription_id} not found in the database. Ignoring payment_succeeded event."
+        )
+    except Exception as e:
+        LOGGER.error(
+            f"Error handling payment_succeeded event: {str(e)}. Invoice data: {invoice_data}"
+        )

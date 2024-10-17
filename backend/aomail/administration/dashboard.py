@@ -22,6 +22,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from datetime import timedelta
 from aomail.controllers.statistics import compute_statistics
 from aomail.utils.security import admin_access_required
 from aomail.models import Email, SocialAPI, Statistics, Subscription
@@ -263,6 +264,8 @@ def search_user_info(request: HttpRequest) -> Response:
                 {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
+        subscription = Subscription.objects.get(user=user)
+        trial_period = timedelta(days=30)
         statistics = Statistics.objects.get(user=user)
 
         nb_tokens_input = statistics.nb_tokens_input
@@ -277,6 +280,16 @@ def search_user_info(request: HttpRequest) -> Response:
         return Response(
             {
                 "emailsStats": computed_stats,
+                "plan": {
+                    "name": subscription.plan,
+                    "isTrial": subscription.is_trial,
+                    "isActive": subscription.is_active,
+                    "expiresThe": (
+                        subscription.created_at + trial_period
+                        if subscription.is_trial
+                        else None
+                    ),
+                },
                 "nbTokensInput": nb_tokens_input,
                 "nbTokensOutput": nb_tokens_output,
                 "estimatedCostUser": {

@@ -154,7 +154,7 @@ function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipi
         scrollToBottom?.();
     }
 
-    if (noUsersAdded) {
+    if (noUsersAdded && !waitforUserChoice) {
         displayNoRecipientsFoundMessage();
     } else if (!waitforUserChoice) {
         stepContainer.value = 1;

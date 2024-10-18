@@ -459,9 +459,9 @@ def delete_admin(request: HttpRequest) -> Response:
 
     try:
         if admin_id:
-            user_to_delete = User.objects.get(id=admin_id)
+            user_to_delete = User.objects.get(id=admin_id, is_superuser=True)
         elif username:
-            user_to_delete = User.objects.get(username=username)
+            user_to_delete = User.objects.get(username=username, is_superuser=True)
         else:
             LOGGER.error(
                 f"Admin deletion failed: No ID or username provided by admin {admin.username} from IP: {ip}"

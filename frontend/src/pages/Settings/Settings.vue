@@ -123,6 +123,8 @@
                         </div>
                     </main>
 
+                    <div class="overflow-y-auto custom-scrollbar">
+
                     <div v-if="activeSection === 'account'">
                         <MyAccountMenu />
                     </div>
@@ -137,6 +139,7 @@
 
                     <div v-if="activeSection === 'preferences'" class="flex-1 section">
                         <PreferencesMenu />
+                    </div>
                     </div>
                 </div>
             </div>

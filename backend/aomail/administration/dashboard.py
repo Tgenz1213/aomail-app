@@ -589,9 +589,9 @@ def update_user_info(request: HttpRequest) -> Response:
         if email_address:
             user = SocialAPI.objects.get(email=email_address).user
         elif user_id:
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(id=user_id, is_superuser=False)
         elif username:
-            user = User.objects.get(username=username)
+            user = User.objects.get(username=username, is_superuser=False)
 
         if not user:
             raise User.DoesNotExist()

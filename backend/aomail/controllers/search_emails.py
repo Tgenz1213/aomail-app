@@ -68,14 +68,20 @@ def get_emails_data(request: HttpRequest) -> Response:
         for email in queryset:
             email_data = {
                 "id": email.id,
-                "subject": decrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email.subject),
+                "subject": decrypt_text(
+                    ENCRYPTION_KEYS["Email"]["subject"], email.subject
+                ),
                 "sender": {
                     "email": email.sender.email,
                     "name": email.sender.name,
                 },
                 "providerId": email.provider_id,
-                "shortSummary": decrypt_text(ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary),
-                "oneLineSummary": decrypt_text(ENCRYPTION_KEYS["Email"]["one_line_summary"], email.one_line_summary),
+                "shortSummary": decrypt_text(
+                    ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary
+                ),
+                "oneLineSummary": decrypt_text(
+                    ENCRYPTION_KEYS["Email"]["one_line_summary"], email.one_line_summary
+                ),
                 "cc": [
                     {"email": cc.email, "name": cc.name}
                     for cc in email.cc_senders.all()
@@ -163,7 +169,9 @@ def get_email_content(request: HttpRequest) -> Response:
 
     try:
         email = Email.objects.get(id=email_id)
-        decrypted_content = decrypt_text(ENCRYPTION_KEYS["Email"]["html_content"], email.html_content)
+        decrypted_content = decrypt_text(
+            ENCRYPTION_KEYS["Email"]["html_content"], email.html_content
+        )
         return Response({"content": decrypted_content}, status=status.HTTP_200_OK)
     except Email.DoesNotExist:
         return Response(
@@ -322,8 +330,10 @@ def get_sorted_queryset(
 
     if subject_query:
         queryset = [
-            email for email in queryset
-            if subject_query in decrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email.subject).lower()
+            email
+            for email in queryset
+            if subject_query
+            in decrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email.subject).lower()
         ]
 
     return queryset
@@ -413,11 +423,6 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
     except KeyError:
         return Response(
             {"error": "Invalid JSON keys in request body"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    except TypeError:
-        return Response(
-            {"error": "resultPerPage must be an integer"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:

@@ -171,7 +171,8 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-const filters = inject('filters') as Ref<Filter[]>;
+const filters = inject("filters") as Ref<{ [categoryName: string]: Filter[] }>;
+const selectedCategory = inject('selectedCategory') as Ref<string>;
 
 const errorMessage = ref('');
 const filterData = ref<Filter>({
@@ -204,11 +205,18 @@ const updateFilter = async () => {
     return;
   }
 
-  const response = await putData(`update_filter/`, { ...filterData.value, filterName: props.filter?.name});
+  const categoryFilters = filters.value[selectedCategory.value];
+  if (!categoryFilters) {
+    filters.value[selectedCategory.value] = [];
+  }
+
+  const response = await putData(`update_filter/`, { ...filterData.value, filterName: props.filter?.name });
   if (response.success) {
-    const index = filters.value.findIndex(f => f.name === props.filter?.name);
-    if (index !== -1) {
-      filters.value[index] = { ...filterData.value };
+    const filterIndex = categoryFilters.findIndex(filter => filter.name === props.filter?.name);
+    if (filterIndex !== -1) {
+      categoryFilters[filterIndex] = { ...filterData.value };
+    } else {
+      categoryFilters.push({ ...filterData.value });
     }
     closeModal();
     displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.updateFilterSuccess'));
@@ -218,11 +226,16 @@ const updateFilter = async () => {
 };
 
 const deleteFilter = async () => {
-  const response = await deleteData(`delete_filter/`, { filterName: props.filter?.name});
+  const categoryFilters = filters.value[selectedCategory.value];
+  if (!categoryFilters) {
+    return;
+  }
+
+  const response = await deleteData(`delete_filter/`, { filterName: props.filter?.name });
   if (response.success) {
-    const index = filters.value.findIndex(f => f.name === props.filter?.name);
-    if (index !== -1) {
-      filters.value.splice(index, 1);
+    const filterIndex = categoryFilters.findIndex(filter => filter.name === props.filter?.name);
+    if (filterIndex !== -1) {
+      categoryFilters.splice(filterIndex, 1);
     }
     closeModal();
     displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.deleteFilterSuccess'));

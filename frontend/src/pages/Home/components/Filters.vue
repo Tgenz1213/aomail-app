@@ -110,8 +110,8 @@ import { Ref, computed, ref, inject, watch } from "vue";
 import { Filter } from "../utils/types";
 
 const openNewFilterModal = inject("openNewFilterModal") as () => void;
-const Scroll = inject("Scroll") as () => void;
-const handleScroll = inject("handleScroll") as () => void;
+const scroll = inject('scroll', () => {}) as () => void;
+const handleScroll = inject('handleScroll', () => {}) as () => void;
 const openUpdateFilterModal = inject("openUpdateFilterModal") as (
   filter: Filter
 ) => void;
@@ -161,7 +161,7 @@ const setActiveFilter = async (filterName: string) => {
         container.scrollTop = 0;
       }
 
-      Scroll();
+      scroll();
       handleScroll();
 
       localStorage.setItem(

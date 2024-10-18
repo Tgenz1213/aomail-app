@@ -319,7 +319,8 @@
           "Up to 1 linked email",
           "Automatic sorting",
           "Custom filtering",
-          "API search"
+          "Smart writing",
+          "Smart search"
         ]
       },
       "premium": {
@@ -328,8 +329,9 @@
           "Unlimited linked emails",
           "Automatic sorting",
           "Custom filtering",
-          "Smart and API search",
-          "Automatic customization of shipping labels for Vinted"
+          "Smart writing",
+          "Advanced smart search",
+          "Advanced features"
         ]
       },
       "entreprise": {
@@ -338,9 +340,12 @@
           "Unlimited linked emails",
           "Automatic sorting",
           "Custom filtering",
-          "Smart and API search",
+          "Smart writing",
+          "Smart writing",
+          "Advanced smart search",
+          "Advanced features",
           "Sync all emails from inbox",
-          "Advanced email categorization customization"
+          "Advanced features customization"
         ]
       }
     },

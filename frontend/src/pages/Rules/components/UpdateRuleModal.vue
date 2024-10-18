@@ -418,7 +418,7 @@ async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number
         return { exists: false };
     }
 
-    return result.data.exists ? { exists: result.data.exists, senderId: result.data.sender_id } : { exists: false };
+    return result.data.exists ? { exists: result.data.exists, senderId: result.data.senderId } : { exists: false };
 }
 
 async function updateUserRule() {
@@ -432,6 +432,8 @@ async function updateUserRule() {
     }
 
     let { exists, senderId } = await checkSenderExists();
+
+    console.log("DEBUG exists ", exists, "senderId ", senderId);
 
     if (!exists) {
         const newSenderId = await postSender();

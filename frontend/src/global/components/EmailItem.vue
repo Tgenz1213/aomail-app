@@ -614,6 +614,15 @@ async function markEmailReplyLater() {
 }
 
 async function markEmailAsUnreplyLater() {
+    for (const category in emails.value) {
+        for (const subCategory in emails.value[category]) {
+            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
+            if (index !== -1) {
+                emails.value[category][subCategory][index].answerLater = false;
+                break;
+            }
+        }
+    }
     let result = await postData(`user/emails/${localEmail.value.id}/unmark_reply_later/`, {});
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);

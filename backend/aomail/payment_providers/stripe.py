@@ -16,7 +16,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
-from aomail.constants import ALLOWED_PLANS, BASE_URL, CREDS_PATH, ENV, INACTIVE
+from aomail.constants import (
+    ALLOWED_PLANS,
+    BASE_URL,
+    CREDS_PATH,
+    ENV,
+    INACTIVE,
+    MAX_RETRIES,
+)
 from aomail.models import Subscription
 from aomail.utils.security import subscription
 
@@ -48,6 +55,73 @@ PRODUCTS = {
 stripe.api_key = SECRET_KEY
 
 
+def cancel_subscription(subscription: Subscription) -> bool:
+    """
+    Cancels the user's Stripe subscription and updates the subscription status.
+
+    Args:
+        subscription (Subscription): The subscription object that will be canceled.
+
+    Returns:
+        bool: True if the cancellation was successful or if the subscription is not found, False otherwise.
+    """
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            canceled_subscription = stripe.Subscription.cancel(
+                subscription.subscription_id, prorate=True
+            )
+            LOGGER.info(
+                f"Attempt {attempt}: Stripe subscription {subscription.subscription_id}"
+            )
+            LOGGER.info(
+                f"for user {subscription.user.id} successfully canceled: {canceled_subscription}"
+            )
+            return True
+
+        except stripe.InvalidRequestError as e:
+            if e.http_status == 404 and "No such subscription" in str(e):
+                LOGGER.warning(
+                    f"Attempt {attempt}: Stripe subscription {subscription.subscription_id} not found"
+                )
+                LOGGER.warning(
+                    f"for user {subscription.user.id}. Assuming the user canceled it or webhook issue."
+                )
+                return True
+            else:
+                LOGGER.error(
+                    f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} "
+                    f"for user {subscription.user.id}: {str(e)}"
+                )
+
+        except stripe.StripeError as e:
+            LOGGER.error(
+                f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} "
+                f"for user {subscription.user.id}: {str(e)}"
+            )
+
+        except Subscription.DoesNotExist:
+            LOGGER.error(
+                f"Attempt {attempt}: Subscription for user {subscription.user.id} not found in the database."
+            )
+            return False
+
+        except Exception as e:
+            LOGGER.critical(
+                f"Attempt {attempt}: An unexpected error occurred while canceling the subscription "
+                f"for user {subscription.user.id}: {e}"
+            )
+
+        if attempt < MAX_RETRIES:
+            LOGGER.info(
+                f"Retrying cancellation (Attempt {attempt + 1} of {MAX_RETRIES})..."
+            )
+
+    LOGGER.error(
+        f"Failed to cancel Stripe subscription {subscription.subscription_id} for user {subscription.user.id} after {MAX_RETRIES} attempts."
+    )
+    return False
+
+
 @api_view(["POST"])
 @subscription(ALLOWED_PLANS + [INACTIVE])
 def create_checkout_session(request: HttpRequest):
@@ -60,6 +134,11 @@ def create_checkout_session(request: HttpRequest):
     Returns:
         Response: A JSON response containing the session ID or an error message.
     """
+    return Response(
+        {"error": "Plans are not available during the beta period"},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
+
     try:
         user = request.user
         parameters: dict = json.loads(request.body)

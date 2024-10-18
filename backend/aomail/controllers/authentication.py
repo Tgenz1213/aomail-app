@@ -69,6 +69,7 @@ from aomail.models import (
     Statistics,
     Subscription,
 )
+from aomail.payment_providers import stripe
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -651,14 +652,14 @@ def refresh_token(request: HttpRequest) -> Response:
 @subscription(ALLOWED_PLANS + [INACTIVE])
 def delete_account(request: HttpRequest) -> Response:
     """
-    Removes the authenticated user account from the database.
+    Removes the authenticated user's account from the database.
 
     Args:
         request (HttpRequest): HTTP request object containing the authenticated user.
 
     Returns:
         Response: {"message": "User successfully deleted"} if the user account is deleted successfully,
-                      or {"error": "Details of the specific error."} if there's an issue with the deletion.
+                  or {"error": "Details of the specific error."} if there's an issue with the deletion.
     """
     user = request.user
 
@@ -667,14 +668,27 @@ def delete_account(request: HttpRequest) -> Response:
         LOGGER.info(f"Deletion request received from IP: {ip} for user ID: {user.id}")
 
         unsubscribe_listeners(user)
-        user.delete()
 
+        subscription = Subscription.objects.get(user=user)
+        if not subscription.is_trial and subscription.is_active:
+            cancelled_subscription = stripe.cancel_subscription(subscription)
+
+            if not cancelled_subscription:
+                return Response(
+                    {
+                        "error": "Failed to cancel Stripe subscription. Please try using the management link."
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+        user.delete()
         LOGGER.info(f"User with ID: {user.id} deleted successfully")
+
         return Response(
             {"message": "User successfully deleted"}, status=status.HTTP_200_OK
         )
     except Exception as e:
-        LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
+        LOGGER.error(f"Error when deleting account for user {user.id}: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,

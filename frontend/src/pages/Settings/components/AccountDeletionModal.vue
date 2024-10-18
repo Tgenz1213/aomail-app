@@ -91,6 +91,7 @@ async function deleteAccount() {
 
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("settingsPage.accountPage.errorDeletingAccount"), result.error as string);
+        return;
     }
 
     localStorage.clear();

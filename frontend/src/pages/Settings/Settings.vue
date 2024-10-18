@@ -207,7 +207,6 @@ async function getUserPlan() {
         displayPopup("error", "Failed to fetch plan", result.error as string);
     } else {
         userPlan.value = result.data;
-        console.log("User PLan fetched successfully", userPlan.value);
     }
 }
 

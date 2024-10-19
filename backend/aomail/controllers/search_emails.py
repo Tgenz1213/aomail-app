@@ -345,7 +345,7 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_user_emails_ids(request: HttpRequest) -> Response:
     """
     Retrieves filtered user emails ids based on provided criteria and formats them grouped by category and priority.
@@ -404,15 +404,12 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             status=status.HTTP_200_OK,
         )
     except ValueError as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except KeyError:
         return Response(
             {"error": "Invalid JSON keys in request body"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    except TypeError:
-        return Response(
-            {"error": "resultPerPage must be an integer"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:

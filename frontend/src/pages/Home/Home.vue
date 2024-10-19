@@ -344,6 +344,7 @@ const selectCategory = async (category: Category) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
+    toSearch.value = false;
 
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);

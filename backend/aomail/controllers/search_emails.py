@@ -68,9 +68,7 @@ def get_emails_data(request: HttpRequest) -> Response:
         for email in queryset:
             email_data = {
                 "id": email.id,
-                "subject": decrypt_text(
-                    ENCRYPTION_KEYS["Email"]["subject"], email.subject
-                ),
+                "subject": email.subject,
                 "sender": {
                     "email": email.sender.email,
                     "name": email.sender.name,
@@ -261,8 +259,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
         if "emailProvider" in parameters:
             and_filters["email_provider__in"] = parameters["emailProvider"]
         if "subject" in parameters:
-            subject_query = parameters["subject"].lower()
-            and_filters["_subject_query"] = subject_query
+            and_filters["subject__icontains"] = parameters["subject"]
         if "senderEmail" in parameters:
             and_filters["sender__email__icontains"] = parameters["senderEmail"]
         if "senderName" in parameters:
@@ -289,14 +286,13 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
         if "category" in parameters:
             category_obj = Category.objects.get(name=parameters["category"], user=user)
             and_filters["category"] = category_obj
-        if "subject" in parameters:
-            subject_query = parameters["subject"].lower()
-            and_filters["_subject_query"] = subject_query
+        subject = parameters.get("subject")
         or_filters |= (
-            Q(sender__email__icontains=subject_query)
-            | Q(sender__name__icontains=subject_query)
-            | Q(cc_senders__email__icontains=subject_query)
-            | Q(cc_senders__name__icontains=subject_query)
+            Q(subject__icontains=subject)
+            | Q(sender__email__icontains=subject)
+            | Q(sender__name__icontains=subject)
+            | Q(cc_senders__email__icontains=subject)
+            | Q(cc_senders__name__icontains=subject)
         )
 
     return and_filters, or_filters
@@ -305,7 +301,6 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
 def get_sorted_queryset(
     and_filters: dict, or_filters: Q, sort: str, advanced: bool | None
 ) -> BaseManager[Email]:
-    subject_query = and_filters.pop("_subject_query", None)
     queryset = Email.objects.filter(**and_filters)
 
     if or_filters:
@@ -327,14 +322,6 @@ def get_sorted_queryset(
         queryset = queryset.order_by(
             F("priority").asc(nulls_last=True), F("read").asc(), "date"
         )
-
-    if subject_query:
-        queryset = [
-            email
-            for email in queryset
-            if subject_query
-            in decrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email.subject).lower()
-        ]
 
     return queryset
 
@@ -358,7 +345,7 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription([FREE_PLAN])
 def get_user_emails_ids(request: HttpRequest) -> Response:
     """
     Retrieves filtered user emails ids based on provided criteria and formats them grouped by category and priority.
@@ -417,12 +404,15 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             status=status.HTTP_200_OK,
         )
     except ValueError as e:
-        return Response(
-            {"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST)
     except KeyError:
         return Response(
             {"error": "Invalid JSON keys in request body"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except TypeError:
+        return Response(
+            {"error": "resultPerPage must be an integer"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:

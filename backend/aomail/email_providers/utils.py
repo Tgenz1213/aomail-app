@@ -340,7 +340,7 @@ def create_email_entry(
         short_summary=encrypt_text(ENCRYPTION_KEYS["Email"]["short_summary"], email_ai["summary"]["short"]),
         one_line_summary=encrypt_text(ENCRYPTION_KEYS["Email"]["one_line_summary"], email_ai["summary"]["one_line"]),
         html_content=encrypt_text(ENCRYPTION_KEYS["Email"]["html_content"], email_data.get("safe_html", "")),
-        subject=encrypt_text(ENCRYPTION_KEYS["Email"]["subject"], email_data["subject"]),
+        subject=email_data["subject"],
         priority=email_ai["importance"],
         sender=sender,
         category=category,

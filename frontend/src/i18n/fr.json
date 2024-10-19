@@ -190,6 +190,7 @@
   "homePage": {
     "otherCategory": "Autres",
     "noNewEmail": "Pas de nouvel e-mail",
+    "noEmailFound": "Aucun e-mail trouvé",
     "youDidNotReceiveNewEmail": "Vous n'avez pas reçu de nouvel e-mail",
     "suppressionOf": "Suppression de",
     "answer": "Répondre",

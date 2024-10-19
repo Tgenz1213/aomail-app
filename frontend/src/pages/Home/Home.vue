@@ -30,6 +30,7 @@
                     />
                     <div v-if="!hasEmails" class="flex-1">
                         <div class="flex flex-col w-full h-full rounded-xl">
+                            <div v-if="toSearch"><SearchBar /></div>
                             <div
                                 class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
@@ -47,8 +48,11 @@
                                         d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
                                     />
                                 </svg>
-                                <span class="mt-2 block text-md font-semibold text-gray-900">
+                                <span v-if="!toSearch" class="mt-2 block text-md font-semibold text-gray-900">
                                     {{ $t("homePage.noNewEmail") }}
+                                </span>
+                                <span v-else class="mt-2 block text-md font-semibold text-gray-900">
+                                    {{ $t("homePage.noEmailFound") }}
                                 </span>
                             </div>
                         </div>

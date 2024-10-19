@@ -179,9 +179,7 @@ const fetchEmailsData = async (categoryName: string) => {
     } else {
         if (toSearch.value) {
             response = await postData("user/emails_ids/", {
-                subject: searchQuery.value,
-                senderEmail: searchQuery.value,
-                senderName: searchQuery.value,
+                search: searchQuery.value,
                 category: categoryName,
             });
         } else {

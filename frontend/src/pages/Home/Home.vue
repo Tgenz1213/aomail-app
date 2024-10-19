@@ -150,9 +150,7 @@ const fetchEmailsData = async (categoryName: string) => {
         if (toSearch.value) {
             response = await postData("user/emails_ids/", {
                 advanced: true,
-                subject: searchQuery.value,
-                senderEmail: searchQuery.value,
-                senderName: searchQuery.value,
+                search: searchQuery.value,
                 category: categoryName,
                 priority: priorities,
                 spam: selectedFilter.value?.spam,
@@ -183,7 +181,7 @@ const fetchEmailsData = async (categoryName: string) => {
                 category: categoryName,
             });
         } else {
-            response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+            response = await postData("user/emails_ids/", { search: "", category: categoryName });
         }
     }
 

@@ -229,6 +229,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
     """
     and_filters = {"user": user}
     or_filters = Q()
+    or_filters_search = Q()
 
     if parameters.get("advanced"):
         if "priority" in parameters:
@@ -281,6 +282,16 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
             and_filters["cc_senders__email__in"] = parameters["CCEmails"]
         if "CCNames" in parameters:
             and_filters["cc_senders__name__in"] = parameters["CCNames"]
+        if "search" in parameters:
+            search = parameters.get("search")
+            or_filters_search |=  (
+                Q(subject__icontains=search)
+                | Q(sender__email__icontains=search)
+                | Q(sender__name__icontains=search)
+                | Q(cc_senders__email__icontains=search)
+                | Q(cc_senders__name__icontains=search)
+            )
+            
 
     else:
         if "category" in parameters:
@@ -295,16 +306,19 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
             | Q(cc_senders__name__icontains=search)
         )
 
-    return and_filters, or_filters
+    return and_filters, or_filters, or_filters_search
 
 
 def get_sorted_queryset(
-    and_filters: dict, or_filters: Q, sort: str, advanced: bool | None
+    and_filters: dict, or_filters: Q, or_filters_search: Q, sort: str, advanced: bool | None
 ) -> BaseManager[Email]:
     queryset = Email.objects.filter(**and_filters)
 
     if or_filters:
         queryset = queryset.filter(or_filters)
+
+    if or_filters_search:
+        queryset = queryset.filter(or_filters_search)
 
     rule_id_subquery = Rule.objects.filter(
         sender=OuterRef("sender"), user=and_filters["user"]
@@ -393,9 +407,9 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         parameters: dict = valid_data["parameters"]
         sort = valid_data["sort"]
 
-        and_filters, or_filters = construct_filters(user, parameters)
+        and_filters, or_filters, or_filters_search = construct_filters(user, parameters)
         queryset = get_sorted_queryset(
-            and_filters, or_filters, sort, parameters.get("advanced")
+            and_filters, or_filters, or_filters_search, sort, parameters.get("advanced")
         )
         email_count, email_ids = format_email_data(queryset)
 

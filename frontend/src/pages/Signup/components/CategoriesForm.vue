@@ -148,9 +148,9 @@ const errorMessageNewCategoryModal = ref<string>("");
 const errorMessageUpdateCategoryModal = ref<string>("");
 const updateCategoryName = ref<string>("");
 const updateCategoryDescription = ref<string>("");
-const isModalNewCategoryOpen = ref<boolean>(false);
-const isModalUpdateCategoryOpen = ref<boolean>(false);
 const categories = inject<Ref<Category[]>>("categories") || ref([]);
+const isModalNewCategoryOpen = inject<Ref<boolean>>("isModalNewCategoryOpen") || ref(false);
+const isModalUpdateCategoryOpen = inject<Ref<boolean>>("isModalUpdateCategoryOpen") || ref(false);
 
 const goStepLinkEmail = inject<() => void>("goStepLinkEmail");
 

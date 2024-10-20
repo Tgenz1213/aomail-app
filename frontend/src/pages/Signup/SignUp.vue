@@ -66,8 +66,12 @@ const notificationMessage = ref<string>("");
 const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
 const categories = ref<Category[]>([]);
+const isModalNewCategoryOpen = ref<boolean>(false);
+const isModalUpdateCategoryOpen = ref<boolean>(false);
 
 provide("step", step);
+provide("isModalNewCategoryOpen", isModalNewCategoryOpen);
+provide("isModalUpdateCategoryOpen", isModalUpdateCategoryOpen);
 provide("userDescription", userDescription);
 provide("login", login);
 provide("password", password);
@@ -104,7 +108,7 @@ function handleKeyDown(event: KeyboardEvent) {
             goStepPreferencesForm();
         } else if (step.value === 1) {
             goStepCategoriesForm();
-        } else if (step.value === 2) {
+        } else if (step.value === 2 && !isModalNewCategoryOpen.value && !isModalUpdateCategoryOpen.value) {
             goStepLinkEmail();
         }
     }

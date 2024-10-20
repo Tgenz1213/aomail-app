@@ -188,7 +188,11 @@
     "of": "d'",
     "termsOfService": "conditions d'utilisation",
     "privacyPolicy": "politique de confidentialité",
-    "informationOnDataConfidentiality": "Quelques informations sur la confidentialité des données"
+    "informationOnDataConfidentiality": "Quelques informations sur la confidentialité des données",
+    "ESOFCyberScore": "Score Cyber ESOF :",
+    "cyberScoreAssessor": "Évaluateur de sécurité TAC Security",
+    "emailsAreEncryptedAtRest": "Le contenu des e-mails est crypté au repos dans notre base de données",
+    "emailsFallbackToProviders": "Les e-mails restent disponibles dans Gmail ou Outlook en tant que solution de secours"
   },
   "homePage": {
     "otherCategory": "Autres",

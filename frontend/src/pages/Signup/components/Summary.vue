@@ -36,21 +36,21 @@
                 <div class="flex items-center space-x-3">
                     <ShieldCheckIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
                     <span>
-                        ESOF Cyber score: 9.7/10
+                        {{ $t("signuUpLinkPage.ESOFCyberScore") }} 9.7/10
                         <a href="https://tacsecurity.com/" class="text-blue-600 hover:underline" target="_blank">
-                            TAC Security assessor
+                            {{ $t("signuUpLinkPage.cyberScoreAssessor") }}
                         </a>
                     </span>
                 </div>
                 <!-- Keypoint 2: Emails Content Encryption -->
                 <div class="flex items-center space-x-3 mt-4">
                     <LockClosedIcon class="h-6 w-6 text-gray-600" aria-hidden="true" />
-                    <span>Emails content are encrypted at rest on our database</span>
+                    <span>{{ $t("signuUpLinkPage.emailsAreEncryptedAtRest") }}</span>
                 </div>
                 <!-- Keypoint 3: Emails Fallback to Gmail/Outlook -->
                 <div class="flex items-center space-x-3 mt-4">
                     <CloudIcon class="h-6 w-6 text-indigo-600" aria-hidden="true" />
-                    <span>Emails still available in Gmail or Outlook as a fallback</span>
+                    <span>{{ $t("signuUpLinkPage.emailsFallbackToProviders") }}</span>
                 </div>
             </div>
         </div>

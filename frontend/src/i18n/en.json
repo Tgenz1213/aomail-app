@@ -188,7 +188,11 @@
     "of": "of",
     "termsOfService": "terms of service",
     "privacyPolicy": "privacy policy",
-    "informationOnDataConfidentiality": "Some information on data confidentiality"
+    "informationOnDataConfidentiality": "Some information on data confidentiality",
+    "ESOFCyberScore": "ESOF Cyber score:",
+    "cyberScoreAssessor": "TAC Security assessor",
+    "emailsAreEncryptedAtRest": "Emails content are encrypted at rest on our database",
+    "emailsFallbackToProviders": "Emails still available in Gmail or Outlook as a fallback"
   },
   "homePage": {
     "otherCategory": "Others",

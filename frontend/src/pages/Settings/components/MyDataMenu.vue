@@ -1,5 +1,6 @@
 <template>
     <div class="flex flex-col h-full section bg-white rounded-lg shadow-lg p-8">
+        <!-- Form Section (Dropdowns, Checkboxes) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Dropdown Menu for Metrics -->
             <div>
@@ -17,6 +18,7 @@
                     </option>
                 </select>
             </div>
+
             <!-- Since Selection (Checkbox List) -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
@@ -35,6 +37,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Period Selection (Checkbox List) -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
@@ -53,6 +56,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Data Options (avg, min, max) -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
@@ -87,16 +91,18 @@
                 </div>
             </div>
         </div>
-        <div v-if="data[selectedMetric]" class="mt-8 bg-gray-50 p-6 rounded-lg shadow-md">
+
+        <!-- Scrollable Content for Statistics -->
+        <div v-if="data[selectedMetric]" class="flex-1 mt-8 bg-gray-50 p-6 rounded-lg shadow-md overflow-y-auto">
             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <i class="fas fa-chart-line text-green-500 mr-2"></i>
                 Statistics for {{ metricLabelTranslations[selectedMetric] || selectedMetric }}
             </h3>
-            <!-- Scrollable content container for statistics -->
-            <div class="overflow-y-auto max-h-80">
+
+            <div class="flex flex-col space-y-4">
                 <!-- Display since values -->
                 <div class="mb-4">
-                    <h4 class="text-sm font-medium text-gray-600 mb-2">Since:</h4>
+                    <h4 class="text-sm font-medium text-gray-600 mb-2 ml-10">Since:</h4>
                     <ul class="space-y-2">
                         <li v-for="(value, key) in data[selectedMetric]?.since" :key="key" class="flex justify-between">
                             <span>{{ metricLabelTranslations[key as MetricKeys] || key }}</span>
@@ -104,6 +110,7 @@
                         </li>
                     </ul>
                 </div>
+
                 <!-- Display periods values -->
                 <div>
                     <h4 class="text-sm font-medium text-gray-600 mb-2">Periods:</h4>

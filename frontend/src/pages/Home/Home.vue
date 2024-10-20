@@ -30,7 +30,7 @@
                     />
                     <div v-if="!hasEmails" class="flex-1">
                         <div class="flex flex-col w-full h-full rounded-xl">
-                            <div v-if="toSearch"><SearchBar /></div>
+                            <div v-if="toSearch || selectedFilter"><SearchBar /></div>
                             <div
                                 class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >

@@ -163,7 +163,6 @@ const fetchEmailsData = async (categoryName: string) => {
         } else {
             response = await postData("user/emails_ids/", {
                 advanced: true,
-                subject: "",
                 category: categoryName,
                 priority: priorities,
                 spam: selectedFilter.value?.spam,

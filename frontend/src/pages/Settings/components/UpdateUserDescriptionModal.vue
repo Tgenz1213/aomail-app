@@ -32,7 +32,7 @@
                             <input
                                 v-model="userDescription"
                                 type="text"
-                                placeholder="Résumez-vous pour aider l'assistant"
+                                :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
                                 class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                             />
                         </div>
@@ -57,8 +57,8 @@ import { ref, inject, Ref, onMounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 
-const userDescription = ref("");
 const emailSelected = inject<Ref<string>>("emailSelected");
+const userDescription = inject<Ref<string>>("userDescription");
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const props = defineProps<{
@@ -88,7 +88,7 @@ function handleKeyDown(event: KeyboardEvent) {
 async function updateUserDescription() {
     const result = await postData("user/social_api/update_user_description/", {
         email: emailSelected?.value,
-        userDescription: userDescription.value,
+        userDescription: userDescription?.value,
     });
 
     if (result.success) {

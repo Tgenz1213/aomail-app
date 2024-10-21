@@ -124,22 +124,24 @@
                     </main>
 
                     <div class="overflow-y-auto custom-scrollbar">
+                        <div v-if="activeSection === 'account'">
+                            <MyAccountMenu />
+                        </div>
 
-                    <div v-if="activeSection === 'account'">
-                        <MyAccountMenu />
-                    </div>
+                        <div
+                            v-if="activeSection === 'subscription'"
+                            class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12"
+                        >
+                            <SubscriptionMenu />
+                        </div>
 
-                    <div v-if="activeSection === 'subscription'" class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12">
-                        <SubscriptionMenu />
-                    </div>
+                        <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
+                            <MyDataMenu />
+                        </div>
 
-                    <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
-                        <MyDataMenu />
-                    </div>
-
-                    <div v-if="activeSection === 'preferences'" class="flex-1 section">
-                        <PreferencesMenu />
-                    </div>
+                        <div v-if="activeSection === 'preferences'" class="flex-1 section">
+                            <PreferencesMenu />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -189,6 +191,7 @@ provide("openAddUserDescriptionModal", openAddUserDescriptionModal);
 provide("openAccountDeletionModal", openAccountDeletionModal);
 provide("openUnLinkModal", openUnLinkModal);
 provide("openUserDescriptionModal", openUserDescriptionModal);
+provide("userDescription", userDescription);
 provide("isDeleteRadioButtonChecked", isDeleteRadioButtonChecked);
 provide("isUpdateUserDescriptionModalOpen", isUpdateUserDescriptionModalOpen);
 provide("isAccountDeletionModalOpen", isAccountDeletionModalOpen);

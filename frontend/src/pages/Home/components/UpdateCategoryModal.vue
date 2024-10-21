@@ -30,7 +30,7 @@
                         </label>
                         <div class="mt-2">
                             <input
-                                id="categoryName"
+                                id="updateCategoryName"
                                 v-model="categoryName"
                                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
                                 :placeholder="$t('constants.categoryModalConstants.administrative')"
@@ -43,7 +43,7 @@
                         </label>
                         <div class="mt-2">
                             <textarea
-                                id="categoryDescription"
+                                id="updateCategoryDescription"
                                 v-model="categoryDescription"
                                 rows="3"
                                 style="min-height: 60px"
@@ -92,11 +92,45 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, inject } from "vue";
+import { Ref, ref, watch, inject, onMounted, onUnmounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { Category } from "@/global/types";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
 import { postData, deleteData, putData } from "@/global/fetchData";
+
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        updateCategory();
+    } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeModal();
+    } else if (event.key === "Tab") {
+        event.preventDefault();
+        const target = document.activeElement as HTMLElement;
+
+        const categoryNameElement = document.getElementById("updateCategoryName") as HTMLInputElement;
+        const categoryDescriptionElement = document.getElementById("updateCategoryDescription") as HTMLInputElement;
+
+        if (!categoryName.value) {
+            categoryNameElement?.focus();
+        } else if (!categoryDescription.value) {
+            categoryDescriptionElement?.focus();
+        } else if (target.id === "updateCategoryDescription") {
+            categoryNameElement?.focus();
+        } else {
+            categoryDescriptionElement?.focus();
+        }
+    }
+};
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("keydown", handleKeyDown);
+});
 
 const props = defineProps<{
     isOpen: boolean;
@@ -105,6 +139,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: "close"): void;
+    (e: "selectCategory", category: Category): void;
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
@@ -140,6 +175,10 @@ const resetForm = () => {
 };
 
 const updateCategory = async () => {
+    if (!props.isOpen) {
+        return;
+    }
+
     if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
         errorMessage.value = i18n.global.t("homePage.modals.pleaseFillAllFields");
         return;
@@ -172,6 +211,10 @@ const updateCategory = async () => {
         });
         categories.value = updatedCategories;
         fetchCategoriesAndTotals();
+        emit("selectCategory", {
+            name: categoryName.value,
+            description: categoryDescription.value,
+        });
         fetchEmailsData(selectedCategory.value);
         closeModal();
         displayPopup?.(
@@ -180,39 +223,52 @@ const updateCategory = async () => {
             i18n.global.t("constants.popUpConstants.successMessages.updateCategorySuccess")
         );
     } else {
-        closeModal();
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.addCategoryError"),
             i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError")
         );
     }
-
-    closeModal();
 };
 
 const deleteCategory = async () => {
+    if (!props.isOpen) {
+        return;
+    }
+
     const result = await postData(`get_rules_linked/`, { categoryName: categoryName.value });
     // TO UPDATE with warning
-    if (!result.success || result.data.nb_rules > 0) {
+    if (!result.success || result.data.nbRules > 0) {
         closeModal();
         displayPopup?.(
             "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.error"),
-            i18n.global.t("constants.popUpConstants.errorMessages.deleteCategoryError")
+            i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError"),
+            result.error as string
         );
     } else {
-        await deleteData(`delete_category/`, { categoryName: categoryName.value });
-        const index = categories.value.findIndex((category) => category.name === categoryName.value);
-        if (index !== -1) {
-            categories.value.splice(index, 1);
+        const resultDeleteData = await deleteData(`delete_category/`, { categoryName: categoryName.value });
+        if (!resultDeleteData.success) {
+            displayPopup?.(
+                "success",
+                i18n.global.t("constants.popUpConstants.errorMessages.deleteCategoryError"),
+                result.error as string
+            );
+        } else {
+            emit("selectCategory", {
+                name: "Others",
+                description: "",
+            });
+            const index = categories.value.findIndex((category) => category.name === categoryName.value);
+            if (index !== -1) {
+                categories.value.splice(index, 1);
+            }
+            closeModal();
+            displayPopup?.(
+                "success",
+                i18n.global.t("constants.popUpConstants.successMessages.success"),
+                i18n.global.t("constants.popUpConstants.successMessages.deleteCategorySuccess")
+            );
         }
-        closeModal();
-        displayPopup?.(
-            "success",
-            i18n.global.t("constants.popUpConstants.successMessages.success"),
-            i18n.global.t("constants.popUpConstants.successMessages.deleteCategorySuccess")
-        );
     }
 };
 </script>

@@ -282,8 +282,6 @@ function handleKeyDown(event: KeyboardEvent) {
         } else if (isModalNewCategoryOpen.value) {
             closeNewCategoryModal();
         }
-    } else if (event.key === "Delete") {
-        deleteCategoryOnUpdate();
     }
 }
 </script>

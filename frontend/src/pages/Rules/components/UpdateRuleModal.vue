@@ -304,8 +304,6 @@ function handleKeyDown(event: KeyboardEvent) {
         } else {
             updateUserRule();
         }
-    } else if (event.key === "Delete") {
-        deleteRule();
     }
 }
 

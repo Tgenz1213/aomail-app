@@ -6,11 +6,16 @@
         :backgroundColor="backgroundColor"
         @dismissPopup="dismissPopup"
     />
-    <NewCategoryModal :isOpen="isModalNewCategoryOpen" @close="closeNewCategoryModal" />
+    <NewCategoryModal
+        :isOpen="isModalNewCategoryOpen"
+        @close="closeNewCategoryModal"
+        @selectCategory="selectCategory"
+    />
     <UpdateCategoryModal
         :isOpen="isModalUpdateCategoryOpen"
         :category="categoryToUpdate"
         @close="closeUpdateCategoryModal"
+        @selectCategory="selectCategory"
     />
     <NewFilterModal :isOpen="isModalNewFilterOpen" @close="closeNewFilterModal" />
     <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />

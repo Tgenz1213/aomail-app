@@ -193,7 +193,7 @@ def get_rules_linked(request: HttpRequest) -> Response:
         )
     rules = Rule.objects.filter(category=category, user=user)
 
-    return Response({"nb_rules": len(rules)}, status=status.HTTP_200_OK)
+    return Response({"nbRules": len(rules)}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

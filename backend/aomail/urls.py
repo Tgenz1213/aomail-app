@@ -39,7 +39,7 @@ urlpatterns = [
     path('get_category_id/', categories.get_category_id, name='get_category_id'), # ok
     path('update_category/', categories.update_category, name='update_category'), # ok
     path('delete_category/', categories.delete_category, name='delete_category'), # ok
-    path('get_rules_linked/', categories.get_rules_linked, name='get_rules_linked'), # ok
+    path('get_dependencies/', categories.get_dependencies, name='get_dependencies'), # ok
     #----------------------- FILTERS -----------------------#
     path('user/filters/', filters.get_user_filter, name='get_user_filters'),
     path('create_filter/', filters.create_filter, name='create_filter'),

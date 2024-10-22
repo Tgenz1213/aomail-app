@@ -528,11 +528,9 @@ async function setRuleBlockForSender() {
     const resultRead = await postData(`user/emails/${localEmail.value.id}/mark_read/`, {});
 
     if (!resultBlock.success) {
-        // TO UPDATE
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), resultBlock.error as string);
+        displayPopup?.("error", i18n.global.t("homepage.blockEmailAddressFailure"), resultBlock.error as string);
     }
     if (!resultRead.success) {
-        // TO UPDATE
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), resultRead.error as string);
     }
     fetchEmailsData(selectedCategory.value);

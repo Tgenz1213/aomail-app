@@ -96,7 +96,7 @@ import { Ref, ref, watch, inject, onMounted, onUnmounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { Category } from "@/global/types";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
-import { postData, deleteData, putData } from "@/global/fetchData";
+import { deleteData, putData, getData } from "@/global/fetchData";
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -225,8 +225,8 @@ const updateCategory = async () => {
     } else {
         displayPopup?.(
             "error",
-            i18n.global.t("constants.popUpConstants.addCategoryError"),
-            i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError")
+            i18n.global.t("constants.popUpConstants.errorMessages.addCategoryError"),
+            result.error as string
         );
     }
 };
@@ -236,14 +236,29 @@ const deleteCategory = async () => {
         return;
     }
 
-    const result = await postData(`get_rules_linked/`, { categoryName: categoryName.value });
-    // TO UPDATE with warning
-    if (!result.success || result.data.nbRules > 0) {
+    const result = await getData(`get_dependencies/`, { categoryName: categoryName.value });
+    if (!result.success) {
         closeModal();
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError"),
             result.error as string
+        );
+    } else if (result.data.nbRules > 0) {
+        // TODO: open category deletion warning modal
+        closeModal();
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError"),
+            "There are rules linked with this category"
+        );
+    } else if (result.data.nbEmails > 0) {
+        // TODO: open category deletion warning modal
+        closeModal();
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError"),
+            "There are emails linked with this category"
         );
     } else {
         const resultDeleteData = await deleteData(`delete_category/`, { categoryName: categoryName.value });

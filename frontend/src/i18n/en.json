@@ -17,6 +17,7 @@
       "clickToSeeTheSummary": "Click to see the summary",
       "clickToSeeUselessEmails": "Click to see the useless emails",
       "replyLater": "Reply later",
+      "unreplyLater": "Unreply Later",
       "enterManually": "Enter manually",
       "answerManually": "Answer manually",
       "modifyACategory": "Modify a category",
@@ -203,7 +204,6 @@
     "answer": "Answer",
     "read": "Read",
     "unread": "Unread",
-    "unreplyLater": "Unreply Later",
     "youReceived": "You received",
     "newEmail": "new email",
     "newEmails": "new emails",
@@ -226,6 +226,7 @@
     "markEmailUnreadFailure": "Failed to mark email as unread",
     "markEmailReadFailure": "Failed to mark email as read",
     "markEmailReplyLaterFailure": "Failed to mark email for reply later",
+    "unmarkEmailReplyLaterFailure": "Failed to unmark email for reply later",
     "transferEmailFailure": "Failed to transfer email",
     "blockEmailAddressFailure": "Failed to block email address",
     "flag": {

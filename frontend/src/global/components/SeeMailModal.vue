@@ -58,6 +58,7 @@
                                             Useless
                                         </span>
                                         <span
+                                            v-if="email?.category"
                                             class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                         >
                                             {{ email?.category }}
@@ -263,7 +264,10 @@
                                                                     </MenuItem>
                                                                 </div>
                                                                 <div class="py-1">
-                                                                    <MenuItem v-slot="{ active }">
+                                                                    <MenuItem
+                                                                        v-if="!email?.answerLater"
+                                                                        v-slot="{ active }"
+                                                                    >
                                                                         <a
                                                                             @click.prevent="markEmailReplyLater"
                                                                             :class="[
@@ -311,6 +315,60 @@
                                                                                     {{
                                                                                         $t(
                                                                                             "constants.userActions.replyLater"
+                                                                                        )
+                                                                                    }}
+                                                                                </span>
+                                                                            </span>
+                                                                        </a>
+                                                                    </MenuItem>
+                                                                    <MenuItem v-else v-slot="{ active }">
+                                                                        <a
+                                                                            @click.prevent="markEmailAsUnreplyLater"
+                                                                            :class="[
+                                                                                active
+                                                                                    ? 'bg-gray-100 text-gray-600'
+                                                                                    : 'text-gray-700',
+                                                                                'block px-4 py-1 text-sm',
+                                                                            ]"
+                                                                        >
+                                                                            <span class="flex gap-x-2 items-center">
+                                                                                <svg
+                                                                                    class="w-4 h-4"
+                                                                                    viewBox="0 0 28 28"
+                                                                                    version="1.1"
+                                                                                    stroke="currentColor"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                                                    xml:space="preserve"
+                                                                                    xmlns:serif="http://www.serif.com/"
+                                                                                    style="
+                                                                                        fill-rule: evenodd;
+                                                                                        clip-rule: evenodd;
+                                                                                        stroke-linecap: round;
+                                                                                        stroke-linejoin: round;
+                                                                                    "
+                                                                                >
+                                                                                    <path
+                                                                                        d="M13.435,17.391l-6.783,-6.782m0,0l6.783,-6.783m-6.783,6.783l13.565,0c3.721,0 6.783,3.061 6.783,6.782c0,3.721 -3.062,6.783 -6.783,6.783l-3.391,0"
+                                                                                        style="
+                                                                                            fill: none;
+                                                                                            stroke: #000;
+                                                                                            stroke-width: 1.7px;
+                                                                                        "
+                                                                                    />
+                                                                                    <path
+                                                                                        d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
+                                                                                        style="
+                                                                                            fill: none;
+                                                                                            stroke: #000;
+                                                                                            stroke-width: 1.7px;
+                                                                                        "
+                                                                                    />
+                                                                                </svg>
+                                                                                <span>
+                                                                                    {{
+                                                                                        $t(
+                                                                                            "constants.userActions.unreplyLater"
                                                                                         )
                                                                                     }}
                                                                                 </span>
@@ -420,6 +478,7 @@ const emits = defineEmits([
     "markEmailAsUnread",
     "openRule",
     "markEmailReplyLater",
+    "markEmailAsUnreplyLater",
     "openAnswer",
     "transferEmail",
     "archiveEmail",
@@ -455,6 +514,11 @@ const transferEmail = () => {
 
 const markEmailReplyLater = () => {
     emits("markEmailReplyLater");
+    closeModal();
+};
+
+const markEmailAsUnreplyLater = () => {
+    emits("markEmailAsUnreplyLater");
     closeModal();
 };
 

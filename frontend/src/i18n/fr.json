@@ -17,6 +17,7 @@
       "clickToSeeTheSummary": "Cliquez pour voir le résumé",
       "clickToSeeUselessEmails": "Cliquez pour voir les mails inutiles",
       "replyLater": "Répondre plus tard",
+      "unreplyLater": "Boîte principale",
       "enterManually": "Entrer manuellement",
       "answerManually": "Répondre manuellement",
       "modifyACategory": "Modifier une catégorie",
@@ -203,7 +204,6 @@
     "answer": "Répondre",
     "read": "Lire",
     "unread": "Non lu",
-    "unreplyLater": "Unreply Later",
     "youReceived": "Vous avez reçu",
     "newEmail": "nouvel e-mail",
     "newEmails": "nouveaux e-mails",
@@ -226,6 +226,7 @@
     "markEmailUnreadFailure": "Échec de marquage de l'email comme non lu",
     "markEmailReadFailure": "Échec de marquage de l'email comme lu",
     "markEmailReplyLaterFailure": "Échec de marquage d'email pour répondre pour plus tard",
+    "unmarkEmailReplyLaterFailure": "Échec du démarrage de l'email pour répondre plus tard",
     "transferEmailFailure": "Échec de transfert d'email",
     "blockEmailAddressFailure": "Échec du bloquage de l'addresse email",
     "flag": {

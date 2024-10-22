@@ -9,6 +9,7 @@
         @archiveEmail="archiveEmail"
         @deleteEmail="deleteEmail"
         @markEmailReplyLater="markEmailReplyLater"
+        @markEmailAsUnreplyLater="markEmailAsUnreplyLater"
         @openAnswer="openAnswer"
         @transferEmail="transferEmail"
     />
@@ -182,9 +183,9 @@
                     <div v-else v-show="isHovered" class="group action-buttons">
                         <div class="relative group">
                             <div
-                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10 w-[115px]"
+                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-center text-sm rounded shadow-lg mt-[-45px] -ml-[60px] w-[140px]"
                             >
-                                {{ $t("homePage.unreplyLater") }}
+                                {{ $t("constants.userActions.unreplyLater") }}
                             </div>
                             <button
                                 @click="markEmailAsUnreplyLater"
@@ -611,6 +612,11 @@ async function markEmailReplyLater() {
         return;
     }
     result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {}); // We mark unread if the user click to replyLater to an email that is read=true (so it appears in replyLater correctly)
+
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);
+        return;
+    }
 }
 
 async function markEmailAsUnreplyLater() {

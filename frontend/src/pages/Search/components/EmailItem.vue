@@ -7,6 +7,7 @@
         @openRule="openRule"
         @markEmailAsRead="markEmailAsRead"
         @markEmailReplyLater="markEmailReplyLater"
+        @markEmailAsUnreplyLater="markEmailAsUnreplyLater"
         @openAnswer="openAnswer"
         @transferEmail="transferEmail"
     />
@@ -180,12 +181,29 @@ async function markEmailAsRead() {
 }
 
 async function markEmailReplyLater() {
-    const result = await postData(`user/emails/${localEmail.value.id}/mark_reply_later/`, {});
+    localEmail.value.answerLater = true;
+
+    let result = await postData(`user/emails/${localEmail.value.id}/mark_reply_later/`, {});
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
         return;
     }
-    localEmail.value.answerLater = true;
+
+    result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {});
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);
+        return;
+    }
+}
+
+async function markEmailAsUnreplyLater() {
+    localEmail.value.answerLater = false;
+
+    let result = await postData(`user/emails/${localEmail.value.id}/unmark_reply_later/`, {});
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.unmarkEmailReplyLaterFailure"), result.error as string);
+        return;
+    }
 }
 
 async function openAnswer() {

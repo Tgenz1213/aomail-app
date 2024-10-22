@@ -83,9 +83,10 @@ const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => P
 const toggleFilterSection = () => {
     showFilters.value = !showFilters.value;
 
-    openFilters.value[selectedCategory.value] = showFilters.value;
+    //openFilters.value[selectedCategory.value] = showFilters.value;
 
     localStorage.setItem("showFilters", JSON.stringify(openFilters.value));
+    localStorage.setItem("showFiltersTab", JSON.stringify(showFilters.value));
 };
 
 const clearSearch = () => {
@@ -136,7 +137,8 @@ onMounted(() => {
         }
     }
 
-    if (selectedCategory.value in openFilters.value && openFilters.value[selectedCategory.value]) {
+    const storedShowFilters = localStorage.getItem("showFiltersTab");
+    if (storedShowFilters) {
         showFilters.value = true;
     }
 });

@@ -223,7 +223,7 @@ def signup(request: HttpRequest) -> Response:
         user=user,
         plan=PREMIUM_PLAN,
     )
-    LOGGER.info(f"User {username} subscribed to free plan")
+    LOGGER.info(f"User {username} subscribed to premium plan (free trial)")
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
@@ -403,6 +403,7 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
         }
 
     except Exception as e:
+        LOGGER.error(f"An unexpected error occurred during validation: {str(e)}")
         return {"error": "An unexpected error occurred during validation"}
 
 

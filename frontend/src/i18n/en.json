@@ -23,7 +23,8 @@
       "modifyACategory": "Modify a category",
       "login": "Log In",
       "see": "See",
-      "archive": "Archive"
+      "archive": "Archive",
+      "unarchive": "Unarchive"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "No category defined",
@@ -80,6 +81,7 @@
         "emailSendErrorNoRecipient": "No recipient entered",
         "deleteEmailFailure": "Failed to delete email",
         "archiveEmailFailure": "Failed to archive email",
+        "unarchiveEmailFailure": "Failed to unarchive email",
         "addCategoryError": "Error adding category",
         "updateCategoryError": "Error updating category",
         "addFilterError": "Error adding filter",

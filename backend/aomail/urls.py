@@ -65,16 +65,12 @@ urlpatterns = [
     path('user/preferences/plan/', prefs.get_user_plan, name='get_user_plan'), # ok
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
-    path('user/emails/<int:email_id>/archive/', emails.archive_email, name='archive_email'), # waiting for implementation in FE
-    
+   
     path('user/emails_ids/', search_emails.get_user_emails_ids, name='get_user_emails'), # ok
     path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'), # ok
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'), # ok
-    path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok
-    path('user/emails/<int:email_id>/mark_read/', emails.set_email_read, name='set_email_read'), # ok
-    path('user/emails/<int:email_id>/mark_unread/', emails.set_email_unread, name='set_email_unread'), # ok
-    path('user/emails/<int:email_id>/mark_reply_later/', emails.set_email_reply_later, name='set_email_reply_laterr'), # ok
-    path('user/emails/<int:email_id>/unmark_reply_later/', emails.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
+    path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok    
+    path('user/emails/update/', emails.update_emails, name='update_emails'), # ok
     path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 
     path('get_mail_by_id', emails.get_mail_by_id, name='get_mail_by_id'), # ok
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'), # ok

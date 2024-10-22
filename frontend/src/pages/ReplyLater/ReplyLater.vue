@@ -44,9 +44,9 @@
                         </div>
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
-                        <ImportantEmail :emails="importantEmails" :replyLater=true />
-                        <InformativeEmail :emails="informativeEmails" :replyLater=true />
-                        <UselessEmail :emails="uselessEmails" :replyLater=true />
+                        <ImportantEmail :emails="importantEmails" :replyLater="true" />
+                        <InformativeEmail :emails="informativeEmails" :replyLater="true" />
+                        <UselessEmail :emails="uselessEmails" :replyLater="true" />
                     </div>
                 </div>
             </div>
@@ -84,7 +84,7 @@ const fetchEmailsData = async () => {
     allEmailIds.value = [];
     let response: FetchDataResult;
 
-    response = await postData("user/emails_ids/", { advanced: true, subject: "", replyLater: true });
+    response = await postData("user/emails_ids/", { advanced: true, replyLater: true });
 
     allEmailIds.value = response.data.ids;
 
@@ -140,31 +140,31 @@ const scroll = () => {
 };
 
 const importantEmails = computed(() => {
-  if (!emails.value) return [];
-  const allEmails = Object.values(emails.value).flatMap(category => category.important || []);
-  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
+    if (!emails.value) return [];
+    const allEmails = Object.values(emails.value).flatMap((category) => category.important || []);
+    return allEmails.filter((email) => email.answerLater && !email.read && !email.archive);
 });
 
 const informativeEmails = computed(() => {
-  if (!emails.value) return [];
-  const allEmails = Object.values(emails.value).flatMap(category => category.informative || []);
-  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
+    if (!emails.value) return [];
+    const allEmails = Object.values(emails.value).flatMap((category) => category.informative || []);
+    return allEmails.filter((email) => email.answerLater && !email.read && !email.archive);
 });
 
 const uselessEmails = computed(() => {
-  if (!emails.value) return [];
-  const allEmails = Object.values(emails.value).flatMap(category => category.useless || []);
-  return allEmails.filter(email => email.answerLater && !email.read && !email.archive);
+    if (!emails.value) return [];
+    const allEmails = Object.values(emails.value).flatMap((category) => category.useless || []);
+    return allEmails.filter((email) => email.answerLater && !email.read && !email.archive);
 });
 
 const hasEmails = computed(() => {
-  if (!emails.value) return false;
-  const allEmails = Object.values(emails.value).flatMap(category => [
-    ...(category.important || []),
-    ...(category.informative || []),
-    ...(category.useless || []),
-  ]);
-  return allEmails.some(email => email.answerLater && !email.read && !email.archive);
+    if (!emails.value) return false;
+    const allEmails = Object.values(emails.value).flatMap((category) => [
+        ...(category.important || []),
+        ...(category.informative || []),
+        ...(category.useless || []),
+    ]);
+    return allEmails.some((email) => email.answerLater && !email.read && !email.archive);
 });
 
 function dismissPopup() {
@@ -175,7 +175,6 @@ function dismissPopup() {
 }
 
 onMounted(async () => {
-
     await fetchEmailsData();
 
     scroll();

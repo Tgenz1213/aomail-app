@@ -284,14 +284,13 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
             and_filters["cc_senders__name__in"] = parameters["CCNames"]
         if "search" in parameters:
             search = parameters.get("search")
-            or_filters_search |=  (
+            or_filters_search |= (
                 Q(subject__icontains=search)
                 | Q(sender__email__icontains=search)
                 | Q(sender__name__icontains=search)
                 | Q(cc_senders__email__icontains=search)
                 | Q(cc_senders__name__icontains=search)
             )
-            
 
     else:
         if "category" in parameters:
@@ -310,7 +309,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
 
 
 def get_sorted_queryset(
-    and_filters: dict, or_filters: Q, or_filters_search: Q, sort: str, advanced: bool | None
+    and_filters: dict, or_filters: Q, or_filters_search: Q, sort: str
 ) -> BaseManager[Email]:
     queryset = Email.objects.filter(**and_filters)
 
@@ -408,9 +407,7 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         sort = valid_data["sort"]
 
         and_filters, or_filters, or_filters_search = construct_filters(user, parameters)
-        queryset = get_sorted_queryset(
-            and_filters, or_filters, or_filters_search, sort, parameters.get("advanced")
-        )
+        queryset = get_sorted_queryset(and_filters, or_filters, or_filters_search, sort)
         email_count, email_ids = format_email_data(queryset)
 
         return Response(

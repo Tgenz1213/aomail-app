@@ -1,17 +1,13 @@
 """
-Handles email operations, returns results to frontend, and saves to database.
+Handles email operations, returns results to frontend, and saves to the database.
 
 Endpoints:
-- ✅ archive_email: Archive an email.
 - ✅ delete_email: Delete an email.
 - ✅ delete_emails: Delete emails by priority or IDs.
 - ✅ get_first_email: Get the first email in the database.
 - ✅ get_mail_by_id: Retrieve email details by ID.
 - ✅ retrieve_attachment_data: Get attachment data by email and attachment ID.
-- ✅ set_email_not_reply_later: Unmark email for later reply.
-- ✅ set_email_read: Mark email as read.
-- ✅ set_email_reply_later: Mark email for later reply.
-- ✅ set_email_unread: Mark email as unread.
+- ✅ update_emails: Update the state of multiple emails (e.g., mark as read, unread, or for later reply).
 """
 
 import json
@@ -32,10 +28,6 @@ from aomail.email_providers.microsoft import (
 )
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
-)
-from aomail.utils.serializers import (
-    EmailReadUpdateSerializer,
-    EmailReplyLaterUpdateSerializer,
 )
 
 
@@ -118,128 +110,6 @@ def get_mail_by_id(request: HttpRequest) -> Response:
         return Response(
             {"error": "No email ID provided"}, status=status.HTTP_400_BAD_REQUEST
         )
-
-
-@api_view(["POST"])
-def set_email_read(request: HttpRequest, email_id: int) -> Response:
-    """
-    Marks a specific email as read for the authenticated user.
-
-    Args:
-        request (HttpRequest): HTTP request object.
-        email_id (int): The ID of the email to mark as read.
-
-    Returns:
-        Response: JSON response with the serialized data of the updated email,
-                  status=status.HTTP_200_OK if successful.
-    """
-    user = request.user
-    try:
-        email = get_object_or_404(Email, user=user, id=email_id)
-        email.read = True
-        email.read_date = timezone.now()
-        email.save()
-
-        social_api = email.social_api
-        if social_api:
-            if social_api.type_api == GOOGLE:
-                email_operations_google.set_email_read(
-                    user, social_api.email, email.provider_id
-                )
-            elif social_api.type_api == MICROSOFT:
-                email_operations_microsoft.set_email_read(social_api, email.provider_id)
-
-        serializer = EmailReadUpdateSerializer(email)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(["POST"])
-@subscription(ALLOWED_PLANS)
-def set_email_unread(request: HttpRequest, email_id: int) -> Response:
-    """
-    Marks a specific email as unread for the authenticated user.
-
-    Args:
-        request (HttpRequest): HTTP request object.
-        email_id (int): The ID of the email to mark as unread.
-
-    Returns:
-        Response: JSON response with the serialized data of the updated email,
-                      status=status.HTTP_200_OK if successful.
-    """
-    user = request.user
-    try:
-        email = get_object_or_404(Email, user=user, id=email_id)
-        email.read = False
-        email.read_date = None
-        email.save()
-
-        social_api = email.social_api
-        if social_api.type_api == GOOGLE:
-            email_operations_google.set_email_unread(
-                user, social_api.email, email.provider_id
-            )
-        elif social_api.type_api == MICROSOFT:
-            email_operations_microsoft.set_email_unread(social_api, email.provider_id)
-
-        serializer = EmailReadUpdateSerializer(email)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(["POST"])
-@subscription(ALLOWED_PLANS)
-def set_email_reply_later(request: HttpRequest, email_id: int) -> Response:
-    """
-    Marks a specific email for later reply for the authenticated user.
-
-    Args:
-        request (HttpRequest): HTTP request object.
-        email_id (int): The ID of the email to mark for later reply.
-
-    Returns:
-        Response: JSON response with the serialized data of the updated email,
-                      status=status.HTTP_200_OK if successful.
-    """
-    user = request.user
-    try:
-        email = get_object_or_404(Email, user=user, id=email_id)
-        email.answer_later = True
-        email.save()
-
-        serializer = EmailReplyLaterUpdateSerializer(email)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(["POST"])
-@subscription(ALLOWED_PLANS)
-def set_email_not_reply_later(request: HttpRequest, email_id: int) -> Response:
-    """
-    Unmarks a specific email for later reply for the authenticated user.
-
-    Args:
-        request (HttpRequest): HTTP request object.
-        email_id (int): The ID of the email to unmark for later reply.
-
-    Returns:
-        Response: JSON response with the serialized data of the updated email,
-                      status=status.HTTP_200_OK if successful.
-    """
-    user = request.user
-    try:
-        email = get_object_or_404(Email, user=user, id=email_id)
-        email.answer_later = False
-        email.save()
-
-        serializer = EmailReplyLaterUpdateSerializer(email)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # TODO: delete this comment after front-end implementation
@@ -341,38 +211,100 @@ def delete_email(request: HttpRequest, email_id: int) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["PUT"])
 @subscription(ALLOWED_PLANS)
-def archive_email(request: HttpRequest, email_id: int) -> Response:
+def update_emails(request: HttpRequest) -> Response:
     """
-    Archives an email associated with the authenticated user.
+    Updates the state of multiple emails associated with the authenticated user.
 
     Args:
-        request (HttpRequest): HTTP request object.
-        email_id (int): The ID of the email to archive.
+        request (HttpRequest): HTTP request object containing:
+            - ids (List[int]): A list of email IDs to update.
+            - action (str): The action to perform (e.g., 'mark_read', 'mark_unread',
+                            'mark_reply_later', 'unmark_reply_later').
 
     Returns:
-        Response: {"message": "Email archived successfully"} if the email is archived successfully,
-                      or {"error": <error_message>} with appropriate status code otherwise.
+        Response: {"message": "Emails updated successfully"} if the operation is successful,
+                  or {"error": <error_message>} with the appropriate status code otherwise.
     """
+    user = request.user
     try:
-        user = request.user
-        email = Email.objects.get(user=user, id=email_id)
-        email.archive = True
-        email.save()
+        parameters: dict = json.loads(request.body)
+        email_ids = parameters.get("ids")
+        action = parameters.get("action")
+
+        if not email_ids or not isinstance(email_ids, list):
+            return Response(
+                {"error": "Invalid or missing email IDs"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        emails = Email.objects.filter(user=user, id__in=email_ids)
+
+        if not emails.exists():
+            return Response(
+                {"error": "No emails found with the provided IDs"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        for email in emails:
+            if action == "read":
+                email.read = True
+                email.read_date = timezone.now()
+                social_api = email.social_api
+                if social_api:
+                    if social_api.type_api == GOOGLE:
+                        email_operations_google.set_email_read(
+                            user, social_api.email, email.provider_id
+                        )
+                    elif social_api.type_api == MICROSOFT:
+                        email_operations_microsoft.set_email_read(
+                            social_api, email.provider_id
+                        )
+
+            elif action == "unread":
+                email.read = False
+                email.read_date = None
+                social_api = email.social_api
+                if social_api:
+                    if social_api.type_api == GOOGLE:
+                        email_operations_google.set_email_unread(
+                            user, social_api.email, email.provider_id
+                        )
+                    elif social_api.type_api == MICROSOFT:
+                        email_operations_microsoft.set_email_unread(
+                            social_api, email.provider_id
+                        )
+
+            elif action == "replyLater":
+                email.answer_later = True
+
+            elif action == "unreplyLater":
+                email.answer_later = False
+
+            elif action == "archive":
+                email.archive = True
+            elif action == "unarchive":
+                email.archive = False
+
+            email.save()
+
         return Response(
-            {"message": "Email archived successfully"}, status=status.HTTP_200_OK
+            {"message": "Emails updated successfully"}, status=status.HTTP_200_OK
         )
-    except Email.DoesNotExist:
-        return Response(
-            {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
-        )
+
     except Exception as e:
-        LOGGER.error(f"Error when archiving email: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Error during updating emails: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 ####################################################################

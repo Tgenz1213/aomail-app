@@ -23,7 +23,8 @@
       "modifyACategory": "Modifier une catégorie",
       "login": "Connexion",
       "see": "Voir",
-      "archive": "Archiver"
+      "archive": "Archiver",
+      "unarchive": "Désarchiver"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "Aucune catégorie définie",
@@ -80,6 +81,7 @@
         "emailSendErrorNoRecipient": "Aucun destinataire n'a été saisi",
         "deleteEmailFailure": "Échec de suppression d'email",
         "archiveEmailFailure": "Échec de l'archivage de l'email",
+        "unarchiveEmailFailure": "Échec du désarchivage de l'email",
         "addCategoryError": "Erreur lors de l'ajout de la catégorie",
         "updateCategoryError": "Erreur lors de la mise à jour de la catégorie",
         "addFilterError": "Erreur lors de l'ajout du filtre",

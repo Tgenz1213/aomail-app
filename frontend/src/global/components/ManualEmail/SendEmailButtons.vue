@@ -72,11 +72,7 @@ const displayMessage = inject<(message: string, aiIcon: string) => void>("displa
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
 
 const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-        if (isScheduleSendModalOpen.value) {
-            closeScheduleSendModal();
-        }
-    } else if (event.ctrlKey && event.key === "Enter") {
+    if (event.ctrlKey && event.key === "Enter") {
         sendEmail();
     }
 };

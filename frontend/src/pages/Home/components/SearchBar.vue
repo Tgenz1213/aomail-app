@@ -139,7 +139,7 @@ onMounted(() => {
 
     const storedShowFilters = localStorage.getItem("showFiltersTab");
     if (storedShowFilters) {
-        showFilters.value = true;
+        showFilters.value = JSON.parse(storedShowFilters);
     }
 });
 </script>

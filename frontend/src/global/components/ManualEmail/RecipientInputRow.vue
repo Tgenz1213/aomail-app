@@ -92,10 +92,10 @@
             </button>
             <button
                 type="button"
-                @click="toggleCCI"
+                @click="toggleBCC"
                 :class="[
                     'inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white',
-                    activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400',
+                    activeType === 'BCC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400',
                 ]"
                 class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 2xl:px-3 2xl:py-2 2xl:text-base"
             >
@@ -159,8 +159,8 @@ function toggleCC() {
     activeType.value = activeType.value === "CC" ? "" : "CC";
 }
 
-function toggleCCI() {
-    activeType.value = activeType.value === "CCI" ? "" : "CCI";
+function toggleBCC() {
+    activeType.value = activeType.value === "BCC" ? "" : "BCC";
 }
 
 function handleFocus() {
@@ -209,7 +209,7 @@ function personSelected(person: Recipient) {
                 selectedCC.value.push(person);
             }
             break;
-        case "CCI":
+        case "BCC":
             if (!selectedBCC.value.includes(person)) {
                 selectedBCC.value.push(person);
             }

@@ -9,7 +9,7 @@
             <span v-if="type === 'cc'" class="font-semibold mr-1 2xl:mr-2">
                 {{ $t("constants.sendEmailConstants.carbonCopyInitialsTwoDots") }}
             </span>
-            <span v-if="type === 'cci'" class="font-semibold mr-1 2xl:mr-2">
+            <span v-if="type === 'bcc'" class="font-semibold mr-1 2xl:mr-2">
                 {{ $t("constants.sendEmailConstants.blindCarbonCopyInitialsTwoDots") }}
             </span>
             {{ person.username || person.email }}

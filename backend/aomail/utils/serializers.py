@@ -25,7 +25,7 @@ class EmailDataSerializer(serializers.Serializer):
     subject = serializers.CharField(required=True)
     message = serializers.CharField(required=False, allow_blank=True)
     cc = serializers.ListField(child=serializers.EmailField(), required=False)
-    cci = serializers.ListField(child=serializers.EmailField(), required=False)
+    bcc = serializers.ListField(child=serializers.EmailField(), required=False)
     attachments = serializers.ListField(child=serializers.FileField(), required=False)
 
 

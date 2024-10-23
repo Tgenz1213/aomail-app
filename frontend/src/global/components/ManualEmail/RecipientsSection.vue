@@ -2,7 +2,7 @@
     <div class="recipients-container overflow-y-auto max-h-32 flex flex-wrap">
         <RecipientItem :people="selectedPeople" :type="'main'" :removePerson="removePersonFromMain" />
         <RecipientItem :people="selectedCC" :type="'cc'" :removePerson="removePersonFromCC" />
-        <RecipientItem :people="selectedBCC" :type="'cci'" :removePerson="removePersonFromCCI" />
+        <RecipientItem :people="selectedBCC" :type="'bcc'" :removePerson="removePersonFromBCC" />
     </div>
     <RecipientInputRow />
 </template>
@@ -25,7 +25,7 @@ function removePersonFromCC(personToRemove: Recipient) {
     selectedCC.value = selectedCC.value.filter((person) => person !== personToRemove);
 }
 
-function removePersonFromCCI(personToRemove: Recipient) {
+function removePersonFromBCC(personToRemove: Recipient) {
     selectedBCC.value = selectedBCC.value.filter((person) => person !== personToRemove);
 }
 </script>

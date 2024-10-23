@@ -286,8 +286,14 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
+const scroll = inject<() => void>("scroll");
+const handleScroll = inject<() => void>("handleScroll");
 const filters = inject("filters") as Ref<{ [categoryName: string]: Filter[] }>;
 const selectedCategory = inject("selectedCategory") as Ref<string>;
+const activeFilters = inject("activeFilters") as Ref<{
+    [category: string]: Filter | undefined;
+}>;
 
 const newFilter = ref<Filter>({
     name: "",
@@ -353,6 +359,18 @@ const addFilter = async () => {
     const response = await postData("create_filter/", newFilter.value);
     if (response.success) {
         filters.value[selectedCategory.value].push(newFilter.value);
+        
+        activeFilters.value[selectedCategory.value] = newFilter.value;
+        localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
+
+        await fetchEmailsData(selectedCategory.value);
+        const container = document.querySelector(".custom-scrollbar");
+        if (container) {
+            container.scrollTop = 0;
+        }
+        scroll?.();
+        handleScroll?.();
+
         closeModal();
         displayPopup?.(
             "success",

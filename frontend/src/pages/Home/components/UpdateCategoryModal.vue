@@ -1,4 +1,11 @@
 <template>
+    <CategoryDeletionModal
+        :isOpen="isCategoryDeletionModalOpen"
+        :nbRules="nbRulesLinked"
+        :nbEmails="nbEmailsLinked"
+        @close="closeCategoryDeletionModalModal"
+        @deleteCategory="deleteCategory"
+    />
     <transition name="modal-fade">
         <Modal
             v-if="props.isOpen"
@@ -65,7 +72,7 @@
                         <button
                             type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
-                            @click="deleteCategory"
+                            @click="openCategoryDeletionModal"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +103,8 @@ import { Ref, ref, watch, inject, onMounted, onUnmounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { Category } from "@/global/types";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
-import { deleteData, putData, getData } from "@/global/fetchData";
+import { deleteData, putData, postData } from "@/global/fetchData";
+import CategoryDeletionModal from "./CategoryDeletionModal.vue";
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -148,6 +156,9 @@ const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Pro
 const categories = inject("categories") as Ref<Category[]>;
 const selectedCategory = inject("selectedCategory") as Ref<string>;
 
+const isCategoryDeletionModalOpen = ref(false);
+const nbRulesLinked = ref(0);
+const nbEmailsLinked = ref(0);
 const categoryName = ref("");
 const categoryDescription = ref("");
 const errorMessage = ref("");
@@ -169,8 +180,6 @@ const closeModal = () => {
 };
 
 const resetForm = () => {
-    categoryName.value = "";
-    categoryDescription.value = "";
     errorMessage.value = "";
 };
 
@@ -231,59 +240,57 @@ const updateCategory = async () => {
     }
 };
 
-const deleteCategory = async () => {
+const openCategoryDeletionModal = async () => {
     if (!props.isOpen) {
         return;
     }
 
-    const result = await getData(`get_dependencies/`, { categoryName: categoryName.value });
+    const result = await postData(`get_dependencies/`, { categoryName: props.category?.name });
     if (!result.success) {
-        closeModal();
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError"),
             result.error as string
         );
-    } else if (result.data.nbRules > 0) {
-        // TODO: open category deletion warning modal
-        closeModal();
+    } else {
+        if (result.data.nbRules === 0 && result.data.nbEmails === 0) {
+            deleteCategory();
+        } else {
+            nbRulesLinked.value = result.data.nbRules;
+            nbEmailsLinked.value = result.data.nbEmails;
+            isCategoryDeletionModalOpen.value = true;
+        }
+    }
+    closeModal();
+};
+
+const closeCategoryDeletionModalModal = () => {
+    isCategoryDeletionModalOpen.value = false;
+};
+
+const deleteCategory = async () => {
+    const result = await deleteData(`delete_category/`, { categoryName: categoryName.value });
+
+    if (!result.success) {
         displayPopup?.(
             "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError"),
-            "There are rules linked with this category"
-        );
-    } else if (result.data.nbEmails > 0) {
-        // TODO: open category deletion warning modal
-        closeModal();
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.updateCategoryError"),
-            "There are emails linked with this category"
+            i18n.global.t("constants.popUpConstants.errorMessages.deleteCategoryError"),
+            result.error as string
         );
     } else {
-        const resultDeleteData = await deleteData(`delete_category/`, { categoryName: categoryName.value });
-        if (!resultDeleteData.success) {
-            displayPopup?.(
-                "success",
-                i18n.global.t("constants.popUpConstants.errorMessages.deleteCategoryError"),
-                result.error as string
-            );
-        } else {
-            emit("selectCategory", {
-                name: "Others",
-                description: "",
-            });
-            const index = categories.value.findIndex((category) => category.name === categoryName.value);
-            if (index !== -1) {
-                categories.value.splice(index, 1);
-            }
-            closeModal();
-            displayPopup?.(
-                "success",
-                i18n.global.t("constants.popUpConstants.successMessages.success"),
-                i18n.global.t("constants.popUpConstants.successMessages.deleteCategorySuccess")
-            );
+        emit("selectCategory", {
+            name: "Others",
+            description: "",
+        });
+        const index = categories.value.findIndex((category) => category.name === categoryName.value);
+        if (index !== -1) {
+            categories.value.splice(index, 1);
         }
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.success"),
+            i18n.global.t("constants.popUpConstants.successMessages.deleteCategorySuccess")
+        );
     }
 };
 </script>

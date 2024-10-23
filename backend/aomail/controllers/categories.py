@@ -163,7 +163,7 @@ def delete_category(request: HttpRequest) -> Response:
     )
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @subscription(ALLOWED_PLANS)
 def get_dependencies(request: HttpRequest) -> Response:
     """

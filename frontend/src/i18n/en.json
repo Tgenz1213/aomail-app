@@ -114,6 +114,11 @@
         "deleteFilterSuccess": "Your filter has been deleted"
       }
     },
+    "and": "and",
+    "rule": "rule",
+    "rules": "rules",
+    "email": "email",
+    "emails": "emails",
     "redirectionInProgress": "Redirection in progress...",
     "homeNavbar": "Home",
     "newEmailNavbar": "New Email",
@@ -217,14 +222,6 @@
     "iAm": "I'm",
     "goingToCleanAutomatically": "going to clean automatically",
     "theEmailsYouHaveRead": "the emails you have read",
-    "youHave": "You have",
-    "rule": "rule",
-    "rules": "rules",
-    "linked": "linked",
-    "toThisCategory": "to this category.",
-    "warningForDeletingTheCategory": "Deleting the category will also result in deleting all associated rules",
-    "email": " email.",
-    "emails": " emails.",
     "markEmailUnreadFailure": "Failed to mark email as unread",
     "markEmailReadFailure": "Failed to mark email as read",
     "markEmailReplyLaterFailure": "Failed to mark email for reply later",
@@ -288,8 +285,17 @@
         "filterAlreadyExists": "A filter with the same name already exist",
         "updateFilter": "Update the filter"
       },
-      "warningRulesLinkedModal": {
-        "deleteCategory": "Delete category: "
+      "categoryDeletionModal": {
+        "youHave": "You have",
+        "deleteCategory": "Delete category",
+        "confirmationMessage": "Are you sure you want to delete this category?",
+        "emailsLinked": "emails linked with this category.",
+        "emailLinked": "email linked with this category.",
+        "rulesLinked": "rules linked with this category.",
+        "ruleLinked": "rule linked with this category.",
+        "deletingCategoryWarning": "Deleting the category will result in deleting the associated",
+        "cancelButton": "Cancel",
+        "deleteButton": "Delete the category"
       }
     }
   },

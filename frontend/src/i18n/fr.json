@@ -114,6 +114,11 @@
         "deleteFilterSuccess": "Le filtre a été supprimée"
       }
     },
+    "and": "et",
+    "rule": "règle",
+    "rules": "règles",
+    "email": " e-mail.",
+    "emails": " e-mails.",
     "redirectionInProgress": "Redirection en cours...",
     "homeNavbar": "Accueil",
     "newEmailNavbar": "Nouveau Email",
@@ -217,14 +222,6 @@
     "iAm": "Je suis",
     "goingToCleanAutomatically": "en train de nettoyer automatiquement",
     "theEmailsYouHaveRead": "les e-mails que vous avez lus",
-    "youHave": "Vous avez",
-    "rule": "règle",
-    "rules": "règles",
-    "linked": "liée",
-    "toThisCategory": "à cette catégorie.",
-    "warningForDeletingTheCategory": "La suppression de la catégorie entraînera également la suppression de toutes les règles associées",
-    "email": " e-mail.",
-    "emails": " e-mails.",
     "markEmailUnreadFailure": "Échec de marquage de l'email comme non lu",
     "markEmailReadFailure": "Échec de marquage de l'email comme lu",
     "markEmailReplyLaterFailure": "Échec de marquage d'email pour répondre pour plus tard",
@@ -288,8 +285,17 @@
         "filterAlreadyExists": "Un filtre avec le même nom existe déjà",
         "updateFilter": "Mettre à jour le filtre"
       },
-      "warningRulesLinkedModal": {
-        "deleteCategory": "Suppression catégorie: "
+      "categoryDeletionModal": {
+        "youHave": "Vous avez",
+        "deleteCategory": "Supprimer la catégorie",
+        "confirmationMessage": "Êtes-vous sûr de vouloir supprimer cette catégorie ?",
+        "emailsLinked": "e-mails liés à cette catégorie.",
+        "emailLinked": "e-mail lié à cette catégorie.",
+        "rulesLinked": "règles liées à cette catégorie.",
+        "ruleLinked": "règle liée à cette catégorie.",
+        "deletingCategoryWarning": "La suppression de la catégorie entraînera la suppression des",
+        "cancelButton": "Annuler",
+        "deleteButton": "Supprimer la catégorie"
       }
     }
   },

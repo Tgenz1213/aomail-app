@@ -98,6 +98,8 @@ const handleFileUpload = (event: Event) => {
     if (!input?.files) return;
 
     const files = Array.from(input.files);
+
+    console.log("files", files.values);
     files.forEach((file) => {
         if (file.size <= MAX_FILE_SIZE) {
             const existingFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
@@ -113,6 +115,7 @@ const handleFileUpload = (event: Event) => {
 
             uploadedFiles.value.push({ name: file.name, size: file.size });
             fileObjects.value.push(file);
+            console.log("fileObjects", fileObjects.value);
         } else {
             displayPopup?.(
                 "error",

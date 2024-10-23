@@ -143,7 +143,7 @@ async function sendEmail() {
         attachments: fileObjects.value,
         to: selectedPeople.value.map((person) => person.email),
         cc: selectedCC.value.map((person) => person.email),
-        cci: selectedBCC.value.map((person) => person.email),
+        bcc: selectedBCC.value.map((person) => person.email),
         email: emailSelected.value,
     });
 

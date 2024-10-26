@@ -88,7 +88,10 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
 
         if is_shipping_label(email_data["subject"]):
             process_label(
-                email_data["from_info"][1], email_data["subject"], email_entry
+                email_data["from_info"][1],
+                email_data["subject"],
+                email_data["safe_html"],
+                email_entry,
             )
 
         LOGGER.info(
@@ -337,9 +340,16 @@ def create_email_entry(
         social_api=social_api,
         provider_id=email_data["email_id"],
         email_provider=social_api.type_api,
-        short_summary=encrypt_text(ENCRYPTION_KEYS["Email"]["short_summary"], email_ai["summary"]["short"]),
-        one_line_summary=encrypt_text(ENCRYPTION_KEYS["Email"]["one_line_summary"], email_ai["summary"]["one_line"]),
-        html_content=encrypt_text(ENCRYPTION_KEYS["Email"]["html_content"], email_data.get("safe_html", "")),
+        short_summary=encrypt_text(
+            ENCRYPTION_KEYS["Email"]["short_summary"], email_ai["summary"]["short"]
+        ),
+        one_line_summary=encrypt_text(
+            ENCRYPTION_KEYS["Email"]["one_line_summary"],
+            email_ai["summary"]["one_line"],
+        ),
+        html_content=encrypt_text(
+            ENCRYPTION_KEYS["Email"]["html_content"], email_data.get("safe_html", "")
+        ),
         subject=email_data["subject"],
         priority=email_ai["importance"],
         sender=sender,

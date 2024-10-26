@@ -4,7 +4,6 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y cron
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN mkdir -p backend/media/pictures backend/media/labels
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 COPY . .

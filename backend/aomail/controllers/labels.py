@@ -89,16 +89,17 @@ CARRIER_NAMES = {
 }
 
 
-def process_label(email_address: str, subject: str, email_entry: Email):
+def process_label(email_address: str, subject: str, body: str, email_entry: Email):
     """
     Processes the email label data and creates a shipping label.
 
     Args:
         email_address (str): The email address of the sender.
         subject (str): The subject of the email.
+        body (str): The main content of the email body.
         email_entry (Email): An instance of the Email class containing email details.
     """
-    label_data = extract_label_data(email_address, subject, email_entry.html_content)
+    label_data = extract_label_data(email_address, subject, body)
     create_shipping_label(email_entry, label_data)
 
 

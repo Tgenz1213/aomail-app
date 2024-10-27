@@ -30,6 +30,7 @@ from aomail.utils.serializers import EmailDataSerializer
 from aomail.utils.security import subscription
 from aomail.constants import (
     ALLOWED_PLANS,
+    MEDIA_ROOT,
     MEDIA_URL,
     BASE_URL_MA,
 )
@@ -118,7 +119,10 @@ def send_email(request: HttpRequest) -> Response:
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def delete_email(user: User, email: str, email_id: str) -> dict:
@@ -498,6 +502,13 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
                     )
                     image_filename = f"image_{timestamp}_{random_str}.{img_type}"
                     image_files.append(image_filename)
+
+                    img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
+                    image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
+
+                    with open(image_path, "wb") as img_file:
+                        img_file.write(img_data_bytes)
+
                     email_html = email_html.replace(
                         f"data:image/{img_type};base64,{img_data}",
                         f"{MEDIA_URL}pictures/{image_filename}",
@@ -509,8 +520,32 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
             )
             image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
             image_files.append(image_filename)
+
+            image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
+
             email_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
             email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
+
+            if "attachmentId" in part["body"]:
+                attachment_id = part["body"]["attachmentId"]
+                attachment = (
+                    service.users()
+                    .messages()
+                    .attachments()
+                    .get(userId="me", messageId=email_id, id=attachment_id)
+                    .execute()
+                )
+                file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
+            elif "data" in part["body"]:
+                file_data = base64.urlsafe_b64decode(
+                    part["body"]["data"].encode("UTF-8")
+                )
+            else:
+                return
+
+            with open(image_path, "wb") as img_file:
+                img_file.write(file_data)
+
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
                 for subpart in part["parts"]:

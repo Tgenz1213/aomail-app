@@ -205,13 +205,15 @@ def send_schedule_email(request: HttpRequest) -> Response:
             except Exception as e:
                 LOGGER.error(f"Failed to send email: {str(e)}")
                 return Response(
-                    {"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    {"error": "Internal server error"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         except Exception as e:
             LOGGER.error(f"Error preparing email data: {str(e)}")
             return Response(
-                {"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -315,13 +317,15 @@ def send_email(request: HttpRequest) -> Response:
             except Exception as e:
                 LOGGER.error(f"Failed to send email: {str(e)}")
                 return Response(
-                    {"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    {"error": "Internal server error"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         except Exception as e:
             LOGGER.error(f"Error preparing email data: {str(e)}")
             return Response(
-                {"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

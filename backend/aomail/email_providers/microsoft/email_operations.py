@@ -20,6 +20,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
+from django.contrib.auth.models import User
 from aomail.utils.serializers import (
     EmailDataSerializer,
     EmailScheduleDataSerializer,
@@ -589,6 +590,32 @@ def search_emails_manually(
     except Exception as e:
         LOGGER.error(f"Failed to search emails from Microsoft API: {str(e)}")
         return []
+
+
+def get_demo_list(user: User, email: str) -> list[str]:
+    """
+    Retrieves a list of up to 10 email message IDs from the user's Microsoft Outlook inbox.
+
+    Args:
+        user (User): The user object representing the email account owner.
+        email (str): The email address of the user.
+
+    Returns:
+        list[str]: A list of up to 10 email message IDs from the inbox.
+                   Returns an empty list if no messages are found.
+    """
+    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    access_token = refresh_access_token(user, email)
+    headers = get_headers(access_token)
+
+    params = {
+        "$top": 10,
+        "$select": "id",
+    }
+    response = requests.get(url, headers=headers, params=params)
+    messages = response.json().get("value", [])
+
+    return [msg["id"] for msg in messages] if messages else []
 
 
 def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:

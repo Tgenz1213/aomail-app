@@ -118,8 +118,11 @@ async function submitSignupData(event: Event) {
         link.classList.remove("text-red-500");
         link.classList.add("text-black");
     }
-
-    displayPopup("success", "Account creation in progress...", "Waiting for database response");
+    displayPopup(
+        "success",
+        i18n.global.t("signuUpLinkPage.accountCreationInProgress"),
+        i18n.global.t("signuUpLinkPage.waitingDatabaseResponse")
+    );
 
     const requestOptions = {
         method: "POST",

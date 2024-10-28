@@ -102,7 +102,10 @@ def receive_mail_notifications(request: HttpRequest) -> Response:
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def subscribe_to_email_notifications(user: User, email: str) -> bool:
@@ -120,7 +123,7 @@ def subscribe_to_email_notifications(user: User, email: str) -> bool:
         LOGGER.info(
             f"Initiating subscription to Google email notifications for user ID: {user.id} with email: {email}"
         )
-        services = authenticate_service(user, email)
+        services = authenticate_service(user, email, ["gmail"])
         if services is None:
             return False
 

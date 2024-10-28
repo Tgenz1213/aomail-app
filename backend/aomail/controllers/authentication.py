@@ -18,6 +18,7 @@ import json
 import logging
 import threading
 import jwt
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlencode
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -70,6 +71,13 @@ from aomail.models import (
     Subscription,
 )
 from aomail.payment_providers import stripe
+from aomail.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
+from aomail.email_providers.google import (
+    email_operations as email_operations_google,
+)
+from aomail.email_providers.utils import email_to_db
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -200,7 +208,7 @@ def signup(request: HttpRequest) -> Response:
         elif type_api == MICROSOFT:
             if profile_microsoft.verify_license(access_token):
                 threading.Thread(
-                    target=profile_microsoft.set_all_contacts, args=(access_token, user)
+                    target=profile_microsoft.set_all_contacts, args=(user, email)
                 ).start()
             else:
                 LOGGER.error("No license associated with the account")
@@ -228,6 +236,10 @@ def signup(request: HttpRequest) -> Response:
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
         LOGGER.info(f"User {username} subscribed to listeners successfully")
+
+        threading.Thread(
+            target=process_demo_emails, args=(type_api, user, email)
+        ).start()
         return Response(
             {"accessToken": django_access_token},
             status=status.HTTP_201_CREATED,
@@ -242,13 +254,58 @@ def signup(request: HttpRequest) -> Response:
         )
 
 
-def subscribe_listeners(type_api: str, user: str, email: str) -> bool:
+def process_demo_emails(type_api: str, user: User, email: str):
+    """
+    Processes up to the newest 10 emails from the main inbox of the user.
+
+    Args:
+        type_api (str): The type of email service being used (e.g., "GOOGLE" or "MICROSOFT").
+        user (User): User object representing the email account owner.
+        email (str): Email address of the user for authentication and data retrieval.
+    """
+    LOGGER.info(
+        f"User with ID {user.id} is initiating the demo email processing sequence for {type_api}."
+    )
+
+    if type_api == GOOGLE:
+        email_ids = email_operations_google.get_demo_list(user, email)
+    elif type_api == MICROSOFT:
+        email_ids = email_operations_microsoft.get_demo_list(user, email)
+
+    if not email_ids:
+        LOGGER.info(f"No emails found for user ID {user.id} in {type_api} inbox.")
+        return
+
+    LOGGER.info(
+        f"Retrieved {len(email_ids)} email IDs for user ID {user.id}. Processing each email now."
+    )
+
+    social_api = SocialAPI.objects.get(user=user, email=email)
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_email_id = {
+            executor.submit(email_to_db, social_api, email_id): email_id
+            for email_id in email_ids
+        }
+
+        for future in future_to_email_id:
+            try:
+                future.result()
+            except Exception as e:
+                LOGGER.error(
+                    f"Error processing email ID {future_to_email_id[future]}: {e}"
+                )
+
+    LOGGER.info(f"Completed processing demo emails for user ID {user.id}.")
+
+
+def subscribe_listeners(type_api: str, user: User, email: str) -> bool:
     """
     Subscribes the user to listeners based on the type of API provided.
 
     Args:
         type_api (str): The type of API.
-        user (str): User identifier.
+        user (User): User identifier.
         email (str): User's email address.
 
     Returns:
@@ -682,14 +739,15 @@ def delete_account(request: HttpRequest) -> Response:
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
+        user_id = user.id
         user.delete()
-        LOGGER.info(f"User with ID: {user.id} deleted successfully")
+        LOGGER.info(f"User with ID: {user_id} deleted successfully")
 
         return Response(
             {"message": "User successfully deleted"}, status=status.HTTP_200_OK
         )
     except Exception as e:
-        LOGGER.error(f"Error when deleting account for user {user.id}: {str(e)}")
+        LOGGER.error(f"Error when deleting account for user {user_id}: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -821,7 +879,7 @@ def link_email(request: HttpRequest) -> Response:
             ).start()
         elif type_api == MICROSOFT:
             threading.Thread(
-                target=profile_microsoft.set_all_contacts, args=(access_token, user)
+                target=profile_microsoft.set_all_contacts, args=(user, email)
             ).start()
     except Exception as e:
         return Response(

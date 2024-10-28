@@ -78,7 +78,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
 
     if mail_id:
         if type_api == GOOGLE:
-            services = auth_google.authenticate_service(user, email_user)
+            services = auth_google.authenticate_service(user, email_user, ["gmail"])
             subject, _, decoded_data, cc, bcc, _, date = (
                 email_operations_google.get_mail(services, None, mail_id)
             )

@@ -130,43 +130,6 @@ def get_info_contacts(access_token: str) -> list:
         return []
 
 
-def get_unique_senders(access_token: str) -> dict:
-    """
-    Fetches unique sender information from Microsoft Graph API messages.
-
-    Args:
-        access_token (str): The access token used to authenticate the request.
-
-    Returns:
-        dict: A dictionary where keys are email addresses of senders and values are their corresponding names.
-    """
-    senders_info = {}
-
-    try:
-        headers = get_headers(access_token)
-        limit = 50
-        graph_endpoint = f"{GRAPH_URL}me/messages?$select=sender&$top={limit}"
-        response = requests.get(graph_endpoint, headers=headers)
-        response_data: dict = response.json()
-
-        if response.status_code == 200:
-            messages: list[dict] = response_data.get("value", [])
-            for message in messages:
-                sender: dict[str, dict] = message.get("sender", {})
-                email_address = sender.get("emailAddress", {}).get("address", "")
-                name = sender.get("emailAddress", {}).get("name", "")
-                senders_info[email_address] = name
-        else:
-            error = response_data.get("error_description", response.reason)
-            LOGGER.error(f"Failed to fetch messages: {error}")
-
-        return senders_info
-
-    except Exception as e:
-        LOGGER.error(f"Error fetching senders: {str(e)}")
-        return senders_info
-
-
 @api_view(["GET"])
 @subscription(ALLOWED_PLANS)
 def get_profile_image(request: HttpRequest) -> Response:
@@ -233,54 +196,89 @@ def get_profile_image(request: HttpRequest) -> Response:
         )
 
 
-def set_all_contacts(access_token: str, user: User):
+def set_all_contacts(user: User, email: str):
     """
-    Retrieves all unique contacts from an email account using Microsoft Graph API and stores them in the database.
+    Retrieves up to 5,000 unique email addresses from the latest emails and contacts in a user's Microsoft Graph account and stores them in the database.
 
     Args:
-        access_token (str): Access token for authenticating with Microsoft Graph API.
         user (User): User object representing the owner of the email account.
+        email (str): Email address of the user.
     """
     LOGGER.info(
         f"Starting to save all contacts from user ID: {user.id} with Microsoft Graph API"
     )
     start = time.time()
 
+    # Function to refresh the token and update headers
+    def refresh_and_get_headers():
+        access_token = refresh_access_token(get_social_api(user, email))
+        return get_headers(access_token)
+
+    # Initial headers with first access token
+    headers = refresh_and_get_headers()
     graph_api_contacts_endpoint = f"{GRAPH_URL}me/contacts"
-    graph_api_messages_endpoint = f"{GRAPH_URL}me/messages?$top=500"
-    headers = get_headers(access_token)
+    graph_api_messages_endpoint = f"{GRAPH_URL}me/messages?$top=100"
 
     try:
         all_contacts = defaultdict(set)
+        message_count = 0  # Counter to limit emails to the last 5,000
 
-        # Part 1: Retrieve contacts from Microsoft Contacts
-        response = requests.get(graph_api_contacts_endpoint, headers=headers)
-        response.raise_for_status()
-        response_data: dict = response.json()
-        contacts: list[dict[str, dict]] = response_data.get("value", [])
-
-        for contact in contacts:
-            name = contact.get("displayName", "")
-            email_address = contact.get("emailAddresses", [{}])[0].get("address", "")
-            provider_id = contact.get("id", "")
-            all_contacts[(user, name, email_address, provider_id)].add(email_address)
-
-        # Part 2: Retrieve contacts from Outlook messages
-        response = requests.get(graph_api_messages_endpoint, headers=headers)
-        response.raise_for_status()
-        data: dict = response.json()
-        messages: list[dict[str, dict[str, dict]]] = data.get("value", [])
-
-        for message in messages:
-            sender: str = (
-                message.get("from", {}).get("emailAddress", {}).get("address", "")
-            )
-            if sender:
-                name = sender.split("@")[0]
-                if (user, name, sender, "") in all_contacts:
-                    continue
+        # Helper function to handle requests with retry on token expiration
+        def make_request(endpoint):
+            nonlocal headers
+            for attempt in range(2):  # Attempt up to 2 times
+                response = requests.get(endpoint, headers=headers)
+                if response.status_code == 401 and attempt == 0:
+                    # If unauthorized, refresh token and try again
+                    LOGGER.warning("Access token expired, attempting to refresh.")
+                    headers = refresh_and_get_headers()
                 else:
-                    all_contacts[(user, name, sender, "")].add(sender)
+                    response.raise_for_status()
+                    return response.json()
+            # If the second attempt fails, raise an error
+            LOGGER.error("Request failed after token refresh.")
+            raise Exception("Token refresh failed, cannot continue request.")
+
+        # Part 1: Retrieve contacts from Microsoft Contacts with pagination
+        contacts_endpoint = graph_api_contacts_endpoint
+        while contacts_endpoint:
+            response_data = make_request(contacts_endpoint)
+            contacts: list[dict] = response_data.get("value", [])
+
+            for contact in contacts:
+                name = contact.get("displayName", "")
+                email_address = contact.get("emailAddresses", [{}])[0].get(
+                    "address", ""
+                )
+                provider_id = contact.get("id", "")
+                all_contacts[(user, name, email_address, provider_id)].add(
+                    email_address
+                )
+
+            contacts_endpoint = response_data.get("@odata.nextLink")
+
+        # Part 2: Retrieve contacts from Outlook messages with pagination, up to 5,000 messages
+        messages_endpoint = graph_api_messages_endpoint
+        while messages_endpoint and message_count < 5000:
+            data = make_request(messages_endpoint)
+            messages: list[dict] = data.get("value", [])
+
+            for message in messages:
+                if message_count >= 5000:
+                    break
+                sender: str = (
+                    message.get("from", {}).get("emailAddress", {}).get("address", "")
+                )
+                if sender:
+                    name = sender.split("@")[0]
+                    if (user, name, sender, "") not in all_contacts:
+                        all_contacts[(user, name, sender, "")].add(sender)
+                message_count += 1
+
+            messages_endpoint = data.get("@odata.nextLink")
+            if not messages:
+                LOGGER.info("Fewer than 5,000 messages found; stopping early.")
+                break
 
         # Part 3: Save the contacts to the database
         for contact_info, emails in all_contacts.items():

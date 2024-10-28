@@ -256,34 +256,52 @@ def save_credentials(creds: credentials.Credentials, user: User, email: str):
         LOGGER.error(f"Failed to save credentials: {str(e)}")
 
 
-def build_services(creds: credentials.Credentials) -> dict:
+def build_services(
+    creds: credentials.Credentials, required_services: list[str] = ["gmail", "people"]
+) -> dict:
     """
-    Build and return a dictionary of Google API service endpoints.
+    Builds and returns a dictionary of specified Google API service endpoints.
 
     Args:
         creds (credentials.Credentials): The Google API credentials to use for building the services.
+        required_services (list[str]): List of service names to initialize.
 
     Returns:
-        dict: A dictionary of Google API service endpoints.
+        dict: A dictionary containing only the requested Google API service endpoints,
+              where keys are service names and values are the initialized service objects.
     """
-    services = {
-        "gmail": build("gmail", "v1", cache_discovery=False, credentials=creds),
-        "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
-        "people": build("people", "v1", cache_discovery=False, credentials=creds),
+    available_services = {
+        "gmail": lambda: build("gmail", "v1", cache_discovery=False, credentials=creds),
+        "people": lambda: build(
+            "people", "v1", cache_discovery=False, credentials=creds
+        ),
     }
+
+    services = {
+        name: available_services[name]()
+        for name in required_services
+        if name in available_services
+    }
+
     return services
 
 
-def authenticate_service(user: User, email: str) -> dict | None:
+def authenticate_service(
+    user: User,
+    email: str,
+    required_services: list[str] = None,
+) -> dict | None:
     """
     Authenticate and build Google API services for the specified user and email.
 
     Args:
-        user (User): The user object.
+        user (User): The user object containing information about the user.
         email (str): The email address associated with the user's Google account.
+        required_services (list[str], optional): A list of strings specifying which Google API
 
     Returns:
-        dict or None: A dictionary of Google API service endpoints, or None if authentication fails.
+        dict or None: A dictionary of Google API service endpoints for the requested services,
+                      or None if authentication fails or if no valid services are specified.
     """
     creds = get_credentials(user, email)
     if not creds or not creds.valid:
@@ -297,5 +315,5 @@ def authenticate_service(user: User, email: str) -> dict | None:
             )
             return None
 
-    services = build_services(creds)
+    services = build_services(creds, required_services or ["gmail", "people"])
     return services

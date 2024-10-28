@@ -302,7 +302,7 @@ def search_emails(request: HttpRequest) -> Response:
         type_api = social_api.type_api
 
         if type_api == GOOGLE:
-            services = auth_google.authenticate_service(user, email)
+            services = auth_google.authenticate_service(user, email, ["gmail"])
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(

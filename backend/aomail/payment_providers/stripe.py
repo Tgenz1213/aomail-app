@@ -65,13 +65,16 @@ def cancel_subscription(subscription: Subscription) -> bool:
     Returns:
         bool: True if the cancellation was successful or if the subscription is not found, False otherwise.
     """
+    if not subscription.subscription_id:
+        return True
+
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            canceled_subscription = stripe.Subscription.cancel(
-                subscription.subscription_id, prorate=True
-            )
             LOGGER.info(
                 f"Attempt {attempt}: Stripe subscription {subscription.subscription_id}"
+            )
+            canceled_subscription = stripe.Subscription.cancel(
+                subscription.subscription_id, prorate=True
             )
             LOGGER.info(
                 f"for user {subscription.user.id} successfully canceled: {canceled_subscription}"

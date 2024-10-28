@@ -118,7 +118,7 @@ def get_email_data(social_api: SocialAPI, email_id: str = None) -> dict:
     if social_api.type_api == MICROSOFT:
         return email_operations_microsoft.get_mail_to_db(social_api, email_id)
     elif social_api.type_api == GOOGLE:
-        return email_operations_google.get_mail_to_db(social_api)
+        return email_operations_google.get_mail_to_db(social_api, email_id)
     else:
         raise ValueError(f"Unsupported API type: {social_api.type_api}")
 

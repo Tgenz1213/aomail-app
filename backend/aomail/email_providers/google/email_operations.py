@@ -61,7 +61,7 @@ def send_email(request: HttpRequest) -> Response:
         user = request.user
         parameters: dict = json.loads(request.body)
         email = parameters.get("email")
-        service = authenticate_service(user, email)["gmail"]
+        service = authenticate_service(user, email, ["gmail"])["gmail"]
         serializer = EmailDataSerializer(data=parameters)
 
         if serializer.is_valid():
@@ -137,7 +137,7 @@ def delete_email(user: User, email: str, email_id: str) -> dict:
     Returns:
         dict: A dictionary containing either a success message or an error message.
     """
-    gmail = authenticate_service(user, email)["gmail"]
+    gmail = authenticate_service(user, email, ["gmail"])["gmail"]
 
     if not gmail:
         return {"error": "No gmail service provided"}
@@ -172,9 +172,9 @@ def set_email_read(user: User, email: str, mail_id: str) -> dict:
     Returns:
         dict: A dictionary indicating the result of the operation
     """
-    services = authenticate_service(user, email)
+    service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
-        services["gmail"].users().messages().modify(
+        service["gmail"].users().messages().modify(
             userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as read successfully!"}
@@ -195,9 +195,9 @@ def set_email_unread(user: User, email: str, mail_id: str) -> dict:
     Returns:
         dict: A dictionary indicating the result of the operation
     """
-    services = authenticate_service(user, email)
+    service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
-        services["gmail"].users().messages().modify(
+        service["gmail"].users().messages().modify(
             userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as unread successfully!"}
@@ -397,44 +397,73 @@ def search_emails_manually(
         return []
 
 
-def get_mail_to_db(social_api: SocialAPI) -> dict:
+def get_demo_list(user: User, email: str) -> list[str]:
     """
-    Retrieve email information from the Gmail API for processing and storing in the database.
+    Retrieves a list of up to 10 email message IDs from the user's Gmail inbox.
 
     Args:
-        social_api (SocialAPI): An object containing user and email information for authentication.
+        user (User): The user object representing the email account owner.
+        email (str): The email address of the user.
 
     Returns:
-        dict: Dictionary containing email information required for further processing and database storage:
-            str: Subject of the email.
-            tuple[str, str]: Tuple containing the sender's name and email address.
-            str: Preprocessed email content (cleaned and summarized).
-            str: Safe HTML version of the email content.
-            str: ID of the email message.
-            str: Snippet with first few words of the email.
-            datetime.datetime: Sent date and time of the email.
-            bool: Flag indicating whether the email has attachments.
-            bool: Flag indicating whether the email is a reply.
-            tuple[str, str] or None: Tuple containing CC recipient's name and email address, or None if not present.
-            tuple[str, str] or None: Tuple containing BCC recipient's name and email address, or None if not present.
-            list[str]: List of image filenames embedded in the email.
-            list[dict]: List of dictionaries containing attachment information (attachmentId and attachmentName).
+        list[str]: A list of up to 10 email message IDs from the inbox.
+                   Returns an empty list if no messages are found.
     """
-    services = authenticate_service(social_api.user, social_api.email)
-    service = services["gmail"]
+    service = authenticate_service(user, email, ["gmail"])["gmail"]
 
     results: dict = (
         service.users()
         .messages()
-        .list(userId="me", labelIds=["INBOX"], maxResults=1)
+        .list(userId="me", labelIds=["INBOX"], maxResults=10)
         .execute()
     )
     messages = results.get("messages", [])
-    if not messages:
-        return None
+ 
+    return [msg["id"] for msg in messages] if messages else []
 
-    message = messages[0]
-    email_id = message["id"]
+
+def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
+    """
+    Retrieves detailed email information from the Gmail API, processing it for storage in the database.
+
+    Args:
+        social_api (SocialAPI): Contains user and email data necessary for authentication and processing.
+        email_id (str, optional): Specific email message ID to retrieve.
+                                  If not provided, retrieves the most recent email.
+
+    Returns:
+        dict: Dictionary containing comprehensive email data needed for further processing and database storage:
+            - subject (str): Subject of the email.
+            - from_info (tuple[str, str]): Tuple with sender's name and email address.
+            - preprocessed_data (str): Cleaned and summarized email content.
+            - safe_html (str): HTML content of the email in a safe format.
+            - email_id (str): Unique ID of the email message.
+            - snippet (str): First few words of the email content as a brief preview.
+            - sent_date (datetime.datetime): Sent date and time of the email.
+            - has_attachments (bool): Indicates if the email has attachments.
+            - is_reply (bool): Indicates if the email is a reply.
+            - cc_info (tuple[str, str] or None): CC recipient's name and email address, or None if absent.
+            - bcc_info (tuple[str, str] or None): BCC recipient's name and email address, or None if absent.
+            - image_files (list[str]): List of filenames for images embedded in the email.
+            - attachments (list[dict]): List of dictionaries containing details about each attachment (ID and name).
+    """
+    service = authenticate_service(social_api.user, social_api.email, ["gmail"])[
+        "gmail"
+    ]
+
+    if not email_id:
+        results: dict = (
+            service.users()
+            .messages()
+            .list(userId="me", labelIds=["INBOX"], maxResults=1)
+            .execute()
+        )
+        messages = results.get("messages", [])
+        if not messages:
+            return None
+
+        message = messages[0]
+        email_id = message["id"]
 
     # Retrieve the detailed message content
     msg: dict[str, dict[str, dict[str]]] = (

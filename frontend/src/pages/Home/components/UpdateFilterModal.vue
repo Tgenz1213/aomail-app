@@ -284,6 +284,9 @@ const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => P
 const filters = inject("filters") as Ref<{ [categoryName: string]: Filter[] }>;
 const selectedCategory = inject("selectedCategory") as Ref<string>;
 const selectedFilter = inject("selectedFilter") as Ref<Filter | undefined>;
+const activeFilters = inject("activeFilters") as Ref<{
+    [category: string]: Filter | undefined;
+}>;
 
 const errorMessage = ref("");
 const filterData = ref<Filter>({
@@ -346,11 +349,7 @@ const updateFilter = async () => {
             i18n.global.t("constants.popUpConstants.successMessages.updateFilterSuccess")
         );
     } else {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.updateFilterError"),
-            response.error as string
-        );
+        errorMessage.value = response.error as string;
     }
 };
 
@@ -366,7 +365,11 @@ const deleteFilter = async () => {
 
     const response = await deleteData(`delete_filter/`, { filterName: props.filter?.name });
     if (response.success) {
+        selectedFilter.value = undefined;
+        activeFilters.value = { [selectedCategory.value]: undefined };
+        localStorage.removeItem("activeFilters");
         await fetchEmailsData(selectedCategory.value);
+
         const filterIndex = categoryFilters.findIndex((filter) => filter.name === props.filter?.name);
         if (filterIndex !== -1) {
             categoryFilters.splice(filterIndex, 1);
@@ -378,12 +381,7 @@ const deleteFilter = async () => {
             i18n.global.t("constants.popUpConstants.successMessages.deleteFilterSuccess")
         );
     } else {
-        closeModal();
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.deleteFilterError"),
-            response.error as string
-        );
+        errorMessage.value = response.error as string;
     }
 };
 

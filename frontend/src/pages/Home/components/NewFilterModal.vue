@@ -290,6 +290,7 @@ const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => P
 const scroll = inject<() => void>("scroll");
 const handleScroll = inject<() => void>("handleScroll");
 const filters = inject("filters") as Ref<{ [categoryName: string]: Filter[] }>;
+const selectedFilter = inject("selectedFilter") as Ref<Filter | undefined>;
 const selectedCategory = inject("selectedCategory") as Ref<string>;
 const activeFilters = inject("activeFilters") as Ref<{
     [category: string]: Filter | undefined;
@@ -358,8 +359,12 @@ const addFilter = async () => {
 
     const response = await postData("create_filter/", newFilter.value);
     if (response.success) {
+        selectedFilter.value = { ...response.data };
+        await fetchEmailsData(selectedCategory.value);
+
+        newFilter.value.category = response.data.category;
         filters.value[selectedCategory.value].push(newFilter.value);
-        
+
         activeFilters.value[selectedCategory.value] = newFilter.value;
         localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
 

@@ -889,7 +889,7 @@ def get_attachment_data(
         access_token = refresh_access_token(social_api)
         headers = get_headers(access_token)
 
-        email = Email.objects.get(provider_id=email_id)
+        email = Email.objects.get(user=social_api.user, provider_id=email_id)
         attachment = Attachment.objects.get(email=email, name=attachment_name)
 
         attachment_url = (

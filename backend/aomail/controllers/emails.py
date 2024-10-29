@@ -333,7 +333,7 @@ def retrieve_attachment_data(
         )
     elif social_api.type_api == MICROSOFT:
         attachment_data = email_operations_microsoft.get_attachment_data(
-            user, social_api.email, email.provider_id, attachment_name
+            social_api, email.provider_id, attachment_name
         )
 
     if attachment_data:

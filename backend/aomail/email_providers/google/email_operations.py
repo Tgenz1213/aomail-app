@@ -883,8 +883,8 @@ def get_attachment_data(
             - Returns an empty dictionary if the attachment is not found.
     """
     try:
-        services = authenticate_service(user, email)
-        if not services or "gmail" not in services:
+        services = authenticate_service(user, email, ["gmail"])
+        if not services:
             return {}
 
         gmail_service = services["gmail"]

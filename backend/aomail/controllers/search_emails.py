@@ -166,7 +166,7 @@ def get_email_content(request: HttpRequest) -> Response:
         )
 
     try:
-        email = Email.objects.get(id=email_id)
+        email = Email.objects.get(user=request.user, id=email_id)
         decrypted_content = decrypt_text(
             ENCRYPTION_KEYS["Email"]["html_content"], email.html_content
         )
@@ -309,15 +309,15 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
 
 
 def get_sorted_queryset(
-    and_filters: dict, or_filters: Q, or_filters_search: Q, sort: str
+    and_filters: dict, or_filters: Q, or_filters_search: Q, sort: str, user: User
 ) -> BaseManager[Email]:
     queryset = Email.objects.filter(**and_filters)
 
     if or_filters:
-        queryset = queryset.filter(or_filters)
+        queryset = queryset.filter(or_filters, user=user)
 
     if or_filters_search:
-        queryset = queryset.filter(or_filters_search)
+        queryset = queryset.filter(or_filters_search, user=user)
 
     rule_id_subquery = Rule.objects.filter(
         sender=OuterRef("sender"), user=and_filters["user"]
@@ -407,7 +407,9 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         sort = valid_data["sort"]
 
         and_filters, or_filters, or_filters_search = construct_filters(user, parameters)
-        queryset = get_sorted_queryset(and_filters, or_filters, or_filters_search, sort)
+        queryset = get_sorted_queryset(
+            and_filters, or_filters, or_filters_search, sort, user
+        )
         email_count, email_ids = format_email_data(queryset)
 
         return Response(

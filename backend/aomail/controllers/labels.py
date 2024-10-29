@@ -21,6 +21,9 @@ from reportlab.lib.pagesizes import landscape, letter
 from reportlab.pdfgen import canvas
 from aomail.constants import ALLOWED_PLANS, GOOGLE, MEDIA_ROOT, MICROSOFT
 from aomail.email_providers.google import email_operations as email_operations_google
+from aomail.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
 from aomail.models import Attachment, Email, Label
 from aomail.utils.security import subscription
 
@@ -207,14 +210,22 @@ def create_shipping_label(email: Email, label_data: dict[str, str]):
     """
     item_lines = re.split(r"<br\s*/?>", label_data["item_name"].strip())
 
-    attachment_name = Attachment.objects.get(email=email).name
+    try:
+        attachment_name = Attachment.objects.get(email=email).name
+    except Attachment.DoesNotExist:
+        LOGGER.warning(
+            f"User with ID {email.user.id} attempted to access non-authorized data for email ID {email.id} and attachment."
+        )
+        return
 
     if email.social_api.type_api == GOOGLE:
         attachment = email_operations_google.get_attachment_data(
             email.user, email.social_api.email, email.provider_id, attachment_name
         )
     elif email.social_api.type_api == MICROSOFT:
-        ...
+        attachment = email_operations_microsoft.get_attachment_data(
+            email.social_api, email.provider_id, attachment_name
+        )
 
     pdf_reader = PdfReader(BytesIO(attachment["data"]))
     pdf_writer = PdfWriter()

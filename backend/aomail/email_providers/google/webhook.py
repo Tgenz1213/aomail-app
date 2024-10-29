@@ -166,7 +166,7 @@ def unsubscribe_from_email_notifications(user: User, email: str) -> bool:
         bool: True if unsubscription was successful, False otherwise.
     """
     try:
-        services = authenticate_service(user, email)
+        services = authenticate_service(user, email, ["gmail"])
         if services is None:
             return False
 

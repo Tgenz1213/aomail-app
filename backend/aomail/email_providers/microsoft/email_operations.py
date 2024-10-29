@@ -396,15 +396,16 @@ def set_email_unread(social_api: SocialAPI, email_id: int):
 def search_emails_ai(
     access_token: str,
     max_results: int = 100,
-    filenames: list = None,
-    from_addresses: list = None,
-    to_addresses: list = None,
+    file_extensions: list[str] = None,
+    filenames: list[str] = None,
+    from_addresses: list[str] = None,
+    to_addresses: list[str] = None,
     subject: str = None,
     body: str = None,
-    keywords: list = None,
+    keywords: list[str] = None,
     date_from: str = None,
     search_in: dict = None,
-) -> list:
+) -> list[str]:
     """
     Searches for emails matching the specified query parameters using Microsoft Graph API.
 
@@ -412,6 +413,7 @@ def search_emails_ai(
         access_token (str): The access token for authenticating with Microsoft Graph API.
         max_results (int): The maximum number of email results to retrieve. Default is 100.
         filenames (list): A list of filenames to search for in the attachments.
+        file_extensions (list): A list of file extensions to filter attachments.
         from_addresses (list): A list of sender email addresses to filter emails.
         to_addresses (list): A list of recipient email addresses to filter emails.
         subject (str): A subject string to filter emails.
@@ -431,6 +433,7 @@ def search_emails_ai(
     message_ids = []
     params = {"$top": max_results, "$select": "id", "$count": "true"}
 
+    # Populate search parameters
     if from_addresses:
         from_query = " OR ".join(
             ["from/emailAddress:" + from_address for from_address in from_addresses]
@@ -454,11 +457,9 @@ def search_emails_ai(
         )
     if date_from:
         params["receivedDateTime"] = "gt" + date_from + "T00:00:00Z"
-    if filenames:
-        # TODO: first retrieve emails + filenames and then check with a for loop
-        pass
 
     def run_request(graph_endpoint: str):
+        """Function to run the email search request"""
         try:
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get(graph_endpoint, headers=headers, params=params)
@@ -469,6 +470,7 @@ def search_emails_ai(
         except Exception as e:
             LOGGER.error(f"Failed to search emails with AI filled parameters: {str(e)}")
 
+    # Build folder endpoints
     endpoints = {
         "spams": "junkemail/messages",
         "deleted_emails": "deleteditems/messages",
@@ -480,47 +482,77 @@ def search_emails_ai(
             graph_endpoint = f"{folder_url}{endpoints[folder]}"
             run_request(graph_endpoint)
 
-    graph_endpoint = f"{folder_url}inbox/messages"
-    run_request(graph_endpoint)
+    # Also search in the inbox if specified
+    if not any(search_in.values()):
+        graph_endpoint = f"{folder_url}inbox/messages"
+        run_request(graph_endpoint)
 
-    return message_ids
+    if not filenames and not file_extensions:
+        return message_ids
+
+    # Filter messages by attachment criteria (filenames and extensions)
+    filtered_message_ids = []
+
+    for email_id in message_ids:
+        attachments = fetch_attachments(access_token, email_id)
+
+        # Check if any attachment matches the filename or extension criteria
+        for attachment in attachments:
+            attachment_name = attachment.get("attachmentName", "")
+            attachment_extension = (
+                attachment_name.split(".")[-1].lower() if "." in attachment_name else ""
+            )
+
+            # Check filename matches, if specified
+            name_matches = filenames is None or any(
+                attachment_name == filename for filename in filenames
+            )
+            # Check extension matches, if specified
+            ext_matches = file_extensions is None or any(
+                attachment_extension == ext.lower() for ext in file_extensions
+            )
+
+            # If either name and extension match, add this email_id to filtered list
+            if name_matches and ext_matches:
+                filtered_message_ids.append(email_id)
+                break
+
+    return filtered_message_ids
 
 
 def search_emails_manually(
     access_token: str,
     search_query: str,
     max_results: int,
-    file_extensions: list,
+    file_extensions: list[str] = None,
+    filenames: list[str] = None,
     advanced: bool = False,
     search_in: dict = None,
-    from_addresses: list = None,
-    to_addresses: list = None,
+    from_addresses: list[str] = None,
+    to_addresses: list[str] = None,
     subject: str = None,
     body: str = None,
     date_from: str = None,
-) -> list:
+) -> list[str]:
     """
-    Searches for emails matching the specified query parameters using Microsoft Graph API.
+    Manually searches for emails using the specified query parameters with AND logic for attachments.
 
     Args:
-        access_token (str): The access token for authenticating with Microsoft Graph API.
-        search_query (str): The search query string to search for in emails.
-        max_results (int): The maximum number of email results to retrieve.
-        file_extensions (list): A list of file extensions to filter attachments by.
-        advanced (bool, optional): Flag indicating whether to use advanced search options. Defaults to False.
-        search_in (dict, optional): A dictionary specifying the folders to search in. Possible keys are:
-            spams: Search in spam/junk folder.
-            deleted_emails: Search in deleted items folder.
-            drafts: Search in drafts folder.
-            sent_emails: Search in sent items folder.
-        from_addresses (list, optional): A list of sender email addresses to filter emails.
-        to_addresses (list, optional): A list of recipient email addresses to filter emails.
-        subject (str, optional): A subject string to filter emails.
-        body (str, optional): A body string to filter emails.
-        date_from (str, optional): A date string in the format 'YYYY-MM-DD' to filter emails received after this date.
+        access_token (str): Access token for authenticating with Microsoft Graph API.
+        search_query (str): General search string to look for in emails.
+        max_results (int): Max number of results to retrieve.
+        file_extensions (list, optional): List of file extensions to filter attachments.
+        filenames (list, optional): List of filenames to filter attachments.
+        advanced (bool, optional): If True, applies advanced search parameters. Defaults to False.
+        search_in (dict, optional): Dictionary specifying folders to search in.
+        from_addresses (list, optional): List of sender email addresses to filter emails.
+        to_addresses (list, optional): List of recipient email addresses to filter emails.
+        subject (str, optional): Subject to filter emails.
+        body (str, optional): Body content to filter emails.
+        date_from (str, optional): Filter emails received after this date.
 
     Returns:
-        list: A list of email IDs that match the search criteria.
+        list[str]: A list of email IDs that match the criteria.
     """
     headers = {"Authorization": f"Bearer {access_token}"}
     folder_url = f"{GRAPH_URL}me/mailFolders/"
@@ -534,10 +566,9 @@ def search_emails_manually(
             data: dict = response.json()
             messages = data.get("value", [])
             message_ids.extend([message["id"] for message in messages])
-
         except Exception as e:
             LOGGER.error(
-                f"Failed to search_emails_ai for url: {graph_endpoint}: {str(e)}"
+                f"Failed to search_emails_manually for url: {graph_endpoint}: {str(e)}"
             )
 
     try:
@@ -560,9 +591,6 @@ def search_emails_manually(
                 params["body"] = body
             if date_from:
                 params["receivedDateTime"] = f"gt{date_from}T00:00:00Z"
-            if file_extensions:
-                # TODO: Retrieve emails + filenames and check with a for loop
-                pass
 
             endpoints = {
                 "spams": "junkemail/messages",
@@ -574,8 +602,8 @@ def search_emails_manually(
                 if folder in endpoints and search_in[folder]:
                     endpoint = f"{folder_url}{endpoints[folder]}"
                     run_request(endpoint, params)
-
         else:
+            # Simple search using `search_query`
             filter_expression = f"""
             contains(subject,'{search_query}') or 
             contains(body/content,'{search_query}') or 
@@ -587,8 +615,40 @@ def search_emails_manually(
         response.raise_for_status()
         response_data: dict = response.json()
         messages = response_data.get("value", [])
+        message_ids.extend([message["id"] for message in messages])
 
-        return [message["id"] for message in messages]
+        # If no filename or extension filtering is specified, return results directly
+        if not filenames and not file_extensions:
+            return message_ids
+
+        # Filter messages by attachment criteria (both filenames and extensions required if specified)
+        filtered_message_ids = []
+
+        for email_id in message_ids:
+            attachments = fetch_attachments(access_token, email_id)
+
+            for attachment in attachments:
+                attachment_name = attachment.get("attachmentName", "")
+                attachment_extension = (
+                    attachment_name.split(".")[-1].lower()
+                    if "." in attachment_name
+                    else ""
+                )
+
+                # Check if both filename and extension criteria are satisfied
+                name_matches = filenames is None or any(
+                    attachment_name == filename for filename in filenames
+                )
+                ext_matches = file_extensions is None or any(
+                    attachment_extension == ext.lower() for ext in file_extensions
+                )
+
+                # If both conditions are met, consider this email ID a match
+                if name_matches and ext_matches:
+                    filtered_message_ids.append(email_id)
+                    break
+
+        return filtered_message_ids
 
     except Exception as e:
         LOGGER.error(f"Failed to search emails from Microsoft API: {str(e)}")

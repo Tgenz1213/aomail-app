@@ -209,14 +209,15 @@ def set_email_unread(user: User, email: str, mail_id: str) -> dict:
 def search_emails_ai(
     services: dict[str, build],
     max_results: int = 100,
-    filenames: list = None,
-    from_addresses: list = None,
-    to_addresses: list = None,
+    file_extensions: list[str] = None,
+    filenames: list[str] = None,
+    from_addresses: list[str] = None,
+    to_addresses: list[str] = None,
     subject: str = None,
     body: str = None,
-    keywords: list = None,
+    keywords: list[str] = None,
     date_from: str = None,
-    search_in: dict = None,
+    search_in: dict[str, bool] = None,
 ) -> list:
     """
     Searches for emails matching the specified query parameters using the Gmail API.
@@ -225,6 +226,7 @@ def search_emails_ai(
         services (dict[str, build]): A dictionary containing authenticated service instances for various email providers,
                                      including the Gmail service instance under the key "gmail".
         max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
+        file_extensions (list[str], optional): A list of file extensions to search for in the attachments.
         filenames (list[str], optional): A list of filenames to search for in the attachments.
         from_addresses (list[str], optional): A list of sender email addresses to filter emails.
         to_addresses (list[str], optional): A list of recipient email addresses to filter emails.
@@ -243,6 +245,7 @@ def search_emails_ai(
     """
     query_parts = []
 
+    # Build the main query
     if from_addresses:
         from_query = " OR ".join([f"from:{address}" for address in from_addresses])
         query_parts.append(f"({from_query})")
@@ -259,20 +262,26 @@ def search_emails_ai(
         )
         query_parts.append(f"({search_in_query})")
 
+    # Combine all parts with OR logic
     query = " OR ".join(query_parts)
 
-    query_parts = []
+    # Build the additional filters
+    additional_query_parts = []
     if filenames:
-        file_query = " OR ".join([f"filename:{ext}" for ext in filenames])
-        query_parts.append(f"({file_query})")
+        filename_query = " OR ".join([f"filename:{name}" for name in filenames])
+        additional_query_parts.append(f"({filename_query})")
+    if file_extensions:
+        file_ext_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+        additional_query_parts.append(f"({file_ext_query})")
     if date_from:
-        query_parts.append(f"(after:{date_from})")
+        additional_query_parts.append(f"(after:{date_from})")
     if keywords:
-        keyword_query = " OR ".join([keyword for keyword in keywords])
-        query_parts.append(f'("{keyword_query}")')
+        keyword_query = " OR ".join([f'"{keyword}"' for keyword in keywords])
+        additional_query_parts.append(f"({keyword_query})")
 
-    if query_parts:
-        query += " AND " + " AND ".join(query_parts)
+    # Combine additional filters with AND logic
+    if additional_query_parts:
+        query += " AND " + " AND ".join(additional_query_parts)
 
     try:
         service = services["gmail"]
@@ -287,7 +296,7 @@ def search_emails_ai(
         return [message["id"] for message in messages]
 
     except Exception as e:
-        LOGGER.error(f"Failed to search emails from Google API with Ao help: {str(e)}")
+        LOGGER.error(f"Failed to search emails from Google API with AI help: {str(e)}")
         return []
 
 
@@ -296,6 +305,7 @@ def search_emails_manually(
     search_query: str,
     max_results: int = 100,
     file_extensions: list[str] = None,
+    filenames: list[str] = None,
     advanced: bool = False,
     search_in: dict[str, bool] = None,
     from_addresses: list[str] = None,
@@ -313,6 +323,7 @@ def search_emails_manually(
         search_query (str): The basic search query string to use for simple searches.
         max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
         file_extensions (list[str], optional): A list of file extensions to search for in the attachments.
+        filenames (list[str], optional): A list of filenames to search for in the attachments.
         advanced (bool, optional): Flag indicating whether to use advanced search parameters. Default is False.
         search_in (dict[str, bool], optional): A dictionary specifying the folders to search in. Possible keys are:
             spams: Search in spam/junk folder.
@@ -330,6 +341,7 @@ def search_emails_manually(
     """
 
     def search(query: str) -> list:
+        """Executes the search query and retrieves email messages."""
         try:
             results: dict = (
                 service.users()
@@ -349,6 +361,7 @@ def search_emails_manually(
 
     try:
         service = services["gmail"]
+        messages = []
 
         if advanced:
             query_parts = []
@@ -371,12 +384,22 @@ def search_emails_manually(
                     [f"in:{folder}" for folder, include in search_in.items() if include]
                 )
                 query_parts.append(f"({search_in_query})")
-            if file_extensions:
-                file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
-                query_parts.append(f" AND ({file_query})")
 
+            # Construct the file extensions and filenames filter
+            if file_extensions:
+                file_ext_query = " OR ".join(
+                    [f"filename:{ext}" for ext in file_extensions]
+                )
+                query_parts.append(f"({file_ext_query})")
+            if filenames:
+                file_name_query = " OR ".join(
+                    [f"filename:{name}" for name in filenames]
+                )
+                query_parts.append(f"({file_name_query})")
+
+            # Combine all parts into a single query
             if query_parts:
-                query = " OR ".join(query_parts)
+                query = " AND ".join(query_parts)
                 messages = search(query)
 
         else:

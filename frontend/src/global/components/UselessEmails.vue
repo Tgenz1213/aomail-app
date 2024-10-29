@@ -17,7 +17,10 @@
                     <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
                         {{ nbrEmailsUseless }}
                     </span>
-                    <span>
+                    <span v-if="nbrEmailsUseless === 1">
+                        {{ $t("homePage.uselessEmail") }}
+                    </span>
+                    <span v-else>
                         {{ $t("homePage.uselessEmails") }}
                     </span>
                 </p>
@@ -100,7 +103,7 @@
                         >
                             <ul role="list" class="divide-y divide-gray-200">
                                 <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
-                                    <EmailItem :email="email" :block="true" :replyLater=replyLater />
+                                    <EmailItem :email="email" :block="true" :replyLater="replyLater" />
                                 </li>
                             </ul>
                         </div>
@@ -160,7 +163,7 @@ const hasEmails = computed(() => {
 });
 
 const nbrEmailsUseless = computed(() => {
-    return Object.keys(groupedEmails.value).length;
+    return Object.values(groupedEmails.value).reduce((acc, emails) => acc + emails.length, 0);
 });
 
 function toggleEmailVisibility() {

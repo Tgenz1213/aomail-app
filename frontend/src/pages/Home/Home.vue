@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, onMounted, onUnmounted } from "vue";
+import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult } from "@/global/types";
 import { Filter } from "./utils/types";
@@ -107,7 +107,7 @@ const toSearch = ref(false);
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
 const activeFilters = ref<{ [category: string]: Filter | undefined }>({});
-const selectedFilter = computed(() => activeFilters.value[selectedCategory.value]);
+const selectedFilter = ref<Filter | undefined>(activeFilters.value[selectedCategory.value]);
 const categoryToUpdate = ref<Category | null>(null);
 const filterToUpdate = ref<Filter | null>(null);
 const isModalNewCategoryOpen = ref(false);
@@ -122,25 +122,23 @@ const emailsPerPage = 10;
 const currentPage = ref(1);
 const isLoading = ref(false);
 const allEmailIds = ref<string[]>([]);
-const openFilters = ref<Record<string, boolean>>({});
 const searchQuery = ref("");
+
+watch(
+    () => [activeFilters.value, selectedCategory.value],
+    () => {
+        selectedFilter.value = activeFilters.value[selectedCategory.value];
+    },
+    { immediate: true }
+);
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
     let response: FetchDataResult;
-    const storedFilters = localStorage.getItem("showFilters");
 
-    if (storedFilters) {
-        openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
-    }
-
-    if (
-        selectedFilter.value &&
-        selectedCategory.value in openFilters.value &&
-        openFilters.value[selectedCategory.value]
-    ) {
+    if (selectedFilter.value) {
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");
@@ -185,7 +183,7 @@ const fetchEmailsData = async (categoryName: string) => {
                 category: categoryName,
             });
         } else {
-            response = await postData("user/emails_ids/", { search: "", category: categoryName });
+            response = await postData("user/emails_ids/", { category: categoryName });
         }
     }
 

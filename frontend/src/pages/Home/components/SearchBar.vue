@@ -71,7 +71,6 @@ import Filters from "./Filters.vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
 
 const showFilters = ref(false);
-const openFilters = ref<Record<string, boolean>>({});
 const searchTimeout = ref<number | null>(null);
 
 const selectedCategory = inject("selectedCategory") as Ref<string>;
@@ -82,10 +81,6 @@ const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => P
 
 const toggleFilterSection = () => {
     showFilters.value = !showFilters.value;
-
-    //openFilters.value[selectedCategory.value] = showFilters.value;
-
-    localStorage.setItem("showFilters", JSON.stringify(openFilters.value));
     localStorage.setItem("showFiltersTab", JSON.stringify(showFilters.value));
 };
 
@@ -128,15 +123,6 @@ watch(searchQuery, () => {
 });
 
 onMounted(() => {
-    const storedFilters = localStorage.getItem("showFilters");
-    if (storedFilters) {
-        try {
-            openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
-        } catch (e) {
-            console.error("Error parsing stored filters:", e);
-        }
-    }
-
     const storedShowFilters = localStorage.getItem("showFiltersTab");
     if (storedShowFilters) {
         showFilters.value = JSON.parse(storedShowFilters);

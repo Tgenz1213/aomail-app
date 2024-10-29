@@ -283,7 +283,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
         if "CCNames" in parameters:
             and_filters["cc_senders__name__in"] = parameters["CCNames"]
         if "search" in parameters:
-            search = parameters.get("search")
+            search = parameters.get("search", "")
             or_filters_search |= (
                 Q(subject__icontains=search)
                 | Q(sender__email__icontains=search)
@@ -296,7 +296,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
         if "category" in parameters:
             category_obj = Category.objects.get(name=parameters["category"], user=user)
             and_filters["category"] = category_obj
-        search = parameters.get("search")
+        search = parameters.get("search", "")
         or_filters |= (
             Q(subject__icontains=search)
             | Q(sender__email__icontains=search)

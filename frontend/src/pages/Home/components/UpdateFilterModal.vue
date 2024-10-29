@@ -280,8 +280,10 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
 const filters = inject("filters") as Ref<{ [categoryName: string]: Filter[] }>;
 const selectedCategory = inject("selectedCategory") as Ref<string>;
+const selectedFilter = inject("selectedFilter") as Ref<Filter | undefined>;
 
 const errorMessage = ref("");
 const filterData = ref<Filter>({
@@ -323,19 +325,20 @@ const updateFilter = async () => {
         return;
     }
 
-    const categoryFilters = filters.value[selectedCategory.value];
-    if (!categoryFilters) {
-        filters.value[selectedCategory.value] = [];
-    }
-
+    const categoryFilters = filters.value[selectedCategory.value] || [];
     const response = await putData(`update_filter/`, { ...filterData.value, filterName: props.filter?.name });
+
     if (response.success) {
+        selectedFilter.value = { ...response.data };
+        await fetchEmailsData(selectedCategory.value);
+
         const filterIndex = categoryFilters.findIndex((filter) => filter.name === props.filter?.name);
         if (filterIndex !== -1) {
             categoryFilters[filterIndex] = { ...filterData.value };
         } else {
             categoryFilters.push({ ...filterData.value });
         }
+
         closeModal();
         displayPopup?.(
             "success",
@@ -363,6 +366,7 @@ const deleteFilter = async () => {
 
     const response = await deleteData(`delete_filter/`, { filterName: props.filter?.name });
     if (response.success) {
+        await fetchEmailsData(selectedCategory.value);
         const filterIndex = categoryFilters.findIndex((filter) => filter.name === props.filter?.name);
         if (filterIndex !== -1) {
             categoryFilters.splice(filterIndex, 1);

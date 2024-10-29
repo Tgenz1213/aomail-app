@@ -307,25 +307,21 @@ def update_emails(request: HttpRequest) -> Response:
         )
 
 
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
 @api_view(["GET"])
 @subscription(ALLOWED_PLANS)
 def retrieve_attachment_data(
     request: HttpRequest, email_id: str, attachment_name: str
 ) -> Response:
     """
-    Retrieves email attachment data for a specific email and attachment ID.
+    Retrieves email attachment data for a specific email and attachment name.
 
     Args:
         request (HttpRequest): The HTTP request object.
         email_id (str): The ID of the email containing the attachment.
-        attachment_id (str): The ID of the attachment to retrieve.
+        attachment_name (str): The name of the attachment to retrieve.
 
     Returns:
-        Response: JSON response containing the attachment data.
-                      Returns status=status.HTTP_200_OK on success.
+        Response: JSON response containing the attachment data or HTTP 404 if not found.
     """
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
@@ -335,21 +331,18 @@ def retrieve_attachment_data(
         attachment_data = email_operations_google.get_attachment_data(
             user, social_api.email, email.provider_id, attachment_name
         )
-        if attachment_data:
-            response = HttpResponse(
-                attachment_data["data"], content_type="application/octet-stream"
-            )
-            response["Content-Disposition"] = (
-                f'attachment; filename="{attachment_name}"'
-            )
-            return response
-        else:
-            return Response(
-                {"error": "Attachment not found"}, status=status.HTTP_404_NOT_FOUND
-            )
     elif social_api.type_api == MICROSOFT:
-        # TODO: Implement handling for Microsoft API attachments
+        attachment_data = email_operations_microsoft.get_attachment_data(
+            user, social_api.email, email.provider_id, attachment_name
+        )
+
+    if attachment_data:
+        response = HttpResponse(
+            attachment_data["data"], content_type="application/octet-stream"
+        )
+        response["Content-Disposition"] = f'attachment; filename="{attachment_name}"'
+        return response
+    else:
         return Response(
-            {"error": "Microsoft API attachment handling not implemented yet"},
-            status=status.HTTP_501_NOT_IMPLEMENTED,
+            {"error": "Attachment not found"}, status=status.HTTP_404_NOT_FOUND
         )

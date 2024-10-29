@@ -198,7 +198,7 @@ def get_profile_image(request: HttpRequest) -> Response:
 
 def set_all_contacts(user: User, email: str):
     """
-    Retrieves up to 5,000 unique email addresses from the latest emails and contacts in a user's Microsoft Graph account and stores them in the database.
+    Stores all unique contacts from the latest 5,000 emails and contacts in the database.    
 
     Args:
         user (User): User object representing the owner of the email account.
@@ -209,33 +209,29 @@ def set_all_contacts(user: User, email: str):
     )
     start = time.time()
 
-    # Function to refresh the token and update headers
     def refresh_and_get_headers():
         access_token = refresh_access_token(get_social_api(user, email))
         return get_headers(access_token)
 
-    # Initial headers with first access token
     headers = refresh_and_get_headers()
     graph_api_contacts_endpoint = f"{GRAPH_URL}me/contacts"
     graph_api_messages_endpoint = f"{GRAPH_URL}me/messages?$top=100"
 
     try:
         all_contacts = defaultdict(set)
-        message_count = 0  # Counter to limit emails to the last 5,000
+        message_count = 0
 
-        # Helper function to handle requests with retry on token expiration
         def make_request(endpoint):
             nonlocal headers
-            for attempt in range(2):  # Attempt up to 2 times
+            for attempt in range(2):
                 response = requests.get(endpoint, headers=headers)
                 if response.status_code == 401 and attempt == 0:
-                    # If unauthorized, refresh token and try again
                     LOGGER.warning("Access token expired, attempting to refresh.")
                     headers = refresh_and_get_headers()
                 else:
                     response.raise_for_status()
                     return response.json()
-            # If the second attempt fails, raise an error
+
             LOGGER.error("Request failed after token refresh.")
             raise Exception("Token refresh failed, cannot continue request.")
 

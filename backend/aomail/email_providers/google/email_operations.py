@@ -418,7 +418,7 @@ def get_demo_list(user: User, email: str) -> list[str]:
         .execute()
     )
     messages = results.get("messages", [])
- 
+
     return [msg["id"] for msg in messages] if messages else []
 
 
@@ -438,7 +438,6 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             - preprocessed_data (str): Cleaned and summarized email content.
             - safe_html (str): HTML content of the email in a safe format.
             - email_id (str): Unique ID of the email message.
-            - snippet (str): First few words of the email content as a brief preview.
             - sent_date (datetime.datetime): Sent date and time of the email.
             - has_attachments (bool): Indicates if the email has attachments.
             - is_reply (bool): Indicates if the email is a reply.
@@ -599,7 +598,6 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
 
     # Replace CID references in HTML with local paths
     soup = BeautifulSoup(email_html, "html.parser")
-    snippet = " ".join(soup.get_text().split()[:20])  # Extract first 20 words
     for img in soup.find_all("img"):
         cid_ref = img["src"].lstrip("cid:")
         for image_file in image_files:
@@ -615,7 +613,6 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
         "from_info": from_info,
         "preprocessed_data": preprocessed_data,
         "safe_html": safe_html,
-        "snippet": snippet,
         "email_id": email_id,
         "sent_date": sent_date,
         "has_attachments": has_attachments,
@@ -669,7 +666,6 @@ def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
             is_reply (bool): Flag indicating whether the email is a reply.
             cc_info (list[tuple[str, str]]): List of CC recipients (name, email).
             bcc_info (list[tuple[str, str]]): List of BCC recipients (name, email).
-            snippet (str): First few words of the email.
     """
     service = services["gmail"]
     batch = service.new_batch_http_request()
@@ -736,10 +732,6 @@ def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
         if not email_html:
             email_html = email_txt_html
 
-        # Extract snippet
-        soup = BeautifulSoup(email_html, "html.parser")
-        snippet = " ".join(soup.get_text().split()[:20])  # Extract first 20 words
-
         email_info[email_id] = {
             "subject": subject,
             "from_info": from_info,
@@ -748,7 +740,6 @@ def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
             "is_reply": is_reply,
             "cc_info": cc_info,
             "bcc_info": bcc_info,
-            "snippet": snippet,
         }
 
     # Ensure email_ids are unique

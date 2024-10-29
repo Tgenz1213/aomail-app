@@ -42,7 +42,7 @@ ALLOWED_PLANS = [START_PLAN, PREMIUM_PLAN, ENTREPRISE_PLAN]
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
-CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
+ANTHROPIC_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
 IMPORTANT = "important"
 INFORMATIVE = "informative"
 USELESS = "useless"
@@ -88,11 +88,13 @@ MICROSOFT_READ_SCOPE = "Mail.Read"
 MICROSOFT_SEND_SCOPE = "Mail.Send"
 MICROSOFT_CONTACTS_READ_SCOPE = "Contacts.Read"
 MICROSOFT_EMAIL_MODIFY = "Mail.ReadWrite"
+MICROSOFT_USER_READ_SCOPE = "User.Read"
 MICROSOFT_SCOPES = [
     MICROSOFT_READ_SCOPE,
     MICROSOFT_SEND_SCOPE,
     MICROSOFT_CONTACTS_READ_SCOPE,
     MICROSOFT_EMAIL_MODIFY,
+    MICROSOFT_USER_READ_SCOPE,
 ]
 MICROSOFT_CREDS = f"{CREDS_PATH}microsoft_creds.json"
 MICROSOFT_CONFIG = json.load(open(MICROSOFT_CREDS))

@@ -11,6 +11,7 @@ import base64
 import datetime
 import json
 import logging
+import os
 import threading
 import requests
 from django.http import HttpRequest
@@ -33,9 +34,11 @@ from aomail.email_providers.microsoft.authentication import (
 from aomail.utils import email_processing
 from aomail.constants import (
     ALLOWED_PLANS,
+    BASE_URL_MA,
     GRAPH_URL,
+    MEDIA_ROOT,
 )
-from aomail.models import SocialAPI
+from aomail.models import Attachment, Email, SocialAPI
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -605,7 +608,7 @@ def get_demo_list(user: User, email: str) -> list[str]:
                    Returns an empty list if no messages are found.
     """
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
-    access_token = refresh_access_token(user, email)
+    access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
 
     params = {
@@ -616,6 +619,37 @@ def get_demo_list(user: User, email: str) -> list[str]:
     messages = response.json().get("value", [])
 
     return [msg["id"] for msg in messages] if messages else []
+
+
+def fetch_attachments(social_api: SocialAPI, email_id: str) -> list:
+    """
+    Fetch attachments for a given email by ID.
+
+    Args:
+        social_api (SocialAPI): SocialAPI object containing authentication information.
+        email_id (str): ID of the specific email message.
+
+    Returns:
+        list: List of dictionaries, each containing 'attachmentId' and 'attachmentName'.
+    """
+    access_token = refresh_access_token(social_api)
+    headers = get_headers(access_token)
+
+    attachments_url = f"{GRAPH_URL}me/messages/{email_id}/attachments"
+    response = requests.get(attachments_url, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(
+            f"Failed to fetch attachments: {response.status_code}, {response.text}"
+        )
+
+    attachment_data = response.json().get("value", [])
+    attachments = [
+        {"attachmentId": att["id"], "attachmentName": att["name"]}
+        for att in attachment_data
+    ]
+
+    return attachments
 
 
 def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
@@ -635,6 +669,7 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
             datetime.datetime: Sent date and time of the email.
             bool: Flag indicating whether the email has attachments.
             bool: Flag indicating whether the email is a reply ('RE:' in subject).
+            list[dict]: List of dictionaries containing details about each attachment (ID and name).
     """
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
     access_token = refresh_access_token(social_api)
@@ -642,30 +677,59 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
 
     message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(
+            f"Failed to fetch email: {response.status_code}, {response.text}"
+        )
+
     message_data: dict = response.json()
 
-    has_attachments = message_data["hasAttachments"]
-    subject: str = message_data.get("subject")
+    has_attachments = message_data.get("hasAttachments", False)
+    subject: str = message_data.get("subject", "")
     is_reply: bool = subject.lower().startswith("re:")
-    sender = message_data.get("from")
+    sender = message_data.get("from", {})
     from_info = parse_name_and_email(sender)
+
+    # Handling CC and BCC recipients
+    cc_info = [
+        parse_name_and_email(recipient)
+        for recipient in message_data.get("ccRecipients", [])
+    ]
+    bcc_info = [
+        parse_name_and_email(recipient)
+        for recipient in message_data.get("bccRecipients", [])
+    ]
+
+    # Parse the sent date
     sent_date_str = message_data.get("sentDateTime")
-    sent_date = None
-    if sent_date_str:
-        sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
-        sent_date = make_aware(sent_date)
+    sent_date = (
+        make_aware(datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ"))
+        if sent_date_str
+        else None
+    )
+
+    # Retrieve attachments if they exist
+    attachments = fetch_attachments(social_api, email_id) if has_attachments else []
+
+    # Process the email body
     decoded_data = parse_message_body(message_data)
-    decoded_data_temp = email_processing.html_clear(decoded_data)
-    preprocessed_data = email_processing.preprocess_email(decoded_data_temp)
+    cleaned_html = email_processing.html_clear(decoded_data)
+    preprocessed_data = email_processing.preprocess_email(cleaned_html)
 
     return {
         "subject": subject,
         "from_info": from_info,
         "preprocessed_data": preprocessed_data,
+        "safe_html": decoded_data,
         "email_id": email_id,
         "sent_date": sent_date,
         "has_attachments": has_attachments,
         "is_reply": is_reply,
+        "cc_info": cc_info,
+        "bcc_info": bcc_info,
+        "image_files": [],
+        "attachments": attachments,
     }
 
 
@@ -742,3 +806,64 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None) -> tu
         email_id,
         sent_date,
     )
+
+
+def get_attachment_data(
+    social_api: SocialAPI, email_id: str, attachment_name: str
+) -> dict:
+    """
+    Retrieves the data for a specific attachment from an email using the Microsoft Graph API.
+
+    Args:
+        social_api (SocialAPI): SocialAPI object containing authentication information.
+        email_id (str): The ID of the email containing the attachment.
+        attachment_name (str): The name of the attachment to retrieve.
+
+    Returns:
+        dict: A dictionary containing:
+            - attachmentName (str): The name of the attachment.
+            - data (bytes): The attachment data.
+            - Returns an empty dictionary if the attachment is not found.
+    """
+    try:
+        access_token = refresh_access_token(social_api)
+        headers = get_headers(access_token)
+
+        email = Email.objects.get(provider_id=email_id)
+        attachment = Attachment.objects.get(email=email, name=attachment_name)
+
+        attachment_url = (
+            f"{GRAPH_URL}me/messages/{email_id}/attachments/{attachment.id_api}/$value"
+        )
+        response = requests.get(attachment_url, headers=headers)
+
+        if response.status_code != 200:
+            LOGGER.error(
+                f"Failed to retrieve attachment data: {response.status_code}, {response.text}"
+            )
+            return {}
+
+        return {
+            "attachmentName": attachment_name,
+            "data": response.content,
+        }
+
+    except Email.DoesNotExist:
+        LOGGER.error(f"No email found with ID {email_id}.")
+        return {}
+
+    except Attachment.DoesNotExist:
+        LOGGER.error(
+            f"No attachment found with name '{attachment_name}' for email ID {email_id}."
+        )
+        return {}
+
+    except requests.RequestException as e:
+        LOGGER.error(f"HTTP request failed: {str(e)}")
+        return {}
+
+    except Exception as e:
+        LOGGER.error(
+            f"Failed to get attachment data for email ID {email_id} and attachment '{attachment_name}': {str(e)}"
+        )
+        return {}

@@ -182,7 +182,7 @@
     "authorizationCodeNotFound": "Authorization code not found in URL",
     "accountCreationInProgress": "Account creation in progress...",
     "fetchingYourEmails": "Fetching your emails",
-    "waitingDatabaseResponse": "Attente de réponse de la base de données",
+    "waitingDatabaseResponse": "Waiting for database response",
     "accountCreationError": "Error creating account",
     "registerToAomail": "Register to Aomail",
     "AcceptTerms": "You must accept Aomail terms",

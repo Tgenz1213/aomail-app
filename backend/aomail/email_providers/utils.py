@@ -234,10 +234,8 @@ def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI) -
     )
     create_keypoints(summary, is_reply, email_entry)
     save_stats(email_ai, user)
-
-    if social_api.type_api == GOOGLE:
-        create_cc_bcc_senders(email_data, email_entry)
-        create_pictures_and_attachments(email_data, email_entry)
+    create_cc_bcc_senders(email_data, email_entry)
+    create_pictures_and_attachments(email_data, email_entry)
 
     return email_entry
 

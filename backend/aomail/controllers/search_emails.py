@@ -327,15 +327,6 @@ def get_sorted_queryset(
         has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
     )
 
-    if sort == "asc":
-        queryset = queryset.order_by(
-            F("priority").asc(nulls_last=True), F("read").asc(), "-date"
-        )
-    else:
-        queryset = queryset.order_by(
-            F("priority").asc(nulls_last=True), F("read").asc(), "date"
-        )
-
     return queryset
 
 
@@ -352,10 +343,29 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
             email_count (int): Total number of emails in the queryset.
             email_ids (list): List of email IDs from the queryset.
     """
-    email_count = queryset.count()
-    email_ids = list(queryset.values_list("id", flat=True))
-    return email_count, email_ids
+    priority_order = ['important', 'informative', 'useless']
+    email_ids = []
+    
+    for priority in priority_order:
+        priority_unread_ids = list(
+            queryset.filter(
+                priority=priority,
+                read=False
+            ).order_by('-date').values_list('id', flat=True)
+        )
+        email_ids.extend(priority_unread_ids)
 
+    for priority in priority_order:
+        priority_read_ids = list(
+            queryset.filter(
+                priority=priority,
+                read=True
+            ).order_by('-date').values_list('id', flat=True)
+        )
+        email_ids.extend(priority_read_ids)
+
+    email_count = len(email_ids)
+    return email_count, email_ids
 
 @api_view(["POST"])
 @subscription(ALLOWED_PLANS)

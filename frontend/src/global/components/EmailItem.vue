@@ -534,7 +534,6 @@ async function setRuleBlockForSender() {
 
     markEmailAsRead();
     fetchEmailsData(selectedCategory.value);
-    fetchCategoriesAndTotals();
 }
 
 const closeSeeMailModal = () => {
@@ -571,6 +570,7 @@ async function markEmailAsRead() {
         }
     }
     const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "read" });
+    fetchCategoriesAndTotals();
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
     }
@@ -587,6 +587,7 @@ async function markEmailAsUnread() {
         }
     }
     const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unread" });
+    fetchCategoriesAndTotals();
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);
     }

@@ -12,6 +12,25 @@ export POSTGRES_DB="mailassistantdb"
 # Start the containers and build if necessary
 docker compose -p ${ENV}_prod up --build -d frontend_prod backend_prod
 
-# Define the cron job and add it if it doesn't exist
-CRON_JOB="0 3 * * * docker exec -i ${ENV}_prod-backend /usr/local/bin/python /app/manage.py crontab run $ID"
+# Wait for the backend container to be running
+container_name="${ENV}_prod-backend_prod-1"
+
+# Extract the ID of the Google renew subscription
+ID=""
+while [ -z "$ID" ]; do
+  ID=$(docker exec -i $container_name crontab -l 2>/dev/null | grep 'crontab run' | awk -F 'run ' '{print $2}' | awk '{print $1}' | head -n 1)
+  if [ -z "$ID" ]; then
+    echo "No ID found. Retrying in 5 seconds..."
+    sleep 5
+  fi
+done
+echo "ID found: $ID"
+
+# Get the absolute path of the script's directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Define the cron job with the log file located in the same directory as the script
+CRON_JOB="0 3 * * * docker exec -i ${container_name} /usr/local/bin/python /app/manage.py crontab run $ID >> $SCRIPT_DIR/aomail-cron.log 2>&1"
+
+# Add cron job if it doesn’t already exist
 (crontab -l | grep -F "$CRON_JOB") && echo "Cron job already exists" || (crontab -l; echo "$CRON_JOB") | crontab -

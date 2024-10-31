@@ -75,6 +75,7 @@ const hideLoading = inject<() => void>("hideLoading");
 provide("askContent", askContent);
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);
+provide("handleAIClick", handleAIClick);
 
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
@@ -153,7 +154,7 @@ function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipi
         scrollToBottom?.();
     }
 
-    if (noUsersAdded) {
+    if (noUsersAdded && !waitforUserChoice) {
         displayNoRecipientsFoundMessage();
     } else if (!waitforUserChoice) {
         stepContainer.value = 1;

@@ -398,6 +398,7 @@ import AccountDeletionModal from "./AccountDeletionModal.vue";
 import UserEmailLinked from "./UserEmailLinked.vue";
 import { i18n } from "@/global/preferences";
 import { EmailLinked } from "@/global/types";
+import { Plan } from "../utils/types";
 
 const username = ref("");
 const usernameInput = ref("");
@@ -406,6 +407,7 @@ const confirmPassword = ref("");
 const typeApi = ref("");
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
+const userPlan = inject<Ref<Plan>>("userPlan");
 const isDeleteRadioButtonChecked = inject<Ref<boolean>>("isDeleteRadioButtonChecked", ref(false));
 const isAddUserDescriptionModalOpen = inject<Ref<boolean>>("isAddUserDescriptionModalOpen", ref(false));
 const isAccountDeletionModalOpen = inject<Ref<boolean>>("isAccountDeletionModalOpen", ref(false));
@@ -427,6 +429,26 @@ onMounted(() => {
 });
 
 function authorize(provider: string) {
+    if (userPlan?.value) {
+        if (userPlan.value.isTrial) {
+            displayPopup?.(
+                "error",
+                "Failed to generate authorization URL",
+                "You can only link 1 email with a free trial"
+            );
+            return;
+        }
+
+        if (!userPlan.value.isActive) {
+            displayPopup?.(
+                "error",
+                "Failed to generate authorization URL",
+                "You cannot link an email with an inactive subscription"
+            );
+            return;
+        }
+    }
+
     typeApi.value = provider;
 
     if (provider === MICROSOFT || provider === GOOGLE) {

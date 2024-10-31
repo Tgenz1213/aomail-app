@@ -7,8 +7,10 @@
         @markEmailAsRead="markEmailAsRead"
         @markEmailAsUnread="markEmailAsUnread"
         @archiveEmail="archiveEmail"
+        @unarchiveEmail="unarchiveEmail"
         @deleteEmail="deleteEmail"
         @markEmailReplyLater="markEmailReplyLater"
+        @markEmailAsUnreplyLater="markEmailAsUnreplyLater"
         @openAnswer="openAnswer"
         @transferEmail="transferEmail"
     />
@@ -182,9 +184,9 @@
                     <div v-else v-show="isHovered" class="group action-buttons">
                         <div class="relative group">
                             <div
-                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10 w-[115px]"
+                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-center text-sm rounded shadow-lg mt-[-45px] -ml-[60px] w-[140px]"
                             >
-                                {{ $t("homePage.unreplyLater") }}
+                                {{ $t("constants.userActions.unreplyLater") }}
                             </div>
                             <button
                                 @click="markEmailAsUnreplyLater"
@@ -474,7 +476,7 @@ import {
     HandRaisedIcon,
 } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
-import { getData, getDataRawResponse, postData, deleteData } from "@/global/fetchData";
+import { getData, getDataRawResponse, postData, deleteData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
@@ -523,20 +525,15 @@ const openEmail = async () => {
 };
 
 async function setRuleBlockForSender() {
-    const resultBlock = await postData(`user/emails/${localEmail.value.id}/block_sender/`, {});
-    const resultRead = await postData(`user/emails/${localEmail.value.id}/mark_read/`, {});
-
-    if (!resultBlock.success) {
-        // TO UPDATE
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), resultBlock.error as string);
-    }
-    if (!resultRead.success) {
-        // TO UPDATE
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), resultRead.error as string);
-    }
-    fetchEmailsData(selectedCategory.value);
-    fetchCategoriesAndTotals();
     localEmail.value.read = true;
+
+    const resultBlock = await postData(`user/emails/${localEmail.value.id}/block_sender/`, {});
+    if (!resultBlock.success) {
+        displayPopup?.("error", i18n.global.t("homepage.blockEmailAddressFailure"), resultBlock.error as string);
+    }
+
+    markEmailAsRead();
+    fetchEmailsData(selectedCategory.value);
 }
 
 const closeSeeMailModal = () => {
@@ -572,10 +569,10 @@ async function markEmailAsRead() {
             }
         }
     }
-    const result = await postData(`user/emails/${localEmail.value.id}/mark_read/`, {});
+    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "read" });
+    fetchCategoriesAndTotals();
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
-        return;
     }
 }
 
@@ -589,9 +586,10 @@ async function markEmailAsUnread() {
             }
         }
     }
-    const result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {});
+    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unread" });
+    fetchCategoriesAndTotals();
     if (!result.success) {
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+        displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);
     }
 }
 
@@ -605,19 +603,27 @@ async function markEmailReplyLater() {
             }
         }
     }
-    let result = await postData(`user/emails/${localEmail.value.id}/mark_reply_later/`, {});
+    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "replyLater" });
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
         return;
     }
-    result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {}); // We mark unread if the user click to replyLater to an email that is read=true (so it appears in replyLater correctly)
+    markEmailAsUnread();
 }
 
 async function markEmailAsUnreplyLater() {
-    let result = await postData(`user/emails/${localEmail.value.id}/unmark_reply_later/`, {});
+    for (const category in emails.value) {
+        for (const subCategory in emails.value[category]) {
+            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
+            if (index !== -1) {
+                emails.value[category][subCategory][index].answerLater = false;
+                break;
+            }
+        }
+    }
+    let result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unreplyLater" });
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
-        return;
     }
 }
 
@@ -673,7 +679,6 @@ async function deleteEmail() {
     const result = await deleteData(`user/emails/${localEmail.value.id}/delete/`);
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), result.error as string);
-        return;
     }
 }
 
@@ -687,10 +692,32 @@ async function archiveEmail() {
             }
         }
     }
-    const result = await deleteData(`user/emails/${localEmail.value.id}/archive/`);
+    const result = await putData("user/emails/update/", {
+        ids: [localEmail.value.id],
+        action: "archive",
+    });
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("constants.popUpConstants.archiveEmailFailure"), result.error as string);
-        return;
+    }
+}
+
+async function unarchiveEmail() {
+    for (const category in emails.value) {
+        for (const subCategory in emails.value[category]) {
+            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
+            if (index !== -1) {
+                emails.value[category][subCategory][index].archive = false;
+                break;
+            }
+        }
+    }
+    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unarchive" });
+    if (!result.success) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.unarchiveEmailFailure"),
+            result.error as string
+        );
     }
 }
 

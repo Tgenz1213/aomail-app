@@ -6,11 +6,16 @@
         :backgroundColor="backgroundColor"
         @dismissPopup="dismissPopup"
     />
-    <NewCategoryModal :isOpen="isModalNewCategoryOpen" @close="closeNewCategoryModal" />
+    <NewCategoryModal
+        :isOpen="isModalNewCategoryOpen"
+        @close="closeNewCategoryModal"
+        @selectCategory="selectCategory"
+    />
     <UpdateCategoryModal
         :isOpen="isModalUpdateCategoryOpen"
         :category="categoryToUpdate"
         @close="closeUpdateCategoryModal"
+        @selectCategory="selectCategory"
     />
     <NewFilterModal :isOpen="isModalNewFilterOpen" @close="closeNewFilterModal" />
     <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
@@ -30,6 +35,7 @@
                     />
                     <div v-if="!hasEmails" class="flex-1">
                         <div class="flex flex-col w-full h-full rounded-xl">
+                            <div v-if="toSearch || selectedFilter"><SearchBar /></div>
                             <div
                                 class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
@@ -47,8 +53,11 @@
                                         d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
                                     />
                                 </svg>
-                                <span class="mt-2 block text-md font-semibold text-gray-900">
+                                <span v-if="!toSearch" class="mt-2 block text-md font-semibold text-gray-900">
                                     {{ $t("homePage.noNewEmail") }}
+                                </span>
+                                <span v-else class="mt-2 block text-md font-semibold text-gray-900">
+                                    {{ $t("homePage.noEmailFound") }}
                                 </span>
                             </div>
                         </div>
@@ -69,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, onMounted, onUnmounted } from "vue";
+import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult } from "@/global/types";
 import { Filter } from "./utils/types";
@@ -98,7 +107,7 @@ const toSearch = ref(false);
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
 const activeFilters = ref<{ [category: string]: Filter | undefined }>({});
-const selectedFilter = computed(() => activeFilters.value[selectedCategory.value]);
+const selectedFilter = ref<Filter | undefined>(activeFilters.value[selectedCategory.value]);
 const categoryToUpdate = ref<Category | null>(null);
 const filterToUpdate = ref<Filter | null>(null);
 const isModalNewCategoryOpen = ref(false);
@@ -113,25 +122,23 @@ const emailsPerPage = 10;
 const currentPage = ref(1);
 const isLoading = ref(false);
 const allEmailIds = ref<string[]>([]);
-const openFilters = ref<Record<string, boolean>>({});
 const searchQuery = ref("");
+
+watch(
+    () => [activeFilters.value, selectedCategory.value],
+    () => {
+        selectedFilter.value = activeFilters.value[selectedCategory.value];
+    },
+    { immediate: true }
+);
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
     let response: FetchDataResult;
-    const storedFilters = localStorage.getItem("showFilters");
 
-    if (storedFilters) {
-        openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
-    }
-
-    if (
-        selectedFilter.value &&
-        selectedCategory.value in openFilters.value &&
-        openFilters.value[selectedCategory.value]
-    ) {
+    if (selectedFilter.value) {
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");
@@ -146,9 +153,7 @@ const fetchEmailsData = async (categoryName: string) => {
         if (toSearch.value) {
             response = await postData("user/emails_ids/", {
                 advanced: true,
-                subject: searchQuery.value,
-                senderEmail: searchQuery.value,
-                senderName: searchQuery.value,
+                search: searchQuery.value,
                 category: categoryName,
                 priority: priorities,
                 spam: selectedFilter.value?.spam,
@@ -161,7 +166,6 @@ const fetchEmailsData = async (categoryName: string) => {
         } else {
             response = await postData("user/emails_ids/", {
                 advanced: true,
-                subject: "",
                 category: categoryName,
                 priority: priorities,
                 spam: selectedFilter.value?.spam,
@@ -175,13 +179,11 @@ const fetchEmailsData = async (categoryName: string) => {
     } else {
         if (toSearch.value) {
             response = await postData("user/emails_ids/", {
-                subject: searchQuery.value,
-                senderEmail: searchQuery.value,
-                senderName: searchQuery.value,
+                search: searchQuery.value,
                 category: categoryName,
             });
         } else {
-            response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+            response = await postData("user/emails_ids/", { category: categoryName });
         }
     }
 
@@ -220,7 +222,7 @@ const loadMoreEmails = async () => {
     isLoading.value = false;
 };
 
-const handlescroll = () => {
+const handleScroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
         const { scrollTop, scrollHeight, clientHeight } = container;
@@ -234,7 +236,7 @@ const handlescroll = () => {
 const scroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
-        container.addEventListener("scroll", handlescroll);
+        container.addEventListener("scroll", handleScroll);
     }
 };
 
@@ -243,7 +245,7 @@ async function fetchCategoriesAndTotals() {
     categories.value = categoriesResponse.data;
 
     const totalsPromises = categories.value.map((category) =>
-        postData("user/emails_ids/", { subject: "", category: category.name, read: false, advanced: true })
+        postData("user/emails_ids/", { subject: "", category: category.name, read: false, replyLater: false, advanced: true })
     );
     const totalsResponses = await Promise.all(totalsPromises);
 
@@ -273,7 +275,7 @@ provide("openNewFilterModal", openNewFilterModal);
 provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
 provide("scroll", scroll);
-provide("handlescroll", handlescroll);
+provide("handleScroll", handleScroll);
 provide("emails", emails);
 provide("categories", categories);
 provide("filters", filters);
@@ -340,6 +342,8 @@ const selectCategory = async (category: Category) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
+    toSearch.value = false;
+    searchQuery.value = "";
 
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
@@ -429,7 +433,7 @@ onMounted(async () => {
 onUnmounted(() => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
-        container.removeEventListener("scroll", handlescroll);
+        container.removeEventListener("scroll", handleScroll);
     }
 });
 </script>

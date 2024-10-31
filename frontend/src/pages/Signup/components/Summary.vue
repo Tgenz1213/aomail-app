@@ -12,8 +12,12 @@
         </div>
         <div class="py-6">
             <div class="relative items-stretch mt-2">
-                <p class="font-semibold">{{ $t("constants.workInProgress") }}</p>
-                <!-- To add : A video that explain the tool -->
+                <iframe
+                    class="w-full aspect-[12/5] mx-auto rounded-xl overflow-hidden"
+                    src="https://www.youtube.com/embed/3kms81MLYsM"
+                    title="Demo v1"
+                    allowfullscreen
+                ></iframe>
             </div>
         </div>
         <div class="relative">
@@ -28,8 +32,26 @@
         </div>
         <div class="pt-4">
             <div class="relative items-stretch mt-2">
-                <p class="font-semibold">{{ $t("constants.workInProgress") }}</p>
-                <!-- To add : A video that explain how data is saved and used -->
+                <!-- Keypoint 1: ESOF Cyber Score -->
+                <div class="flex items-center space-x-3">
+                    <ShieldCheckIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
+                    <span>
+                        {{ $t("signuUpLinkPage.ESOFCyberScore") }} 9.7/10
+                        <a href="https://tacsecurity.com/" class="text-blue-600 hover:underline" target="_blank">
+                            {{ $t("signuUpLinkPage.cyberScoreAssessor") }}
+                        </a>
+                    </span>
+                </div>
+                <!-- Keypoint 2: Emails Content Encryption -->
+                <div class="flex items-center space-x-3 mt-4">
+                    <LockClosedIcon class="h-6 w-6 text-gray-600" aria-hidden="true" />
+                    <span>{{ $t("signuUpLinkPage.emailsAreEncryptedAtRest") }}</span>
+                </div>
+                <!-- Keypoint 3: Emails Fallback to Gmail/Outlook -->
+                <div class="flex items-center space-x-3 mt-4">
+                    <CloudIcon class="h-6 w-6 text-indigo-600" aria-hidden="true" />
+                    <span>{{ $t("signuUpLinkPage.emailsFallbackToProviders") }}</span>
+                </div>
             </div>
         </div>
         <div>
@@ -57,9 +79,22 @@
                 <div class="ml-3 text-sm leading-6 w-full">
                     <label for="comments" class="text-gray-500 font-normal">
                         {{ $t("signuUpLinkPage.iAcceptThe") }}
-                        <a href="terms-and-conditions" class="font-medium text-black hover:underline" target="_blank">
-                            {{ $t("signuUpLinkPage.conditionsAndPrivacyPolicyOf") }}
+                        <a
+                            href="https://aomail.ai/terms-of-service"
+                            class="font-medium text-black hover:underline"
+                            target="_blank"
+                        >
+                            {{ $t("signuUpLinkPage.termsOfService") }}
                         </a>
+                        {{ $t("signuUpLinkPage.andThe") }}
+                        <a
+                            href="https://aomail.ai/privacy-policy"
+                            class="font-medium text-black hover:underline"
+                            target="_blank"
+                        >
+                            {{ $t("signuUpLinkPage.privacyPolicy") }}
+                        </a>
+                        {{ $t("signuUpLinkPage.of") }}
                         Aomail
                     </label>
                 </div>
@@ -70,6 +105,7 @@
 
 <script setup lang="ts">
 import { inject } from "vue";
+import { ShieldCheckIcon, LockClosedIcon, CloudIcon } from "@heroicons/vue/24/outline";
 
 const submitSignupData = inject<() => void>("submitSignupData");
 </script>

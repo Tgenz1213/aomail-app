@@ -16,9 +16,9 @@ from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.constants import FREE_PLAN
+from aomail.constants import ALLOWED_PLANS, ENCRYPTION_KEYS
 from aomail.models import Category, SocialAPI, Email, Rule
-from aomail.utils.security import subscription
+from aomail.utils.security import subscription, decrypt_text
 from django.contrib.auth.models import User
 from aomail.models import (
     Category,
@@ -33,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_emails_data(request: HttpRequest) -> Response:
     """
     Retrieves detailed data for multiple emails based on provided email IDs.
@@ -74,8 +74,12 @@ def get_emails_data(request: HttpRequest) -> Response:
                     "name": email.sender.name,
                 },
                 "providerId": email.provider_id,
-                "shortSummary": email.short_summary,
-                "oneLineSummary": email.one_line_summary,
+                "shortSummary": decrypt_text(
+                    ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary
+                ),
+                "oneLineSummary": decrypt_text(
+                    ENCRYPTION_KEYS["Email"]["one_line_summary"], email.one_line_summary
+                ),
                 "cc": [
                     {"email": cc.email, "name": cc.name}
                     for cc in email.cc_senders.all()
@@ -134,11 +138,14 @@ def get_emails_data(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error retrieving emails data from ids: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_email_content(request: HttpRequest) -> Response:
     """
     Retrieves the HTML content of an email based on the provided email ID.
@@ -159,8 +166,11 @@ def get_email_content(request: HttpRequest) -> Response:
         )
 
     try:
-        email = Email.objects.get(id=email_id)
-        return Response({"content": email.html_content}, status=status.HTTP_200_OK)
+        email = Email.objects.get(user=request.user, id=email_id)
+        decrypted_content = decrypt_text(
+            ENCRYPTION_KEYS["Email"]["html_content"], email.html_content
+        )
+        return Response({"content": decrypted_content}, status=status.HTTP_200_OK)
     except Email.DoesNotExist:
         return Response(
             {"error": "email does not exist"}, status=status.HTTP_400_BAD_REQUEST
@@ -177,7 +187,10 @@ def get_email_content(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error retrieving email content from id: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def validate_and_parse_parameters(request: HttpRequest) -> dict:
@@ -216,6 +229,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
     """
     and_filters = {"user": user}
     or_filters = Q()
+    or_filters_search = Q()
 
     if parameters.get("advanced"):
         if "priority" in parameters:
@@ -268,30 +282,42 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
             and_filters["cc_senders__email__in"] = parameters["CCEmails"]
         if "CCNames" in parameters:
             and_filters["cc_senders__name__in"] = parameters["CCNames"]
+        if "search" in parameters:
+            search = parameters.get("search", "")
+            or_filters_search |= (
+                Q(subject__icontains=search)
+                | Q(sender__email__icontains=search)
+                | Q(sender__name__icontains=search)
+                | Q(cc_senders__email__icontains=search)
+                | Q(cc_senders__name__icontains=search)
+            )
 
     else:
         if "category" in parameters:
             category_obj = Category.objects.get(name=parameters["category"], user=user)
             and_filters["category"] = category_obj
-        subject = parameters.get("subject")
+        search = parameters.get("search", "")
         or_filters |= (
-            Q(subject__icontains=subject)
-            | Q(sender__email__icontains=subject)
-            | Q(sender__name__icontains=subject)
-            | Q(cc_senders__email__icontains=subject)
-            | Q(cc_senders__name__icontains=subject)
+            Q(subject__icontains=search)
+            | Q(sender__email__icontains=search)
+            | Q(sender__name__icontains=search)
+            | Q(cc_senders__email__icontains=search)
+            | Q(cc_senders__name__icontains=search)
         )
 
-    return and_filters, or_filters
+    return and_filters, or_filters, or_filters_search
 
 
 def get_sorted_queryset(
-    and_filters: dict, or_filters: Q, sort: str, advanced: bool | None
+    and_filters: dict, or_filters: Q, or_filters_search: Q, sort: str, user: User
 ) -> BaseManager[Email]:
     queryset = Email.objects.filter(**and_filters)
 
     if or_filters:
-        queryset = queryset.filter(or_filters)
+        queryset = queryset.filter(or_filters, user=user)
+
+    if or_filters_search:
+        queryset = queryset.filter(or_filters_search, user=user)
 
     rule_id_subquery = Rule.objects.filter(
         sender=OuterRef("sender"), user=and_filters["user"]
@@ -300,16 +326,6 @@ def get_sorted_queryset(
     queryset = queryset.annotate(
         has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
     )
-
-    # Apply the sorting
-    if sort == "asc":
-        queryset = queryset.order_by(
-            F("priority").asc(nulls_last=True), F("read").asc(), "-date"
-        )
-    else:
-        queryset = queryset.order_by(
-            F("priority").asc(nulls_last=True), F("read").asc(), "date"
-        )
 
     return queryset
 
@@ -327,13 +343,32 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
             email_count (int): Total number of emails in the queryset.
             email_ids (list): List of email IDs from the queryset.
     """
-    email_count = queryset.count()
-    email_ids = list(queryset.values_list("id", flat=True))
+    priority_order = ['important', 'informative', 'useless']
+    email_ids = []
+    
+    for priority in priority_order:
+        priority_unread_ids = list(
+            queryset.filter(
+                priority=priority,
+                read=False
+            ).order_by('-date').values_list('id', flat=True)
+        )
+        email_ids.extend(priority_unread_ids)
+
+    for priority in priority_order:
+        priority_read_ids = list(
+            queryset.filter(
+                priority=priority,
+                read=True
+            ).order_by('-date').values_list('id', flat=True)
+        )
+        email_ids.extend(priority_read_ids)
+
+    email_count = len(email_ids)
     return email_count, email_ids
 
-
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_user_emails_ids(request: HttpRequest) -> Response:
     """
     Retrieves filtered user emails ids based on provided criteria and formats them grouped by category and priority.
@@ -381,9 +416,9 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         parameters: dict = valid_data["parameters"]
         sort = valid_data["sort"]
 
-        and_filters, or_filters = construct_filters(user, parameters)
+        and_filters, or_filters, or_filters_search = construct_filters(user, parameters)
         queryset = get_sorted_queryset(
-            and_filters, or_filters, sort, parameters.get("advanced")
+            and_filters, or_filters, or_filters_search, sort, user
         )
         email_count, email_ids = format_email_data(queryset)
 
@@ -392,20 +427,17 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             status=status.HTTP_200_OK,
         )
     except ValueError as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except KeyError:
         return Response(
             {"error": "Invalid JSON keys in request body"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    except TypeError:
-        return Response(
-            {"error": "resultPerPage must be an integer"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
     except Exception as e:
         LOGGER.error(f"Error filtering and sorting emails: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

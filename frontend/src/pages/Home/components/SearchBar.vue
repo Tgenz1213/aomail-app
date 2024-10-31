@@ -3,7 +3,7 @@
         <!-- Search bar -->
         <div class="z-40 flex flex-1 h-12 2xl:h-14 shrink-0 items-center gap-x-4 px-4 sm:gap-x-6 sm:px-6 lg:px-8">
             <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-                <form class="relative flex flex-1" action="#" method="GET">
+                <div class="relative flex flex-1">
                     <label for="search-field" class="sr-only">{{ $t("constants.userActions.searchbar_search") }}</label>
                     <MagnifyingGlassIcon
                         class="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
@@ -37,7 +37,7 @@
                             />
                         </svg>
                     </button>
-                </form>
+                </div>
             </div>
         </div>
         <!-- Filter activation button (to the right of the search bar) -->
@@ -64,26 +64,24 @@
         </div>
     </div>
 </template>
+
 <script setup lang="ts">
 import { Ref, ref, inject, onMounted, watch } from "vue";
 import Filters from "./Filters.vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
 
 const showFilters = ref(false);
-const openFilters = ref<Record<string, boolean>>({});
 const searchTimeout = ref<number | null>(null);
 
 const selectedCategory = inject("selectedCategory") as Ref<string>;
 const toSearch = inject("toSearch") as Ref<boolean>;
 const searchQuery = inject("searchQuery") as Ref<string>;
+const searchQueryLast = ref(searchQuery.value);
 const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
 
 const toggleFilterSection = () => {
     showFilters.value = !showFilters.value;
-
-    openFilters.value[selectedCategory.value] = showFilters.value;
-
-    localStorage.setItem("showFilters", JSON.stringify(openFilters.value));
+    localStorage.setItem("showFiltersTab", JSON.stringify(showFilters.value));
 };
 
 const clearSearch = () => {
@@ -102,8 +100,11 @@ function debounce(func: any, delay: number) {
 }
 
 const performSearch = async () => {
-    if (searchQuery.value.trim() === "") return;
-    toSearch.value = true;
+    if (searchQuery.value.trim() !== "") {
+        toSearch.value = true;
+    } else {
+        toSearch.value = false;
+    }
     await fetchEmailsData(selectedCategory.value);
 };
 
@@ -111,6 +112,8 @@ const debouncedSearch = debounce(performSearch, 500);
 
 watch(searchQuery, () => {
     if (searchQuery.value.trim() !== "") {
+        debouncedSearch();
+    } else if (searchQueryLast.value !== searchQuery.value) {
         debouncedSearch();
     } else {
         if (searchTimeout.value) {
@@ -120,17 +123,9 @@ watch(searchQuery, () => {
 });
 
 onMounted(() => {
-    const storedFilters = localStorage.getItem("showFilters");
-    if (storedFilters) {
-        try {
-            openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
-        } catch (e) {
-            console.error("Error parsing stored filters:", e);
-        }
-    }
-
-    if (selectedCategory.value in openFilters.value && openFilters.value[selectedCategory.value]) {
-        showFilters.value = true;
+    const storedShowFilters = localStorage.getItem("showFiltersTab");
+    if (storedShowFilters) {
+        showFilters.value = JSON.parse(storedShowFilters);
     }
 });
 </script>

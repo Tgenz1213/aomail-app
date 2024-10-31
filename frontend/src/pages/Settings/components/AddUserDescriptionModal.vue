@@ -55,8 +55,10 @@
 </template>
 
 <script setup lang="ts">
-import { API_BASE_URL } from "@/global/const";
+import { getData } from "@/global/fetchData";
 import { inject, Ref, ref, onMounted } from "vue";
+
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const typeApi = inject<Ref<string>>("typeApi", ref(""));
 const userDescription = ref("");
@@ -84,18 +86,32 @@ function handleKeyDown(event: KeyboardEvent) {
     }
 }
 
-function linkNewEmail() {
+async function linkNewEmail() {
     saveVariables();
 
     const currentTypeApi = sessionStorage.getItem("typeApi");
 
     if (currentTypeApi === "google") {
-        if ("caches" in window) {
-            caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+        const result = await getData("google/auth_url_link_email/");
+
+        if (!result.success) {
+            displayPopup?.("error", "Failed to generate authorization link", result.error as string);
+            closeModal();
+        } else {
+            if ("caches" in window) {
+                caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+            }
+            window.location.replace(result.data.authorizationUrl);
         }
-        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
     } else if (currentTypeApi === "microsoft") {
-        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
+        const result = await getData("microsoft/auth_url_link_email/");
+
+        if (!result.success) {
+            displayPopup?.("error", "Failed to generate authorization link", result.error as string);
+            closeModal();
+        } else {
+            window.location.replace(result.data.authorizationUrl);
+        }
     }
 }
 

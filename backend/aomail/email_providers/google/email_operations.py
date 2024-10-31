@@ -29,7 +29,8 @@ from email.utils import parsedate_to_datetime
 from aomail.utils.serializers import EmailDataSerializer
 from aomail.utils.security import subscription
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
+    MEDIA_ROOT,
     MEDIA_URL,
     BASE_URL_MA,
 )
@@ -45,7 +46,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Gmail API.
@@ -60,7 +61,7 @@ def send_email(request: HttpRequest) -> Response:
         user = request.user
         parameters: dict = json.loads(request.body)
         email = parameters.get("email")
-        service = authenticate_service(user, email)["gmail"]
+        service = authenticate_service(user, email, ["gmail"])["gmail"]
         serializer = EmailDataSerializer(data=parameters)
 
         if serializer.is_valid():
@@ -118,7 +119,10 @@ def send_email(request: HttpRequest) -> Response:
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def delete_email(user: User, email: str, email_id: str) -> dict:
@@ -133,7 +137,7 @@ def delete_email(user: User, email: str, email_id: str) -> dict:
     Returns:
         dict: A dictionary containing either a success message or an error message.
     """
-    gmail = authenticate_service(user, email)["gmail"]
+    gmail = authenticate_service(user, email, ["gmail"])["gmail"]
 
     if not gmail:
         return {"error": "No gmail service provided"}
@@ -153,7 +157,7 @@ def delete_email(user: User, email: str, email_id: str) -> dict:
             LOGGER.error(
                 f"Error when deleting email for user ID: {user.id}. Error: {str(e)}"
             )
-            return {"error": str(e)}
+            return {"error": "Internal server error"}
 
 
 def set_email_read(user: User, email: str, mail_id: str) -> dict:
@@ -168,15 +172,15 @@ def set_email_read(user: User, email: str, mail_id: str) -> dict:
     Returns:
         dict: A dictionary indicating the result of the operation
     """
-    services = authenticate_service(user, email)
+    service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
-        services["gmail"].users().messages().modify(
+        service["gmail"].users().messages().modify(
             userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as read successfully!"}
     except Exception as e:
         LOGGER.error(f"Failed to mark email ID {mail_id} as read: {str(e)}")
-        return {"error": str(e)}
+        return {"error": "Internal server error"}
 
 
 def set_email_unread(user: User, email: str, mail_id: str) -> dict:
@@ -191,28 +195,29 @@ def set_email_unread(user: User, email: str, mail_id: str) -> dict:
     Returns:
         dict: A dictionary indicating the result of the operation
     """
-    services = authenticate_service(user, email)
+    service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
-        services["gmail"].users().messages().modify(
+        service["gmail"].users().messages().modify(
             userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as unread successfully!"}
     except Exception as e:
         LOGGER.error(f"Failed to mark email ID {mail_id} as unread: {str(e)}")
-        return {"error": str(e)}
+        return {"error": "Internal server error"}
 
 
 def search_emails_ai(
     services: dict[str, build],
     max_results: int = 100,
-    filenames: list = None,
-    from_addresses: list = None,
-    to_addresses: list = None,
+    file_extensions: list[str] = None,
+    filenames: list[str] = None,
+    from_addresses: list[str] = None,
+    to_addresses: list[str] = None,
     subject: str = None,
     body: str = None,
-    keywords: list = None,
+    keywords: list[str] = None,
     date_from: str = None,
-    search_in: dict = None,
+    search_in: dict[str, bool] = None,
 ) -> list:
     """
     Searches for emails matching the specified query parameters using the Gmail API.
@@ -221,6 +226,7 @@ def search_emails_ai(
         services (dict[str, build]): A dictionary containing authenticated service instances for various email providers,
                                      including the Gmail service instance under the key "gmail".
         max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
+        file_extensions (list[str], optional): A list of file extensions to search for in the attachments.
         filenames (list[str], optional): A list of filenames to search for in the attachments.
         from_addresses (list[str], optional): A list of sender email addresses to filter emails.
         to_addresses (list[str], optional): A list of recipient email addresses to filter emails.
@@ -239,6 +245,7 @@ def search_emails_ai(
     """
     query_parts = []
 
+    # Build the main query
     if from_addresses:
         from_query = " OR ".join([f"from:{address}" for address in from_addresses])
         query_parts.append(f"({from_query})")
@@ -255,20 +262,26 @@ def search_emails_ai(
         )
         query_parts.append(f"({search_in_query})")
 
+    # Combine all parts with OR logic
     query = " OR ".join(query_parts)
 
-    query_parts = []
+    # Build the additional filters
+    additional_query_parts = []
     if filenames:
-        file_query = " OR ".join([f"filename:{ext}" for ext in filenames])
-        query_parts.append(f"({file_query})")
+        filename_query = " OR ".join([f"filename:{name}" for name in filenames])
+        additional_query_parts.append(f"({filename_query})")
+    if file_extensions:
+        file_ext_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+        additional_query_parts.append(f"({file_ext_query})")
     if date_from:
-        query_parts.append(f"(after:{date_from})")
+        additional_query_parts.append(f"(after:{date_from})")
     if keywords:
-        keyword_query = " OR ".join([keyword for keyword in keywords])
-        query_parts.append(f'("{keyword_query}")')
+        keyword_query = " OR ".join([f'"{keyword}"' for keyword in keywords])
+        additional_query_parts.append(f"({keyword_query})")
 
-    if query_parts:
-        query += " AND " + " AND ".join(query_parts)
+    # Combine additional filters with AND logic
+    if additional_query_parts:
+        query += " AND " + " AND ".join(additional_query_parts)
 
     try:
         service = services["gmail"]
@@ -283,7 +296,7 @@ def search_emails_ai(
         return [message["id"] for message in messages]
 
     except Exception as e:
-        LOGGER.error(f"Failed to search emails from Google API with Ao help: {str(e)}")
+        LOGGER.error(f"Failed to search emails from Google API with AI help: {str(e)}")
         return []
 
 
@@ -292,6 +305,7 @@ def search_emails_manually(
     search_query: str,
     max_results: int = 100,
     file_extensions: list[str] = None,
+    filenames: list[str] = None,
     advanced: bool = False,
     search_in: dict[str, bool] = None,
     from_addresses: list[str] = None,
@@ -309,6 +323,7 @@ def search_emails_manually(
         search_query (str): The basic search query string to use for simple searches.
         max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
         file_extensions (list[str], optional): A list of file extensions to search for in the attachments.
+        filenames (list[str], optional): A list of filenames to search for in the attachments.
         advanced (bool, optional): Flag indicating whether to use advanced search parameters. Default is False.
         search_in (dict[str, bool], optional): A dictionary specifying the folders to search in. Possible keys are:
             spams: Search in spam/junk folder.
@@ -326,6 +341,7 @@ def search_emails_manually(
     """
 
     def search(query: str) -> list:
+        """Executes the search query and retrieves email messages."""
         try:
             results: dict = (
                 service.users()
@@ -345,6 +361,7 @@ def search_emails_manually(
 
     try:
         service = services["gmail"]
+        messages = []
 
         if advanced:
             query_parts = []
@@ -367,12 +384,22 @@ def search_emails_manually(
                     [f"in:{folder}" for folder, include in search_in.items() if include]
                 )
                 query_parts.append(f"({search_in_query})")
-            if file_extensions:
-                file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
-                query_parts.append(f" AND ({file_query})")
 
+            # Construct the file extensions and filenames filter
+            if file_extensions:
+                file_ext_query = " OR ".join(
+                    [f"filename:{ext}" for ext in file_extensions]
+                )
+                query_parts.append(f"({file_ext_query})")
+            if filenames:
+                file_name_query = " OR ".join(
+                    [f"filename:{name}" for name in filenames]
+                )
+                query_parts.append(f"({file_name_query})")
+
+            # Combine all parts into a single query
             if query_parts:
-                query = " OR ".join(query_parts)
+                query = " AND ".join(query_parts)
                 messages = search(query)
 
         else:
@@ -393,44 +420,72 @@ def search_emails_manually(
         return []
 
 
-def get_mail_to_db(social_api: SocialAPI) -> dict:
+def get_demo_list(user: User, email: str) -> list[str]:
     """
-    Retrieve email information from the Gmail API for processing and storing in the database.
+    Retrieves a list of up to 10 email message IDs from the user's Gmail inbox.
 
     Args:
-        social_api (SocialAPI): An object containing user and email information for authentication.
+        user (User): The user object representing the email account owner.
+        email (str): The email address of the user.
 
     Returns:
-        dict: Dictionary containing email information required for further processing and database storage:
-            str: Subject of the email.
-            tuple[str, str]: Tuple containing the sender's name and email address.
-            str: Preprocessed email content (cleaned and summarized).
-            str: Safe HTML version of the email content.
-            str: ID of the email message.
-            str: Snippet with first few words of the email.
-            datetime.datetime: Sent date and time of the email.
-            bool: Flag indicating whether the email has attachments.
-            bool: Flag indicating whether the email is a reply.
-            tuple[str, str] or None: Tuple containing CC recipient's name and email address, or None if not present.
-            tuple[str, str] or None: Tuple containing BCC recipient's name and email address, or None if not present.
-            list[str]: List of image filenames embedded in the email.
-            list[dict]: List of dictionaries containing attachment information (attachmentId and attachmentName).
+        list[str]: A list of up to 10 email message IDs from the inbox.
+                   Returns an empty list if no messages are found.
     """
-    services = authenticate_service(social_api.user, social_api.email)
-    service = services["gmail"]
+    service = authenticate_service(user, email, ["gmail"])["gmail"]
 
     results: dict = (
         service.users()
         .messages()
-        .list(userId="me", labelIds=["INBOX"], maxResults=1)
+        .list(userId="me", labelIds=["INBOX"], maxResults=10)
         .execute()
     )
     messages = results.get("messages", [])
-    if not messages:
-        return None
 
-    message = messages[0]
-    email_id = message["id"]
+    return [msg["id"] for msg in messages] if messages else []
+
+
+def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
+    """
+    Retrieves detailed email information from the Gmail API, processing it for storage in the database.
+
+    Args:
+        social_api (SocialAPI): Contains user and email data necessary for authentication and processing.
+        email_id (str, optional): Specific email message ID to retrieve.
+                                  If not provided, retrieves the most recent email.
+
+    Returns:
+        dict: Dictionary containing comprehensive email data needed for further processing and database storage:
+            - subject (str): Subject of the email.
+            - from_info (tuple[str, str]): Tuple with sender's name and email address.
+            - preprocessed_data (str): Cleaned and summarized email content.
+            - safe_html (str): HTML content of the email in a safe format.
+            - email_id (str): Unique ID of the email message.
+            - sent_date (datetime.datetime): Sent date and time of the email.
+            - has_attachments (bool): Indicates if the email has attachments.
+            - is_reply (bool): Indicates if the email is a reply.
+            - cc_info (tuple[str, str] or None): CC recipient's name and email address, or None if absent.
+            - bcc_info (tuple[str, str] or None): BCC recipient's name and email address, or None if absent.
+            - image_files (list[str]): List of filenames for images embedded in the email.
+            - attachments (list[dict]): List of dictionaries containing details about each attachment (ID and name).
+    """
+    service = authenticate_service(social_api.user, social_api.email, ["gmail"])[
+        "gmail"
+    ]
+
+    if not email_id:
+        results: dict = (
+            service.users()
+            .messages()
+            .list(userId="me", labelIds=["INBOX"], maxResults=1)
+            .execute()
+        )
+        messages = results.get("messages", [])
+        if not messages:
+            return None
+
+        message = messages[0]
+        email_id = message["id"]
 
     # Retrieve the detailed message content
     msg: dict[str, dict[str, dict[str]]] = (
@@ -498,6 +553,13 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
                     )
                     image_filename = f"image_{timestamp}_{random_str}.{img_type}"
                     image_files.append(image_filename)
+
+                    img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
+                    image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
+
+                    with open(image_path, "wb") as img_file:
+                        img_file.write(img_data_bytes)
+
                     email_html = email_html.replace(
                         f"data:image/{img_type};base64,{img_data}",
                         f"{MEDIA_URL}pictures/{image_filename}",
@@ -509,8 +571,32 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
             )
             image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
             image_files.append(image_filename)
+
+            image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
+
             email_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
             email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
+
+            if "attachmentId" in part["body"]:
+                attachment_id = part["body"]["attachmentId"]
+                attachment = (
+                    service.users()
+                    .messages()
+                    .attachments()
+                    .get(userId="me", messageId=email_id, id=attachment_id)
+                    .execute()
+                )
+                file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
+            elif "data" in part["body"]:
+                file_data = base64.urlsafe_b64decode(
+                    part["body"]["data"].encode("UTF-8")
+                )
+            else:
+                return
+
+            with open(image_path, "wb") as img_file:
+                img_file.write(file_data)
+
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
                 for subpart in part["parts"]:
@@ -535,7 +621,6 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
 
     # Replace CID references in HTML with local paths
     soup = BeautifulSoup(email_html, "html.parser")
-    snippet = " ".join(soup.get_text().split()[:20])  # Extract first 20 words
     for img in soup.find_all("img"):
         cid_ref = img["src"].lstrip("cid:")
         for image_file in image_files:
@@ -551,7 +636,6 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
         "from_info": from_info,
         "preprocessed_data": preprocessed_data,
         "safe_html": safe_html,
-        "snippet": snippet,
         "email_id": email_id,
         "sent_date": sent_date,
         "has_attachments": has_attachments,
@@ -605,7 +689,6 @@ def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
             is_reply (bool): Flag indicating whether the email is a reply.
             cc_info (list[tuple[str, str]]): List of CC recipients (name, email).
             bcc_info (list[tuple[str, str]]): List of BCC recipients (name, email).
-            snippet (str): First few words of the email.
     """
     service = services["gmail"]
     batch = service.new_batch_http_request()
@@ -672,10 +755,6 @@ def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
         if not email_html:
             email_html = email_txt_html
 
-        # Extract snippet
-        soup = BeautifulSoup(email_html, "html.parser")
-        snippet = " ".join(soup.get_text().split()[:20])  # Extract first 20 words
-
         email_info[email_id] = {
             "subject": subject,
             "from_info": from_info,
@@ -684,7 +763,6 @@ def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
             "is_reply": is_reply,
             "cc_info": cc_info,
             "bcc_info": bcc_info,
-            "snippet": snippet,
         }
 
     # Ensure email_ids are unique
@@ -805,8 +883,8 @@ def get_attachment_data(
             - Returns an empty dictionary if the attachment is not found.
     """
     try:
-        services = authenticate_service(user, email)
-        if not services or "gmail" not in services:
+        services = authenticate_service(user, email, ["gmail"])
+        if not services:
             return {}
 
         gmail_service = services["gmail"]

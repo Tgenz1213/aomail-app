@@ -17,11 +17,14 @@
                     <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
                         {{ nbrEmailsUseless }}
                     </span>
-                    <span>
+                    <span v-if="nbrEmailsUseless === 1">
+                        {{ $t("homePage.uselessEmail") }}
+                    </span>
+                    <span v-else>
                         {{ $t("homePage.uselessEmails") }}
                     </span>
                 </p>
-                <div :class="`hidden group-hover:block px-2 py-0.5 bg-gray-300 text-white text-sm shadow rounded-xl`">
+                <div :class="`hidden group-hover:block px-2 py-0.5 bg-gray-400 text-white text-sm shadow rounded-xl`">
                     <div class="flex gap-x-1 items-center">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -100,7 +103,7 @@
                         >
                             <ul role="list" class="divide-y divide-gray-200">
                                 <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
-                                    <EmailItem :email="email" :block="true" :replyLater=replyLater />
+                                    <EmailItem :email="email" :block="true" :replyLater="replyLater" />
                                 </li>
                             </ul>
                         </div>
@@ -112,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { TrashIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
@@ -160,16 +163,18 @@ const hasEmails = computed(() => {
 });
 
 const nbrEmailsUseless = computed(() => {
-    return Object.keys(groupedEmails.value).length;
+    return Object.values(groupedEmails.value).reduce((acc, emails) => acc + emails.length, 0);
 });
 
 function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
-    /*
-    if (readEmailsInSelectedTopic() == 0) {
-        scrollToBottom();
-    } else {
-        scrollAlmostToBottom();
-    }*/
+    localStorage.setItem("showUseless", JSON.stringify(showEmailDescriptions.value));
 }
+
+onMounted(() => {
+    const storedShowUseless = localStorage.getItem("showUseless");
+    if (storedShowUseless) {
+        showEmailDescriptions.value = JSON.parse(storedShowUseless);
+    }
+});
 </script>

@@ -1,4 +1,7 @@
 {
-    "publishable_key": "",
-    "secret_key": ""
+    "publishable_key": "pk_test_51Q9kHvK8H3QtVm1pWD1x67C6lQXl8D6EmD4vaEQowjTyrCbnbk0sJt3S4va5ErH7BEvJOuFlQMqxvuIHLshrc6zx00CUKTvZgX",
+    "secret_key": "sk_test_51Q9kHvK8H3QtVm1pBfhbw9mBSeFJRB3BTQFhNCxq1PfQXmiWGWLZpod7AvUGfgbdpw7NRJtbJT6U90iAmFTAwFx000cAvzKrQX",
+    "augustin_webhook_secret": "whsec_6PYNONU3nGtVn5a01qIykZbUHU6yUCs9",
+    "theo_webhook_secret": "whsec_6PYNONU3nGtVn5a01qIykZbUHU6yUCs9",
+    "app_webhook_secret": "whsec_6PYNONU3nGtVn5a01qIykZbUHU6yUCs9"
 }

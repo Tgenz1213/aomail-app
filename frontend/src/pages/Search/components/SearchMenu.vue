@@ -147,7 +147,7 @@ async function searchEmails() {
     scrollToBottom?.();
 
     const result = await postData(`user/emails_ids/`, {
-        subject: inputValue.value,
+        search: inputValue.value,
     });
 
     if (!result.success) {

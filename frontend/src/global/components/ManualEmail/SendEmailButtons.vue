@@ -72,11 +72,7 @@ const displayMessage = inject<(message: string, aiIcon: string) => void>("displa
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
 
 const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-        if (isScheduleSendModalOpen.value) {
-            closeScheduleSendModal();
-        }
-    } else if (event.ctrlKey && event.key === "Enter") {
+    if (event.ctrlKey && event.key === "Enter") {
         sendEmail();
     }
 };
@@ -143,7 +139,7 @@ async function sendEmail() {
         attachments: fileObjects.value,
         to: selectedPeople.value.map((person) => person.email),
         cc: selectedCC.value.map((person) => person.email),
-        cci: selectedBCC.value.map((person) => person.email),
+        bcc: selectedBCC.value.map((person) => person.email),
         email: emailSelected.value,
     });
 

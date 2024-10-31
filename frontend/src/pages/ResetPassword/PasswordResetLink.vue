@@ -16,6 +16,7 @@
                 placeholder="Enter your email"
                 class="w-full p-2 border border-gray-300 rounded mb-4"
                 required
+                ref="emailInput"
             />
             <button
                 @click="generateResetLink"
@@ -28,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
@@ -41,6 +42,26 @@ const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
+const emailInput = ref<HTMLInputElement | null>(null);
+
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        generateResetLink();
+    }
+    if (event.key === "Tab") {
+        event.preventDefault();
+        emailInput.value?.focus();
+    }
+};
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("keydown", handleKeyDown);
+});
 
 function dismissPopup() {
     showNotification.value = false;
@@ -59,6 +80,16 @@ function displayPopup(type: "success" | "error", title: string, message: string)
 }
 
 async function generateResetLink() {
+    if (!email.value) {
+        displayPopup("error", "Invalid input", "Please provide an email.");
+        return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.value)) {
+        displayPopup("error", "Invalid input", "Email format is not correct.");
+        return;
+    }
     try {
         const response = await fetch(`${API_BASE_URL}generate_reset_token/`, {
             method: "POST",

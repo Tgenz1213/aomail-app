@@ -14,7 +14,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 backend.log*
-logger.json
+aomail-cron.log*
 
 # Editor directories and files
 .idea
@@ -32,3 +32,4 @@ LogoAugmentAI_export4.png
 package-lock.json
 .py_env/
 dist/
+backend/logger.json

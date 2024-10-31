@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { Email } from "@/global/types";
-import { computed, inject, Ref, ref } from "vue";
+import { computed, inject, provide, Ref, ref } from "vue";
 import EmailItem from "./EmailItem.vue";
 
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
@@ -59,4 +59,6 @@ const sortedEmailList = computed(() => {
         return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
 });
+
+provide("emailList", emailList);
 </script>

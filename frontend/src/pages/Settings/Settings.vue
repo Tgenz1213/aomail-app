@@ -123,20 +123,25 @@
                         </div>
                     </main>
 
-                    <div v-if="activeSection === 'account'">
-                        <MyAccountMenu />
-                    </div>
+                    <div class="overflow-y-auto custom-scrollbar">
+                        <div v-if="activeSection === 'account'">
+                            <MyAccountMenu />
+                        </div>
 
-                    <div v-if="activeSection === 'subscription'" class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12">
-                        <SubscriptionMenu />
-                    </div>
+                        <div
+                            v-if="activeSection === 'subscription'"
+                            class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12"
+                        >
+                            <SubscriptionMenu />
+                        </div>
 
-                    <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
-                        <MyDataMenu />
-                    </div>
+                        <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
+                            <MyDataMenu />
+                        </div>
 
-                    <div v-if="activeSection === 'preferences'" class="flex-1 section">
-                        <PreferencesMenu />
+                        <div v-if="activeSection === 'preferences'" class="flex-1 section">
+                            <PreferencesMenu />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,8 +161,9 @@ import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { i18n } from "@/global/preferences";
-import { postData } from "@/global/fetchData";
+import { getData, postData } from "@/global/fetchData";
 import { EmailLinked } from "@/global/types";
+import { Plan } from "./utils/types";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -165,6 +171,7 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
+const userPlan = ref<Plan | null>(null);
 const activeSection = ref("account");
 const isAddUserDescriptionModalOpen = ref(false);
 const isAccountDeletionModalOpen = ref(false);
@@ -184,17 +191,30 @@ provide("openAddUserDescriptionModal", openAddUserDescriptionModal);
 provide("openAccountDeletionModal", openAccountDeletionModal);
 provide("openUnLinkModal", openUnLinkModal);
 provide("openUserDescriptionModal", openUserDescriptionModal);
+provide("userDescription", userDescription);
 provide("isDeleteRadioButtonChecked", isDeleteRadioButtonChecked);
 provide("isUpdateUserDescriptionModalOpen", isUpdateUserDescriptionModalOpen);
 provide("isAccountDeletionModalOpen", isAccountDeletionModalOpen);
 provide("isAddUserDescriptionModalOpen", isAddUserDescriptionModalOpen);
+provide("userPlan", userPlan);
 provide("isUnlinkEmailModalOpen", isUnlinkEmailModalOpen);
 provide("emailSelected", emailSelected);
 provide("emailsLinked", emailsLinked);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
+    getUserPlan();
+    checkStripePaymentStatus();
 });
+
+async function getUserPlan() {
+    const result = await getData("user/preferences/plan/");
+    if (!result.success) {
+        displayPopup("error", "Failed to fetch plan", result.error as string);
+    } else {
+        userPlan.value = result.data;
+    }
+}
 
 function closeUnlinkEmailModal() {
     isUnlinkEmailModalOpen.value = false;
@@ -204,9 +224,38 @@ function closeUpdateUserDescriptionModal() {
     isUpdateUserDescriptionModalOpen.value = false;
 }
 
-onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown);
-});
+function checkStripePaymentStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const stripePaymentSuccess = urlParams.get("stripe-payment-success");
+    const subscriptionUpdated = urlParams.get("subscription-updated");
+
+    const modifiedUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, modifiedUrl);
+
+    if (subscriptionUpdated === "true") {
+        activeSection.value = "subscription";
+        displayPopup(
+            "success",
+            "Subscription Updated",
+            "Your subscription has been successfully updated. The available features have been updated accordingly."
+        );
+    } else if (stripePaymentSuccess) {
+        activeSection.value = "subscription";
+        if (stripePaymentSuccess === "true") {
+            displayPopup(
+                "success",
+                "Payment Successful",
+                "Your subscription has been activated successfully. Thank you for your purchase!"
+            );
+        } else if (stripePaymentSuccess === "false") {
+            displayPopup(
+                "error",
+                "Payment Failed",
+                "There was an issue with your payment. Please try again or contact support."
+            );
+        }
+    }
+}
 
 async function openUnLinkModal(email: string) {
     emailSelected.value = email;

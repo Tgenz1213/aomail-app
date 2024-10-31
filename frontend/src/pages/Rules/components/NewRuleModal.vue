@@ -6,7 +6,6 @@
             v-if="isOpen"
         >
             <div class="bg-white rounded-lg relative w-[450px]">
-                <slot />
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button
                         @click="closeModal"
@@ -26,7 +25,9 @@
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <Combobox as="div" v-model="selectedPerson">
-                        <p class="text-red-500">{{ errorMessage }}</p>
+                        <div v-if="errorMessage" class="text-red-600 text-sm mb-4">
+                            {{ errorMessage }}
+                        </div>
                         <div class="flex space-x-1 items-center">
                             <UserIcon class="w-4 h-4" />
                             <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">
@@ -39,8 +40,8 @@
                                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                 @change="query = $event.target.value"
                                 :display-value="getDisplayValue"
+                                @blur="handleBlur($event)"
                                 @keydown="handleKeyDown"
-                                @click="handleInputClick"
                             />
                             <ComboboxButton
                                 class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
@@ -169,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, inject } from "vue";
+import { ref, computed, watch, inject, onMounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
@@ -214,13 +215,17 @@ const formData = ref({
 });
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+
 const filteredPeople = computed(() => {
     const normalizedQuery = query.value?.toLowerCase() ?? "";
     return props.emailSenders.filter((person) => person.username?.toLowerCase()?.includes(normalizedQuery) ?? false);
 });
-const errorMessage = computed(() =>
-    filteredPeople.value.length === 0 && query.value ? i18n.global.t("rulesPage.noContactFound") : ""
-);
+
+const errorMessage = ref("");
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
 
 watch(
     () => props.isOpen,
@@ -233,29 +238,40 @@ watch(isOpen, (newValue) => {
     if (!newValue) {
         selectedPerson.value = null;
         query.value = "";
+        errorMessage.value = "";
     } else {
         selectedPerson.value = props.sender;
     }
 });
 
+watch(selectedPerson, (newValue) => {
+    if (newValue) {
+        errorMessage.value = "";
+    }
+});
+
 const closeModal = () => {
     isOpen.value = false;
+    errorMessage.value = "";
     emit("update:isOpen", false);
 };
 
-const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
         closeModal();
+    } else if (event.key === "Enter") {
+        event.preventDefault();
+        if ((event.target as HTMLElement).id === "inputField" && !selectedPerson.value) {
+            handleBlur(event as unknown as FocusEvent);
+        } else {
+            createEmailSenderRule();
+        }
     }
-};
-
-const handleInputClick = (e: MouseEvent) => {
-    e.stopPropagation();
 };
 
 const createEmailSenderRule = async () => {
     if (!selectedPerson.value) {
-        displayPopup?.("error", i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress"), "");
+        errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
         return;
     }
 
@@ -264,11 +280,7 @@ const createEmailSenderRule = async () => {
     });
 
     if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleCreationError"),
-            result.error as string
-        );
+        errorMessage.value = result.error as string;
         return;
     }
 
@@ -280,11 +292,7 @@ const createEmailSenderRule = async () => {
         };
         const newSenderResult = await postData("create_sender", senderData);
         if (!newSenderResult.success) {
-            displayPopup?.(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleCreationError"),
-                newSenderResult.error as string
-            );
+            errorMessage.value = newSenderResult.error as string;
             return;
         }
         senderId = newSenderResult.data.id;
@@ -298,11 +306,7 @@ const createEmailSenderRule = async () => {
             categoryName: formData.value.category,
         });
         if (!categoryResult.success) {
-            displayPopup?.(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleCreationError"),
-                categoryResult.error as string
-            );
+            errorMessage.value = categoryResult.error as string;
             return;
         }
         categoryId = categoryResult.data.id;
@@ -321,17 +325,39 @@ const createEmailSenderRule = async () => {
     const ruleResult = await postData("user/create_rule/", ruleData);
 
     if (!ruleResult.success) {
-        throw new Error(ruleResult.error as string);
+        errorMessage.value = ruleResult.error as string;
     } else {
         displayPopup?.(
             "success",
             i18n.global.t("constants.popUpConstants.successMessages.success"),
             i18n.global.t("rulesPage.popUpConstants.successMessages.ruleCreatedSuccessfully")
         );
-        emit("update:isOpen", false);
+        closeModal();
         emit("fetch-rules");
+        errorMessage.value = "";
     }
 };
+
+function handleBlur(event: FocusEvent) {
+    const inputValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (inputValue === "") {
+        return;
+    }
+
+    if (emailFormat.test(inputValue)) {
+        selectedPerson.value = {
+            email: inputValue,
+            username: inputValue
+                .split("@")[0]
+                .split(/\.|-/)
+                .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(" "),
+        };
+        return;
+    }
+}
 
 const getDisplayValue = (item: unknown): string => {
     if (item === null || item === undefined) {
@@ -340,8 +366,13 @@ const getDisplayValue = (item: unknown): string => {
 
     const person = item as EmailSender;
 
+    if (!person) {
+        selectedPerson.value = null;
+        return "No contact selected";
+    }
+
     if (typeof person === "object" && "username" in person && typeof person.username === "string") {
-        return person.username;
+        return person.email;
     }
 
     return "Unknown";

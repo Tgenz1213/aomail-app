@@ -13,13 +13,10 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plan = models.CharField(max_length=50)
-    stripe_subscription_id = models.CharField(max_length=200, blank=True, null=True)
+    subscription_id = models.CharField(max_length=255, null=True)
+    created_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
-    start_date = models.DateTimeField(auto_now_add=True)
-    end_date = models.DateTimeField(null=True)
-    billing_interval = models.CharField(max_length=10, null=True)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    currency = models.CharField(max_length=3, default="EUR")
+    is_trial = models.BooleanField(default=True)
 
 
 class Statistics(models.Model):
@@ -147,10 +144,10 @@ class Email(models.Model):
     )
     provider_id = models.CharField(max_length=200, unique=True)
     email_provider = models.CharField(max_length=50)
-    short_summary = models.CharField(max_length=1000)
-    one_line_summary = models.CharField(max_length=200)
+    short_summary = models.TextField()
+    one_line_summary = models.CharField(max_length=1000)
     html_content = models.TextField(default="")
-    subject = models.CharField(max_length=400)
+    subject = models.CharField(max_length=800)
     priority = models.CharField(max_length=50)
     read = models.BooleanField(default=False)
     read_date = models.DateTimeField(null=True, default=None)

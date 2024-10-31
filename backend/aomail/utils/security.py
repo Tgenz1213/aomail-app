@@ -1,24 +1,22 @@
 """
-Handles all functions linked with logging and encryption
-
-
-TODO:
-- Redirect to a subscription expired page with expiration date infos
+Handles all functions linked with logging and encryption.
 """
 
 import logging
-from functools import wraps
 import base64
+from functools import wraps
+from django.http import HttpRequest
+from datetime import timedelta
+from django.utils import timezone
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
-from django.http import HttpRequest
-from django.shortcuts import redirect
-from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
-from aomail.constants import BASE_URL
 from aomail.models import Subscription
+from rest_framework.response import Response
+from rest_framework import status
+from aomail.constants import INACTIVE
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -55,33 +53,99 @@ def get_ip_with_port(request: HttpRequest) -> str | None:
 
 
 # ----------------------- DECORATOR -----------------------#
-# THIS IS USED TO CHECK IF THE USER SUBSCRIPTION IS STILL VALID
-def subscription(allowed_plans):
+def subscription(allowed_plans: list):
+    """
+    Decorator to ensure that the requesting user has an active subscription and the required plan.
+
+    Args:
+        allowed_plans (list): A list of subscription plans allowed to access the view.
+
+    Returns:
+        Function: The wrapped view function if subscription is valid. Otherwise, redirects to "not-authorized".
+    """
+
     def decorator(view_func):
         @wraps(view_func)
         @permission_classes([IsAuthenticated])
         def _wrapped_view(request: HttpRequest, *args, **kwargs):
             user = request.user
-            now = timezone.now()
-            active_subscription = Subscription.objects.filter(
-                user=user, end_date__gt=now, plan__in=allowed_plans
-            ).exists()
+            subscription = Subscription.objects.get(user=user)
 
-            if not active_subscription:
-                # TODO: Redirect to a subscription expired page with expiration date
-                # explain on this page what the user can still acces (ONLY settings page)
-                # explain that we will stop receiving its email in X days => according to google and microsoft (make a request to know)
+            if not INACTIVE in allowed_plans:
+                # if subscription.is_trial:
+                #     trial_period = timedelta(days=30)
+                #     if timezone.now() - subscription.created_at > trial_period:
+                #         LOGGER.info(f"Free trial expired for user ID: {user.id}")
+                #         return Response(
+                #             {"error": "Free trial expired"},
+                #             status=status.HTTP_403_FORBIDDEN,
+                #         )
 
-                print("User does not have an active subscription.")
+                if subscription.plan not in allowed_plans:
+                    LOGGER.info(
+                        f"User with ID: {user.id} does not have the required plan"
+                    )
+                    return Response(
+                        {"error": "Plan not allowed.", "allowedPlans": allowed_plans},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
 
-                #  (NOT 401 page) => TODO: change (it does not work anyway => TO debug)
-                # return redirect(f"{BASE_URL}not-authorized")
+                if not subscription.is_active:
+                    LOGGER.info(
+                        f"User with ID: {user.id} does not have an active subscription"
+                    )
+                    return Response(
+                        {"error": "Subscription is inactive", "isActive": False},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
 
             return view_func(request, *args, **kwargs)
 
         return _wrapped_view
 
     return decorator
+
+
+def admin_access_required(view_func):
+    """
+    Decorator to ensure that the requesting user is an authenticated admin (superuser).
+
+    Args:
+        view_func: The view function to be wrapped.
+
+    Returns:
+        The wrapped view function.
+    """
+
+    @wraps(view_func)
+    def _wrapped_view(request: HttpRequest, *args, **kwargs):
+        try:
+            user = request.user
+
+            if not user.is_authenticated:
+                return Response(
+                    {"error": "Unauthorized: User is not authenticated."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            if not user.is_superuser:
+                return Response(
+                    {"error": "Forbidden: Admin access required."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            return view_func(request, *args, **kwargs)
+
+        except Exception as e:
+            LOGGER.error(
+                f"Error occurred when trying to access admin resource: {str(e)}"
+            )
+            return Response(
+                {"error": "Internal server error."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    return _wrapped_view
 
 
 # ----------------------- CRYPTOGRAPHY -----------------------#

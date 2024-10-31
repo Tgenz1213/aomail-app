@@ -14,6 +14,25 @@ print_message() {
     echo "${COLOR}===> ${MESSAGE}${NC}"
 }
 
+# Create the folder backend/media/pictures if it doesn't exist
+print_message $BLUE "Creating essential folders..."
+
+# Check and create media/pictures folder
+if [ ! -d "media/pictures" ]; then
+    mkdir -p media/pictures
+    print_message $GREEN "Created media/pictures folder."
+else
+    print_message $GREEN "media/pictures folder already exists."
+fi
+
+# Check and create media/labels folder
+if [ ! -d "media/labels" ]; then
+    mkdir -p media/labels
+    print_message $GREEN "Created media/labels folder."
+else
+    print_message $GREEN "media/labels folder already exists."
+fi
+
 # Apply database migrations
 print_message $BLUE "Applying database migrations..."
 python manage.py makemigrations && python manage.py migrate

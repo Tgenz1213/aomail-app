@@ -8,6 +8,9 @@ Endpoints:
 
 import logging
 from django.http import HttpRequest, HttpResponseRedirect
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from google.auth import exceptions as auth_exceptions
@@ -16,7 +19,9 @@ from google.oauth2 import credentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 from aomail.utils import security
+from aomail.utils.security import subscription
 from aomail.constants import (
+    ALLOWED_PLANS,
     ENCRYPTION_KEYS,
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
@@ -24,7 +29,7 @@ from aomail.constants import (
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
 )
-from aomail.models import SocialAPI
+from aomail.models import SocialAPI, Subscription
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -89,6 +94,8 @@ def exchange_code_for_tokens(
         return None, None
 
 
+@api_view(["GET"])
+@subscription(ALLOWED_PLANS)
 def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
     """
     Generates a connection URL to obtain the authorization code for linking an email account.
@@ -100,6 +107,12 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         HttpResponseRedirect: Redirects the user to the generated authorization URL.
     """
     try:
+        subscription = Subscription.objects.get(user=request.user)
+        if subscription.is_trial:
+            return Response(
+                {"error": "User can only link 1 email with a free trial"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         ip = security.get_ip_with_port(request)
         LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
 
@@ -112,10 +125,17 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         LOGGER.info(
             f"Successfully redirected to Google authorization URL from IP: {ip}"
         )
-        return redirect(authorization_url)
+        return Response(
+            {"authorizationUrl": authorization_url},
+            status=status.HTTP_200_OK,
+        )
 
     except Exception as e:
         LOGGER.error(f"Error generating Google OAuth URL: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, None]:
@@ -236,34 +256,52 @@ def save_credentials(creds: credentials.Credentials, user: User, email: str):
         LOGGER.error(f"Failed to save credentials: {str(e)}")
 
 
-def build_services(creds: credentials.Credentials) -> dict:
+def build_services(
+    creds: credentials.Credentials, required_services: list[str] = ["gmail", "people"]
+) -> dict:
     """
-    Build and return a dictionary of Google API service endpoints.
+    Builds and returns a dictionary of specified Google API service endpoints.
 
     Args:
         creds (credentials.Credentials): The Google API credentials to use for building the services.
+        required_services (list[str]): List of service names to initialize.
 
     Returns:
-        dict: A dictionary of Google API service endpoints.
+        dict: A dictionary containing only the requested Google API service endpoints,
+              where keys are service names and values are the initialized service objects.
     """
-    services = {
-        "gmail": build("gmail", "v1", cache_discovery=False, credentials=creds),
-        "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
-        "people": build("people", "v1", cache_discovery=False, credentials=creds),
+    available_services = {
+        "gmail": lambda: build("gmail", "v1", cache_discovery=False, credentials=creds),
+        "people": lambda: build(
+            "people", "v1", cache_discovery=False, credentials=creds
+        ),
     }
+
+    services = {
+        name: available_services[name]()
+        for name in required_services
+        if name in available_services
+    }
+
     return services
 
 
-def authenticate_service(user: User, email: str) -> dict | None:
+def authenticate_service(
+    user: User,
+    email: str,
+    required_services: list[str] = None,
+) -> dict | None:
     """
     Authenticate and build Google API services for the specified user and email.
 
     Args:
-        user (User): The user object.
+        user (User): The user object containing information about the user.
         email (str): The email address associated with the user's Google account.
+        required_services (list[str], optional): A list of strings specifying which Google API
 
     Returns:
-        dict or None: A dictionary of Google API service endpoints, or None if authentication fails.
+        dict or None: A dictionary of Google API service endpoints for the requested services,
+                      or None if authentication fails or if no valid services are specified.
     """
     creds = get_credentials(user, email)
     if not creds or not creds.valid:
@@ -277,5 +315,5 @@ def authenticate_service(user: User, email: str) -> dict | None:
             )
             return None
 
-    services = build_services(creds)
+    services = build_services(creds, required_services or ["gmail", "people"])
     return services

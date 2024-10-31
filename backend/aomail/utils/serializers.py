@@ -11,7 +11,6 @@ from aomail.models import (
     Category,
     Email,
     Rule,
-    Preference,
     Sender,
     Contact,
     Filter,
@@ -26,7 +25,7 @@ class EmailDataSerializer(serializers.Serializer):
     subject = serializers.CharField(required=True)
     message = serializers.CharField(required=False, allow_blank=True)
     cc = serializers.ListField(child=serializers.EmailField(), required=False)
-    cci = serializers.ListField(child=serializers.EmailField(), required=False)
+    bcc = serializers.ListField(child=serializers.EmailField(), required=False)
     attachments = serializers.ListField(child=serializers.FileField(), required=False)
 
 
@@ -40,22 +39,6 @@ class EmailScheduleDataSerializer(serializers.Serializer):
     bcc = serializers.ListField(child=serializers.EmailField(), required=False)
     attachments = serializers.ListField(child=serializers.FileField(), required=False)
     datetime = serializers.DateTimeField(required=True)
-
-
-class EmailReadUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for updating the 'read' status of an email through a POST request."""
-
-    class Meta:
-        model = Email
-        fields = ("read",)
-
-
-class EmailReplyLaterUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for updating the 'reply later' status of an email through a POST request."""
-
-    class Meta:
-        model = Email
-        fields = ("answer_later",)
 
 
 class EmailCorrectionSerializer(serializers.Serializer):

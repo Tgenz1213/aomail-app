@@ -24,6 +24,7 @@ export interface RouteConfig {
     name: string;
     meta?: {
         requiresAuth?: boolean;
+        allowInactive?: boolean;
     };
     component: Component;
 }
@@ -105,7 +106,7 @@ const rules: RouteConfig = {
 const settings: RouteConfig = {
     path: "/settings",
     name: "settings",
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, allowInactive: true },
     component: Settings,
 };
 

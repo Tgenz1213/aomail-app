@@ -27,7 +27,7 @@ from aomail.utils.security import subscription
 from aomail.ai_providers import claude
 from aomail.constants import (
     EMAIL_ADMIN,
-    FREE_PLAN,
+    ALLOWED_PLANS,
     EMAIL_NO_REPLY,
     GOOGLE,
     GOOGLE,
@@ -49,7 +49,6 @@ from aomail.models import (
     Preference,
     Contact,
     Email,
-    Statistics,
 )
 from aomail.utils.serializers import (
     NewEmailAISerializer,
@@ -99,7 +98,7 @@ def dict_to_chat_history(data: dict) -> ChatMessageHistory:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_new_email_response(request: HttpRequest) -> Response:
     """
     Generate a new email response based on user input, email importance, subject, body, and chat history.
@@ -168,7 +167,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def improve_draft(request: HttpRequest) -> Response:
     """
     Improves the draft email response based on user input, email length, formality, subject, body, and chat history.
@@ -240,7 +239,7 @@ def improve_draft(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def search_emails_ai(request: HttpRequest) -> Response:
     """
     Searches emails using AI interpretation of user query.
@@ -287,7 +286,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
         type_api = social_api.type_api
 
         if type_api == GOOGLE:
-            services = auth_google.authenticate_service(user, email)
+            services = auth_google.authenticate_service(user, email, ["gmail"])
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
@@ -338,7 +337,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def search_tree_knowledge(request: HttpRequest) -> Response:
     """
     Searches emails using AI interpretation of user query.
@@ -407,13 +406,13 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
             f"An error occurred while searching email with search tree knowledge feature: {str(e)}"
         )
         return Response(
-            {"error": str(e)},
+            {"error": "An error occurred while searching email"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def find_user_view_ai(request: HttpRequest) -> Response:
     """
     Searches for emails in the user's mailbox based on the provided search query in both the subject and body.
@@ -494,7 +493,7 @@ def find_user_view_ai(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def new_email_ai(request: HttpRequest) -> Response:
     """
     Return an AI-generated email subject and content based on input data.
@@ -529,7 +528,7 @@ def new_email_ai(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def correct_email_language(request: HttpRequest) -> Response:
     """
     Corrects spelling and grammar mistakes in the email subject and body based on user's request.
@@ -563,7 +562,7 @@ def correct_email_language(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def check_email_copywriting(request: HttpRequest) -> Response:
     """
     Checks and provides feedback on the email copywriting based on the user's request.
@@ -599,7 +598,7 @@ def check_email_copywriting(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def generate_email_response_keywords(request: HttpRequest) -> Response:
     """
     Generates response keywords based on the provided email subject and content.
@@ -636,7 +635,7 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def generate_email_answer(request: HttpRequest) -> Response:
     """
     Generates an automated response to an email based on its subject, content, and user instructions.

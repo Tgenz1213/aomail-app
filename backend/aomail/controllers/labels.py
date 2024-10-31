@@ -19,8 +19,11 @@ from rest_framework.response import Response
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.lib.pagesizes import landscape, letter
 from reportlab.pdfgen import canvas
-from aomail.constants import FREE_PLAN, GOOGLE, MEDIA_ROOT, MICROSOFT
+from aomail.constants import ALLOWED_PLANS, GOOGLE, MEDIA_ROOT, MICROSOFT
 from aomail.email_providers.google import email_operations as email_operations_google
+from aomail.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
 from aomail.models import Attachment, Email, Label
 from aomail.utils.security import subscription
 
@@ -89,16 +92,17 @@ CARRIER_NAMES = {
 }
 
 
-def process_label(email_address: str, subject: str, email_entry: Email):
+def process_label(email_address: str, subject: str, body: str, email_entry: Email):
     """
     Processes the email label data and creates a shipping label.
 
     Args:
         email_address (str): The email address of the sender.
         subject (str): The subject of the email.
+        body (str): The main content of the email body.
         email_entry (Email): An instance of the Email class containing email details.
     """
-    label_data = extract_label_data(email_address, subject, email_entry.html_content)
+    label_data = extract_label_data(email_address, subject, body)
     create_shipping_label(email_entry, label_data)
 
 
@@ -206,14 +210,22 @@ def create_shipping_label(email: Email, label_data: dict[str, str]):
     """
     item_lines = re.split(r"<br\s*/?>", label_data["item_name"].strip())
 
-    attachment_name = Attachment.objects.get(email=email).name
+    try:
+        attachment_name = Attachment.objects.get(email=email).name
+    except Attachment.DoesNotExist:
+        LOGGER.warning(
+            f"User with ID {email.user.id} attempted to access non-authorized data for email ID {email.id} and attachment."
+        )
+        return
 
     if email.social_api.type_api == GOOGLE:
         attachment = email_operations_google.get_attachment_data(
             email.user, email.social_api.email, email.provider_id, attachment_name
         )
     elif email.social_api.type_api == MICROSOFT:
-        ...
+        attachment = email_operations_microsoft.get_attachment_data(
+            email.social_api, email.provider_id, attachment_name
+        )
 
     pdf_reader = PdfReader(BytesIO(attachment["data"]))
     pdf_writer = PdfWriter()
@@ -379,7 +391,7 @@ def is_shipping_label(subject: str) -> bool:
 
 
 @api_view(["DELETE"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def delete_labels(request: HttpRequest) -> Response:
     """
     Deletes multiple labels associated with the authenticated user.

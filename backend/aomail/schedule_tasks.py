@@ -10,11 +10,9 @@ from aomail.models import GoogleListener
 from aomail.email_providers.google import webhook as google_webhook
 
 
-######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 
 
-######################## SCHEDULED TASKS ########################
 def renew_gmail_subscriptions():
     """
     Resubscribe all Gmail accounts where their subscription is about to expire.
@@ -23,6 +21,10 @@ def renew_gmail_subscriptions():
     date is older than or equal to 3 days from today and attempts to resubscribe
     the associated Gmail accounts to email notifications.
     """
+    start_time = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+    LOGGER.info(
+        f"{start_time} - Starting the subscription renewal process for Gmail accounts."
+    )
     start_time = time.time()
 
     # Calculate the datetime from which all subscriptions need to be renewed

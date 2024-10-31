@@ -26,7 +26,9 @@
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <Combobox as="div" v-model="selectedPerson">
-                        <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
+                        <div v-if="errorMessage" class="text-red-600 text-sm mb-4">
+                            {{ errorMessage }}
+                        </div>
                         <div class="flex space-x-1 items-center">
                             <UserIcon class="w-4 h-4" />
                             <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">
@@ -291,7 +293,13 @@ watch(
 
 function displayEmailSender(item: unknown): string {
     const person = item as EmailSender | null;
-    return person ? (person.username ? `${person.username} <${person.email || ""}>` : `<${person.email || ""}>`) : "";
+
+    if (!person) {
+        selectedPerson.value = null;
+        return "";
+    }
+
+    return person.email;
 }
 
 function handleKeyDown(event: KeyboardEvent) {
@@ -304,8 +312,6 @@ function handleKeyDown(event: KeyboardEvent) {
         } else {
             updateUserRule();
         }
-    } else if (event.key === "Delete") {
-        deleteRule();
     }
 }
 
@@ -324,9 +330,10 @@ function handleBlur(event: FocusEvent) {
             username: currentSelectedPersonUsername.value,
         };
         return;
-    } else if (filteredPeople.value.length > 0) {
-        return;
     }
+    // else if (filteredPeople.value.length > 0) {
+    //     return;
+    // }
 
     if (inputValue && emailFormat.test(inputValue)) {
         selectedPerson.value = {
@@ -344,22 +351,14 @@ function handleBlur(event: FocusEvent) {
 
 async function deleteRule() {
     if (!formData.value.id) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
-            "Rule ID is required for deletion."
-        );
+        errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError");
         return;
     }
 
     const result = await deleteData(`user/delete_rules/${formData.value.id}/`);
 
     if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
-            result.error as string
-        );
+        errorMessage.value = result.error as string;
         return;
     }
 
@@ -375,7 +374,7 @@ async function deleteRule() {
 
 async function postSender(): Promise<number | null> {
     if (!selectedPerson.value) {
-        formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
+        errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
         return null;
     }
 
@@ -387,12 +386,7 @@ async function postSender(): Promise<number | null> {
     const result = await postData(`create_sender`, senderData);
 
     if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.senderCreationError"),
-            result.error as string
-        );
-        closeModal();
+        errorMessage.value = result.error as string;
         return null;
     }
 
@@ -401,7 +395,7 @@ async function postSender(): Promise<number | null> {
 
 async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number }> {
     if (!selectedPerson.value) {
-        formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
+        errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
         return { exists: false };
     }
 
@@ -410,24 +404,16 @@ async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number
     const result = await postData(`check_sender`, senderData);
 
     if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.senderExistenceCheckError"),
-            result.error as string
-        );
+        errorMessage.value = result.error as string;
         return { exists: false };
     }
 
-    return result.data.exists ? { exists: result.data.exists, senderId: result.data.sender_id } : { exists: false };
+    return result.data.exists ? { exists: result.data.exists, senderId: result.data.senderId } : { exists: false };
 }
 
 async function updateUserRule() {
     if (!formData.value.id) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate")
-        );
+        errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError");
         return;
     }
 
@@ -436,22 +422,14 @@ async function updateUserRule() {
     if (!exists) {
         const newSenderId = await postSender();
         if (newSenderId === null) {
-            displayPopup?.(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-                "Failed to create new sender"
-            );
+            errorMessage.value = "Failed to create new sender";
             return;
         }
         senderId = newSenderId;
     }
 
     if (senderId === undefined) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-            "Failed to obtain sender ID"
-        );
+        errorMessage.value = "Failed to obtain sender ID";
         return;
     }
 
@@ -461,11 +439,7 @@ async function updateUserRule() {
         const categoryResult = await postData(`get_category_id/`, { categoryName: formData.value.category });
 
         if (!categoryResult.success) {
-            displayPopup?.(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-                "Failed to fetch category ID"
-            );
+            errorMessage.value = "Failed to fetch category ID";
             return;
         }
 
@@ -475,13 +449,10 @@ async function updateUserRule() {
     const ruleResult = await putData(`user/update_rule/`, ruleData);
 
     if (!ruleResult.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+        errorMessage.value =
             ruleResult.error === "A rule already exists for that sender"
                 ? i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender")
-                : (ruleResult.error as string)
-        );
+                : (ruleResult.error as string);
         return;
     }
 
@@ -497,6 +468,7 @@ async function updateUserRule() {
 
 function closeModal() {
     formData.value.errorMessage = "";
+    errorMessage.value = "";
     emit("update:isOpen", false);
 }
 </script>

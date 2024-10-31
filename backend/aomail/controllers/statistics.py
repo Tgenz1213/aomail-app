@@ -17,9 +17,10 @@ from rest_framework.decorators import api_view
 from aomail.utils.security import subscription
 from aomail.constants import (
     ANSWER_REQUIRED,
-    FREE_PLAN,
+    ALLOWED_PLANS,
     HIGHLY_RELEVANT,
     IMPORTANT,
+    INACTIVE,
     INFORMATIVE,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
@@ -40,7 +41,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def get_statistics(request: HttpRequest) -> Response:
     """
     Compute and return statistics for a user based on provided parameters.
@@ -76,8 +77,7 @@ def get_statistics(request: HttpRequest) -> Response:
     For each period: avg, min, max (any combination)
     """
     try:
-        user_id = 1
-        user = User.objects.get(id=user_id)
+        user = request.user
         parameters: dict = json.loads(request.body)
         statistics = Statistics.objects.get(user=user)
 
@@ -88,9 +88,9 @@ def get_statistics(request: HttpRequest) -> Response:
             status=status.HTTP_200_OK,
         )
     except Exception as e:
-        LOGGER.error(f"Error in get statistics for user ID {user_id}: {str(e)}")
+        LOGGER.error(f"Error in get statistics for user ID {user.id}: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

@@ -14,29 +14,32 @@ from aomail.controllers import categories, filters, rules, emails, search_emails
 from aomail.controllers import statistics
 from aomail.controllers import search_labels
 from aomail.controllers import labels
+from aomail.payment_providers import stripe
+from aomail.administration import dashboard
 from .controllers import views
 
-app_name = "aomail"
+app_name = 'aomail'
 
 urlpatterns = [
     #----------------------- AUTHENTICATION -----------------------#
-    path("generate_reset_token/", auth.generate_reset_token, name="generate_reset_token"), # ok
-    path("reset_password/<str:uidb64>/<str:token>/", auth.reset_password, name="reset_password"), # ok
+    path('generate_reset_token/', auth.generate_reset_token, name='generate_reset_token'), # ok
+    path('reset_password/<str:uidb64>/<str:token>/', auth.reset_password, name='reset_password'), # ok
     path('is_authenticated/', auth.is_authenticated, name='is_authenticated'), # ok
+    path('is_admin/', auth.is_admin, name='is_admin'),
     path('login/', auth.login, name='login'), # ok
     path('token/refresh/', auth.refresh_token, name='refresh_token'), # ok
     path('delete_account/', auth.delete_account, name='delete_account'), # ok
     path('signup/', auth.signup, name='signup'), # ok
     path('check_username/', auth.check_username, name='check_username'), # ok
-    path('user/social_unlink/', auth.unlink_email, name='unlink_email'), # ok
-    path('user/social_link/', auth.link_email, name='link_email'), # ok
+    path('user/social_api/unlink/', auth.unlink_email, name='unlink_email'), # ok
+    path('user/social_api/link/', auth.link_email, name='link_email'), # ok
     #----------------------- CATEGORIES -----------------------#
     path('user/categories/', categories.get_user_categories, name='get_user_categories'), # ok
     path('create_category/', categories.create_category, name='create_category'), # ok
     path('get_category_id/', categories.get_category_id, name='get_category_id'), # ok
     path('update_category/', categories.update_category, name='update_category'), # ok
     path('delete_category/', categories.delete_category, name='delete_category'), # ok
-    path('get_rules_linked/', categories.get_rules_linked, name='get_rules_linked'), # ok
+    path('get_dependencies/', categories.get_dependencies, name='get_dependencies'), # ok
     #----------------------- FILTERS -----------------------#
     path('user/filters/', filters.get_user_filter, name='get_user_filters'),
     path('create_filter/', filters.create_filter, name='create_filter'),
@@ -59,33 +62,29 @@ urlpatterns = [
     path('user/preferences/timezone/', prefs.get_user_timezone, name='get_user_timezone'), # ok
     path('user/preferences/set_timezone/', prefs.set_user_timezone, name='set_user_timezone'), # ok
     path('user/preferences/username/', prefs.get_user_details, name='get_user_details'), # ok
+    path('user/preferences/plan/', prefs.get_user_plan, name='get_user_plan'), # ok
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
-    path('user/emails/<int:email_id>/archive/', emails.archive_email, name='archive_email'), # waiting for implementation in FE
-    
+   
     path('user/emails_ids/', search_emails.get_user_emails_ids, name='get_user_emails'), # ok
     path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'), # ok
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'), # ok
-    path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok
-    path('user/emails/<int:email_id>/mark_read/', emails.set_email_read, name='set_email_read'), # ok
-    path('user/emails/<int:email_id>/mark_unread/', emails.set_email_unread, name='set_email_unread'), # ok
-    path('user/emails/<int:email_id>/mark_reply_later/', emails.set_email_reply_later, name='set_email_reply_laterr'), # ok
-    path('user/emails/<int:email_id>/unmark_reply_later/', emails.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
+    path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok    
+    path('user/emails/update/', emails.update_emails, name='update_emails'), # ok
     path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 
     path('get_mail_by_id', emails.get_mail_by_id, name='get_mail_by_id'), # ok
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'), # ok
     #----------------------- VIEWS -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
-    path('user/get_batch_emails/', views.get_batch_emails, name='get_batch_emails'), # dev
 
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
-    path('user/social_send_email/', views.send_email, name='send_email'), # ok
-    path('user/social_send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # ok
-    path('user/social_get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
-    path('user/social_update_user_description/', views.update_user_description, name='update_user_description'), # ok
-    path('user/social_get_user_description/', views.get_user_description, name='get_user_description'), # ok
+    path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
+    path('user/social_api/send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # ok
+    path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
+    path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
+    path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
     path('create_sender', views.create_sender, name='create_sender'), # ok
     path('check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
     #----------------------- STATISTICS -----------------------#
@@ -115,6 +114,16 @@ urlpatterns = [
     path('user/labels_data', search_labels.get_labels_data, name='get_labels_data'),
     path('user/label_pdf', search_labels.get_label_pdf, name='get_label_pdf'),
     path('user/delete_labels', labels.delete_labels, name='delete_labels'),
-    #----------------------- PAYMENT PROVIDER API -----------------------#
-    # path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
+    #----------------------- ADMIN RESSOURCES -----------------------#
+    path('admin/login/', dashboard.login, name='admin_login'),
+    path('admin/create_superuser/', dashboard.create_superuser, name='create_superuser'),
+    path('admin/update_admin_data/', dashboard.update_admin_data, name='update_admin_data'),
+    path('admin/delete_admin/', dashboard.delete_admin, name='delete_admin'),    
+    path('admin/get_dashboard_data/', dashboard.get_dashboard_data, name='get_dashboard_data'),
+    path('admin/search_user_info/', dashboard.search_user_info, name='search_user_info'),
+    path('admin/get_costs_info/', dashboard.get_costs_info, name='get_costs_info'),
+    path('admin/update_user_info/', dashboard.update_user_info, name='update_user_info'),
+    #----------------------- PAYMENT PROVIDER API -----------------------# 
+    path('stripe/create_checkout_session/', stripe.create_checkout_session, name='stripe_create_checkout_session'), 
+    path('stripe/webhook/', stripe.webhook, name='stripe_webhook'), 
 ]

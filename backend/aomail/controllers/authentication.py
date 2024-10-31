@@ -14,11 +14,11 @@ Endpoints:
 - ✅ reset_password: Handle password reset requests
 """
 
-import datetime
 import json
 import logging
 import threading
 import jwt
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlencode
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -37,20 +37,23 @@ from rest_framework.response import Response
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from aomail.utils import security
-from aomail.utils.security import subscription
+from aomail.utils.security import subscription, admin_access_required
 from aomail.constants import (
     BASE_URL,
     EMAIL_ADMIN,
-    FREE_PLAN,
+    ALLOWED_PLANS,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
+    ENTREPRISE_PLAN,
     GOOGLE,
     GOOGLE,
+    INACTIVE,
     MAX_RETRIES,
     MICROSOFT,
     MICROSOFT,
+    PREMIUM_PLAN,
 )
 from aomail.email_providers.google import profile as profile_google
 from aomail.email_providers.microsoft import profile as profile_microsoft
@@ -67,6 +70,14 @@ from aomail.models import (
     Statistics,
     Subscription,
 )
+from aomail.payment_providers import stripe
+from aomail.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
+from aomail.email_providers.google import (
+    email_operations as email_operations_google,
+)
+from aomail.email_providers.utils import email_to_db
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -98,6 +109,11 @@ def signup(request: HttpRequest) -> Response:
     """
     ip = security.get_ip_with_port(request)
     LOGGER.info(f"Signup request received from IP: {ip}")
+
+    if User.objects.all().count() >= 250:
+        return Response(
+            {"error": "Limit of 250 users reached"}, status=status.HTTP_409_CONFLICT
+        )
 
     parameters: dict = json.loads(request.body)
     type_api: str = parameters.get("typeApi", "")
@@ -131,7 +147,8 @@ def signup(request: HttpRequest) -> Response:
     email = authorization_result.get("email", "")
 
     if email:
-        if SocialAPI.objects.filter(email=email).exists():
+        social_api = SocialAPI.objects.filter(email=email)
+        if social_api.exists() and social_api.first().user:
             LOGGER.error("Email address already used by another account")
             return Response(
                 {"error": "Email address already used by another account"},
@@ -159,7 +176,9 @@ def signup(request: HttpRequest) -> Response:
         LOGGER.error(f"Failed to generate access token: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     result = save_user_data(
         user,
@@ -189,7 +208,7 @@ def signup(request: HttpRequest) -> Response:
         elif type_api == MICROSOFT:
             if profile_microsoft.verify_license(access_token):
                 threading.Thread(
-                    target=profile_microsoft.set_all_contacts, args=(access_token, user)
+                    target=profile_microsoft.set_all_contacts, args=(user, email)
                 ).start()
             else:
                 LOGGER.error("No license associated with the account")
@@ -203,23 +222,24 @@ def signup(request: HttpRequest) -> Response:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
-    end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
-    end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
     Subscription.objects.create(
         user=user,
-        plan=FREE_PLAN,
-        stripe_subscription_id=None,
-        end_date=end_date_utc,
-        billing_interval=None,
-        amount=0.0,
+        plan=PREMIUM_PLAN,
     )
-    LOGGER.info(f"User {username} subscribed to free plan")
+    LOGGER.info(f"User {username} subscribed to premium plan (free trial)")
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
         LOGGER.info(f"User {username} subscribed to listeners successfully")
+
+        threading.Thread(
+            target=process_demo_emails, args=(type_api, user, email)
+        ).start()
         return Response(
             {"accessToken": django_access_token},
             status=status.HTTP_201_CREATED,
@@ -234,13 +254,58 @@ def signup(request: HttpRequest) -> Response:
         )
 
 
-def subscribe_listeners(type_api: str, user: str, email: str) -> bool:
+def process_demo_emails(type_api: str, user: User, email: str):
+    """
+    Processes up to the newest 10 emails from the main inbox of the user.
+
+    Args:
+        type_api (str): The type of email service being used (e.g., "GOOGLE" or "MICROSOFT").
+        user (User): User object representing the email account owner.
+        email (str): Email address of the user for authentication and data retrieval.
+    """
+    LOGGER.info(
+        f"User with ID {user.id} is initiating the demo email processing sequence for {type_api}."
+    )
+
+    if type_api == GOOGLE:
+        email_ids = email_operations_google.get_demo_list(user, email)
+    elif type_api == MICROSOFT:
+        email_ids = email_operations_microsoft.get_demo_list(user, email)
+
+    if not email_ids:
+        LOGGER.info(f"No emails found for user ID {user.id} in {type_api} inbox.")
+        return
+
+    LOGGER.info(
+        f"Retrieved {len(email_ids)} email IDs for user ID {user.id}. Processing each email now."
+    )
+
+    social_api = SocialAPI.objects.get(user=user, email=email)
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_email_id = {
+            executor.submit(email_to_db, social_api, email_id): email_id
+            for email_id in email_ids
+        }
+
+        for future in future_to_email_id:
+            try:
+                future.result()
+            except Exception as e:
+                LOGGER.error(
+                    f"Error processing email ID {future_to_email_id[future]}: {e}"
+                )
+
+    LOGGER.info(f"Completed processing demo emails for user ID {user.id}.")
+
+
+def subscribe_listeners(type_api: str, user: User, email: str) -> bool:
     """
     Subscribes the user to listeners based on the type of API provided.
 
     Args:
         type_api (str): The type of API.
-        user (str): User identifier.
+        user (User): User identifier.
         email (str): User's email address.
 
     Returns:
@@ -395,6 +460,7 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
         }
 
     except Exception as e:
+        LOGGER.error(f"An unexpected error occurred during validation: {str(e)}")
         return {"error": "An unexpected error occurred during validation"}
 
 
@@ -448,7 +514,7 @@ def validate_code_link_email(type_api: str, code: str) -> dict:
 
     except Exception as e:
         LOGGER.error(f"Unexpected error during validation for {type_api} API: {str(e)}")
-        return {"error": str(e)}
+        return {"error": "Internal server error"}
 
 
 def validate_signup_data(username: str, password: str, code: str) -> dict:
@@ -548,7 +614,8 @@ def save_user_data(
         return {"message": "User data saved successfully"}
 
     except Exception as e:
-        return {"error": str(e)}
+        LOGGER.error(f"Unexpected error occured while saving user data: {str(e)}")
+        return {"error": "Internal server error"}
 
 
 @api_view(["POST"])
@@ -633,21 +700,24 @@ def refresh_token(request: HttpRequest) -> Response:
         LOGGER.error(
             f"Unexpected error occured when refreshing Django access token: {str(e)}"
         )
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["DELETE"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def delete_account(request: HttpRequest) -> Response:
     """
-    Removes the authenticated user account from the database.
+    Removes the authenticated user's account from the database.
 
     Args:
         request (HttpRequest): HTTP request object containing the authenticated user.
 
     Returns:
         Response: {"message": "User successfully deleted"} if the user account is deleted successfully,
-                      or {"error": "Details of the specific error."} if there's an issue with the deletion.
+                  or {"error": "Details of the specific error."} if there's an issue with the deletion.
     """
     user = request.user
 
@@ -656,19 +726,36 @@ def delete_account(request: HttpRequest) -> Response:
         LOGGER.info(f"Deletion request received from IP: {ip} for user ID: {user.id}")
 
         unsubscribe_listeners(user)
-        user.delete()
 
-        LOGGER.info(f"User with ID: {user.id} deleted successfully")
+        subscription = Subscription.objects.get(user=user)
+        if not subscription.is_trial and subscription.is_active:
+            cancelled_subscription = stripe.cancel_subscription(subscription)
+
+            if not cancelled_subscription:
+                return Response(
+                    {
+                        "error": "Failed to cancel Stripe subscription. Please try using the management link."
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+        user_id = user.id
+        user.delete()
+        LOGGER.info(f"User with ID: {user_id} deleted successfully")
+
         return Response(
             {"message": "User successfully deleted"}, status=status.HTTP_200_OK
         )
     except Exception as e:
-        LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Error when deleting account for user {user_id}: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def unlink_email(request: HttpRequest) -> Response:
     """
     Unlinks the specified email and deletes all stored emails associated with the user's account.
@@ -680,29 +767,58 @@ def unlink_email(request: HttpRequest) -> Response:
 
     Returns:
         Response: {"message": "Email unlinked successfully!"} if the unlinking is successful,
-                      or {"error": "Details of the specific error."} if there's an issue with the unlinking.
+                  or {"error": "Details of the specific error."} if there's an issue with the unlinking.
     """
     parameters: dict = json.loads(request.body)
     user = request.user
     email = parameters.get("email")
 
+    ip = security.get_ip_with_port(request)
+    LOGGER.info(f"Unlink email request received from IP: {ip} and user ID: {user.id}.")
+
+    if not email:
+        LOGGER.warning(
+            f"Unlinking failed: No email provided from IP: {ip} for user ID: {user.id}."
+        )
+        return Response(
+            {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
     try:
+        LOGGER.info(
+            f"Attempting to unlink email '{email}' for user ID: {user.id} from IP: {ip}."
+        )
+
         social_api = SocialAPI.objects.get(user=user, email=email)
+
         unsubscribe_listeners(user, email)
         social_api.delete()
+
+        LOGGER.info(
+            f"Email '{email}' successfully unlinked for user ID: {user.id} from IP: {ip}."
+        )
         return Response(
             {"message": "Email unlinked successfully!"}, status=status.HTTP_202_ACCEPTED
         )
     except SocialAPI.DoesNotExist:
+        LOGGER.error(
+            f"Unlinking failed: SocialAPI entry not found for email '{email}' and user ID: {user.id} from IP: {ip}."
+        )
         return Response(
             {"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(
+            f"Unlinking failed: An unexpected error occurred for user ID: {user.id} while unlinking email '{email}' from IP: {ip}: {str(e)}"
+        )
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription([PREMIUM_PLAN, ENTREPRISE_PLAN])
 def link_email(request: HttpRequest) -> Response:
     """
     Links the specified email with the authenticated user's account.
@@ -763,10 +879,13 @@ def link_email(request: HttpRequest) -> Response:
             ).start()
         elif type_api == MICROSOFT:
             threading.Thread(
-                target=profile_microsoft.set_all_contacts, args=(access_token, user)
+                target=profile_microsoft.set_all_contacts, args=(user, email)
             ).start()
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
@@ -788,8 +907,35 @@ def link_email(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS + [INACTIVE])
 def is_authenticated(request: HttpRequest) -> Response:
+    """
+    Check if the user is authenticated and return their subscription status.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+
+    Returns:
+        Response:
+            - {"isAuthenticated": True, "isActive": bool} indicating the user is authenticated and if their subscription is active.
+            - If no subscription is found, returns an error response.
+    """
+    try:
+        subscription = Subscription.objects.get(user=request.user)
+        return Response(
+            {"isAuthenticated": True, "isActive": subscription.is_active},
+            status=status.HTTP_200_OK,
+        )
+    except Subscription.DoesNotExist:
+        return Response(
+            {"error": "No subscription found for the user."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+
+@api_view(["GET"])
+@admin_access_required
+def is_admin(request: HttpRequest) -> Response:
     """
     Check if the user is authenticated.
 
@@ -797,9 +943,9 @@ def is_authenticated(request: HttpRequest) -> Response:
         request (HttpRequest): HTTP request object.
 
     Returns:
-        Response: {"isAuthenticated": True} indicating the user is authenticated.
+        Response: {"is_admin": True} indicating the user is authenticated.
     """
-    return Response({"isAuthenticated": True}, status=status.HTTP_200_OK)
+    return Response({"isAdmin": True}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -867,7 +1013,10 @@ def generate_reset_token(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error generating reset token: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["GET", "POST"])
@@ -894,7 +1043,10 @@ def reset_password(
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
         LOGGER.error(f"Error decoding user ID or finding user: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     if not PasswordResetTokenGenerator().check_token(user, token):
         return Response(

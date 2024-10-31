@@ -19,7 +19,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import (
-    FREE_PLAN,
+    ALLOWED_PLANS,
     GOOGLE_CONFIG,
     GOOGLE_SCOPES,
 )
@@ -111,46 +111,74 @@ def get_info_contacts(services: dict) -> list[dict]:
 
 def set_all_contacts(user: User, email: str):
     """
-    Stores all unique contacts of an email account in the database using Google People API and Gmail API.
+    Stores all unique contacts from the latest 5,000 emails and contacts in the database using Google People API and Gmail API.
 
     Args:
         user (User): User object representing the owner of the email account.
         email (str): Email address of the user.
     """
     LOGGER.info(
-        f"Starting to save all contacts from from user ID: {user.id} with Google API"
+        f"Starting to save all contacts from user ID: {user.id} with Google API"
     )
     start = time.time()
 
-    services = authenticate_service(user, email)
+    def refresh_services():
+        """Authenticate and return the necessary Google API services."""
+        return authenticate_service(user, email, ["people", "gmail"])
+
+    services = refresh_services()
     contacts_service = services["people"]
     gmail = services["gmail"]
 
     try:
         all_contacts = defaultdict(set)
+        email_count = 0
 
-        # Part 1: Retrieve from Google Contacts
+        def make_service_call(service_function):
+            nonlocal contacts_service, gmail
+            for attempt in range(2):
+                try:
+                    return service_function()
+                except Exception as e:
+                    if attempt == 0:
+                        LOGGER.warning(
+                            f"Service authorization failed, retrying with refreshed token. Error: {str(e)}"
+                        )
+                        new_services = refresh_services()
+                        contacts_service = new_services["people"]
+                        gmail = new_services["gmail"]
+                    else:
+                        LOGGER.error("Request failed after token refresh.")
+                        raise Exception(
+                            "Token refresh failed, cannot continue request."
+                        )
+
+        # Part 1: Retrieve contacts from Google Contacts
         next_page_token = None
         while True:
-            response: dict = (
-                contacts_service.people()
-                .connections()
-                .list(
-                    resourceName="people/me",
-                    personFields="names,emailAddresses,metadata",
-                    pageSize=1000,
-                    pageToken=next_page_token,
-                )
-                .execute()
-            )
 
-            connections: list[dict] = response.get("connections", [])
+            def fetch_contacts():
+                """Fetch connections from Google Contacts."""
+                return (
+                    contacts_service.people()
+                    .connections()
+                    .list(
+                        resourceName="people/me",
+                        personFields="names,emailAddresses,metadata",
+                        pageSize=1000,
+                        pageToken=next_page_token,
+                    )
+                    .execute()
+                )
+
+            response = make_service_call(fetch_contacts)
+            connections = response.get("connections", [])
             next_page_token = response.get("nextPageToken")
 
             for contact in connections:
-                names: list[dict] = contact.get("names", [{}])
-                email_addresses: list[dict] = contact.get("emailAddresses", [])
-                metadata: dict[str, dict] = contact.get("metadata", {})
+                names = contact.get("names", [{}])
+                email_addresses = contact.get("emailAddresses", [])
+                metadata = contact.get("metadata", {})
                 contact_id = metadata.get("sources", [{}])[0].get("id", "")
                 name = names[0].get("displayName", "") if names else ""
 
@@ -164,49 +192,64 @@ def set_all_contacts(user: User, email: str):
             if not next_page_token:
                 break
 
-        # Part 2: Retrieving from Gmail
-        response = gmail.users().messages().list(userId="me", q="").execute()
-        messages = response.get("messages", [])
+        # Part 2: Retrieve the latest emails from Gmail, up to 5,000 messages
+        messages_endpoint = gmail.users().messages().list(userId="me", q="")
+        while email_count < 5000:
+            response = make_service_call(lambda: messages_endpoint.execute())
+            messages = response.get("messages", [])
 
-        for msg in messages[:500]:  # Limit to the first 500 messages
-            message: dict[str, dict] = (
-                gmail.users()
-                .messages()
-                .get(
-                    userId="me",
-                    id=msg["id"],
-                    format="metadata",
-                    metadataHeaders=["From"],
+            for msg in messages:
+                if email_count >= 5000:
+                    break
+
+                message = make_service_call(
+                    lambda: gmail.users()
+                    .messages()
+                    .get(
+                        userId="me",
+                        id=msg["id"],
+                        format="metadata",
+                        metadataHeaders=["From"],
+                    )
+                    .execute()
                 )
-                .execute()
-            )
-            headers = message.get("payload", {}).get("headers", [])
-            from_header = next(
-                (item for item in headers if item["name"] == "From"), None
-            )
-            if from_header:
-                from_value: str = from_header["value"]
-                if "reply" in from_value.lower():
-                    continue
-
-                email_match = re.search(r"[\w\.-]+@[\w\.-]+", from_value)
-                name_match = re.search(r'(?:"?([^"]*)"?\s)?', from_value)
-
-                email = email_match.group(0) if email_match else None
-                name = (
-                    name_match.group(1) if name_match and name_match.group(1) else email
+                headers = message.get("payload", {}).get("headers", [])
+                from_header = next(
+                    (item for item in headers if item["name"] == "From"), None
                 )
 
-                if not email:
-                    continue
+                if from_header:
+                    from_value = from_header["value"]
+                    if "reply" in from_value.lower():
+                        continue
 
-                if (name, email, user.id, "") in all_contacts:
-                    continue
-                else:
-                    all_contacts[(name, email, user.id, "")].add(email)
+                    email_match = re.search(r"[\w\.-]+@[\w\.-]+", from_value)
+                    name_match = re.search(r'(?:"?([^"]*)"?\s)?', from_value)
 
-        # Part 3: Add the contacts to the database
-        for contact_info, _ in all_contacts.items():
+                    email = email_match.group(0) if email_match else None
+                    name = (
+                        name_match.group(1)
+                        if name_match and name_match.group(1)
+                        else email
+                    )
+
+                    if email and (name, email, user.id, "") not in all_contacts:
+                        all_contacts[(name, email, user.id, "")].add(email)
+
+                email_count += 1
+
+            # Pagination for Gmail messages
+            if "nextPageToken" in response and email_count < 5000:
+                messages_endpoint = (
+                    gmail.users()
+                    .messages()
+                    .list(userId="me", pageToken=response["nextPageToken"])
+                )
+            else:
+                break
+
+        # Part 3: Save contacts to the database
+        for contact_info in all_contacts.keys():
             name, email, _, contact_id = contact_info
             if name and email:
                 email_processing.save_email_sender(user, name, email, contact_id)
@@ -222,67 +265,8 @@ def set_all_contacts(user: User, email: str):
         )
 
 
-def get_unique_senders(services: dict) -> dict:
-    """
-    Fetches unique sender information from Gmail messages using Gmail API.
-
-    Args:
-        services (dict): A dictionary containing the necessary services, with 'gmail' key for Gmail service.
-
-    Returns:
-        dict: A dictionary where keys are email addresses of senders and values are their corresponding names.
-    """
-    service = services["gmail"]
-    limit = 50
-    results: dict = (
-        service.users()
-        .messages()
-        .list(userId="me", labelIds=["INBOX"], maxResults=limit)
-        .execute()
-    )
-    messages = results.get("messages", [])
-
-    senders_info = {}
-
-    if messages:
-        for message in messages:
-            try:
-                msg = (
-                    service.users()
-                    .messages()
-                    .get(
-                        userId="me",
-                        id=message["id"],
-                        format="metadata",
-                        metadataHeaders=["From"],
-                    )
-                    .execute()
-                )
-                headers = msg["payload"]["headers"]
-                sender_header: str = next(
-                    header["value"] for header in headers if header["name"] == "From"
-                )
-
-                sender_parts = sender_header.split("<")
-                sender_name = sender_parts[0].strip().strip('"')
-                sender_email = (
-                    sender_parts[-1].split(">")[0].strip()
-                    if len(sender_parts) > 1
-                    else sender_name
-                )
-
-                senders_info[sender_email] = sender_name
-            except Exception as e:
-                LOGGER.error(
-                    f"Error fetching or processing sender: {str(e)}. Message ID: {message['id']}"
-                )
-                return senders_info
-
-    return senders_info
-
-
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Google People API.
@@ -295,7 +279,7 @@ def get_profile_image(request: HttpRequest) -> Response:
     """
     user = request.user
     email = request.headers.get("email")
-    service = authenticate_service(user, email)["people"]
+    service = authenticate_service(user, email, ["people"])["people"]
 
     try:
         profile = (
@@ -320,6 +304,6 @@ def get_profile_image(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Error retrieving profile image for user ID {user.id}: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

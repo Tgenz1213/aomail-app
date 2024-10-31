@@ -7,6 +7,7 @@
       "update": "Update",
       "open": "Open",
       "send": "Send",
+      "ask": "Ask",
       "changeTheRule": "Change the rule",
       "createARule": "Create a rule",
       "transfer": "Transfer",
@@ -15,13 +16,16 @@
       "modify": "Modify",
       "clickToSeeTheSummary": "Click to see the summary",
       "clickToSeeUselessEmails": "Click to see the useless emails",
+      "clickToSeeReadEmails": "Click to see the read emails",
       "replyLater": "Reply later",
+      "unreplyLater": "Unreply Later",
       "enterManually": "Enter manually",
       "answerManually": "Answer manually",
       "modifyACategory": "Modify a category",
       "login": "Log In",
       "see": "See",
-      "archive": "Archive"
+      "archive": "Archive",
+      "unarchive": "Unarchive"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "No category defined",
@@ -78,6 +82,7 @@
         "emailSendErrorNoRecipient": "No recipient entered",
         "deleteEmailFailure": "Failed to delete email",
         "archiveEmailFailure": "Failed to archive email",
+        "unarchiveEmailFailure": "Failed to unarchive email",
         "addCategoryError": "Error adding category",
         "updateCategoryError": "Error updating category",
         "addFilterError": "Error adding filter",
@@ -110,6 +115,11 @@
         "deleteFilterSuccess": "Your filter has been deleted"
       }
     },
+    "and": "and",
+    "rule": "rule",
+    "rules": "rules",
+    "email": "email",
+    "emails": "emails",
     "redirectionInProgress": "Redirection in progress...",
     "homeNavbar": "Home",
     "newEmailNavbar": "New Email",
@@ -128,6 +138,7 @@
     "password": "Password",
     "workInProgress": "Work in progress",
     "underDevelopment": "Under Development",
+    "announcedPricingAfterBeta": "Announced after the beta",
     "language": "Language",
     "languagesList": {
       "french": "French 🇫🇷",
@@ -171,6 +182,7 @@
     "authorizationError": "Authorization error",
     "authorizationCodeNotFound": "Authorization code not found in URL",
     "accountCreationInProgress": "Account creation in progress...",
+    "fetchingYourEmails": "Fetching your emails",
     "waitingDatabaseResponse": "Waiting for database response",
     "accountCreationError": "Error creating account",
     "registerToAomail": "Register to Aomail",
@@ -182,40 +194,43 @@
     "toolsPresentation": "Tools presentation",
     "finalizeRegistration": "Finalize your registration",
     "iAcceptThe": "I accept the",
-    "conditionsAndPrivacyPolicyOf": "conditions and privacy policy of",
-    "informationOnDataConfidentiality": "Some information on data confidentiality"
+    "andThe": "and the",
+    "of": "of",
+    "termsOfService": "terms of service",
+    "privacyPolicy": "privacy policy",
+    "informationOnDataConfidentiality": "Some information on data confidentiality",
+    "ESOFCyberScore": "ESOF Cyber score:",
+    "cyberScoreAssessor": "TAC Security assessor",
+    "emailsAreEncryptedAtRest": "Emails content are encrypted at rest on our database",
+    "emailsFallbackToProviders": "Emails still available in Gmail or Outlook as a fallback"
   },
   "homePage": {
     "otherCategory": "Others",
     "noNewEmail": "No new email",
+    "noEmailFound": "No email found",
     "youDidNotReceiveNewEmail": "You have not received any new e-mail",
+    "youRead": "You have",
     "suppressionOf": "Suppression of",
     "answer": "Answer",
     "read": "Read",
     "unread": "Unread",
-    "unreplyLater": "Unreply Later",
     "youReceived": "You received",
     "newEmail": "new email",
     "newEmails": "new emails",
     "uselessEmail": " useless email",
     "uselessEmails": " useless emails",
+    "readEmail": " read email",
+    "readEmails": " read emails",
     "clickToSeeTheEmail": "Click to see the email",
     "block": "Block",
     "youReadRecently": "You read recently",
     "iAm": "I'm",
     "goingToCleanAutomatically": "going to clean automatically",
     "theEmailsYouHaveRead": "the emails you have read",
-    "youHave": "You have",
-    "rule": "rule",
-    "rules": "rules",
-    "linked": "linked",
-    "toThisCategory": "to this category.",
-    "warningForDeletingTheCategory": "Deleting the category will also result in deleting all associated rules",
-    "email": " email.",
-    "emails": " emails.",
     "markEmailUnreadFailure": "Failed to mark email as unread",
     "markEmailReadFailure": "Failed to mark email as read",
     "markEmailReplyLaterFailure": "Failed to mark email for reply later",
+    "unmarkEmailReplyLaterFailure": "Failed to unmark email for reply later",
     "transferEmailFailure": "Failed to transfer email",
     "blockEmailAddressFailure": "Failed to block email address",
     "flag": {
@@ -275,8 +290,17 @@
         "filterAlreadyExists": "A filter with the same name already exist",
         "updateFilter": "Update the filter"
       },
-      "warningRulesLinkedModal": {
-        "deleteCategory": "Delete category: "
+      "categoryDeletionModal": {
+        "youHave": "You have",
+        "deleteCategory": "Delete category",
+        "confirmationMessage": "Are you sure you want to delete this category?",
+        "emailsLinked": "emails linked with this category.",
+        "emailLinked": "email linked with this category.",
+        "rulesLinked": "rules linked with this category.",
+        "ruleLinked": "rule linked with this category.",
+        "deletingCategoryWarning": "Deleting the category will result in deleting the associated",
+        "cancelButton": "Cancel",
+        "deleteButton": "Delete the category"
       }
     }
   },
@@ -317,7 +341,8 @@
           "Up to 1 linked email",
           "Automatic sorting",
           "Custom filtering",
-          "API search"
+          "Smart writing",
+          "Smart search"
         ]
       },
       "premium": {
@@ -326,8 +351,9 @@
           "Unlimited linked emails",
           "Automatic sorting",
           "Custom filtering",
-          "Smart and API search",
-          "Automatic customization of shipping labels for Vinted"
+          "Smart writing",
+          "Advanced smart search",
+          "Advanced features"
         ]
       },
       "entreprise": {
@@ -336,9 +362,12 @@
           "Unlimited linked emails",
           "Automatic sorting",
           "Custom filtering",
-          "Smart and API search",
+          "Smart writing",
+          "Smart writing",
+          "Advanced smart search",
+          "Advanced features",
           "Sync all emails from inbox",
-          "Advanced email categorization customization"
+          "Advanced features customization"
         ]
       }
     },

@@ -24,7 +24,7 @@ BASE_URL_MA = f"{BASE_URL}aomail/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aomail.ai"]
-CORS_ALLOWED_ORIGINS = [DOMAIN]
+CORS_ALLOWED_ORIGINS = [DOMAIN, "https://admin.aomail.ai"]
 
 # ----------------------- EMAIL CREDS -----------------------#
 EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))
@@ -32,24 +32,17 @@ EMAIL_NO_REPLY = EMAILS_CREDS["email"]
 EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 EMAIL_ADMIN = EMAILS_CREDS["email_admin"]
 
-
-######################## STRIPE ########################
-# under dev
-STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json"))
-STRIPE_SECRET_KEY = STRIPE_CREDS["secret_key"]
-STRIPE_PUBLISHABLE_KEY = STRIPE_CREDS["publishable_key"]
-STRIPE_PAYMENT_FAILED_URL = f"{BASE_URL}stripe/payment_failed/"
-STRIPE_PAYMENT_SUCCESS_URL = f"{BASE_URL}stripe/payment_successful/"
-STRIPE_PRICES = {
-    "start_plan_id": {"name": "start_plan", "price": 0.0},
-    "pro_plan_id": {"name": "pro_plan", "price": 0.0},
-}
-FREE_PLAN = "free_plan"
+######################## PAYMENTS ########################
+INACTIVE = "inactive"
+START_PLAN = "start"
+PREMIUM_PLAN = "premium"
+ENTREPRISE_PLAN = "entreprise"
+ALLOWED_PLANS = [START_PLAN, PREMIUM_PLAN, ENTREPRISE_PLAN]
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
-CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
+ANTHROPIC_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
 IMPORTANT = "important"
 INFORMATIVE = "informative"
 USELESS = "useless"
@@ -95,11 +88,13 @@ MICROSOFT_READ_SCOPE = "Mail.Read"
 MICROSOFT_SEND_SCOPE = "Mail.Send"
 MICROSOFT_CONTACTS_READ_SCOPE = "Contacts.Read"
 MICROSOFT_EMAIL_MODIFY = "Mail.ReadWrite"
+MICROSOFT_USER_READ_SCOPE = "User.Read"
 MICROSOFT_SCOPES = [
     MICROSOFT_READ_SCOPE,
     MICROSOFT_SEND_SCOPE,
     MICROSOFT_CONTACTS_READ_SCOPE,
     MICROSOFT_EMAIL_MODIFY,
+    MICROSOFT_USER_READ_SCOPE,
 ]
 MICROSOFT_CREDS = f"{CREDS_PATH}microsoft_creds.json"
 MICROSOFT_CONFIG = json.load(open(MICROSOFT_CREDS))

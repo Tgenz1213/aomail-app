@@ -203,9 +203,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
+# https://crontab.guru/
 CRONJOBS = [
-    (
-        "0 3 * * *",
-        "aomail.schedule_tasks.renew_gmail_subscriptions",
-    ),
+    ("0 3 * * *", "aomail.schedule_tasks.renew_gmail_subscriptions"),
 ]

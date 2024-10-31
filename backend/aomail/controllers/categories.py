@@ -5,7 +5,7 @@ Endpoints:
 - ✅ get_user_categories: Retrieve categories of the user.
 - ✅ update_category: Update an existing category.
 - ✅ delete_category: Delete a category.
-- ✅ get_rules_linked: Retrieve the number of rules linked to a specified category.
+- ✅ get_dependencies: Retrieve the number of rules and emails linked to a specified category.
 - ✅ create_category: Create a new category.
 - ✅ get_category_id: Retrieve the ID of a category based on its name.
 """
@@ -19,10 +19,11 @@ from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import (
     DEFAULT_CATEGORY,
-    FREE_PLAN,
+    ALLOWED_PLANS,
 )
 from aomail.models import (
     Category,
+    Email,
     Rule,
 )
 from aomail.utils.serializers import (
@@ -36,7 +37,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_user_categories(request: HttpRequest) -> Response:
     """
     Retrieve categories associated with the authenticated user.
@@ -54,7 +55,7 @@ def get_user_categories(request: HttpRequest) -> Response:
 
 
 @api_view(["PUT"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def update_category(request: HttpRequest) -> Response:
     """
     Update an existing category for the authenticated user.
@@ -92,7 +93,7 @@ def update_category(request: HttpRequest) -> Response:
             {"error": "Description length exceeds 300 characters"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
@@ -102,9 +103,9 @@ def update_category(request: HttpRequest) -> Response:
 
     update_data = {}
     if new_name:
-        update_data['name'] = new_name
+        update_data["name"] = new_name
     if description:
-        update_data['description'] = description
+        update_data["description"] = description
 
     if not update_data:
         return Response(
@@ -122,7 +123,7 @@ def update_category(request: HttpRequest) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def delete_category(request: HttpRequest) -> Response:
     """
     Delete a category associated with the authenticated user.
@@ -163,18 +164,19 @@ def delete_category(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
-def get_rules_linked(request: HttpRequest) -> Response:
+@subscription(ALLOWED_PLANS)
+def get_dependencies(request: HttpRequest) -> Response:
     """
-    Retrieves the number of rules linked to a specified category for the authenticated user.
+    Retrieves the number of rules and emails linked to a specified category for the authenticated user.
 
     Args:
         request (HttpRequest): The HTTP request object containing the following parameter in the body:
-            categoryName (str): The name of the category to retrieve linked rules for.
+            - categoryName (str): The name of the category to retrieve linked rules and emails for.
 
     Returns:
-        Response: JSON response indicating the number of rules linked to the category.
-                      Returns an error if the category name is not provided or if the category is not found.
+        Response: JSON response containing:
+            - nbRules (int): The number of rules linked to the specified category.
+            - nbEmails (int): The number of emails linked to the specified category.
     """
     parameters: dict = json.loads(request.body)
     current_name = parameters.get("categoryName")
@@ -191,13 +193,17 @@ def get_rules_linked(request: HttpRequest) -> Response:
         return Response(
             {"error": "Category not found"}, status=status.HTTP_400_BAD_REQUEST
         )
-    rules = Rule.objects.filter(category=category, user=user)
 
-    return Response({"nb_rules": len(rules)}, status=status.HTTP_200_OK)
+    rules_count = Rule.objects.filter(category=category, user=user).count()
+    emails_count = Email.objects.filter(category=category, user=user).count()
+
+    return Response(
+        {"nbRules": rules_count, "nbEmails": emails_count}, status=status.HTTP_200_OK
+    )
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def create_category(request: HttpRequest) -> Response:
     """
     Create a new category for the authenticated user.
@@ -262,7 +268,7 @@ def create_category(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
+@subscription(ALLOWED_PLANS)
 def get_category_id(request: HttpRequest) -> Response:
     """
     Retrieve the ID of a category based on its name for the authenticated user.

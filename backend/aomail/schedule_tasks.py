@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from aomail.models import GoogleListener
 from aomail.email_providers.google import webhook as google_webhook
+from aomail.constants import ENV
 
 
 LOGGER = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ def renew_gmail_subscriptions():
     """
     start_time = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
     LOGGER.info(
-        f"{start_time} - Starting the subscription renewal process for Gmail accounts."
+        f"{start_time} - [{ENV}] Starting the subscription renewal process for Gmail accounts."
     )
     start_time = time.time()
 

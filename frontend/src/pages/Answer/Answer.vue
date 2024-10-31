@@ -161,7 +161,7 @@ onMounted(async () => {
 
     importance.value = JSON.parse(sessionStorage.getItem("importance") || "");
     const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");
-    const htmlContent = sessionStorage.getItem("htmlContent" || "");
+    const htmlContent = sessionStorage.getItem("htmlContent") || "";
     const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
 
     await fetchSelectedEmailData();

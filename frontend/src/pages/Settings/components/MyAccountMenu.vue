@@ -1,175 +1,12 @@
 <template>
     <AddUserDescriptionModal :isOpen="isAddUserDescriptionModalOpen" @closeModal="closeAddUserDescriptionModal" />
     <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @closeModal="closeAccountDeletionModal" />
+    <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @closeModal="closeAccountDeletionModal" />
     <div class="flex-1 h-full">
         <div class="h-full w-full flex items-center justify-center">
             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">
                 <div class="flex-1 flex-col h-full flex-grow px-4">
-                    <div class="flex-col w-full pt-6">
-                        <div class="relative w-full">
-                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                <div class="w-full border-t border-gray-300"></div>
-                            </div>
-                            <div class="relative flex justify-center">
-                                <span class="bg-white px-2 text-sm text-gray-500">
-                                    {{ $t("settingsPage.accountPage.changeMyUsernameOrMyPassword") }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pt-6 pb-10">
-                            <div class="flex space-x-1 items-center">
-                                <envelope-icon class="w-4 h-4" />
-                                <label class="block text-sm font-medium leading-6 text-gray-900">
-                                    {{ $t("constants.username") }}
-                                </label>
-                            </div>
-                            <div class="relative items-stretch mt-2">
-                                <input
-                                    v-model="usernameInput"
-                                    type="text"
-                                    class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                />
-                            </div>
-                            <div class="pt-4">
-                                <div class="grid grid-cols-2 gap-6">
-                                    <div class="flex flex-col">
-                                        <div class="flex space-x-1 items-center">
-                                            <key-icon class="w-4 h-4" />
-                                            <label class="block text-sm font-medium leading-6 text-gray-900">
-                                                {{ $t("settingsPage.accountPage.newPassword") }}
-                                            </label>
-                                        </div>
-                                        <div class="relative items-stretch mt-2 flex">
-                                            <input
-                                                v-if="!showPassword"
-                                                type="password"
-                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                v-model="newPassword"
-                                            />
-                                            <input
-                                                v-else
-                                                type="text"
-                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                v-model="newPassword"
-                                            />
-                                            <div class="flex items-center">
-                                                <button
-                                                    @click="togglePasswordVisibility"
-                                                    class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300"
-                                                >
-                                                    <svg
-                                                        v-if="!showPassword"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke-width="1.5"
-                                                        stroke="currentColor"
-                                                        class="w-6 h-6"
-                                                    >
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-                                                        />
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                                        />
-                                                    </svg>
-                                                    <svg
-                                                        v-else
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke-width="1.5"
-                                                        stroke="currentColor"
-                                                        class="w-6 h-6"
-                                                    >
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
-                                                        />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <div class="flex space-x-1 items-center">
-                                            <key-icon class="w-4 h-4" />
-                                            <label class="block text-sm font-medium leading-6 text-gray-900">
-                                                {{ $t("settingsPage.accountPage.confirmYourNewPassword") }}
-                                            </label>
-                                        </div>
-                                        <div class="relative items-stretch mt-2 flex">
-                                            <input
-                                                v-if="!showConfirmPassword"
-                                                type="password"
-                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                v-model="confirmPassword"
-                                            />
-                                            <input
-                                                v-else
-                                                type="text"
-                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                v-model="confirmPassword"
-                                            />
-                                            <button
-                                                @click="toggleConfirmPasswordVisibility"
-                                                class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300"
-                                            >
-                                                <svg
-                                                    v-if="!showConfirmPassword"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke-width="1.5"
-                                                    stroke="currentColor"
-                                                    class="w-6 h-6"
-                                                >
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-                                                    />
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                                    />
-                                                </svg>
-                                                <svg
-                                                    v-else
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke-width="1.5"
-                                                    stroke="currentColor"
-                                                    class="w-6 h-6"
-                                                >
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex justify-end pt-4">
-                                <button
-                                    @click="handleSubmit"
-                                    class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-                                >
-                                    {{ $t("constants.userActions.modify") }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <UserCredentialsUpdateSection />
                     <div class="flex-col flex-grow w-full py-12 2xl:py-20">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -212,7 +49,6 @@
                                             d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
                                         />
                                     </svg>
-
                                     {{ $t("constants.userActions.delete") }}
                                 </button>
                             </div>
@@ -383,6 +219,26 @@
                             </div>
                         </div>
                     </div>
+                    <div class="flex-col flex-grow w-full py-12 2xl:py-20">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div class="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div class="relative flex justify-center">
+                                <span class="bg-white px-2 text-sm text-gray-500">
+                                    {{ $t("settingsPage.accountPage.troubleshooting") }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="pt-6 flex flex-col items-center space-y-4">
+                            <button
+                                @click="openTroubleshootingMenu"
+                                class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
+                            >
+                                {{ $t("settingsPage.accountPage.noLongerReceivingEmails") }}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -396,31 +252,33 @@ import { YAHOO, GOOGLE, MICROSOFT, APPLE } from "@/global/const";
 import AddUserDescriptionModal from "./AddUserDescriptionModal.vue";
 import AccountDeletionModal from "./AccountDeletionModal.vue";
 import UserEmailLinked from "./UserEmailLinked.vue";
+import UserCredentialsUpdateSection from "./UserCredentialsUpdateSection.vue";
 import { i18n } from "@/global/preferences";
 import { EmailLinked } from "@/global/types";
 import { Plan } from "../utils/types";
 
-const username = ref("");
 const usernameInput = ref("");
-const newPassword = ref("");
-const confirmPassword = ref("");
+const username = ref("");
+
 const typeApi = ref("");
-const showPassword = ref(false);
-const showConfirmPassword = ref(false);
 const userPlan = inject<Ref<Plan>>("userPlan");
 const isDeleteRadioButtonChecked = inject<Ref<boolean>>("isDeleteRadioButtonChecked", ref(false));
 const isAddUserDescriptionModalOpen = inject<Ref<boolean>>("isAddUserDescriptionModalOpen", ref(false));
+const isTroubleshootingMenuModalOpen = inject<Ref<boolean>>("isTroubleshootingMenuModalOpen", ref(false));
 const isAccountDeletionModalOpen = inject<Ref<boolean>>("isAccountDeletionModalOpen", ref(false));
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
 const intervalId = setInterval(checkAuthorizationCode, 1000);
 
 provide("typeApi", typeApi);
+provide("usernameInput", usernameInput);
+provide("username", username);
 provide("fetchEmailLinked", fetchEmailLinked);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const closeAddUserDescriptionModal = inject<() => void>("closeAddUserDescriptionModal");
 const closeAccountDeletionModal = inject<() => void>("closeAccountDeletionModal");
 const openAddUserDescriptionModal = inject<() => void>("openAddUserDescriptionModal");
 const openAccountDeletionModal = inject<() => void>("openAccountDeletionModal");
+const openTroubleshootingMenu = inject<() => void>("openTroubleshootingMenu");
 
 onMounted(() => {
     checkAuthorizationCode();
@@ -456,117 +314,6 @@ function authorize(provider: string) {
     }
 
     return;
-}
-
-function togglePasswordVisibility(event: Event) {
-    event.preventDefault();
-    showPassword.value = !showPassword.value;
-}
-
-function toggleConfirmPasswordVisibility() {
-    showConfirmPassword.value = !showConfirmPassword.value;
-}
-
-async function handleSubmit() {
-    const result = await getData(`check_username/`);
-
-    if (!result.success) {
-        displayPopup?.("error", "Failed to submit data", result.error as string);
-        return;
-    }
-
-    if (result.data.available === false) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("settingsPage.accountPage.usernameAlreadyExists"),
-            i18n.global.t("settingsPage.accountPage.pleaseChooseDifferentUsername")
-        );
-        return;
-    }
-
-    if (username.value.length <= 150 && !/\s/.test(username.value) && usernameInput.value !== username.value) {
-        await updateUsername();
-    } else {
-        if (username.value.length > 150) {
-            displayPopup?.(
-                "error",
-                i18n.global.t(
-                    "settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotExceed150Characters"
-                ),
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAShorterUsername")
-            );
-        } else if (/\s/.test(username.value)) {
-            displayPopup?.(
-                "error",
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotContainSpaces"),
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAUsernameWithoutSpaces")
-            );
-        }
-    }
-
-    if (
-        newPassword.value &&
-        newPassword.value === confirmPassword.value &&
-        newPassword.value.length >= 8 &&
-        newPassword.value.length <= 32
-    ) {
-        await updatePassword();
-    } else {
-        if (newPassword.value !== confirmPassword.value) {
-            displayPopup?.(
-                "error",
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorPasswordDontCorrespond"),
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.checkPassword")
-            );
-        } else if (newPassword.value.length < 8 || newPassword.value.length > 32) {
-            displayPopup?.(
-                "error",
-                i18n.global.t(
-                    "settingsPage.preferencesPage.popUpConstants.errorMessages.passwordMustBeBetween8And32Characters"
-                ),
-                i18n.global.t(
-                    "settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAPasswordWithTheAppropriateLength"
-                )
-            );
-        }
-    }
-}
-
-async function updatePassword() {
-    const result = await postData(`user/preferences/update_password/`, { password: newPassword.value });
-
-    if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("settingsPage.accountPage.errorUpdatingPassword"),
-            result.error as string
-        );
-        return;
-    }
-
-    displayPopup?.(
-        "success",
-        i18n.global.t("constants.popUpConstants.successMessages.success"),
-        i18n.global.t("settingsPage.accountPage.passwordUpdatedSuccess")
-    );
-}
-
-async function updateUsername() {
-    const result = await postData(`user/preferences/update_username/`, { username: username.value });
-
-    if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("settingsPage.accountPage.errorUpdatingUsername"),
-            result.error as string
-        );
-    }
-
-    displayPopup?.(
-        "success",
-        i18n.global.t("constants.popUpConstants.successMessages.success"),
-        i18n.global.t("settingsPage.accountPage.usernameUpdatedSuccess")
-    );
 }
 
 function checkAuthorizationCode() {

@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import { getData } from "@/global/fetchData";
 import { inject, Ref, ref, onMounted } from "vue";
+import XMarkIcon from "@heroicons/vue/outline";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 

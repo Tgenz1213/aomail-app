@@ -56,6 +56,7 @@
 import { inject, Ref, onMounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
+import XMarkIcon from "@heroicons/vue/outline";
 
 const emailSelected = inject<Ref<string>>("emailSelected");
 const userDescription = inject<Ref<string>>("userDescription");

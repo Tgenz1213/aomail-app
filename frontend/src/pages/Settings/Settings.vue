@@ -177,23 +177,27 @@ const isAddUserDescriptionModalOpen = ref(false);
 const isAccountDeletionModalOpen = ref(false);
 const isUnlinkEmailModalOpen = ref(false);
 const isUpdateUserDescriptionModalOpen = ref(false);
+const isTroubleshootingMenuModalOpen = ref(false);
 const isDeleteRadioButtonChecked = ref(false);
 const emailSelected = ref("");
 const userDescription = ref("");
 const emailsLinked = ref<EmailLinked[]>([]);
 
 provide("displayPopup", displayPopup);
-provide("closeAddUserDescriptionModal", closeAddUserDescriptionModal);
-provide("closeAccountDeletionModal", closeAccountDeletionModal);
-provide("closeUnlinkEmailModal", closeUnlinkEmailModal);
-provide("closeUpdateUserDescriptionModal", closeUpdateUserDescriptionModal);
 provide("openAddUserDescriptionModal", openAddUserDescriptionModal);
+provide("closeAddUserDescriptionModal", closeAddUserDescriptionModal);
 provide("openAccountDeletionModal", openAccountDeletionModal);
+provide("closeAccountDeletionModal", closeAccountDeletionModal);
+provide("openUpdateUserDescriptionModal", openUserDescriptionModal);
+provide("closeUpdateUserDescriptionModal", closeUpdateUserDescriptionModal);
+provide("openTroubleshootingMenu", openTroubleshootingMenu);
+provide("closeTroubleshootingMenu", closeTroubleshootingMenu);
 provide("openUnLinkModal", openUnLinkModal);
-provide("openUserDescriptionModal", openUserDescriptionModal);
+provide("closeUnlinkEmailModal", closeUnlinkEmailModal);
 provide("userDescription", userDescription);
 provide("isDeleteRadioButtonChecked", isDeleteRadioButtonChecked);
 provide("isUpdateUserDescriptionModalOpen", isUpdateUserDescriptionModalOpen);
+provide("isTroubleshootingMenuModalOpen", isTroubleshootingMenuModalOpen);
 provide("isAccountDeletionModalOpen", isAccountDeletionModalOpen);
 provide("isAddUserDescriptionModalOpen", isAddUserDescriptionModalOpen);
 provide("userPlan", userPlan);
@@ -279,7 +283,7 @@ async function openUserDescriptionModal(email: string) {
     if (!result.success) {
         displayPopup?.(
             "error",
-            i18n.global.t("settingsPage.accountPage.errorUnlinkingEmailAddress"),
+            i18n.global.t("settingsPage.accountPage.errorRetrievingUserDescription"),
             result.error as string
         );
         return;
@@ -300,6 +304,18 @@ function isAModalOpen() {
 
 function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Tab" && !isAModalOpen()) {
+        const usernameInput = document.getElementById("usernameInput") as HTMLInputElement | null;
+        const confirmPassword = document.getElementById("confirmPassword") as HTMLInputElement | null;
+        const newPassword = document.getElementById("newPassword") as HTMLInputElement | null;
+
+        if (
+            usernameInput?.isEqualNode(document.activeElement) ||
+            confirmPassword?.isEqualNode(document.activeElement) ||
+            newPassword?.isEqualNode(document.activeElement)
+        ) {
+            return;
+        }
+
         event.preventDefault();
         switchActiveSection();
     }
@@ -327,6 +343,14 @@ function closeAddUserDescriptionModal() {
 
 function closeAccountDeletionModal() {
     isAccountDeletionModalOpen.value = false;
+}
+
+function closeTroubleshootingMenu() {
+    isTroubleshootingMenuModalOpen.value = false;
+}
+
+function openTroubleshootingMenu() {
+    isTroubleshootingMenuModalOpen.value = true;
 }
 
 function openAccountDeletionModal() {

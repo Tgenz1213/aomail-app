@@ -25,7 +25,7 @@
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $t("settingsPage.accountPage.thisFeatureIsUnderTest") }}
+                            {{ $t("settingsPage.accountPage.unlinkWarning") }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
@@ -69,6 +69,7 @@
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { inject, Ref } from "vue";
+import XMarkIcon from "@heroicons/vue/outline";
 
 const emailSelected = inject<Ref<string>>("emailSelected");
 const fetchEmailLinked = inject<() => void>("fetchEmailLinked");
@@ -95,16 +96,14 @@ async function unLinkAccount() {
             i18n.global.t("settingsPage.accountPage.errorUnlinkingEmailAddress"),
             result.error as string
         );
-        return;
+    } else {
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.success"),
+            i18n.global.t("settingsPage.accountPage.emailUnlinkedSuccess")
+        );
+        fetchEmailLinked?.();
     }
-
-    fetchEmailLinked?.();
-
-    displayPopup?.(
-        "success",
-        i18n.global.t("constants.popUpConstants.successMessages.success"),
-        i18n.global.t("settingsPage.accountPage.emailUnlinkedSuccess")
-    );
     closeModal();
 }
 </script>

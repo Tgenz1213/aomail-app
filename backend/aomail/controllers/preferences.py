@@ -53,7 +53,12 @@ def update_username(request: HttpRequest) -> Response:
 
     if not new_username:
         return Response(
-            {"error": "No new username provided."}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "No new username provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    if len(new_username) > 150:
+        return Response(
+            {"error": "Maximum length of username is 150 characters"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
     elif User.objects.filter(username=new_username).exists():
         return Response(
@@ -68,7 +73,7 @@ def update_username(request: HttpRequest) -> Response:
     user.username = new_username
     user.save()
 
-    return Response({"success": "Username updated successfully."})
+    return Response({"success": "Username updated successfully"})
 
 
 @api_view(["POST"])

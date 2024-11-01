@@ -3,7 +3,7 @@ Provides email search and operation functions using Google API.
 
 Endpoints:
 - ✅ send_email: Sends an email using the Gmail API. 
-- ✅ get_mail: Retrieves email details by index or message ID.
+- ✅ get_mail: Retrieves email details by index or message ID. 
 """
 
 import base64
@@ -34,7 +34,9 @@ from aomail.constants import (
     MEDIA_URL,
     BASE_URL_MA,
 )
-from aomail.email_providers.google.authentication import authenticate_service
+from aomail.email_providers.google.authentication import (
+    authenticate_service,
+)
 from aomail.utils import email_processing
 from aomail.models import SocialAPI
 from base64 import urlsafe_b64encode
@@ -106,7 +108,7 @@ def send_email(request: HttpRequest) -> Response:
 
             threading.Thread(
                 target=email_processing.save_contacts,
-                args=(user, email, all_recipients),
+                args=(user, all_recipients),
             ).start()
 
             return Response(

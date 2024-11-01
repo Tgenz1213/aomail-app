@@ -64,10 +64,11 @@ def get_email(access_token: str, refresh_token: str) -> dict:
         if email:
             return {"email": email}
         else:
-            return {"error": "No email found from Microsoft API"}
+            return {"error": "No email found from Google API"}
 
     except Exception as e:
-        return {"error": f"Failed to get email from Microsoft API: {str(e)}"}
+        LOGGER.error(f"Error retrieving user email from Google API. Error: {str(e)}.")
+        return {"error": "Internal server error"}
 
 
 def get_info_contacts(services: dict) -> list[dict]:

@@ -57,7 +57,8 @@
 <script setup lang="ts">
 import { getData } from "@/global/fetchData";
 import { inject, Ref, ref, onMounted } from "vue";
-import XMarkIcon from "@heroicons/vue/outline";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { i18n } from "@/global/preferences";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
@@ -96,7 +97,11 @@ async function linkNewEmail() {
         const result = await getData("google/auth_url_link_email/");
 
         if (!result.success) {
-            displayPopup?.("error", "Failed to generate authorization link", result.error as string);
+            displayPopup?.(
+                "error",
+                i18n.global.t("settingsPage.accountPage.failedToGenerateAuthURL"),
+                result.error as string
+            );
             closeModal();
         } else {
             if ("caches" in window) {
@@ -108,7 +113,11 @@ async function linkNewEmail() {
         const result = await getData("microsoft/auth_url_link_email/");
 
         if (!result.success) {
-            displayPopup?.("error", "Failed to generate authorization link", result.error as string);
+            displayPopup?.(
+                "error",
+                i18n.global.t("settingsPage.accountPage.failedToGenerateAuthURL"),
+                result.error as string
+            );
             closeModal();
         } else {
             window.location.replace(result.data.authorizationUrl);

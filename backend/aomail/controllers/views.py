@@ -77,6 +77,18 @@ def send_schedule_email(request: Request):
     return forward_request(request._request, "email_operations", "send_schedule_email")
 
 
+@api_view(["POST"])
+@subscription(ALLOWED_PLANS)
+def check_connectivity(request: Request):
+    return forward_request(request._request, "troubleshooting", "check_connectivity")
+
+
+@api_view(["POST"])
+@subscription(ALLOWED_PLANS)
+def synchronize(request: Request):
+    return forward_request(request._request, "troubleshooting", "synchronize")
+
+
 def forward_request(request: HttpRequest, api_module: str, api_method: str) -> Response:
     """
     Forwards the request to the appropriate API method based on type_api.

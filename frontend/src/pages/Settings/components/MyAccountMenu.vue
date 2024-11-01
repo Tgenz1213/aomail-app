@@ -1,7 +1,7 @@
 <template>
     <AddUserDescriptionModal :isOpen="isAddUserDescriptionModalOpen" @closeModal="closeAddUserDescriptionModal" />
     <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @closeModal="closeAccountDeletionModal" />
-    <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @closeModal="closeAccountDeletionModal" />
+    <TroubleshootingMenuModal :isOpen="isTroubleshootingMenuModalOpen" @closeModal="closeTroubleshootingMenu" />
     <div class="flex-1 h-full">
         <div class="h-full w-full flex items-center justify-center">
             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">
@@ -253,6 +253,7 @@ import AddUserDescriptionModal from "./AddUserDescriptionModal.vue";
 import AccountDeletionModal from "./AccountDeletionModal.vue";
 import UserEmailLinked from "./UserEmailLinked.vue";
 import UserCredentialsUpdateSection from "./UserCredentialsUpdateSection.vue";
+import TroubleshootingMenuModal from "./TroubleshootingMenuModal.vue";
 import { i18n } from "@/global/preferences";
 import { EmailLinked } from "@/global/types";
 import { Plan } from "../utils/types";
@@ -267,7 +268,6 @@ const isAddUserDescriptionModalOpen = inject<Ref<boolean>>("isAddUserDescription
 const isTroubleshootingMenuModalOpen = inject<Ref<boolean>>("isTroubleshootingMenuModalOpen", ref(false));
 const isAccountDeletionModalOpen = inject<Ref<boolean>>("isAccountDeletionModalOpen", ref(false));
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
-const intervalId = setInterval(checkAuthorizationCode, 1000);
 
 provide("typeApi", typeApi);
 provide("usernameInput", usernameInput);
@@ -279,6 +279,7 @@ const closeAccountDeletionModal = inject<() => void>("closeAccountDeletionModal"
 const openAddUserDescriptionModal = inject<() => void>("openAddUserDescriptionModal");
 const openAccountDeletionModal = inject<() => void>("openAccountDeletionModal");
 const openTroubleshootingMenu = inject<() => void>("openTroubleshootingMenu");
+const closeTroubleshootingMenu = inject<() => void>("closeTroubleshootingMenu");
 
 onMounted(() => {
     checkAuthorizationCode();
@@ -291,8 +292,8 @@ function authorize(provider: string) {
         if (userPlan.value.isTrial) {
             displayPopup?.(
                 "error",
-                "Failed to generate authorization URL",
-                "You can only link 1 email with a free trial"
+                i18n.global.t("settingsPage.accountPage.failedToGenerateAuthURL"),
+                i18n.global.t("settingsPage.accountPage.singleEmailTrialLinkLimit")
             );
             return;
         }
@@ -300,8 +301,8 @@ function authorize(provider: string) {
         if (!userPlan.value.isActive) {
             displayPopup?.(
                 "error",
-                "Failed to generate authorization URL",
-                "You cannot link an email with an inactive subscription"
+                i18n.global.t("settingsPage.accountPage.failedToGenerateAuthURL"),
+                i18n.global.t("settingsPage.accountPage.inactiveSubscriptionLinkError")
             );
             return;
         }
@@ -317,16 +318,20 @@ function authorize(provider: string) {
 }
 
 function checkAuthorizationCode() {
+    const regrantConsent = sessionStorage.getItem("regrantConsent");
     const urlParams = new URLSearchParams(window.location.search);
     const authorizationCode = urlParams.get("code");
 
     if (authorizationCode) {
-        clearInterval(intervalId);
-        linkEmail(authorizationCode);
+        if (regrantConsent === "true") {
+            linkEmail(authorizationCode, true);
+        } else {
+            linkEmail(authorizationCode);
+        }
     }
 }
 
-async function linkEmail(authorizationCode: string) {
+async function linkEmail(authorizationCode: string, regrantConsent?: boolean) {
     const result = await postData("user/social_api/link/", {
         code: authorizationCode,
         typeApi: sessionStorage.getItem("typeApi"),
@@ -337,16 +342,24 @@ async function linkEmail(authorizationCode: string) {
         displayPopup?.("error", i18n.global.t("settingsPage.accountPage.emailLinkingFailure"), result.error as string);
     } else {
         await fetchEmailLinked();
-        displayPopup?.(
-            "success",
-            i18n.global.t("constants.popUpConstants.successMessages.success"),
-            i18n.global.t("settingsPage.accountPage.emailLinkedSuccess")
-        );
+
+        if (regrantConsent) {
+            displayPopup?.(
+                "success",
+                i18n.global.t("constants.popUpConstants.successMessages.success"),
+                i18n.global.t("settingsPage.accountPage.connectionReestablishedSuccess")
+            );
+        } else {
+            displayPopup?.(
+                "success",
+                i18n.global.t("constants.popUpConstants.successMessages.success"),
+                i18n.global.t("settingsPage.accountPage.emailLinkedSuccess")
+            );
+        }
     }
 
     sessionStorage.clear();
-    const currentUrl = window.location.href;
-    const modifiedUrl = currentUrl.replace(/(\?)code=.*(&|$)/, "?").replace(/(\?)state=.*(&|$)/, "?");
+    const modifiedUrl = window.location.origin + window.location.pathname;
     window.history.replaceState({}, document.title, modifiedUrl);
 }
 
@@ -361,7 +374,11 @@ async function fetchUsername() {
     const result = await getData(`user/preferences/username/`);
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch username", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.failedToFetchUsername"),
+            result.error as string
+        );
         return;
     }
 

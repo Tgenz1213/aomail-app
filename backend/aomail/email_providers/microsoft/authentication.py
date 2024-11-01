@@ -4,10 +4,13 @@ Handles authentication processes and credential operations for Microsoft Graph A
 Endpoints:
 - ✅ generate_auth_url: Get authorization URL for the signup page.
 - ✅ auth_url_link_email: Get authorization URL for the settings page.
+- ✅ auth_url_regrant: Get authorization URL for regranting consent.
 """
 
+import json
 import logging
 import requests
+from datetime import datetime
 from collections import defaultdict
 from urllib.parse import urlencode
 from rest_framework.decorators import api_view
@@ -146,6 +149,96 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
 
     except Exception as e:
         LOGGER.error(f"Error generating Microsoft OAuth URL: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+def fetch_email_ids_since(access_token: str, start_date: datetime) -> list[str]:
+    """
+    Fetches email IDs from the user's inbox since the specified start date.
+
+    Args:
+        access_token (str): The access token for authenticating requests to the API.
+        start_date (datetime): The date from which to fetch email IDs.
+
+    Returns:
+        list[str]: A list of email IDs retrieved from the inbox, or an empty list
+                    if an error occurs.
+    """
+    headers = get_headers(access_token)
+    start_date_str = start_date.strftime("%Y-%m-%dT%H:%M:%S") + "Z"
+
+    try:
+        response = requests.get(
+            f"{GRAPH_URL}me/messages?$filter=receivedDateTime ge {start_date_str}",
+            headers=headers,
+        )
+
+        if response.status_code == 200:
+            messages = response.json().get("value", [])
+            email_ids = [message["id"] for message in messages]
+            return email_ids
+        else:
+            LOGGER.error(f"Error fetching email IDs: {response.text}")
+            return []
+
+    except Exception as e:
+        LOGGER.error(f"Exception while fetching email IDs: {str(e)}")
+        return []
+
+
+@api_view(["POST"])
+@subscription(ALLOWED_PLANS)
+def auth_url_regrant(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generates a Microsoft re-consent authorization URL for linking an email account.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the user's email.
+
+    Returns:
+        HttpResponseRedirect: Redirects the user to the generated authorization URL for re-consent.
+    """
+    try:
+        parameters: dict = json.loads(request.body)
+        email = parameters.get("email", "")
+
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(
+            f"Initiating Microsoft OAuth regrant flow from IP: {ip} for email: {email}"
+        )
+
+        if not email:
+            return Response(
+                {"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        params = {
+            "client_id": MICROSOFT_CONFIG["client_id"],
+            "response_type": "code",
+            "redirect_uri": REDIRECT_URI_LINK_EMAIL,
+            "response_mode": "query",
+            "scope": " ".join(MICROSOFT_SCOPES),
+            "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+            "prompt": "consent",
+            "login_hint": email,
+        }
+        authorization_url = (
+            f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
+        )
+
+        LOGGER.info(
+            f"Successfully redirected to Microsoft regrant authorization URL from IP: {ip} for email: {email}"
+        )
+        return Response(
+            {"authorizationUrl": authorization_url},
+            status=status.HTTP_200_OK,
+        )
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Microsoft OAuth regrant URL: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,

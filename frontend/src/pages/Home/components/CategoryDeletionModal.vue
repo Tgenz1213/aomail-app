@@ -90,7 +90,6 @@
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted } from "vue";
-import XMarkIcon from "@heroicons/vue/outline";
 
 const props = defineProps<{
     isOpen: boolean;

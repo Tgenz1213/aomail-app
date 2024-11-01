@@ -91,20 +91,20 @@
 </template>
 
 <script setup lang="ts">
-import { API_BASE_URL } from "@/global/const";
+import { API_BASE_URL, GOOGLE, MICROSOFT } from "@/global/const";
 import { inject } from "vue";
 
 const goStepSignUpSummary = inject<() => void>("goStepSignUpSummary");
 
 function authorizeGoogle(event: Event) {
     event.preventDefault();
-    sessionStorage.setItem("typeApi", "google");
+    sessionStorage.setItem("typeApi", GOOGLE);
     window.location.replace(`${API_BASE_URL}google/auth_url/`);
 }
 
 function authorizeMicrosoft(event: Event) {
     event.preventDefault();
-    sessionStorage.setItem("typeApi", "microsoft");
+    sessionStorage.setItem("typeApi", MICROSOFT);
     window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
 }
 </script>

@@ -41,20 +41,24 @@ def renew_gmail_subscriptions():
 
     for google_listener in google_listeners:
         social_api = google_listener.social_api
+
+        if not social_api:
+            continue
+
         user = social_api.user
         email = social_api.email
 
         subscribed = google_webhook.subscribe_to_email_notifications(user, email)
         if not subscribed:
             LOGGER.critical(
-                f"Failed to renew the subscription for user: {user}, email: {email}"
+                f"Failed to renew the subscription for user ID: {user.id}, SocialAPI ID: {social_api.id}"
             )
         else:
             google_listener.last_modified = today
             google_listener.save()
             nb_subrenew += 1
             LOGGER.info(
-                f"Successfully renewed the subscription for user: {user}, email: {email}"
+                f"Successfully renewed the subscription for user ID: {user.id}, SocialAPI ID: {social_api.id}"
             )
 
     elapsed_time = time.time() - start_time

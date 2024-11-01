@@ -36,8 +36,8 @@
       "read": "Read"
     },
     "categoryModalConstants": {
-      "modifyTheCategory": "Modify the category",
       "categoryDescription": "Brief description of the category",
+      "modifyTheCategory": "Modify the category",
       "categoryDescriptionExplanation": "This description will help Ao understand the category.",
       "categoryName": "Category Name",
       "addCategory": "Add a category",
@@ -62,7 +62,10 @@
       "spellingCorrectionRequest": "I have corrected the spelling, would you like anything else?",
       "processingErrorApology": "I apologize, there was a processing error.",
       "copywritingCheckRequest": "I have checked the copywriting, would you like anything else?",
-      "multipleEmailsFoundForSomeRecipients": "I found multiple emails for some recipients, select the emails that correspond."
+      "multipleEmailsFoundForSomeRecipients": "I found multiple emails for some recipients, select the emails that correspond.",
+      "pickSendingDateTime": "Pick a sending date and time",
+      "selectTimeAndDate": "Please select a date and time.",
+      "sendScheduledEmail": "Send scheduled email"
     },
     "popUpConstants": {
       "errorMessages": {
@@ -111,7 +114,8 @@
         "deleteCategorySuccess": "Your category has been deleted",
         "updateFilterSuccess": "Filter has been updated",
         "filterAddedSuccess": "Filter has been added",
-        "deleteFilterSuccess": "Your filter has been deleted"
+        "deleteFilterSuccess": "Your filter has been deleted",
+        "emailScheduledSuccessfully": "Your email has been scheduled and will be sent on time"
       }
     },
     "and": "and",
@@ -359,7 +363,6 @@
           "Automatic sorting",
           "Custom filtering",
           "Smart writing",
-          "Smart writing",
           "Advanced smart search",
           "Advanced features",
           "Sync all emails from inbox",
@@ -398,6 +401,10 @@
       "securelyLinkOutlookAccount": "Securely link my Outlook account with Oauth2.0",
       "securelyLinkICloudMailAccount": "Securely link my iCloud Mail account with Oauth2.0",
       "securelyLinkYahooMailAccount": "Securely link my Yahoo Mail account with Oauth2.0",
+      "failedToGenerateAuthURL": "Failed to generate authorization URL",
+      "inactiveSubscriptionLinkError": "You cannot link an email with an inactive subscription",
+      "singleEmailTrialLinkLimit": "You can only link 1 email with a free trial",
+      "failedToFetchUsername": "Failed to fetch username",
       "myAccountTitle": "My account",
       "troubleshooting": "Troubleshooting",
       "noLongerReceivingEmails": "Not receiving your emails anymore?",
@@ -413,7 +420,13 @@
       "linkANewEmailAddress": "Link a new email address",
       "link": "Link",
       "connectOutlook": "Connect Outlook",
-      "connectGoogle": "Connect Gmail"
+      "connectGoogle": "Connect Gmail",
+      "connectionReestablishedSuccess": "Connection reestablished successfully",
+      "notAllMissedEmailsProcessed": "Not all missed emails have been processed successfully.",
+      "processedOutOf": "processed out of",
+      "expected": "expected.",
+      "allMissedEmailsProcessed": "Your missed emails have all been processed.",
+      "singleMissedEmailProcessed": "Your missed email has been processed."
     },
     "dataPage": {
       "myData": "My data"

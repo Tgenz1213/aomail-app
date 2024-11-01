@@ -49,11 +49,11 @@
         <div class="flex-grow"></div>
         <span>{{ email.email }}</span>
         <div class="flex-grow"></div>
-        <div>
+        <div v-if="!isRegrant">
             <button
                 type="button"
                 class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
-                @click.stop="openUserDescriptionModal?.(email.email)"
+                @click.stop="openUpdateUserDescriptionModal?.(email.email)"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -103,11 +103,12 @@ import { EmailLinked } from "@/global/types";
 const isUnlinkEmailModalOpen = inject<Ref<boolean>>("isUnlinkEmailModalOpen", ref(false));
 const isUpdateUserDescriptionModalOpen = inject<Ref<boolean>>("isUpdateUserDescriptionModalOpen", ref(false));
 const openUnLinkModal = inject<(email: string) => void>("openUnLinkModal");
-const openUserDescriptionModal = inject<(email: string) => void>("openUserDescriptionModal");
+const openUpdateUserDescriptionModal = inject<(email: string) => void>("openUpdateUserDescriptionModal");
 const closeUnlinkEmailModal = inject<() => void>("closeUnlinkEmailModal");
 const closeUpdateUserDescriptionModal = inject<() => void>("closeUpdateUserDescriptionModal");
 
 defineProps<{
     email: EmailLinked;
+    isRegrant?: boolean;
 }>();
 </script>

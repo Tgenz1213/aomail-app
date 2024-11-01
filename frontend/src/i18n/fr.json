@@ -62,7 +62,10 @@
       "spellingCorrectionRequest": "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?",
       "processingErrorApology": "Je m'excuse, j'ai fait une erreur de traitement.",
       "copywritingCheckRequest": "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?",
-      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent"
+      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent",
+      "pickSendingDateTime": "Choisissez une date et une heure d'envoi",
+      "selectTimeAndDate": "Veuillez sélectionner une date et une heure, s'il vous plaît.",
+      "sendScheduledEmail": "Envoyer l'email programmé"
     },
     "popUpConstants": {
       "errorMessages": {
@@ -111,7 +114,8 @@
         "deleteCategorySuccess": "Votre catégorie a été supprimée",
         "updateFilterSuccess": "Le filtre a été mis à jour",
         "filterAddedSuccess": "Le filtre a été ajoutée",
-        "deleteFilterSuccess": "Le filtre a été supprimée"
+        "deleteFilterSuccess": "Le filtre a été supprimée",
+        "emailScheduledSuccessfully": "Votre email a été programmé et sera envoyé à temps."
       }
     },
     "and": "et",
@@ -337,7 +341,8 @@
           "Jusqu'à 1 email lié",
           "Tri automatique",
           "Filtrage personnalisé",
-          "Recherche API"
+          "Écriture intelligente",
+          "Recherche intelligente"
         ]
       },
       "premium": {
@@ -346,8 +351,9 @@
           "Emails illimités liés",
           "Tri automatique",
           "Filtrage personnalisé",
-          "Recherche intelligente et API",
-          "Personnalisation automatique des bordereaux Vinted"
+          "Écriture intelligente",
+          "Recherche intelligente avancée",
+          "Fonctionnalités avancées"
         ]
       },
       "entreprise": {
@@ -356,9 +362,11 @@
           "Emails illimités liés",
           "Tri automatique",
           "Filtrage personnalisé",
-          "Recherche intelligente et API",
-          "Synchronisation de tous les emails existants",
-          "Personnalisation avancée de la catégorisation des emails"
+          "Écriture intelligente",
+          "Recherche intelligente avancée",
+          "Fonctionnalités avancées",
+          "Synchronisation de tous les emails de la boîte de réception",
+          "Personnalisation avancée des fonctionnalités"
         ]
       }
     },
@@ -393,6 +401,10 @@
       "securelyLinkOutlookAccount": "Lier de manière sécurisée mon compte Outlook avec OAuth2.0",
       "securelyLinkICloudMailAccount": "Lier de manière sécurisée mon compte iCloud Mail avec OAuth2.0",
       "securelyLinkYahooMailAccount": "Lier de manière sécurisée mon compte Yahoo Mail avec OAuth2.0",
+      "failedToGenerateAuthURL": "Échec de la génération de l'URL d'autorisation",
+      "inactiveSubscriptionLinkError": "Vous ne pouvez pas lier un email avec un abonnement inactif",
+      "singleEmailTrialLinkLimit": "Vous ne pouvez lier qu'un seul email avec un essai gratuit",
+      "failedToFetchUsername": "Échec de la récupération du nom d'utilisateur",
       "myAccountTitle": "Mon compte",
       "troubleshooting": "Résolution de problèmes",
       "noLongerReceivingEmails": "Vous ne recevez plus vos e-mails ?",
@@ -408,7 +420,13 @@
       "linkANewEmailAddress": "Lier une nouvelle adresse e-mail",
       "link": "Lier",
       "connectOutlook": "Lier mon compte Outlook",
-      "connectGoogle": "Lier mon compte Google"
+      "connectGoogle": "Lier mon compte Google",
+      "connectionReestablishedSuccess": "Connexion rétablie avec succès",
+      "notAllMissedEmailsProcessed": "Tous les emails manqués n'ont pas été traités avec succès.",
+      "processedOutOf": "traités sur",
+      "expected": "attendus.",
+      "allMissedEmailsProcessed": "Tous vos emails manqués ont été traités.",
+      "singleMissedEmailProcessed": "Votre email manqué a été traité."
     },
     "dataPage": {
       "myData": "Mes données"

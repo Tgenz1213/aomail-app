@@ -83,6 +83,9 @@ def get_email(access_token: str) -> dict:
             return {"error": "Failed to get email from Microsoft API"}
 
     except Exception as e:
+        LOGGER.error(
+            f"Error retrieving user email from Microsoft API. Error: {str(e)}."
+        )
         return {"error": "Internal server error"}
 
 
@@ -198,7 +201,7 @@ def get_profile_image(request: HttpRequest) -> Response:
 
 def set_all_contacts(user: User, email: str):
     """
-    Stores all unique contacts from the latest 5,000 emails and contacts in the database.    
+    Stores all unique contacts from the latest 5,000 emails and contacts in the database.
 
     Args:
         user (User): User object representing the owner of the email account.

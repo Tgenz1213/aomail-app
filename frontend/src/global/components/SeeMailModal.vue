@@ -81,7 +81,7 @@
                                                     d="M4.5 12.75l6 6 9-13.5"
                                                 />
                                             </svg>
-                                            Lu
+                                            {{ $t("homePage.modals.seeEmailModal.read") }}
                                         </span>
                                         <span class="isolate inline-flex">
                                             <div class="group action-buttons">

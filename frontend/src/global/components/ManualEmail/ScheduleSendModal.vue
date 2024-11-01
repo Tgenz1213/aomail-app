@@ -17,7 +17,9 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">Pick a sending date and time</p>
+                        <p class="block font-semibold leading-6 text-gray-900">
+                            {{ $t("constants.sendEmailConstants.pickSendingDateTime") }}
+                        </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
@@ -35,7 +37,7 @@
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                             @click="scheduleSend"
                         >
-                            Send scheduled email
+                            {{ $t("constants.sendEmailConstants.sendScheduledEmail") }}
                         </button>
                     </div>
                 </div>
@@ -101,7 +103,7 @@ async function scheduleSend() {
     if (!AIContainer.value || !quill?.value) return;
 
     if (!selectedDate.value) {
-        errorMessage.value = "Select a time and date please";
+        errorMessage.value = i18n.global.t("constants.sendEmailConstants.selectTimeAndDate");
         return;
     }
     errorMessage.value = null;
@@ -124,7 +126,11 @@ async function scheduleSend() {
             result.error as string
         );
     } else {
-        displayPopup?.("success", "Email scheduled successfully!", "Your email will be sent on time");
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.success"),
+            i18n.global.t("constants.popUpConstants.successMessages.emailScheduledSuccessfully")
+        );
 
         subjectInput.value = "";
         quill.value.root.innerHTML = "";

@@ -18,7 +18,7 @@ import json
 import logging
 import threading
 import jwt
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlencode
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -856,7 +856,16 @@ def link_email(request: HttpRequest) -> Response:
     refresh_token_encrypted = security.encrypt_text(
         ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token
     )
+
+    regrant = False
     try:
+        regrant = True
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        social_api.refresh_token = refresh_token_encrypted
+        social_api.access_token = access_token
+        social_api.save()
+        LOGGER.info(f"Social API for user ID: {user.id} tokens updated successfully")
+    except SocialAPI.DoesNotExist:
         social_api = SocialAPI.objects.create(
             user=user,
             email=email,
@@ -882,6 +891,9 @@ def link_email(request: HttpRequest) -> Response:
                 target=profile_microsoft.set_all_contacts, args=(user, email)
             ).start()
     except Exception as e:
+        LOGGER.error(
+            f"Failed to save all contacts for Social API email: {social_api.email}. Error: {str(e)}"
+        )
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -896,10 +908,11 @@ def link_email(request: HttpRequest) -> Response:
         )
     else:
         LOGGER.error(
-            f"Failed to subscribe to listener for Social API: {social_api.email}. Error: {str(e)}"
+            f"Failed to subscribe to listener for Social API: {social_api.email}"
         )
-        social_api.delete()
-        LOGGER.info(f"Social API: {social_api.email} deleted successfully")
+        if not regrant:
+            social_api.delete()
+            LOGGER.info(f"Social API: {social_api.email} deleted successfully")
         return Response(
             {"error": "Could not subscribe to listener"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,

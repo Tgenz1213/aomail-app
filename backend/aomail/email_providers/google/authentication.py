@@ -4,9 +4,12 @@ Handles authentication processes and credential operations for Google API.
 Endpoints:
 - ✅ generate_auth_url: Get authorization URL for the signup page.
 - ✅ auth_url_link_email: Get authorization URL for the settings page.
+- ✅ auth_url_regrant: Get authorization URL for regranting consent.
 """
 
+import json
 import logging
+from datetime import datetime
 from django.http import HttpRequest, HttpResponseRedirect
 from rest_framework.response import Response
 from rest_framework import status
@@ -132,6 +135,93 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
 
     except Exception as e:
         LOGGER.error(f"Error generating Google OAuth URL: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+def fetch_email_ids_since(service, start_date: datetime) -> list[str]:
+    """
+    Fetches email IDs from the user's Gmail inbox since the specified start date.
+
+    Args:
+        service: The authenticated Gmail API service instance.
+        start_date (datetime): The date from which to fetch email IDs.
+
+    Returns:
+        list[str]: A list of email IDs retrieved from the inbox, or an empty list
+                    if an error occurs.
+    """
+    try:
+        results = (
+            service.users()
+            .messages()
+            .list(userId="me", q=f"after:{int(start_date.timestamp())}")
+            .execute()
+        )
+        messages = results.get("messages", [])
+        email_ids = [message["id"] for message in messages]
+
+        return email_ids
+
+    except Exception as e:
+        LOGGER.error(f"Error fetching email IDs: {str(e)}")
+        return []
+
+
+@api_view(["POST"])
+@subscription(ALLOWED_PLANS)
+def auth_url_regrant(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generates a connection URL for regranting consent to link an existing email account.
+
+    Args:
+        request (HttpRequest): The HTTP request object, expected to contain the user's email
+                               in JSON format within the request body.
+
+    Returns:
+        HttpResponseRedirect: Redirects the user to the generated Google re-consent
+                              authorization URL if email is provided, or an error response otherwise.
+    """
+    try:
+        parameters: dict = json.loads(request.body)
+        email = parameters.get("email", "")
+
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(
+            f"Initiating Google OAuth regrant flow from IP: {ip} for email: {email}"
+        )
+
+        if not email:
+            return Response(
+                {"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        flow = Flow.from_client_secrets_file(
+            GOOGLE_CREDS,
+            scopes=GOOGLE_SCOPES,
+            redirect_uri=REDIRECT_URI_LINK_EMAIL,
+        )
+
+        authorization_url, _ = flow.authorization_url(
+            access_type="offline",
+            include_granted_scopes="true",
+            prompt="consent",
+            login_hint=email,
+        )
+
+        LOGGER.info(
+            f"Redirected to Google regrant authorization URL for re-consent with login_hint for {email}"
+        )
+
+        return Response(
+            {"authorizationUrl": authorization_url},
+            status=status.HTTP_200_OK,
+        )
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Google OAuth regrant URL: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,

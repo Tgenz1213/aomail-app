@@ -188,7 +188,7 @@ provide("openAddUserDescriptionModal", openAddUserDescriptionModal);
 provide("closeAddUserDescriptionModal", closeAddUserDescriptionModal);
 provide("openAccountDeletionModal", openAccountDeletionModal);
 provide("closeAccountDeletionModal", closeAccountDeletionModal);
-provide("openUpdateUserDescriptionModal", openUserDescriptionModal);
+provide("openUpdateUserDescriptionModal", openUpdateUserDescriptionModal);
 provide("closeUpdateUserDescriptionModal", closeUpdateUserDescriptionModal);
 provide("openTroubleshootingMenu", openTroubleshootingMenu);
 provide("closeTroubleshootingMenu", closeTroubleshootingMenu);
@@ -229,6 +229,11 @@ function closeUpdateUserDescriptionModal() {
 }
 
 function checkStripePaymentStatus() {
+    const regrantConsent = sessionStorage.getItem("regrantConsent");
+
+    if (regrantConsent === "true") {
+        return;
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const stripePaymentSuccess = urlParams.get("stripe-payment-success");
     const subscriptionUpdated = urlParams.get("subscription-updated");
@@ -275,7 +280,7 @@ async function openUnLinkModal(email: string) {
     isUnlinkEmailModalOpen.value = true;
 }
 
-async function openUserDescriptionModal(email: string) {
+async function openUpdateUserDescriptionModal(email: string) {
     emailSelected.value = email;
 
     const result = await postData(`user/social_api/get_user_description/`, { email: email });

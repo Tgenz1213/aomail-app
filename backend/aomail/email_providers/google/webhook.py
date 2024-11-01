@@ -91,7 +91,7 @@ def receive_mail_notifications(request: HttpRequest) -> Response:
             threading.Thread(target=process_email).start()
 
         except SocialAPI.DoesNotExist:
-            LOGGER.error(f"SocialAPI entry not found for the email: {email}")
+            pass
 
         return Response({"status": "Notification received"}, status=status.HTTP_200_OK)
 

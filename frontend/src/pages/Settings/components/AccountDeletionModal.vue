@@ -70,7 +70,7 @@ import { i18n } from "@/global/preferences";
 import router from "@/router/router";
 import { inject } from "vue";
 import { deleteData } from "@/global/fetchData";
-import XMarkIcon from "@heroicons/vue/outline";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 defineProps<{
     isOpen: boolean;

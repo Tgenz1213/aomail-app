@@ -69,7 +69,7 @@
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { inject, Ref } from "vue";
-import XMarkIcon from "@heroicons/vue/outline";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 const emailSelected = inject<Ref<string>>("emailSelected");
 const fetchEmailLinked = inject<() => void>("fetchEmailLinked");

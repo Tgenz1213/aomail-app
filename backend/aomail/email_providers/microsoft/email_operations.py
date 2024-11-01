@@ -11,7 +11,6 @@ import base64
 import datetime
 import json
 import logging
-import os
 import threading
 import requests
 from django.http import HttpRequest
@@ -34,9 +33,7 @@ from aomail.email_providers.microsoft.authentication import (
 from aomail.utils import email_processing
 from aomail.constants import (
     ALLOWED_PLANS,
-    BASE_URL_MA,
     GRAPH_URL,
-    MEDIA_ROOT,
 )
 from aomail.models import Attachment, Email, SocialAPI
 
@@ -194,7 +191,7 @@ def send_schedule_email(request: HttpRequest) -> Response:
                 if response.status_code == 202:
                     threading.Thread(
                         target=email_processing.save_contacts,
-                        args=(user, email, all_recipients),
+                        args=(user, all_recipients),
                     ).start()
                     return Response(
                         {"message": "Email scheduled successfully!"},
@@ -306,7 +303,7 @@ def send_email(request: HttpRequest) -> Response:
                 if response.status_code == 202:
                     threading.Thread(
                         target=email_processing.save_contacts,
-                        args=(user, email, all_recipients),
+                        args=(user, all_recipients),
                     ).start()
                     return Response(
                         {"message": "Email sent successfully!"},

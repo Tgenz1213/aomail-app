@@ -24,7 +24,7 @@
                         {{ $t("homePage.uselessEmails") }}
                     </span>
                 </p>
-                <div :class="`hidden group-hover:block px-2 py-0.5 bg-gray-300 text-white text-sm shadow rounded-xl`">
+                <div :class="`hidden group-hover:block px-2 py-0.5 bg-gray-400 text-white text-sm shadow rounded-xl`">
                     <div class="flex gap-x-1 items-center">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { TrashIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
@@ -168,11 +168,13 @@ const nbrEmailsUseless = computed(() => {
 
 function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
-    /*
-    if (readEmailsInSelectedTopic() == 0) {
-        scrollToBottom();
-    } else {
-        scrollAlmostToBottom();
-    }*/
+    localStorage.setItem("showUseless", JSON.stringify(showEmailDescriptions.value));
 }
+
+onMounted(() => {
+    const storedShowUseless = localStorage.getItem("showUseless");
+    if (storedShowUseless) {
+        showEmailDescriptions.value = JSON.parse(storedShowUseless);
+    }
+});
 </script>

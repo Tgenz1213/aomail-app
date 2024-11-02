@@ -255,7 +255,7 @@ const synchronize = async () => {
     const nbProcessedEmails = result.data.nbProcessedEmails as number;
 
     if (nbMissedEmails.value !== nbProcessedEmails) {
-        const emailKey = nbProcessedEmails === 1 ? i18n.global.t("constants.email") : i18n.global.t("constants.emails");
+        const emailKey = nbProcessedEmails <= 1 ? i18n.global.t("constants.email") : i18n.global.t("constants.emails");
 
         warningMessage.value =
             i18n.global.t("settingsPage.accountPage.notAllMissedEmailsProcessed") +
@@ -263,6 +263,7 @@ const synchronize = async () => {
             `${nbProcessedEmails} ${emailKey} ${i18n.global.t("settingsPage.accountPage.processedOutOf")} ${
                 nbMissedEmails.value
             } ${i18n.global.t("settingsPage.accountPage.expected")}`;
+        nbMissedEmails.value = nbMissedEmails.value - nbProcessedEmails;
     } else {
         const successMessageKey =
             nbProcessedEmails === 1

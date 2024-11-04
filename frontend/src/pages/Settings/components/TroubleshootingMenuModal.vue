@@ -179,8 +179,6 @@ const emit = defineEmits<{
     (e: "closeModal"): void;
 }>();
 
-const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
 const showConsentInfo = ref(false);
 const selectedEmail = ref<EmailLinked | null>(null);

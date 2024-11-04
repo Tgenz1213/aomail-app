@@ -112,7 +112,7 @@ import { postData } from "@/global/fetchData";
 import { Email, EmailDetails, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { inject, ref, Ref } from "vue";
+import { inject, onMounted, onUnmounted, ref, Ref } from "vue";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -141,6 +141,21 @@ async function toggleFilters() {
 function handleFocusSearch() {
     isFocused.value = true;
 }
+
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && isFocused.value) {
+        event.preventDefault();
+        searchEmails();
+    }
+};
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("keydown", handleKeyDown);
+});
 
 async function searchEmails() {
     loading?.();

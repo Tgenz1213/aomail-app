@@ -59,6 +59,7 @@ import { getData } from "@/global/fetchData";
 import { inject, Ref, ref, onMounted } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { i18n } from "@/global/preferences";
+import { GOOGLE, MICROSOFT } from "@/global/const";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
@@ -93,7 +94,7 @@ async function linkNewEmail() {
 
     const currentTypeApi = sessionStorage.getItem("typeApi");
 
-    if (currentTypeApi === "google") {
+    if (currentTypeApi === GOOGLE) {
         const result = await getData("google/auth_url_link_email/");
 
         if (!result.success) {
@@ -109,7 +110,7 @@ async function linkNewEmail() {
             }
             window.location.replace(result.data.authorizationUrl);
         }
-    } else if (currentTypeApi === "microsoft") {
+    } else if (currentTypeApi === MICROSOFT) {
         const result = await getData("microsoft/auth_url_link_email/");
 
         if (!result.success) {

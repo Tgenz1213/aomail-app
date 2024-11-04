@@ -6,7 +6,7 @@
     />
     <div class="flex items-center justify-center w-full">
         <svg
-            v-if="email.typeApi === 'microsoft'"
+            v-if="email.typeApi === MICROSOFT"
             xmlns="http://www.w3.org/2000/svg"
             width="21"
             height="21"
@@ -18,7 +18,7 @@
             <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
         </svg>
         <svg
-            v-if="email.typeApi === 'google'"
+            v-if="email.typeApi === GOOGLE"
             class="-ml-0.5 h-5 w-5"
             aria-hidden="true"
             viewBox="0 0 24 24"
@@ -99,6 +99,7 @@ import { inject, Ref, ref } from "vue";
 import UnlinkEmailModal from "./UnlinkEmailModal.vue";
 import UpdateUserDescriptionModal from "./UpdateUserDescriptionModal.vue";
 import { EmailLinked } from "@/global/types";
+import { GOOGLE, MICROSOFT } from "@/global/const";
 
 const isUnlinkEmailModalOpen = inject<Ref<boolean>>("isUnlinkEmailModalOpen", ref(false));
 const isUpdateUserDescriptionModalOpen = inject<Ref<boolean>>("isUpdateUserDescriptionModalOpen", ref(false));

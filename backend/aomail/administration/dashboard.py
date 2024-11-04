@@ -21,13 +21,14 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
+from django.db.models import Count, Case, When
 from django.contrib.auth import authenticate
 from datetime import timedelta
 from aomail.controllers.statistics import compute_statistics
 from aomail.utils.security import admin_access_required
 from aomail.models import Email, SocialAPI, Statistics, Subscription
 from aomail.utils import security
-from aomail.constants import ALLOWED_PLANS
+from aomail.constants import ALLOWED_PLANS, GOOGLE, MICROSOFT
 
 
 LOGGER = logging.getLogger(__name__)
@@ -267,6 +268,7 @@ def search_user_info(request: HttpRequest) -> Response:
         subscription = Subscription.objects.get(user=user)
         trial_period = timedelta(days=30)
         statistics = Statistics.objects.get(user=user)
+        social_apis = SocialAPI.objects.filter(user=user)
 
         nb_tokens_input = statistics.nb_tokens_input
         nb_tokens_output = statistics.nb_tokens_output
@@ -279,8 +281,16 @@ def search_user_info(request: HttpRequest) -> Response:
         )
         return Response(
             {
+                "socialAPIs": {
+                    "linked": [
+                        {"typeApi": social_api.type_api, "email": social_api.email}
+                        for social_api in social_apis
+                    ],
+                    "count": social_apis.count(),
+                },
                 "emailsStats": computed_stats,
                 "plan": {
+                    "creationDate": subscription.created_at,
                     "name": subscription.plan,
                     "isTrial": subscription.is_trial,
                     "isActive": subscription.is_active,
@@ -352,10 +362,16 @@ def get_dashboard_data(request: HttpRequest) -> Response:
 
     try:
         email_count = Email.objects.count()
-        social_api_count = SocialAPI.objects.count()
-        total_user_count = User.objects.count()
-        superuser_count = User.objects.filter(is_superuser=True).count()
-        regular_user_count = total_user_count - superuser_count
+        social_api_counts = SocialAPI.objects.aggregate(
+            microsoft_count=Count(Case(When(type_api=MICROSOFT, then=1))),
+            google_count=Count(Case(When(type_api=GOOGLE, then=1))),
+            total=Count("id"),
+        )
+        user_counts = User.objects.aggregate(
+            superuser_count=Count(Case(When(is_superuser=True, then=1))),
+            total_count=Count("id"),
+        )
+        regular_user_count = user_counts["total_count"] - user_counts["superuser_count"]
 
         LOGGER.info(
             f"Dashboard data successfully retrieved by admin {admin.username} (ID: {admin.id}) from IP: {ip}"
@@ -363,9 +379,13 @@ def get_dashboard_data(request: HttpRequest) -> Response:
         return Response(
             {
                 "emailCount": email_count,
-                "socialApiCount": social_api_count,
+                "socialApiCount": {
+                    MICROSOFT: social_api_counts["microsoft_count"],
+                    GOOGLE: social_api_counts["google_count"],
+                    "total": social_api_counts["total"],
+                },
                 "userCount": regular_user_count,
-                "adminCount": superuser_count,
+                "adminCount": user_counts["superuser_count"],
             },
             status=status.HTTP_200_OK,
         )

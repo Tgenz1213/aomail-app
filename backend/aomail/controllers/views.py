@@ -255,7 +255,6 @@ def get_emails_linked(request: HttpRequest) -> Response:
             emails_linked.append(
                 {"email": social_api.email, "typeApi": social_api.type_api}
             )
-        emails_linked.extend([{"email": "social_api.email", "typeApi": "google"}, {"email": "test.email", "typeApi": "google"}])
         return Response(emails_linked, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Error retrieving linked emails: {str(e)}")

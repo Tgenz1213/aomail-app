@@ -53,7 +53,7 @@ def check_connectivity(request: HttpRequest) -> Response:
 
     subscription = Subscription.objects.get(user=user)
     start_date = subscription.created_at
-    email_ids = fetch_email_ids_since(services["gmail"], start_date)
+    email_ids = fetch_email_ids_since(services["gmail"], email, start_date)
 
     nb_missed_emails = 0
 
@@ -89,7 +89,7 @@ def synchronize(request: HttpRequest) -> Response:
 
     subscription = Subscription.objects.get(user=user)
     start_date = subscription.created_at
-    email_ids = fetch_email_ids_since(services["gmail"], start_date)
+    email_ids = fetch_email_ids_since(services["gmail"], email, start_date)
 
     social_api = SocialAPI.objects.get(user=user, email=email)
 

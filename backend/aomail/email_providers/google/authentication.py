@@ -141,7 +141,7 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         )
 
 
-def fetch_email_ids_since(service, start_date: datetime) -> list[str]:
+def fetch_email_ids_since(service, email: str, start_date: datetime) -> list[str]:
     """
     Fetches email IDs from the user's Gmail inbox since the specified start date.
 
@@ -157,7 +157,7 @@ def fetch_email_ids_since(service, start_date: datetime) -> list[str]:
         results = (
             service.users()
             .messages()
-            .list(userId="me", q=f"after:{int(start_date.timestamp())}")
+            .list(userId="me", q=f"after:{int(start_date.timestamp())} -from:{email}")
             .execute()
         )
         messages = results.get("messages", [])

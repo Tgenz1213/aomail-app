@@ -105,7 +105,7 @@
                 </ul>
             </nav>
             <div class="flex justify-center">
-                <p class="text-gray-900 font-semibold">v 1.0.0</p>
+                <p class="text-gray-900 font-semibold">{{ VERSION }}</p>
             </div>
         </div>
     </div>
@@ -127,6 +127,7 @@ import {
 import { NavigationPage } from "@/global/types";
 import logo from "@/assets/logo-aomail.png";
 import { i18n } from "@/global/preferences";
+import { VERSION } from "@/global/const";
 
 const sidebarOpen = ref(false);
 

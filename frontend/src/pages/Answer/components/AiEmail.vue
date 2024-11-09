@@ -46,6 +46,7 @@
 import { inject, Ref, ref } from "vue";
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
+import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
 import Quill from "quill";
 
 const textareaValue = ref("");

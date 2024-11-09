@@ -170,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, inject, onMounted } from "vue";
+import { ref, computed, watch, inject, onMounted, Ref } from "vue";
 import { i18n } from "@/global/preferences";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
@@ -205,6 +205,7 @@ const emit = defineEmits<{
     (e: "update:emailSenders", value: EmailSender[]): void;
 }>();
 
+const totalRules = inject<Ref<number>>("totalRules") || ref(0);
 const isOpen = ref(props.isOpen);
 const selectedPerson = ref<EmailSender | null>(props.sender);
 const query = ref("");
@@ -327,6 +328,7 @@ const createEmailSenderRule = async () => {
     if (!ruleResult.success) {
         errorMessage.value = ruleResult.error as string;
     } else {
+        totalRules.value += 1;
         displayPopup?.(
             "success",
             i18n.global.t("constants.popUpConstants.successMessages.success"),

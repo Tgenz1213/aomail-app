@@ -47,7 +47,7 @@
                     {{ $t("rulesPage.priorityRule.useless") }}
                 </span>
             </div>
-            <div v-if="rule.mailStop" class="flex gap-1 mt-2">
+            <div v-if="rule.block" class="flex gap-1 mt-2">
                 <div class="flex space-x-1 items-center">
                     <ShieldCheckIcon class="w-4 h-4" />
                     <p class="font-semibold text-sm">

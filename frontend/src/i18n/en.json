@@ -437,6 +437,13 @@
     }
   },
   "rulesPage": {
+    "advancedFilters": "Advanced Filters",
+    "blockSender": "Block Sender",
+    "categoryName": "Category Name",
+    "priority": "Priority",
+    "selectPriority": "Select priority associated with the rule",
+    "senderName": "Sender Name",
+    "senderEmail": "Sender Email",
     "search": "Search...",
     "assistantRules": "Assistant rules",
     "contactField": "Contact",
@@ -468,7 +475,11 @@
         "ruleAlreadyExistsForSender": "A rule already exists for this sender",
         "ruleIdRequiredForUpdate": "Rule ID is required for updating",
         "ruleUpdateError": "Error updating the rule",
-        "ruleDeletionError": "Error deleting the rule"
+        "ruleDeletionError": "Error deleting the rule",
+        "failedToFetchRules": "Failed to fetch rules",
+        "failedToFetchContacts": "Failed to fetch contacts",
+        "failedToFetchCategories": "Failed to fetch categories",
+        "failedToFetchRuleById": "Failed to fetch rule by id"
       },
       "successMessages": {
         "ruleCreatedSuccessfully": "Your rule has been created",

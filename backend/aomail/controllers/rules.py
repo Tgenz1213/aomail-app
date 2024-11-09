@@ -64,38 +64,6 @@ def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:
 
 @api_view(["GET"])
 @subscription(ALLOWED_PLANS)
-def get_user_rules(request: HttpRequest) -> Response:
-    """
-    Retrieves rules associated with the authenticated user.
-
-    Args:
-        request (HttpRequest): HTTP request object containing the authenticated user.
-
-    Returns:
-        Response: A JSON response containing a list of rules owned by the user.
-    """
-    user_rules = Rule.objects.filter(user=request.user)
-    rules_data = []
-
-    for rule in user_rules:
-        rule_serializer = RuleSerializer(rule)
-        rule_data = rule_serializer.data
-
-        category_name = rule.category.name if rule.category else None
-        sender_name = rule.sender.name if rule.sender else None
-        sender_email = rule.sender.email if rule.sender else None
-
-        rule_data["categoryName"] = category_name
-        rule_data["senderName"] = sender_name
-        rule_data["senderEmail"] = sender_email
-
-        rules_data.append(rule_data)
-
-    return Response(rules_data, status=status.HTTP_200_OK)
-
-
-@api_view(["GET"])
-@subscription(ALLOWED_PLANS)
 def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     """
     Retrieves details of a specific rule owned by the authenticated user.

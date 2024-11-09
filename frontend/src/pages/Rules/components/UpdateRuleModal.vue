@@ -193,7 +193,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, inject } from "vue";
+import { ref, computed, onMounted, watch, inject, Ref } from "vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
@@ -241,6 +241,7 @@ const query = ref("");
 const errorMessage = ref("");
 const currentSelectedPersonUsername = ref("");
 const selectedPerson = ref<EmailSender | null>(null);
+const totalRules = inject<Ref<number>>("totalRules") || ref(0);
 const formData = ref<FormData>({
     category: "",
     priority: "",
@@ -275,15 +276,15 @@ watch(
     (newVal) => {
         if (newVal) {
             formData.value = {
-                id: newVal.id,
+                id: newVal.id.toString(),
                 category: newVal.category || "",
-                priority: newVal.priority,
-                block: newVal.mailStop,
+                priority: newVal?.priority || "",
+                block: newVal.block || false,
                 infoAI: "",
                 errorMessage: "",
             };
             selectedPerson.value = {
-                username: newVal.username,
+                username: newVal.username || "",
                 email: newVal.email,
             };
         }
@@ -331,9 +332,6 @@ function handleBlur(event: FocusEvent) {
         };
         return;
     }
-    // else if (filteredPeople.value.length > 0) {
-    //     return;
-    // }
 
     if (inputValue && emailFormat.test(inputValue)) {
         selectedPerson.value = {
@@ -362,6 +360,7 @@ async function deleteRule() {
         return;
     }
 
+    totalRules.value -= 1;
     selectedPerson.value = null;
     displayPopup?.(
         "success",

@@ -10,7 +10,7 @@ from aomail.email_providers.microsoft import webhook as webhook_microsoft
 from aomail.controllers import artificial_intelligence as ai
 from aomail.controllers import authentication as auth
 from aomail.controllers import preferences as prefs
-from aomail.controllers import categories, filters, rules, emails, search_emails
+from aomail.controllers import categories, filters, rules, emails, search_emails, search_rules
 from aomail.controllers import statistics
 from aomail.controllers import search_labels
 from aomail.controllers import labels
@@ -46,7 +46,8 @@ urlpatterns = [
     path('update_filter/', filters.update_filter, name='update_filter'),
     path('delete_filter/', filters.delete_filter, name='delete_filter'),
     #----------------------- RULES -----------------------#
-    path('user/rules/', rules.get_user_rules, name='get_user_rules'),
+    path('user/rules_ids/', search_rules.get_user_rule_ids, name='get_user_rule_ids'),
+    path('user/get_rules_data/', search_rules.get_rules_data, name='get_rules_data'),
     path('user/rules/<int:id_rule>/', rules.get_user_rule_by_id, name='get_user_rule_by_id'),
     path('user/delete_rules/<int:id_rule>/', rules.delete_user_rule_by_id, name='delete_user_rule_by_id'),
     path('user/create_rule/', rules.create_user_rule, name='create_user_rule'),

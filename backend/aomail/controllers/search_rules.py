@@ -15,7 +15,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.constants import ALLOWED_PLANS
-from aomail.models import Category, Label, Rule, Sender
+from aomail.models import Category, Rule, Sender
 from aomail.utils.security import subscription
 from django.contrib.auth.models import User
 from aomail.email_providers.utils import camel_to_snake
@@ -63,10 +63,11 @@ def get_rules_data(request: HttpRequest) -> Response:
 
             rule_data = {
                 "id": rule.id,
+                "priority": rule.priority,
                 "categoryId": category_id,
-                "categoryName": category_name,
-                "senderName": sender_name,
-                "senderEmail": sender_email,
+                "category": category_name,
+                "username": sender_name,
+                "email": sender_email,
                 "block": rule.block,
                 "infoAI": rule.info_AI,
             }
@@ -98,7 +99,7 @@ def get_rules_data(request: HttpRequest) -> Response:
         )
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @subscription(ALLOWED_PLANS)
 def get_user_rule_ids(request: HttpRequest) -> Response:
     """
@@ -123,31 +124,44 @@ def get_user_rule_ids(request: HttpRequest) -> Response:
     Returns:
         Response: JSON response with the following structure:
             {
-                "count": int,  # Total number of labels matching the filters.
-                "ids": list[int],  # List of label IDs matching the filters.
-                "total": int  # Total number of labels associated with the user.
+                "count": int,  # Total number of rules matching the filters.
+                "ids": list[int],  # List of rule IDs matching the filters.
+                "total": int  # Total number of rules associated with the user.
             }
     """
-    user = request.user
-    valid_data = validate_and_parse_parameters(request)
-    parameters: dict = valid_data["parameters"]
-    sort = valid_data["sort"]
-    order = valid_data["order"]
+    try:
+        user = request.user
+        valid_data = validate_and_parse_parameters(request)
+        parameters: dict = valid_data["parameters"]
+        sort = valid_data["sort"]
+        order = valid_data["order"]
 
-    filters = construct_filters(user, parameters)
-    queryset = get_sorted_queryset(filters, sort, order, parameters.get("advanced"))
+        filters = construct_filters(user, parameters)
+        queryset = get_sorted_queryset(
+            filters,
+            sort,
+            order,
+            parameters.get("search", ""),
+            parameters.get("advanced"),
+        )
 
-    total = Rule.objects.filter(user=user).count()
-    count, ids = format_rules_data(queryset)
+        total = Rule.objects.filter(user=user).count()
+        count, ids = format_rules_data(queryset)
 
-    return Response(
-        {
-            "count": count,
-            "ids": ids,
-            "total": total,
-        },
-        status=status.HTTP_200_OK,
-    )
+        return Response(
+            {
+                "count": count,
+                "ids": ids,
+                "total": total,
+            },
+            status=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        LOGGER.error(f"An unexpected error occurred: {str(e)}")
+        return Response(
+            {"error": "Internal Server Error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def validate_and_parse_parameters(request: HttpRequest) -> dict:
@@ -183,14 +197,13 @@ def construct_filters(user: User, parameters: dict) -> dict:
     filters = {"user": user}
 
     if parameters.get("advanced"):
-        # This part is working
         if "categoryName" in parameters:
             category_obj = Category.objects.get(
                 name=parameters["categoryName"], user=user
             )
             filters["category"] = category_obj
         if "priority" in parameters:
-            filters["item_name__icontains"] = parameters["priority"]
+            filters["priority__icontains"] = parameters["priority"]
         if "senderEmail" in parameters:
             sender_obj = Sender.objects.get(email=parameters["senderEmail"], user=user)
             filters["sender"] = sender_obj
@@ -200,64 +213,64 @@ def construct_filters(user: User, parameters: dict) -> dict:
         if "block" in parameters:
             filters["block"] = parameters["block"]
 
-    else:
-        search = parameters.get("search", "")
-        if search:
-            # how to make a search query with OR
-            filters["senderName__icontains"] = search
-            filters["senderEmail__icontains"] = search
-            filters["priority__icontains"] = search
-            filters["categoryName__icontains"] = search
-
     return filters
 
 
 def get_sorted_queryset(
-    filters: dict, sort: str, order: str, advanced: bool | None
-) -> BaseManager[Label]:
+    filters: dict, sort: str, order: str, search: str, advanced: bool | None
+) -> BaseManager[Rule]:
     """
-    TODO: update doc with rules params
     Retrieves and sorts the queryset based on provided filters and sort order.
 
     Args:
         filters (dict): A dictionary containing the filter parameters for the queryset.
-        sort (str): Sorting method (platform, item_name, carrier, postage_deadline).
+        sort (str): Sorting method (e.g., categoryName (default), senderEmail, priority, senderName).
         order (str): Sorting order ("asc" for ascending, "desc" for descending). Default is "asc".
+        search (str): Search query for a general search without filters.
         advanced (bool): True for an AND query, default is an OR query.
 
     Returns:
-        BaseManager[QuerySet]: A Django BaseManager for the Label model's QuerySet.
+        BaseManager[QuerySet]: A Django BaseManager for the Rule model's QuerySet.
     """
+    sort_maping = {
+        "category_name": "category__name",
+        "sender_email": "sender__email",
+        "sender_name": "sender__name",
+        "priority": "priority",
+    }
     if advanced:
         queryset = Rule.objects.filter(**filters)
     else:
-        query = Q()
-        for key, value in filters.items():
-            if key != "user":
-                query |= Q(**{key: value})
-
-        queryset = Rule.objects.filter(query, user=filters["user"])
+        query = (
+            Q(category__name__icontains=search)
+            | Q(sender__email__icontains=search)
+            | Q(sender__name__icontains=search)
+            | Q(priority__icontains=search)
+        )
+        queryset = Rule.objects.filter(
+            query,
+            user=filters["user"],
+        )
 
     if order == "asc":
-        queryset = queryset.order_by(F(sort).asc())
+        queryset = queryset.order_by(F(sort_maping[sort]).asc())
     else:
-        queryset = queryset.order_by(F(sort).desc())
+        queryset = queryset.order_by(F(sort_maping[sort]).desc())
 
     return queryset
 
 
-def format_rules_data(queryset: BaseManager[Label]) -> tuple:
+def format_rules_data(queryset: BaseManager[Rule]) -> tuple:
     """
-    TODO: update doc with rules params
-    Formats label data from the provided queryset and collects label IDs.
+    Formats rule data from the provided queryset and collects rule IDs.
 
     Args:
-        queryset (BaseManager): A Django BaseManager containing Label objects.
+        queryset (BaseManager): A Django BaseManager containing Rule objects.
 
     Returns:
         tuple: A tuple containing:
-            label_count (int): Total number of labels in the queryset.
-            label_ids (list): List of label IDs from the queryset.
+            rule_count (int): Total number of rules in the queryset.
+            rule_ids (list): List of rule IDs from the queryset.
     """
     count = queryset.count()
     ids = list(queryset.values_list("id", flat=True))

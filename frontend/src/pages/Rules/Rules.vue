@@ -19,23 +19,26 @@
                         >
                             <h1 class="font-poppins font-medium">
                                 {{ $t("rulesPage.assistantRules") }}
+                                <span v-if="totalRules !== null">
+                                    {{ totalRules }}
+                                </span>
                             </h1>
                         </div>
-                        <SearchBar @input="updateSearchQuery"></SearchBar>
+                        <SearchBar @fetchRules="fetchRules" />
                     </div>
                     <div
                         v-if="rules.length > 0"
-                        class="flex-grow overflow-y-auto"
+                        class="flex-grow overflow-y-auto custom-scrollbar"
                         style="margin-right: 2px; margin-bottom: 120px"
                     >
                         <div class="p-6">
                             <ul
-                                v-if="filteredRules.length > 0"
+                                v-if="rules.length > 0"
                                 category="list"
                                 class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
                             >
                                 <li
-                                    v-for="rule in filteredRules"
+                                    v-for="rule in rules"
                                     :key="rule.email"
                                     class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative"
                                 >
@@ -91,7 +94,7 @@
                                 />
                             </svg>
                             <span class="mt-2 block text-sm font-semibold text-gray-900">
-                                {{ $t("rulesPage.assistantRules") }}
+                                {{ $t("rulesPage.createRule") }}
                             </span>
                         </div>
                     </div>
@@ -118,9 +121,9 @@
 </template>
 
 <script lang="ts" setup>
-import { getData } from "@/global/fetchData";
+import { getData, postData } from "@/global/fetchData";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { ref, onMounted, computed, provide } from "vue";
+import { ref, onMounted, provide, watch, onUnmounted } from "vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewRuleModal from "./components/NewRuleModal.vue";
 import UpdateRuleModal from "./components/UpdateRuleModal.vue";
@@ -128,134 +131,39 @@ import Rule from "./components/Rule.vue";
 import SearchBar from "./components/SearchBar.vue";
 import { EmailSender } from "@/global/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
+import { FilterPayload, RuleData } from "./utils/types";
+import { i18n } from "@/global/preferences";
 
 const showModal = ref(false);
 const showUpdateModal = ref(false);
-const rules = ref<any[]>([]);
+const rules = ref<RuleData[]>([]);
+const ruleIds = ref<number[]>([]);
 const categories = ref<any[]>([]);
 const emailSenders = ref<any[]>([]);
 const senderSelected = ref<EmailSender | null>(null);
 const ruleSelected = ref<any>(null);
-const searchQuery = ref("");
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
+const isLoading = ref(false);
+const currentPage = ref(1);
+const rulesPerPage = 100;
+const totalRules = ref<number | null>(null);
 
-provide("displayPopup", displayPopup);
+const filters = ref<FilterPayload>({ advanced: false });
+const block = ref<boolean | null>(null);
+const categoryName = ref("");
+const priority = ref("");
+const senderName = ref("");
+const senderEmail = ref("");
+const searchInput = ref("");
 
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
+const debounceTimer = ref<number | undefined>(undefined);
 
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
-}
-
-const filteredRules = computed(() => {
-    if (!searchQuery.value) return rules.value;
-    return rules.value.filter(
-        (rule) =>
-            rule.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            rule.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            (rule.category && rule.category.toLowerCase().includes(searchQuery.value.toLowerCase()))
-    );
-});
-
-function handleKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key === "k") {
-        (document.getElementById("search-field") as HTMLInputElement).focus();
-        event.preventDefault();
-    }
-}
-
-function updateSearchQuery(event: Event) {
-    searchQuery.value = (event.target as HTMLInputElement).value;
-}
-
-function updateModalStatus(status: boolean) {
-    showModal.value = status;
-}
-
-function updateModalUpdateStatus(status: boolean) {
-    showUpdateModal.value = status;
-}
-
-function handleEditRule(rule: any) {
-    ruleSelected.value = rule;
-    showUpdateModal.value = true;
-}
-
-async function fetchRules() {
-    const result = await getData("user/rules/");
-
-    if (!result.success) {
-        displayPopup("error", "Failed to fetch rules", result.error as string);
-        return;
-    }
-
-    rules.value = result.data.map((rule: any) => ({
-        id: rule.id,
-        name: rule.senderName,
-        email: rule.senderEmail,
-        category: rule.categoryName,
-        priority: rule.priority,
-        mailStop: rule.block,
-    }));
-}
-
-async function fetchRuleById(idRule: string) {
-    const result = await getData(`user/rules/${idRule}/`);
-
-    if (!result.success) {
-        displayPopup("error", "Failed to fetch rule by id", result.error as string);
-        return;
-    }
-
-    ruleSelected.value = {
-        id: result.data.id,
-        name: result.data.senderName,
-        email: result.data.senderEmail,
-        category: result.data.categoryName,
-        priority: result.data.priority,
-        mailStop: result.data.block,
-    };
-}
-
-async function fetchCategories() {
-    const result = await getData("user/categories/");
-    if (!result.success) {
-        displayPopup("error", "Failed to fetch categories", result.error as string);
-        return;
-    }
-
-    categories.value = result.data;
-}
-
-async function fetchEmailSenders() {
-    const result = await getData("user/contacts/");
-
-    if (!result.success) {
-        displayPopup("error", "Failed to fetch contacts", result.error as string);
-        return;
-    }
-
-    emailSenders.value = result.data;
-}
-
-onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown);
-
-    fetchRules();
+onMounted(async () => {
+    await fetchRules();
     fetchEmailSenders();
     fetchCategories();
 
@@ -279,5 +187,232 @@ onMounted(() => {
         const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
         window.history.replaceState({}, document.title, newUrl);
     }
+
+    document.addEventListener("keydown", handleKeyDown);
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        container.addEventListener("scroll", handleScroll);
+    }
 });
+
+onUnmounted(() => {
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        container.removeEventListener("scroll", handleScroll);
+    }
+});
+
+watch(searchInput, (newValue) => {
+    clearTimeout(debounceTimer.value);
+
+    if (newValue.trim() !== "" && !filters.value.advanced) {
+        // Set up a timer to call fetchRules after 900ms of inactivity
+        debounceTimer.value = setTimeout(() => {
+            fetchRules();
+        }, 900);
+    }
+});
+
+provide("totalRules", totalRules);
+provide("block", block);
+provide("categoryName", categoryName);
+provide("priority", priority);
+provide("senderName", senderName);
+provide("senderEmail", senderEmail);
+provide("searchInput", searchInput);
+provide("displayPopup", displayPopup);
+provide("fetchRules", fetchRules);
+
+function displayPopup(type: "success" | "error", title: string, message: string) {
+    if (type === "error") {
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    } else {
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    }
+    timerId.value = setTimeout(dismissPopup, 4000);
+}
+
+function dismissPopup() {
+    showNotification.value = false;
+    if (timerId.value !== null) {
+        clearTimeout(timerId.value);
+    }
+}
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === "k") {
+        (document.getElementById("search-field") as HTMLInputElement).focus();
+        event.preventDefault();
+    }
+}
+
+function updateModalStatus(status: boolean) {
+    showModal.value = status;
+}
+
+function updateModalUpdateStatus(status: boolean) {
+    showUpdateModal.value = status;
+}
+
+function handleEditRule(rule: any) {
+    ruleSelected.value = rule;
+    showUpdateModal.value = true;
+}
+
+async function fetchRules() {
+    if (
+        block.value !== null ||
+        categoryName.value.trim() !== "" ||
+        priority.value.trim() !== "" ||
+        senderName.value.trim() !== "" ||
+        senderEmail.value.trim() !== ""
+    ) {
+        filters.value = {
+            advanced: true,
+            ...(block.value !== null && { block: block.value }),
+            ...(categoryName.value && { categoryName: categoryName.value }),
+            ...(priority.value && { priority: priority.value }),
+            ...(senderName.value && { senderName: senderName.value }),
+            ...(senderEmail.value && { senderEmail: senderEmail.value }),
+        };
+    } else {
+        filters.value = {
+            search: searchInput.value.trim(),
+        };
+    }
+
+    let result = await postData("user/rules_ids/", filters.value);
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchRules"),
+            result.error as string
+        );
+        return;
+    }
+
+    ruleIds.value = result.data.ids;
+    totalRules.value = result.data.count;
+
+    result = await postData("user/get_rules_data/", { ids: result.data.ids.slice(0, 100) });
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchRules"),
+            result.error as string
+        );
+        return;
+    }
+
+    rules.value = result.data.rulesData.map((rule: RuleData) => ({
+        id: rule.id,
+        name: rule.username,
+        email: rule.email,
+        category: rule.category,
+        priority: rule.priority,
+        block: rule.block,
+    }));
+}
+
+const handleScroll = () => {
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const threshold = 250;
+        if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
+            loadMoreRules();
+        }
+    }
+};
+
+const loadMoreRules = async () => {
+    if (isLoading.value) return;
+    isLoading.value = true;
+
+    const startIndex = (currentPage.value - 1) * rulesPerPage;
+    const endIndex = startIndex + rulesPerPage;
+    const idsToFetch = ruleIds.value.slice(startIndex, endIndex);
+
+    if (idsToFetch.length > 0) {
+        const result = await postData("user/get_rules_data/", { ids: idsToFetch });
+
+        if (!result.success) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchRules"),
+                result.error as string
+            );
+            return;
+        }
+
+        rules.value = [
+            ...rules.value,
+            result.data.rulesData.map((rule: RuleData) => ({
+                id: rule.id,
+                name: rule.username,
+                email: rule.email,
+                category: rule.category,
+                priority: rule.priority,
+                block: rule.block,
+            })),
+        ];
+
+        currentPage.value++;
+    }
+
+    isLoading.value = false;
+};
+
+async function fetchRuleById(idRule: string) {
+    const result = await getData(`user/rules/${idRule}/`);
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchRuleById"),
+            result.error as string
+        );
+        return;
+    }
+
+    ruleSelected.value = {
+        id: result.data.id,
+        name: result.data.senderName,
+        email: result.data.senderEmail,
+        category: result.data.categoryName,
+        priority: result.data.priority,
+        mailStop: result.data.block,
+    };
+}
+
+async function fetchCategories() {
+    const result = await getData("user/categories/");
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchCategories"),
+            result.error as string
+        );
+        return;
+    }
+
+    categories.value = result.data;
+}
+
+async function fetchEmailSenders() {
+    const result = await getData("user/contacts/");
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchContacts"),
+            result.error as string
+        );
+        return;
+    }
+
+    emailSenders.value = result.data;
+}
 </script>

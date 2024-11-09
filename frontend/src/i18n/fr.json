@@ -437,8 +437,15 @@
     }
   },
   "rulesPage": {
+    "advancedFilters": "Filtres avancés",
+    "blockSender": "Bloquer l'expéditeur",
+    "categoryName": "Nom de la catégorie",
+    "priority": "Priorité",
+    "selectPriority": "Sélectionnez la priorité associée à la règle",
+    "senderName": "Nom de l'expéditeur",
+    "senderEmail": "Email de l'expéditeur",
     "search": "Recherche...",
-    "assistantRules": "Règles de Ao",
+    "assistantRules": "Règles de l'assistant",
     "contactField": "Contact",
     "categoryField": "Catégorie",
     "priorityField": "Priorité",
@@ -468,7 +475,11 @@
         "ruleAlreadyExistsForSender": "Une règle existe déjà pour cet expéditeur",
         "ruleIdRequiredForUpdate": "L'identifiant de règle est requis pour la mise à jour.",
         "ruleUpdateError": "Erreur lors de la mise à jour de la règle",
-        "ruleDeletionError": "Erreur lors de la suppression"
+        "ruleDeletionError": "Erreur lors de la suppression",
+        "failedToFetchRules": "Échec de la récupération des règles",
+        "failedToFetchContacts": "Échec du chargement des contacts",
+        "failedToFetchCategories": "Échec du chargement des catégories",
+        "failedToFetchRuleById": "Échec du chargement de la règle par identifiant"
       },
       "successMessages": {
         "ruleCreatedSuccessfully": "Votre règle a été créée",

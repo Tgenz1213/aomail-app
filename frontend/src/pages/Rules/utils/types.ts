@@ -1,8 +1,22 @@
 export interface RuleData {
-    id: string;
-    username: string;
-    email: string;
+    id: number;
+    priority?: string;
+    categoryId?: number;
     category?: string;
-    priority: string;
-    mailStop: boolean;
+    username?: string;
+    email: string;
+    block?: boolean;
+    infoAI?: string;
+}
+
+export interface FilterPayload {
+    advanced?: boolean;
+    search?: string;
+    sort?: string;
+    order?: string;
+    block?: boolean;
+    categoryName?: string;
+    priority?: string;
+    senderName?: string;
+    senderEmail?: string;
 }

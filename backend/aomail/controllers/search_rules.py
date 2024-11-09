@@ -198,18 +198,21 @@ def construct_filters(user: User, parameters: dict) -> dict:
 
     if parameters.get("advanced"):
         if "categoryName" in parameters:
-            category_obj = Category.objects.get(
+            category_obj = Category.objects.filter(
                 name=parameters["categoryName"], user=user
             )
-            filters["category"] = category_obj
+            if category_obj:
+                filters["category"] = category_obj.first()
         if "priority" in parameters:
             filters["priority__icontains"] = parameters["priority"]
         if "senderEmail" in parameters:
-            sender_obj = Sender.objects.get(email=parameters["senderEmail"], user=user)
-            filters["sender"] = sender_obj
+            sender_obj = Sender.objects.filter(email=parameters["senderEmail"])
+            if sender_obj:
+                filters["sender"] = sender_obj.first()
         if "senderName" in parameters:
-            sender_obj = Sender.objects.get(name=parameters["senderName"], user=user)
-            filters["sender"] = sender_obj
+            sender_obj = Sender.objects.filter(name=parameters["senderName"])
+            if sender_obj:
+                filters["sender"] = sender_obj.first()
         if "block" in parameters:
             filters["block"] = parameters["block"]
 

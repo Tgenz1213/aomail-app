@@ -86,7 +86,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
             access_token = auth_microsoft.refresh_access_token(
                 auth_microsoft.get_social_api(user, email_user)
             )
-            subject, _, decoded_data, cc, bcc, _, date, _ = (
+            subject, _, decoded_data, cc, bcc, _, date = (
                 email_operations_microsoft.get_mail(access_token, None, mail_id)
             )
 

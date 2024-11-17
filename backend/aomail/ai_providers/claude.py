@@ -402,6 +402,11 @@ def categorize_and_summarize_email(
     Relevance Categories:
     {relevance_list}
 
+    Follow those rules :
+    An email is "important" if it's strictly work-related AND either urgent or requires prompt business action.
+    An email is "informative" if it's strictly work-related AND contains company updates or non-urgent team info.
+    An email is "useless" it's promotional OR newsletter content (like TV shows, marketing emails, subscriptions).
+    
     Complete the following tasks in same language used in the email:
     - Categorize the email according to the user description (if provided) and given categories.
     - Summarize the email without adding any greetings.

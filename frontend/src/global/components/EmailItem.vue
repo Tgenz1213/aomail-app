@@ -634,11 +634,18 @@ async function openAnswer() {
         return;
     }
 
+    const result_mail_content = await postData(`user/get_email_content/`, { id: props.email.id });
+    if (!result_mail_content.success) {
+        displayPopup?.("error", i18n.global.t("constants.popUpConstants.openReplyPageFailure"), result.error as string);
+        return;
+    }
+
     sessionStorage.setItem("subject", JSON.stringify(result.data.subject));
     sessionStorage.setItem("cc", result.data.cc);
     sessionStorage.setItem("bcc", result.data.bcc);
     sessionStorage.setItem("decodedData", JSON.stringify(result.data.decodedData));
     sessionStorage.setItem("emailUser", JSON.stringify(result.data.emailUser));
+    sessionStorage.setItem("htmlContent", result_mail_content.data.content);
     sessionStorage.setItem("senderEmail", JSON.stringify(localEmail.value.sender.email));
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
     sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));

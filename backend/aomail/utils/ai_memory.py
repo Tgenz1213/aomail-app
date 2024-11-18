@@ -5,7 +5,7 @@ Handles conversations with prompt engineering for user/AI interaction.
 import json
 from django.contrib.auth.models import User
 from langchain_community.chat_message_histories import ChatMessageHistory
-from aomail.ai_providers import claude
+from aomail.ai_providers import gemini
 
 
 class EmailReplyConversation:
@@ -77,7 +77,7 @@ class EmailReplyConversation:
         ---
         The answer must include all new changes and match the same HTML format.
         """
-        response = claude.get_prompt_response(template)
+        response = gemini.get_prompt_response(template)
         body = response.content[0].text.strip()
 
         self.update_history(user_input, body)
@@ -165,7 +165,7 @@ class GenerateEmailConversation:
         ---
         Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
         """
-        response = claude.get_prompt_response(template)
+        response = gemini.get_prompt_response(template)
         clear_text = response.content[0].text.strip()
 
         result_json: dict[str, str] = json.loads(clear_text)

@@ -10,7 +10,7 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 from django.db import transaction
 from django.contrib.auth.models import User
-from aomail.ai_providers import claude
+from aomail.ai_providers import gemini
 from aomail.constants import (
     ANSWER_REQUIRED,
     DEFAULT_CATEGORY,
@@ -180,7 +180,7 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
             )
 
     def get_email_processed():
-        return claude.categorize_and_summarize_email(
+        return gemini.categorize_and_summarize_email(
             email_data["subject"],
             email_data["preprocessed_data"],
             category_dict,

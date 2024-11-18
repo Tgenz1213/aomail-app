@@ -4,7 +4,7 @@ Handles AI-driven search to extract data from emails and help Ao to answer user 
 
 import json
 import logging
-from aomail.ai_providers import claude
+from aomail.ai_providers import gemini
 from aomail.models import KeyPoint
 
 
@@ -157,7 +157,7 @@ class Search:
             "categoryN": [selected organizations]
         }}
         """
-        response = claude.get_prompt_response(template)
+        response = gemini.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)
@@ -202,7 +202,7 @@ class Search:
         }}
         Ensure the JSON is properly formatted and parsable by Python.
         """
-        response = claude.get_prompt_response(template)
+        response = gemini.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)
@@ -262,7 +262,7 @@ class Search:
                 "n": [list of keypoints]
             }}
         }}"""
-        response = claude.get_prompt_response(template)
+        response = gemini.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)
@@ -318,7 +318,7 @@ class Search:
             "keypoints": [list of keypoints]
         }}
         """
-        response = claude.get_prompt_response(template)
+        response = gemini.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)

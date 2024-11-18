@@ -125,7 +125,7 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 const toSearch = ref(false);
-const showFeedbackForm = localStorage.getItem("hideFeedbackForm") ? ref(false) : ref(true);
+const showFeedbackForm = ref(false);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
@@ -445,7 +445,21 @@ const loadActiveFilters = async () => {
     }
 };
 
+const processFeedBackForm = async () => {
+    const result = await getData("user/preferences/plan/");
+    if (result.success) {
+        const differenceInDays = Math.round(
+            new Date().getTime() - new Date(result.data.createdAt).getTime() / (1000 * 3600 * 24)
+        );
+
+        if (differenceInDays >= 14 && !localStorage.getItem("hideFeedbackForm")) {
+            showFeedbackForm.value = true;
+        }
+    }
+};
+
 onMounted(async () => {
+    processFeedBackForm();
     loadActiveFilters();
     await fetchCategoriesAndTotals();
 

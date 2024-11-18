@@ -329,6 +329,7 @@ def get_user_plan(request: HttpRequest) -> Response:
             "plan": subscription.plan,
             "isTrial": subscription.is_trial,
             "isActive": subscription.is_active,
+            "createdAt": subscription.created_at,
             "expiresThe": (
                 subscription.created_at + trial_period
                 if subscription.is_trial

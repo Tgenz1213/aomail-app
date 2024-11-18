@@ -26,6 +26,27 @@
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative">
+                    <div
+                        v-if="showFeedbackForm"
+                        class="bg-gray-50 border-b border-black shadow-sm border-opacity-10 overflow-hidden whitespace-nowrap"
+                    >
+                        <button>
+                            <XMarkIcon class="h-6 w-6" @click="hideFeedbackForm" />
+                        </button>
+                        <p class="animate-marquee">
+                            <button
+                                class="rounded-md bg-gray-800 p-2 m-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
+                                data-tally-open="n0bPqB"
+                                data-tally-layout="modal"
+                                data-tally-width="700"
+                                data-tally-align-left="1"
+                                data-tally-emoji-text="👋"
+                                data-tally-emoji-animation="wave"
+                            >
+                                You have been using Aomail for a few weeks, could you give us some feedback? 👋
+                            </button>
+                        </p>
+                    </div>
                     <Categories
                         :selected-category="selectedCategory"
                         :category-totals="categoryTotals"
@@ -96,6 +117,7 @@ import ReadEmail from "./components/ReadEmails.vue";
 //import AssistantChat from "./components/AssistantChat.vue"; DESACTIVATED FOR NOW DO NOT DELETE
 import Categories from "./components/Categories.vue";
 import SearchBar from "./components/SearchBar.vue";
+import { XMarkIcon } from "@heroicons/vue/20/solid";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -103,6 +125,7 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 const toSearch = ref(false);
+const showFeedbackForm = localStorage.getItem("hideFeedbackForm") ? ref(false) : ref(true);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
@@ -131,6 +154,11 @@ watch(
     },
     { immediate: true }
 );
+
+const hideFeedbackForm = () => {
+    showFeedbackForm.value = false;
+    localStorage.setItem("hideFeedbackForm", "true");
+};
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
@@ -245,7 +273,13 @@ async function fetchCategoriesAndTotals() {
     categories.value = categoriesResponse.data;
 
     const totalsPromises = categories.value.map((category) =>
-        postData("user/emails_ids/", { subject: "", category: category.name, read: false, replyLater: false, advanced: true })
+        postData("user/emails_ids/", {
+            subject: "",
+            category: category.name,
+            read: false,
+            replyLater: false,
+            advanced: true,
+        })
     );
     const totalsResponses = await Promise.all(totalsPromises);
 

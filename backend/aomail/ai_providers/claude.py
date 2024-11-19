@@ -26,7 +26,6 @@ def get_prompt_response(formatted_prompt):
     client = anthropic.Anthropic(api_key=ANTHROPIC_CREDS["api_key"])
     response = client.messages.create(
         model="claude-3-haiku-20240307",
-        max_tokens=1000,
         temperature=0.0,
         messages=[{"role": "user", "content": formatted_prompt}],
     )

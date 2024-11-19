@@ -471,9 +471,7 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             - image_files (list[str]): List of filenames for images embedded in the email.
             - attachments (list[dict]): List of dictionaries containing details about each attachment (ID and name).
     """
-    service = authenticate_service(social_api.user, social_api.email, ["gmail"])[
-        "gmail"
-    ]
+    service = authenticate_service(social_api.user, social_api.email, ["gmail"])["gmail"]
 
     if not email_id:
         results: dict = (
@@ -489,7 +487,6 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
         message = messages[0]
         email_id = message["id"]
 
-    # Retrieve the detailed message content
     msg: dict[str, dict[str, dict[str]]] = (
         service.users().messages().get(userId="me", id=email_id).execute()
     )
@@ -510,38 +507,27 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             sent_date = parsedate_to_datetime(values["value"])
 
     has_attachments = False
-    is_reply = "in-reply-to" in {
-        header["name"].lower() for header in msg["payload"]["headers"]
-    }
+    is_reply = "in-reply-to" in {header["name"].lower() for header in msg["payload"]["headers"]}
     email_html = ""
     email_txt_html = ""
     email_detect_html = False
     image_files = []
     attachments = []
+    cid_to_filename = {} 
 
     def process_part(part: dict[str, str]):
-        """
-        Processes a part of the email to extract and decode its content, handling various MIME types.
-
-        Args:
-            part (dict[str, str]): A dictionary containing information about the email part, including its MIME type and body.
-        """
-        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments
+        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments, cid_to_filename
 
         if part["mimeType"] == "text/plain":
             if "data" in part["body"]:
                 data = part["body"]["data"]
-                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
-                    "utf-8"
-                )
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
                 email_txt_html += f"<pre>{decoded_data}</pre>"
         elif part["mimeType"] == "text/html":
             if "data" in part["body"]:
                 email_detect_html = True
                 data = part["body"]["data"]
-                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
-                    "utf-8"
-                )
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
                 email_html += decoded_data
 
                 # Find and replace base64 encoded images in the HTML
@@ -567,17 +553,19 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
                         f"{MEDIA_URL}pictures/{image_filename}",
                     )
         elif part["mimeType"].startswith("image/"):
+            # Get the Content-ID
+            cid = None
+            if "headers" in part:
+                for header in part["headers"]:
+                    if header["name"].lower() == "content-id":
+                        cid = header["value"].strip("<>") 
+
             timestamp = int(time.time())
-            random_str = "".join(
-                random.choices(string.ascii_letters + string.digits, k=8)
-            )
+            random_str = "".join(random.choices(string.ascii_letters + string.digits, k=8))
             image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
             image_files.append(image_filename)
 
             image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
-
-            email_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
-            email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
 
             if "attachmentId" in part["body"]:
                 attachment_id = part["body"]["attachmentId"]
@@ -590,14 +578,16 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
                 )
                 file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
             elif "data" in part["body"]:
-                file_data = base64.urlsafe_b64decode(
-                    part["body"]["data"].encode("UTF-8")
-                )
+                file_data = base64.urlsafe_b64decode(part["body"]["data"].encode("UTF-8"))
             else:
                 return
 
             with open(image_path, "wb") as img_file:
                 img_file.write(file_data)
+
+            # Map the CID to the image filename
+            if cid:
+                cid_to_filename[cid] = image_filename
 
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
@@ -606,30 +596,27 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
         elif "filename" in part:
             has_attachments = True
             attachment_id = part["body"]["attachmentId"]
-            attachments.append(
-                {"attachmentId": attachment_id, "attachmentName": part["filename"]}
-            )
+            attachments.append({"attachmentId": attachment_id, "attachmentName": part["filename"]})
 
-    # Process all parts of the email
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
             process_part(part)
     else:
         process_part(msg["payload"])
 
-    # Use plain text version if no HTML version is detected
     if email_detect_html is False:
         email_html = email_txt_html
 
     # Replace CID references in HTML with local paths
     soup = BeautifulSoup(email_html, "html.parser")
     for img in soup.find_all("img"):
-        cid_ref = img["src"].lstrip("cid:")
-        for image_file in image_files:
-            if cid_ref in image_file:
-                img["src"] = f"{BASE_URL_MA}pictures/{os.path.basename(image_file)}"
+        src = img.get("src", "")
+        if src.startswith("cid:"):
+            cid_ref = src[4:]  # Remove 'cid:' prefix
+            if cid_ref in cid_to_filename:
+                img["src"] = f"{BASE_URL_MA}pictures/{cid_to_filename[cid_ref]}"
 
-    cleaned_html = email_processing.html_clear(email_html)
+    cleaned_html = email_processing.html_clear(str(soup))
     preprocessed_data = email_processing.preprocess_email(cleaned_html)
     safe_html = soup.prettify()
 

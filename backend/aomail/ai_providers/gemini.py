@@ -15,50 +15,28 @@ Features:
 
 import ast
 import json
-import re
+import logging
 import google.generativeai as genai
 from datetime import datetime
 from aomail.constants import GEMINI_CREDS
-import logging
+from aomail.ai_providers.utils import extract_json_from_response
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
-def get_prompt_response(formatted_prompt):
+def get_prompt_response(formatted_prompt: str):
     """Returns the prompt response using Gemini 1.5 Flash model"""
     genai.configure(api_key=GEMINI_CREDS["api_key"])
     model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(
         formatted_prompt,
         generation_config=genai.types.GenerationConfig(
-            max_output_tokens=1000,
-            temperature=0.0
-        )
+            max_output_tokens=1000, temperature=0.0
+        ),
     )
     return response
-
-def extract_json_from_response(response_text: str) -> dict:
-    """
-    Extracts and parses a JSON block from the given response text.
-
-    Args:
-        response_text (str): The raw text response potentially containing JSON.
-
-    Returns:
-        dict: The parsed JSON object.
-
-    Raises:
-        ValueError: If no valid JSON object is found or parsing fails.
-    """
-    response_text = response_text.strip()
-    json_pattern = re.compile(r'\{.*\}', re.DOTALL)
-    match = json_pattern.search(response_text)
-    if not match:
-        raise ValueError("No JSON object found in the response.")
-    json_text = match.group(0)
-    return json.loads(json_text)
 
 
 def get_language(input_body: str, input_subject: str) -> dict:
@@ -153,9 +131,7 @@ def extract_contacts_recipients(query: str) -> dict[str, list]:
     bcc_recipients: [Python list]    
     """
     response = get_prompt_response(formatted_prompt)
-    LOGGER.error(
-            f"DEBUG ---------------------------------------> {response}"
-        )
+    LOGGER.error(f"DEBUG ---------------------------------------> {response}")
     try:
         result_json = extract_json_from_response(response.text)
     except json.JSONDecodeError as e:
@@ -442,7 +418,7 @@ def categorize_and_summarize_email(
     - The summary should objectively reflect the most important information of the email without making subjective judgments.    
     
     ---
-    Answer must always be a JSON format matching this template:
+    Return this JSON object completed with the requested information:
     {{
         "topic": Selected Category,
         "response": Response,

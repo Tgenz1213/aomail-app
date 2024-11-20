@@ -43,6 +43,7 @@ ALLOWED_PLANS = [START_PLAN, PREMIUM_PLAN, ENTREPRISE_PLAN]
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
 ANTHROPIC_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
+GEMINI_CREDS = json.load(open(f"{CREDS_PATH}gemini_creds.json"))
 IMPORTANT = "important"
 INFORMATIVE = "informative"
 USELESS = "useless"

@@ -4,8 +4,9 @@ Handles AI-driven search to extract data from emails and help Ao to answer user 
 
 import json
 import logging
-from aomail.ai_providers import claude
+from aomail.ai_providers import gemini
 from aomail.models import KeyPoint
+from aomail.ai_providers.utils import extract_json_from_response
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -157,12 +158,13 @@ class Search:
             "categoryN": [selected organizations]
         }}
         """
-        response = claude.get_prompt_response(template)
-        clear_response = response.content[0].text.strip()
         try:
-            result_json = json.loads(clear_response)
-            result_json["tokens_input"] = response.usage.input_tokens
-            result_json["tokens_output"] = response.usage.output_tokens
+            response = gemini.get_prompt_response(template)
+            result_json = extract_json_from_response(response.text)
+            result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+            result_json["tokens_output"] = (
+                response.usage_metadata.candidates_token_count
+            )
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"
@@ -202,12 +204,13 @@ class Search:
         }}
         Ensure the JSON is properly formatted and parsable by Python.
         """
-        response = claude.get_prompt_response(template)
-        clear_response = response.content[0].text.strip()
         try:
-            result_json = json.loads(clear_response)
-            result_json["tokens_input"] = response.usage.input_tokens
-            result_json["tokens_output"] = response.usage.output_tokens
+            response = gemini.get_prompt_response(template)
+            result_json = extract_json_from_response(response.text)
+            result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+            result_json["tokens_output"] = (
+                response.usage_metadata.candidates_token_count
+            )
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"
@@ -262,12 +265,13 @@ class Search:
                 "n": [list of keypoints]
             }}
         }}"""
-        response = claude.get_prompt_response(template)
-        clear_response = response.content[0].text.strip()
         try:
-            result_json = json.loads(clear_response)
-            result_json["tokens_input"] = response.usage.input_tokens
-            result_json["tokens_output"] = response.usage.output_tokens
+            response = gemini.get_prompt_response(template)
+            result_json = extract_json_from_response(response.text)
+            result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+            result_json["tokens_output"] = (
+                response.usage_metadata.candidates_token_count
+            )
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"
@@ -318,12 +322,13 @@ class Search:
             "keypoints": [list of keypoints]
         }}
         """
-        response = claude.get_prompt_response(template)
-        clear_response = response.content[0].text.strip()
         try:
-            result_json = json.loads(clear_response)
-            result_json["tokens_input"] = response.usage.input_tokens
-            result_json["tokens_output"] = response.usage.output_tokens
+            response = gemini.get_prompt_response(template)
+            result_json = extract_json_from_response(response.text)
+            result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+            result_json["tokens_output"] = (
+                response.usage_metadata.candidates_token_count
+            )
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"

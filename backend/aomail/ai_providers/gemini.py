@@ -1,5 +1,5 @@
 """
-Handles prompt engineering requests for Claude 3 API.
+Handles prompt engineering requests for Gemini 1.5 Flash API.
 
 Features:
 - ✅ get_language: Detects email's primary language.
@@ -15,20 +15,26 @@ Features:
 
 import ast
 import json
-import anthropic
+import logging
+import google.generativeai as genai
 from datetime import datetime
-from aomail.constants import ANTHROPIC_CREDS
+from aomail.constants import GEMINI_CREDS
+from aomail.ai_providers.utils import extract_json_from_response
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
-def get_prompt_response(formatted_prompt):
-    """Returns the prompt response"""
-    client = anthropic.Anthropic(api_key=ANTHROPIC_CREDS["api_key"])
-    response = client.messages.create(
-        model="claude-3-haiku-20240307",
-        max_tokens=1000,
-        temperature=0.0,
-        messages=[{"role": "user", "content": formatted_prompt}],
+def get_prompt_response(formatted_prompt: str):
+    """Returns the prompt response using Gemini 1.5 Flash model"""
+    genai.configure(api_key=GEMINI_CREDS["api_key"])
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(
+        formatted_prompt,
+        generation_config=genai.types.GenerationConfig(
+            max_output_tokens=1000, temperature=0.0
+        ),
     )
     return response
 
@@ -50,7 +56,7 @@ def get_language(input_body: str, input_subject: str) -> dict:
     Provide ONLY the answer in JSON format with the key 'language' (STRING).    
     """
     response = get_prompt_response(formatted_prompt)
-    language = json.loads(response.content[0].text)["language"]
+    language = extract_json_from_response(response.text)["language"]
 
     return {
         "language": language,
@@ -125,9 +131,13 @@ def extract_contacts_recipients(query: str) -> dict[str, list]:
     bcc_recipients: [Python list]    
     """
     response = get_prompt_response(formatted_prompt)
-    result_json: dict = json.loads(response.content[0].text)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
+    LOGGER.error(f"DEBUG ---------------------------------------> {response}")
+    try:
+        result_json = extract_json_from_response(response.text)
+    except json.JSONDecodeError as e:
+        LOGGER.error(f"JSON Decode Error: {e}")
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
 
     return result_json
 
@@ -147,26 +157,24 @@ def generate_response_keywords(input_email: str, input_subject: str) -> dict:
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    result = get_language(input_email, input_subject)
-    language = result["language"]
 
-    formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
+    formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}'.
 
     IDENTIFY up to 4 different ways to respond to this email. Only identify relevant way to respond if you can't find 4 different ways only give 2 or 3 ways to respond.
-    USE few words in {language} while keeping a relevant meaning ONLY if you are sure that keyword is relevant, if you HESITATE do not add it.
+    USE few words in the primary language used in the email while keeping a relevant meaning ONLY if you are sure that keyword is relevant, if you HESITATE do not add it.
     KEYWORDS must look like ACTIONS buttons the user WILL click to reply to the email.
 
     ---
     As an answer ONLY give a Python List format: ["...", "..."] dont use any other caracters otherwise it will create errors. Do not give ANY explanations, RETURN only the list.
     """
     response = get_prompt_response(formatted_prompt)
-    keywords = response.content[0].text.strip()
+    keywords = extract_json_from_response(response.text)
     keywords_list = ast.literal_eval(keywords)
 
     return {
         "keywords_list": keywords_list,
-        "tokens_input": response.usage.input_tokens + result["tokens_input"],
-        "tokens_output": response.usage.output_tokens + result["tokens_output"],
+        "tokens_input": response.usage_metadata.prompt_token_count,
+        "tokens_output": response.usage_metadata.candidates_token_count,
     }
 
 
@@ -197,17 +205,15 @@ def generate_email(input_data: str, length: str, formality: str, language: str) 
     Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
     """
     response = get_prompt_response(template)
-    clear_text = response.content[0].text.strip()
-
-    result_json: dict = json.loads(clear_text)
+    result_json: dict = extract_json_from_response(response.text)
     subject_text = result_json.get("subject")
     email_body = result_json.get("body")
 
     return {
         "subject_text": subject_text,
         "email_body": email_body,
-        "tokens_input": response.usage.input_tokens,
-        "tokens_output": response.usage.output_tokens,
+        "tokens_input": response.usage_metadata.prompt_token_count,
+        "tokens_output": response.usage_metadata.candidates_token_count,
     }
 
 
@@ -227,10 +233,8 @@ def correct_mail_language_mistakes(body: str, subject: str) -> dict:
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    result = get_language(body, subject)
-    language: str = result["language"]
 
-    formatted_prompt = f"""As an email assistant, check the following {language.capitalize()} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    formatted_prompt = f"""As an email assistant, check the following text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
@@ -238,8 +242,7 @@ def correct_mail_language_mistakes(body: str, subject: str) -> dict:
     body: {body}
     """
     response = get_prompt_response(formatted_prompt)
-    clear_text = response.content[0].text.strip()
-    result_json = json.loads(clear_text)
+    result_json: dict = extract_json_from_response(response.text)
 
     corrected_subject = result_json["subject"]
     corrected_body = result_json["body"]
@@ -252,8 +255,8 @@ def correct_mail_language_mistakes(body: str, subject: str) -> dict:
         "correctedSubject": corrected_subject,
         "correctedBody": corrected_body,
         "numCorrections": num_corrections,
-        "tokens_input": response.usage.input_tokens + result["tokens_input"],
-        "tokens_output": response.usage.output_tokens + result["tokens_output"],
+        "tokens_input": response.usage_metadata.prompt_token_count,
+        "tokens_output": response.usage_metadata.candidates_token_count,
     }
 
 
@@ -271,10 +274,8 @@ def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    result = get_language(email_body, email_subject)
-    language: str = result["language"]
 
-    template = f"""Evaluate the quality of copywriting in both the subject and body of this email in {language.capitalize()}. Provide feedback and improvement suggestions.
+    template = f"""Evaluate the quality of copywriting in both the subject and body of this email. Provide feedback and improvement suggestions.
 
     Email Subject:
     "{email_subject}"
@@ -297,12 +298,12 @@ def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
     [Your suggestions for the email body]
     """
     response = get_prompt_response(template)
-    feedback_ai = response.content[0].text.strip()
+    feedback_ai = extract_json_from_response(response.text)
 
     return {
         "feedback_ai": feedback_ai,
-        "tokens_input": response.usage.input_tokens + result["tokens_input"],
-        "tokens_output": response.usage.output_tokens + result["tokens_output"],
+        "tokens_input": response.usage_metadata.prompt_token_count,
+        "tokens_output": response.usage_metadata.candidates_token_count,
     }
 
 
@@ -335,12 +336,12 @@ def generate_email_response(
     Answer must be above HTML without spaces
     """
     response = get_prompt_response(template)
-    body = response.content[0].text.strip()
+    body = extract_json_from_response(response.text)
 
     return {
         "body": body,
-        "tokens_input": response.usage.input_tokens,
-        "tokens_output": response.usage.output_tokens,
+        "tokens_input": response.usage_metadata.prompt_token_count,
+        "tokens_output": response.usage_metadata.candidates_token_count,
     }
 
 
@@ -417,7 +418,7 @@ def categorize_and_summarize_email(
     - The summary should objectively reflect the most important information of the email without making subjective judgments.    
     
     ---
-    Answer must always be a JSON format matching this template:
+    Return this JSON object completed with the requested information:
     {{
         "topic": Selected Category,
         "response": Response,
@@ -436,10 +437,9 @@ def categorize_and_summarize_email(
         }}
     }}"""
     response = get_prompt_response(template)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
 
     return result_json
 
@@ -484,10 +484,9 @@ def search_emails(query: str, language: str) -> dict:
         }}
     }}"""
     response = get_prompt_response(template)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
 
     return result_json
 
@@ -518,7 +517,7 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
     """
     response = get_prompt_response(template)
-    clear_text = response.content[0].text.strip()
+    clear_text = extract_json_from_response(response.text)
 
     result_json = json.loads(clear_text)
 

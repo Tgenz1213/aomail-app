@@ -24,7 +24,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
-from aomail.ai_providers import claude
+from aomail.ai_providers import gemini
 from aomail.constants import (
     EMAIL_ADMIN,
     ALLOWED_PLANS,
@@ -259,7 +259,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
     emails = data["emails"]
     query = data["query"]
     language = Preference.objects.get(user=user).language
-    result: dict = claude.search_emails(query, language)
+    result: dict = gemini.search_emails(query, language)
     search_params = result["search_params"]
     update_tokens_stats(user, result)
 
@@ -435,7 +435,7 @@ def find_user_view_ai(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    recipients_dict = claude.extract_contacts_recipients(search_query)
+    recipients_dict = gemini.extract_contacts_recipients(search_query)
     update_tokens_stats(request.user, recipients_dict)
 
     main_list = recipients_dict.get("main_recipients", [])
@@ -515,7 +515,7 @@ def new_email_ai(request: HttpRequest) -> Response:
         formality = serializer.validated_data["formality"]
         language = Preference.objects.get(user=user).language
 
-        result = claude.generate_email(input_data, length, formality, language)
+        result = gemini.generate_email(input_data, length, formality, language)
         update_tokens_stats(user, result)
 
         return Response(
@@ -551,7 +551,7 @@ def correct_email_language(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = claude.correct_mail_language_mistakes(body, subject)
+        result = gemini.correct_mail_language_mistakes(body, subject)
         result = update_tokens_stats(request.user, result)
 
         return Response(result, status=status.HTTP_200_OK)
@@ -585,7 +585,7 @@ def check_email_copywriting(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = claude.improve_email_copywriting(body, subject)
+        result = gemini.improve_email_copywriting(body, subject)
         update_tokens_stats(request.user, result)
 
         return Response(
@@ -621,7 +621,7 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = claude.generate_response_keywords(subject, body)
+        result = gemini.generate_response_keywords(subject, body)
         update_tokens_stats(request.user, result)
 
         return Response(
@@ -660,7 +660,7 @@ def generate_email_answer(request: HttpRequest) -> Response:
         body = serializer.validated_data["body"]
         user_instruction = serializer.validated_data["keyword"]
 
-        result = claude.generate_email_response(subject, body, user_instruction)
+        result = gemini.generate_email_response(subject, body, user_instruction)
         update_tokens_stats(request.user, result)
 
         return Response({"emailAnswer": result["body"]}, status=status.HTTP_200_OK)

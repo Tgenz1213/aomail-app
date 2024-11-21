@@ -106,8 +106,26 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
     """
     user = request.user
     if request.method == "POST":
-        parameters: dict = json.loads(request.body)
-        email = parameters.get("email") or request.headers.get("email")
+        content_type = request.content_type
+
+        if content_type.startswith('application/json'):
+            try:
+                parameters = json.loads(request.body)
+                email = parameters.get("email") or request.headers.get("email")
+            except json.JSONDecodeError:
+                return Response(
+                    {"error": "Invalid JSON in request body"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        elif content_type.startswith('multipart/form-data'):
+            email = request.POST.get("email") or request.headers.get("email")
+            parameters = request.POST.dict()
+            parameters.update({'attachments': request.FILES.getlist('attachments')})
+        else:
+            return Response(
+                {"error": "Unsupported Content-Type"},
+                status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            )
     elif request.method == "GET":
         email = request.headers.get("email")
     else:

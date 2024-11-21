@@ -102,6 +102,7 @@ const handleClickOutside = (event: MouseEvent) => {
     }
 };
 
+/* OLD INITIAL
 async function sendEmail() {
     if (!AIContainer.value || !quill?.value) return;
 
@@ -132,6 +133,8 @@ async function sendEmail() {
         );
         return;
     }
+
+    console.log("DEBUG", fileObjects.value);
 
     const result = await postData(`user/social_api/send_email/`, {
         subject: subjectInput.value,
@@ -171,7 +174,200 @@ async function sendEmail() {
 
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     displayMessage?.(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), ai_icon);
+}*/
+
+async function sendEmail() {
+    if (!AIContainer.value || !quill?.value) return;
+
+    const emailSubject = subjectInput.value;
+    const emailBody = quill.value.root.innerHTML;
+
+    if (!emailSubject.trim()) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoSubject")
+        );
+        return;
+    }
+
+    if (emailBody === "<p><br></p>") {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoObject")
+        );
+        return;
+    }
+
+    if (selectedPeople.value.length === 0) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoRecipient")
+        );
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append('subject', emailSubject);
+    formData.append('message', emailBody);
+
+    fileObjects.value.forEach(file => formData.append('attachments', file));
+
+    selectedPeople.value.forEach(person => formData.append('to', person.email));
+
+    if (selectedCC.value.length > 0) {
+        selectedCC.value.forEach(person => formData.append('cc', person.email));
+    }
+
+    if (selectedBCC.value.length > 0) {
+        selectedBCC.value.forEach(person => formData.append('bcc', person.email));
+    }
+
+    formData.append('email', emailSelected.value);
+
+    try {
+        const result = await postData('user/social_api/send_email/', formData, true);
+
+        if (!result.success) {
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+                result.error || i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorGeneral")
+            );
+            return;
+        }
+
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.success"),
+            i18n.global.t("constants.popUpConstants.successMessages.emailSuccessfullySent")
+        );
+
+        // Réinitialisation des champs
+        subjectInput.value = "";
+        quill.value.root.innerHTML = "";
+        selectedPeople.value = [];
+        selectedCC.value = [];
+        selectedBCC.value = [];
+        stepContainer.value = 0;
+        AIContainer.value.innerHTML = "";
+        localStorage.removeItem("uploadedFiles");
+        uploadedFiles.value = [];
+        fileObjects.value = [];
+
+        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), ai_icon);
+
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorGeneral")
+        );
+    }
 }
+
+/*
+async function sendEmail() {
+    if (!AIContainer.value || !quill?.value) return;
+
+    const emailSubject = subjectInput.value;
+    const emailBody = quill.value.root.innerHTML;
+
+    if (!emailSubject.trim()) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoSubject")
+        );
+        return;
+    }
+    if (emailBody === "<p><br></p>") {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoObject")
+        );
+        return;
+    }
+    if (selectedPeople.value.length === 0) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoRecipient")
+        );
+        return;
+    }
+
+    const payload = {
+        subject: emailSubject,
+        message: emailBody,
+        email: emailSelected.value,
+        to: selectedPeople.value.map(person => person.email),
+        cc: selectedCC.value.map(person => person.email),
+        bcc: selectedBCC.value.map(person => person.email),
+        attachments: [] as string[], 
+    };
+
+    console.log("DEBUG FILES", fileObjects.value);
+
+    const attachmentPromises = fileObjects.value.map(file => {
+        return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            console.log(`Base64 content for file :`, reader.result); 
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    });
+
+    try {
+        const attachments = await Promise.all(attachmentPromises);
+        payload.attachments = attachments;
+
+        const result = await postData(`user/social_api/send_email/`, payload);
+
+        if (!result.success) {
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+                result.error as string
+            );
+            return;
+        }
+
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.success"),
+            i18n.global.t("constants.popUpConstants.successMessages.emailSuccessfullySent")
+        );
+
+        subjectInput.value = "";
+        quill.value.root.innerHTML = "";
+        selectedPeople.value = [];
+        selectedCC.value = [];
+        selectedBCC.value = [];
+        stepContainer.value = 0;
+        AIContainer.value.innerHTML = "";
+        localStorage.removeItem("uploadedFiles");
+        uploadedFiles.value = [];
+        fileObjects.value = [];
+
+        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025..."/>`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), ai_icon);
+
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
+            "Failed to convert attachments or send email."
+        );
+    }
+}*/
+
 
 function validateScheduledSend(): boolean {
     if (!quill?.value) return false;

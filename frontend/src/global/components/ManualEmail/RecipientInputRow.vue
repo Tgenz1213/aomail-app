@@ -122,8 +122,8 @@ const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
-
 const askContent = inject<() => void>("askContent");
+
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const getFilteredPeople = (query: Ref<string>, contacts: Recipient[]) => {
@@ -220,6 +220,8 @@ function personSelected(person: Recipient) {
             }
     }
     if (isFirstTimeDestinary.value) {
+        console.log("DEBUGGGGGGGGGGGGGGGGGGGGG")
+        console.log("Injected askContent:", askContent);
         stepContainer.value = 1;
         askContent?.();
         isFirstTimeDestinary.value = false;

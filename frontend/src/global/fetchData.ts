@@ -142,60 +142,6 @@ export async function postData(path: string, body: Record<string, any> | FormDat
     }
 }
 
-/*
-export async function postData(
-    path: string,
-    body: FormData | Record<string, any>,
-    isFormData: boolean = false
-): Promise<FetchDataResult> {
-    const headers: HeadersInit | undefined = isFormData
-        ? undefined
-        : { "Content-Type": "application/json" };
-
-    const requestOptions: RequestInit = {
-        method: "POST",
-        headers: headers,
-        body: isFormData
-            ? (body as FormData)
-            : JSON.stringify(body),
-    };
-
-    const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
-
-    if (!response) {
-        return {
-            success: false,
-            error: "No server response",
-        };
-    }
-
-    const data = await response.json();
-
-    if (response.ok) {
-        return {
-            success: true,
-            data: data,
-        };
-    } else if (response.status === 403) {
-        if (data.allowedPlans) {
-            return {
-                success: false,
-                error: "Plan not allowed. Allowed plans: " + data.allowedPlans,
-            };
-        } else {
-            return {
-                success: false,
-                error: "Subscription is inactive",
-            };
-        }
-    } else {
-        return {
-            success: false,
-            error: data.error ? data.error : "Unknown error",
-        };
-    }
-}*/
-
 
 export async function deleteData(path: string, body?: any): Promise<FetchDataResult> {
     const requestOptions: RequestInit = {

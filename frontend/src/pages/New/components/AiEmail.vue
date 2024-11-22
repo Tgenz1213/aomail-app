@@ -71,8 +71,8 @@ const displayMessage = inject<(message: string, aiIcon: string) => void>("displa
 const scrollToBottom = inject<() => void>("scrollToBottom");
 const loading = inject<() => void>("loading");
 const hideLoading = inject<() => void>("hideLoading");
+const askContent = inject<() => void>("askContent");
 
-provide("askContent", askContent);
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);
 provide("handleAIClick", handleAIClick);
@@ -158,7 +158,7 @@ function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipi
         displayNoRecipientsFoundMessage();
     } else if (!waitforUserChoice) {
         stepContainer.value = 1;
-        askContent();
+        askContent?.();
     }
 }
 
@@ -416,12 +416,6 @@ function askChoiceRecipier(list: EmailMapping[], type: string) {
     });
 }
 
-function askContent() {
-    if (!AIContainer.value) return;
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage?.(i18n.global.t("constants.sendEmailConstants.draftEmailRequest"), aiIcon);
-}
-
 function nextStepRecipier() {
     if (!AIContainer.value) return;
 
@@ -447,7 +441,7 @@ function nextStepRecipier() {
         if (nextButton) {
             nextButton.addEventListener("click", () => {
                 stepContainer.value = 1;
-                askContent();
+                askContent?.();
             });
         }
     }, 0);

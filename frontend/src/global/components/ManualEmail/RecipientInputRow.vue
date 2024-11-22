@@ -220,8 +220,6 @@ function personSelected(person: Recipient) {
             }
     }
     if (isFirstTimeDestinary.value) {
-        console.log("DEBUGGGGGGGGGGGGGGGGGGGGG")
-        console.log("Injected askContent:", askContent);
         stepContainer.value = 1;
         askContent?.();
         isFirstTimeDestinary.value = false;

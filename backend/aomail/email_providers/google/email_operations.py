@@ -65,7 +65,6 @@ def send_email(request: HttpRequest) -> Response:
     try:
         user = request.user
         
-        # Extracting data from FormData
         email = request.POST.get("email")
         subject = request.POST.get("subject")
         message = request.POST.get("message")
@@ -80,7 +79,6 @@ def send_email(request: HttpRequest) -> Response:
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Authenticate with Gmail service
         service = authenticate_service(user, email, ["gmail"])["gmail"]
 
         multipart_message = MIMEMultipart()
@@ -131,93 +129,6 @@ def send_email(request: HttpRequest) -> Response:
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-
-'''
-@api_view(["POST"])
-@subscription(ALLOWED_PLANS)
-def send_email(request: HttpRequest) -> Response:
-    """
-    Sends an email using the Gmail API.
-
-    Args:
-        request (HttpRequest): HTTP request object containing POST data with email details.
-
-    Returns:
-        Response: Response indicating success or error.
-    """
-    try:
-        user = request.user
-
-        if request.content_type == "application/json":
-            parameters = json.loads(request.body)
-        else:  
-            parameters = request.POST.dict()
-            parameters["attachments"] = []
-            for uploaded_file in request.FILES.getlist("attachments"):
-                file_content = b64encode(uploaded_file.read()).decode("utf-8")
-                parameters["attachments"].append({
-                    "filename": uploaded_file.name,
-                    "content": file_content
-                })
-
-        email = parameters.get("email")
-        service = authenticate_service(user, email, ["gmail"])["gmail"]
-
-        serializer = EmailDataSerializer(data=parameters)
-        if not serializer.is_valid():
-            return Response(
-                {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        data = serializer.validated_data
-        subject = data["subject"]
-        message = data["message"]
-        to = data["to"]
-        cc = data.get("cc", [])
-        bcc = data.get("bcc", [])
-        attachments = parameters.get("attachments", [])
-        all_recipients = to + cc + bcc
-
-        multipart_message = MIMEMultipart()
-        multipart_message["subject"] = subject
-        multipart_message["from"] = "me"
-        multipart_message["to"] = ", ".join(to)
-
-        if cc:
-            multipart_message["cc"] = ", ".join(cc)
-        if bcc:
-            multipart_message["bcc"] = ", ".join(bcc)
-
-        multipart_message.attach(MIMEText(message, "html"))
-
-        for attachment in attachments:
-            file_content = b64decode(attachment["content"])
-            part = MIMEApplication(file_content)
-            part.add_header(
-                "Content-Disposition", "attachment", filename=attachment["filename"]
-            )
-            multipart_message.attach(part)
-
-        raw_message = b64encode(multipart_message.as_string().encode("UTF-8")).decode()
-        body = {"raw": raw_message}
-        service.users().messages().send(userId="me", body=body).execute()
-
-        threading.Thread(
-            target=email_processing.save_contacts,
-            args=(user, all_recipients),
-        ).start()
-
-        return Response(
-            {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
-        )
-
-    except Exception as e:
-        LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response(
-            {"error": "Internal server error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-'''
         
 def delete_email(user: User, email: str, email_id: str) -> dict:
     """

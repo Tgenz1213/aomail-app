@@ -21,6 +21,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from django.contrib.auth.models import User
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from aomail.utils.serializers import (
     EmailDataSerializer,
     EmailScheduleDataSerializer,
@@ -117,8 +120,14 @@ def send_schedule_email(request: HttpRequest) -> Response:
         Response: Response indicating success or error.
     """
     user = request.user
-    parameters: dict = json.loads(request.body)
-    email = parameters.get("email")
+    email = request.POST.get("email")
+    subject = request.POST.get("subject")
+    message = request.POST.get("message")
+    to = request.POST.getlist("to")
+    cc = request.POST.getlist("cc")
+    bcc = request.POST.getlist("bcc")
+    attachments = request.FILES.getlist("attachments")
+
     social_api = get_social_api(user, email)
 
     if not social_api:
@@ -128,96 +137,92 @@ def send_schedule_email(request: HttpRequest) -> Response:
         )
 
     access_token = refresh_access_token(social_api)
-    serializer = EmailScheduleDataSerializer(data=parameters)
 
-    if serializer.is_valid():
-        data = serializer.validated_data
-        try:
-            send_datetime: datetime.datetime = data["datetime"]
-            subject = data["subject"]
-            message = data["message"]
-            to = data["to"]
-            cc = data.get("cc")
-            bcc = data.get("bcc")
-            attachments: list[UploadedFile] = data.get("attachments", [])
-            all_recipients = to + (cc if cc else []) + (bcc if bcc else [])
+    if not email or not subject or not message or not to:
+        return Response(
+            {"error": "Missing required email parameters."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-            graph_endpoint = f"{GRAPH_URL}me/sendMail"
-            headers = get_headers(access_token)
+    try:
+        graph_endpoint = f"{GRAPH_URL}me/sendMail"
+        headers = get_headers(access_token)
 
-            email_content = {
-                "message": {
-                    "subject": subject,
-                    "body": {"contentType": "HTML", "content": message},
-                    "toRecipients": [
-                        {"emailAddress": {"address": email}} for email in to
-                    ],
-                    "singleValueExtendedProperties": [
-                        {"id": "SystemTime 0x3FEF", "value": send_datetime.isoformat()}
-                    ],
-                }
-            }
+        multipart_message = MIMEMultipart()
+        multipart_message["subject"] = subject
+        multipart_message["from"] = "me"
+        multipart_message["to"] = ", ".join(to)
 
-            if cc:
-                email_content["message"]["ccRecipients"] = [
+        all_recipients = to
+
+        if cc:
+            multipart_message["cc"] = ", ".join(cc)
+            all_recipients += cc
+        if bcc:
+            multipart_message["bcc"] = ", ".join(bcc)
+            all_recipients += bcc
+
+        multipart_message.attach(MIMEText(message, "html"))
+
+        if attachments:
+            for uploaded_file in attachments:
+                file_content = uploaded_file.read()
+                part = MIMEApplication(file_content)
+                part.add_header(
+                    "Content-Disposition", "attachment", filename=uploaded_file.name
+                )
+                multipart_message.attach(part)
+
+        raw_message = base64.b64encode(multipart_message.as_string().encode("utf-8")).decode("utf-8")
+
+        email_content = {
+            "message": {
+                "subject": subject,
+                "body": {"contentType": "HTML", "content": message},
+                "toRecipients": [
+                    {"emailAddress": {"address": email}} for email in to
+                ],
+                "ccRecipients": [
                     {"emailAddress": {"address": email}} for email in cc
-                ]
-
-            if bcc:
-                email_content["message"]["bccRecipients"] = [
+                ] if cc else [],
+                "bccRecipients": [
                     {"emailAddress": {"address": email}} for email in bcc
-                ]
+                ] if bcc else [],
+                "attachments": [
+                    {
+                        "@odata.type": "#microsoft.graph.fileAttachment",
+                        "name": uploaded_file.name,
+                        "contentBytes": base64.b64encode(uploaded_file.read()).decode("utf-8")
+                    } for uploaded_file in attachments
+                ] if attachments else []
+            }
+        }
 
-            if attachments:
-                email_content["message"]["attachments"] = []
+        response = requests.post(
+            graph_endpoint, headers=headers, json=email_content
+        )
 
-                for file_data in attachments:
-                    file_name = file_data.name
-                    file_content = file_data.read()
-                    attachment = base64.b64encode(file_content).decode("utf-8")
-                    email_content["message"]["attachments"].append(
-                        {
-                            "@odata.type": "#microsoft.graph.fileAttachment",
-                            "name": file_name,
-                            "contentBytes": attachment,
-                        }
-                    )
-
-            try:
-                response = requests.post(
-                    graph_endpoint, headers=headers, json=email_content
-                )
-
-                if response.status_code == 202:
-                    threading.Thread(
-                        target=email_processing.save_contacts,
-                        args=(user, all_recipients),
-                    ).start()
-                    return Response(
-                        {"message": "Email scheduled successfully!"},
-                        status=status.HTTP_202_ACCEPTED,
-                    )
-                else:
-                    response_data: dict = response.json()
-                    error = response_data.get("error", response.reason)
-                    LOGGER.error(f"Failed to schedule email: {error}")
-                    return Response({"error": error}, status=response.status_code)
-
-            except Exception as e:
-                LOGGER.error(f"Failed to send email: {str(e)}")
-                return Response(
-                    {"error": "Internal server error"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-        except Exception as e:
-            LOGGER.error(f"Error preparing email data: {str(e)}")
+        if response.status_code == 202:
+            threading.Thread(
+                target=email_processing.save_contacts,
+                args=(user, all_recipients),
+            ).start()
             return Response(
-                {"error": "Internal server error"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                {"message": "Email scheduled successfully!"},
+                status=status.HTTP_202_ACCEPTED,
             )
+        else:
+            response_data: dict = response.json()
+            error = response_data.get("error", response.reason)
+            LOGGER.error(f"Failed to schedule email: {error}")
+            return Response({"error": error}, status=response.status_code)
 
-    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        LOGGER.error(f"Failed to send email: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
@@ -233,8 +238,14 @@ def send_email(request: HttpRequest) -> Response:
         Response: Response indicating success or error.
     """
     user = request.user
-    parameters: dict = json.loads(request.body)
-    email = parameters.get("email")
+    email = request.POST.get("email")
+    subject = request.POST.get("subject")
+    message = request.POST.get("message")
+    to = request.POST.getlist("to")
+    cc = request.POST.getlist("cc")
+    bcc = request.POST.getlist("bcc")
+    attachments = request.FILES.getlist("attachments")
+
     social_api = get_social_api(user, email)
 
     if not social_api:
@@ -244,92 +255,92 @@ def send_email(request: HttpRequest) -> Response:
         )
 
     access_token = refresh_access_token(social_api)
-    serializer = EmailDataSerializer(data=parameters)
 
-    if serializer.is_valid():
-        data = serializer.validated_data
-        try:
-            subject = data["subject"]
-            message = data["message"]
-            to = data["to"]
-            cc = data.get("cc")
-            bcc = data.get("bcc")
-            attachments: list[UploadedFile] = data.get("attachments", [])
-            all_recipients = to + (cc if cc else []) + (bcc if bcc else [])
+    if not email or not subject or not message or not to:
+        return Response(
+            {"error": "Missing required email parameters."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-            graph_endpoint = f"{GRAPH_URL}me/sendMail"
-            headers = get_headers(access_token)
+    try:
+        graph_endpoint = f"{GRAPH_URL}me/sendMail"
+        headers = get_headers(access_token)
 
-            email_content = {
-                "message": {
-                    "subject": subject,
-                    "body": {"contentType": "HTML", "content": message},
-                    "toRecipients": [
-                        {"emailAddress": {"address": email}} for email in to
-                    ],
-                }
-            }
+        multipart_message = MIMEMultipart()
+        multipart_message["subject"] = subject
+        multipart_message["from"] = "me"
+        multipart_message["to"] = ", ".join(to)
 
-            if cc:
-                email_content["message"]["ccRecipients"] = [
+        all_recipients = to
+
+        if cc:
+            multipart_message["cc"] = ", ".join(cc)
+            all_recipients += cc
+        if bcc:
+            multipart_message["bcc"] = ", ".join(bcc)
+            all_recipients += bcc
+
+        multipart_message.attach(MIMEText(message, "html"))
+
+        if attachments:
+            for uploaded_file in attachments:
+                file_content = uploaded_file.read()
+                part = MIMEApplication(file_content)
+                part.add_header(
+                    "Content-Disposition", "attachment", filename=uploaded_file.name
+                )
+                multipart_message.attach(part)
+
+        raw_message = base64.b64encode(multipart_message.as_string().encode("utf-8")).decode("utf-8")
+
+        email_content = {
+            "message": {
+                "subject": subject,
+                "body": {"contentType": "HTML", "content": message},
+                "toRecipients": [
+                    {"emailAddress": {"address": email}} for email in to
+                ],
+                "ccRecipients": [
                     {"emailAddress": {"address": email}} for email in cc
-                ]
-
-            if bcc:
-                email_content["message"]["bccRecipients"] = [
+                ] if cc else [],
+                "bccRecipients": [
                     {"emailAddress": {"address": email}} for email in bcc
-                ]
+                ] if bcc else [],
+                "attachments": [
+                    {
+                        "@odata.type": "#microsoft.graph.fileAttachment",
+                        "name": uploaded_file.name,
+                        "contentBytes": base64.b64encode(uploaded_file.read()).decode("utf-8")
+                    } for uploaded_file in attachments
+                ] if attachments else []
+            }
+        }
 
-            if attachments:
-                email_content["message"]["attachments"] = []
+        response = requests.post(
+            graph_endpoint, headers=headers, json=email_content
+        )
 
-                for file_data in attachments:
-                    file_name = file_data.name
-                    file_content = file_data.read()
-                    attachment = base64.b64encode(file_content).decode("utf-8")
-                    email_content["message"]["attachments"].append(
-                        {
-                            "@odata.type": "#microsoft.graph.fileAttachment",
-                            "name": file_name,
-                            "contentBytes": attachment,
-                        }
-                    )
-
-            try:
-                response = requests.post(
-                    graph_endpoint, headers=headers, json=email_content
-                )
-
-                if response.status_code == 202:
-                    threading.Thread(
-                        target=email_processing.save_contacts,
-                        args=(user, all_recipients),
-                    ).start()
-                    return Response(
-                        {"message": "Email sent successfully!"},
-                        status=status.HTTP_202_ACCEPTED,
-                    )
-                else:
-                    response_data: dict = response.json()
-                    error = response_data.get("error", response.reason)
-                    LOGGER.error(f"Failed to send email: {error}")
-                    return Response({"error": error}, status=response.status_code)
-
-            except Exception as e:
-                LOGGER.error(f"Failed to send email: {str(e)}")
-                return Response(
-                    {"error": "Internal server error"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-        except Exception as e:
-            LOGGER.error(f"Error preparing email data: {str(e)}")
+        if response.status_code == 202:
+            threading.Thread(
+                target=email_processing.save_contacts,
+                args=(user, all_recipients),
+            ).start()
             return Response(
-                {"error": "Internal server error"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                {"message": "Email sent successfully!"},
+                status=status.HTTP_202_ACCEPTED,
             )
+        else:
+            response_data: dict = response.json()
+            error = response_data.get("error", response.reason)
+            LOGGER.error(f"Failed to send email: {error}")
+            return Response({"error": error}, status=response.status_code)
 
-    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        LOGGER.error(f"Failed to send email: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def delete_email(email_id: int, social_api: SocialAPI) -> dict:

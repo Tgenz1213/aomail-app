@@ -9,6 +9,8 @@ Endpoints:
 import base64
 import json
 import logging
+import uuid
+from urllib.parse import unquote 
 import re
 import string
 import threading
@@ -538,11 +540,7 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
                     r'<img[^>]+src="data:image/([^;]+);base64,([^"]+)"', decoded_data
                 )
                 for img_type, img_data in img_tags:
-                    timestamp = int(time.time())
-                    random_str = "".join(
-                        random.choices(string.ascii_letters + string.digits, k=8)
-                    )
-                    image_filename = f"image_{timestamp}_{random_str}.{img_type}"
+                    image_filename = f"{uuid.uuid4()}.{img_type}"
                     image_files.append(image_filename)
 
                     img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
@@ -561,11 +559,11 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             if "headers" in part:
                 for header in part["headers"]:
                     if header["name"].lower() == "content-id":
-                        cid = header["value"].strip("<>") 
+                        cid = header["value"].strip().strip("<>")
+                        cid = unquote(cid).lower()
 
-            timestamp = int(time.time())
-            random_str = "".join(random.choices(string.ascii_letters + string.digits, k=8))
-            image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
+            img_type = part["mimeType"].split("/")[-1]
+            image_filename = f"{uuid.uuid4()}.{img_type}"
             image_files.append(image_filename)
 
             image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
@@ -615,9 +613,13 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
     for img in soup.find_all("img"):
         src = img.get("src", "")
         if src.startswith("cid:"):
-            cid_ref = src[4:]  # Remove 'cid:' prefix
+            cid_ref = src[4:].strip().strip("<>").strip()
+            cid_ref = unquote(cid_ref).lower()
+            LOGGER.info(f"Found CID in HTML: '{cid_ref}'")
             if cid_ref in cid_to_filename:
-                img["src"] = f"{BASE_URL_MA}pictures/{cid_to_filename[cid_ref]}"
+                img["src"] = f"{BASE_URL_MA}pictures/{cid_to_filename[cid_ref]}?v={uuid.uuid4()}"
+            else:
+                LOGGER.error(f"CID '{cid_ref}' not found in mapping")
 
     cleaned_html = email_processing.html_clear(str(soup))
     preprocessed_data = email_processing.preprocess_email(cleaned_html)

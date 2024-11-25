@@ -449,7 +449,7 @@ const processFeedBackForm = async () => {
     const result = await getData("user/preferences/plan/");
     if (result.success) {
         const differenceInDays = Math.round(
-            new Date().getTime() - new Date(result.data.createdAt).getTime() / (1000 * 3600 * 24)
+            (new Date().getTime() - new Date(result.data.createdAt).getTime()) / (1000 * 3600 * 24)
         );
 
         if (differenceInDays >= 14 && !localStorage.getItem("hideFeedbackForm")) {

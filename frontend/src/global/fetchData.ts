@@ -95,7 +95,7 @@ export async function getDataRawResponse(
 }
 
 
-export async function postData(path: string, body: Record<string, any> | FormData, isFormData: boolean = false): Promise<FetchDataResult> {
+export async function postData(path: string, body: Record<string, any> | FormData, isFormData = false): Promise<FetchDataResult> {
     const requestOptions: RequestInit = {
         method: "POST",
         headers: !isFormData

@@ -6,7 +6,7 @@ export ENV="theo"
 export NODE_ENV="development"
 export TOPIC_NAME="sub_new_mail"
 export POSTGRES_USER="django_admin"
-export POSTGRES_PASSWORD="admin@2"
+export POSTGRES_PASSWORD="OOycmlVX8mDHiY6pGyAztF5Hg2ZxsYUIayBKkjdY18Axp05EvnT2UuKuNnV76b6BVXfo6NXOguCZ9BNrfdF5AjSbP09w9bqisMo"
 export POSTGRES_DB="mailassistantdb"
 
 # Start the containers and build if necessary

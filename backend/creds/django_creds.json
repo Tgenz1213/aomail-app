@@ -5,7 +5,7 @@
             "ENGINE": "django.db.backends.postgresql",
             "NAME": "mailassistantdb",
             "USER": "django_admin",
-            "PASSWORD": "admin@2",
+            "PASSWORD": "OOycmlVX8mDHiY6pGyAztF5Hg2ZxsYUIayBKkjdY18Axp05EvnT2UuKuNnV76b6BVXfo6NXOguCZ9BNrfdF5AjSbP09w9bqisMo",
             "HOST": "db",
             "PORT": "5432"
         }

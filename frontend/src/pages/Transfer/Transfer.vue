@@ -136,23 +136,21 @@ onMounted(async () => {
     const senderEmail = JSON.parse(sessionStorage.getItem("senderEmail") || "");
     selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
     emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
-    const providerId = JSON.parse(sessionStorage.getItem("providerId") || "");
+    const emailId = JSON.parse(sessionStorage.getItem("emailId") || "");
     const attachments = JSON.parse(sessionStorage.getItem("attachments") || "[]");
     for (const attachment of attachments) {
-        const result = await getDataRawResponse(
-            `user/emails/${providerId}/attachments/${attachment.attachmentName}/`
-        );
+        const result = await getDataRawResponse(`user/emails/${emailId}/attachments/${attachment.attachmentName}/`);
 
         console.log(result);
 
         const blob = await result.blob();
 
-        const file = new File([blob], attachment.filename, {
-            type: blob.type || attachment.mimeType || 'application/octet-stream',
+        const file = new File([blob], attachment.attachmentName, {
+            type: blob.type || attachment.mimeType || "application/octet-stream",
         });
-     
-        uploadedFiles.value.push(file);
 
+        fileObjects.value.push(file);
+        uploadedFiles.value.push({ name: attachment.attachmentName, size: 1 });
     }
     getProfileImage();
 

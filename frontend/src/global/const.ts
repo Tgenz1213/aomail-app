@@ -1,4 +1,4 @@
-export const VERSION = "v 1.0.3"
+export const VERSION = "v 1.0.4"
 export const BASE_URL = `https://${process.env.VUE_APP_ENV}.aomail.ai/`;
 export const API_BASE_URL = `https://${process.env.VUE_APP_ENV}.aomail.ai/aomail/`;
 export const MICROSOFT = "microsoft";

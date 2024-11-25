@@ -139,20 +139,22 @@ onMounted(async () => {
     const providerId = JSON.parse(sessionStorage.getItem("providerId") || "");
     const attachments = JSON.parse(sessionStorage.getItem("attachments") || "[]");
     for (const attachment of attachments) {
-        const result = await getDataRawResponse(
-            `user/emails/${providerId}/attachments/${attachment.attachmentName}/`
-        );
+        const result = await getDataRawResponse(`user/emails/${providerId}/attachments/${attachment.attachmentName}/`);
 
         console.log(result);
 
         const blob = await result.blob();
 
-        const file = new File([blob], attachment.filename, {
-            type: blob.type || attachment.mimeType || 'application/octet-stream',
+        const file = new File([blob], attachment.attachmentName, {
+            type: blob.type || attachment.mimeType || "application/octet-stream",
         });
-     
-        uploadedFiles.value.push(file);
 
+        console.log("Blob type:", blob.type);
+        console.log("Attachment filename:", attachment.attachmentName);
+        console.log("File object before push:", file);
+
+        fileObjects.value.push(file); // todo: file size + fix forward attachment
+        uploadedFiles.value.push({ name: attachment.attachmentName, size: 1 });
     }
     getProfileImage();
 

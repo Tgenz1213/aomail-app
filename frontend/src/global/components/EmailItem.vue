@@ -663,7 +663,6 @@ async function transferEmail() {
 
     sessionStorage.setItem("subject", JSON.stringify(result.data.subject));
     sessionStorage.setItem("cc", result.data.cc);
-    console.log("DEBUGGGGGGGGGGGGGGGGGGGG", localEmail.value.attachments);
     sessionStorage.setItem("attachments", JSON.stringify(localEmail.value.attachments));
     sessionStorage.setItem("decodedData", JSON.stringify(result.data.decodedData));
     sessionStorage.setItem("emailUser", JSON.stringify(result.data.emailUser));

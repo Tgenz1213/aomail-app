@@ -149,11 +149,7 @@ onMounted(async () => {
             type: blob.type || attachment.mimeType || "application/octet-stream",
         });
 
-        console.log("Blob type:", blob.type);
-        console.log("Attachment filename:", attachment.attachmentName);
-        console.log("File object before push:", file);
-
-        fileObjects.value.push(file); // todo: file size + fix forward attachment
+        fileObjects.value.push(file);
         uploadedFiles.value.push({ name: attachment.attachmentName, size: 1 });
     }
     getProfileImage();

@@ -72,7 +72,7 @@ urlpatterns = [
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'),
     path('user/get_first_email/', emails.get_first_email, name='get_first_email'),    
     path('user/emails/update/', emails.update_emails, name='update_emails'),
-    path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 
+    path('user/emails/<str:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 
     path('get_mail_by_id', emails.get_mail_by_id, name='get_mail_by_id'),
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'),
     #----------------------- VIEWS -----------------------#

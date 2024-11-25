@@ -33,7 +33,7 @@ import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { getData } from "@/global/fetchData";
+import { getData, getDataRawResponse } from "@/global/fetchData";
 import { formatSentDateAndTime, i18n } from "@/global/preferences";
 import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
@@ -136,6 +136,24 @@ onMounted(async () => {
     const senderEmail = JSON.parse(sessionStorage.getItem("senderEmail") || "");
     selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
     emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
+    const providerId = JSON.parse(sessionStorage.getItem("providerId") || "");
+    const attachments = JSON.parse(sessionStorage.getItem("attachments") || "[]");
+    for (const attachment of attachments) {
+        const result = await getDataRawResponse(
+            `user/emails/${providerId}/attachments/${attachment.attachmentName}/`
+        );
+
+        console.log(result);
+
+        const blob = await result.blob();
+
+        const file = new File([blob], attachment.filename, {
+            type: blob.type || attachment.mimeType || 'application/octet-stream',
+        });
+     
+        uploadedFiles.value.push(file);
+
+    }
     getProfileImage();
 
     const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");

@@ -94,13 +94,16 @@ export async function getDataRawResponse(
     }
 }
 
-export async function postData(path: string, body: Record<string, any>): Promise<FetchDataResult> {
-    const requestOptions = {
+
+export async function postData(path: string, body: Record<string, any> | FormData, isFormData: boolean = false): Promise<FetchDataResult> {
+    const requestOptions: RequestInit = {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+        headers: !isFormData
+            ? {
+                "Content-Type": "application/json",
+            }
+            : {},
+        body: isFormData ? body as FormData : JSON.stringify(body),
     };
 
     const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
@@ -138,6 +141,7 @@ export async function postData(path: string, body: Record<string, any>): Promise
         };
     }
 }
+
 
 export async function deleteData(path: string, body?: any): Promise<FetchDataResult> {
     const requestOptions: RequestInit = {

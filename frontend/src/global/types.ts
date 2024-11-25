@@ -49,6 +49,7 @@ interface EmailFlags {
 export interface FetchDataResult {
     success: boolean;
     data?: any;
+    blob?: any;
     error?: string;
 }
 

@@ -136,10 +136,10 @@ onMounted(async () => {
     const senderEmail = JSON.parse(sessionStorage.getItem("senderEmail") || "");
     selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
     emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
-    const providerId = JSON.parse(sessionStorage.getItem("providerId") || "");
+    const emailId = JSON.parse(sessionStorage.getItem("emailId") || "");
     const attachments = JSON.parse(sessionStorage.getItem("attachments") || "[]");
     for (const attachment of attachments) {
-        const result = await getDataRawResponse(`user/emails/${providerId}/attachments/${attachment.attachmentName}/`);
+        const result = await getDataRawResponse(`user/emails/${emailId}/attachments/${attachment.attachmentName}/`);
 
         console.log(result);
 

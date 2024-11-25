@@ -324,7 +324,7 @@ def retrieve_attachment_data(
         Response: JSON response containing the attachment data or HTTP 404 if not found.
     """
     user = request.user
-    email = get_object_or_404(Email, user=user, provider_id=email_id)
+    email = get_object_or_404(Email, user=user, id=email_id)
     social_api = email.social_api
 
     if social_api.type_api == GOOGLE:

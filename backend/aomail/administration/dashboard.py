@@ -26,9 +26,9 @@ from django.contrib.auth import authenticate
 from datetime import timedelta
 from aomail.controllers.statistics import compute_statistics
 from aomail.utils.security import admin_access_required
-from aomail.models import Email, SocialAPI, Statistics, Subscription
+from aomail.models import Category, Email, Rule, SocialAPI, Statistics, Subscription
 from aomail.utils import security
-from aomail.constants import ALLOWED_PLANS, GOOGLE, MICROSOFT
+from aomail.constants import ALLOWED_PLANS, DEFAULT_CATEGORY, GOOGLE, MICROSOFT
 
 
 LOGGER = logging.getLogger(__name__)
@@ -276,6 +276,11 @@ def search_user_info(request: HttpRequest) -> Response:
         price_tokens_output = nb_tokens_output / 1_000_000 * 1.25
         computed_stats = compute_statistics(statistics, email_stats_param)
 
+        nb_rules = Rule.objects.filter(user=user).count()
+        nb_created_categories = (
+            Category.objects.filter(user=user).exclude(name=DEFAULT_CATEGORY).count()
+        )
+
         LOGGER.info(
             f"Admin {admin.id} ({admin.username}) from IP {ip} successfully retrieved info for user {user.id}."
         )
@@ -300,6 +305,8 @@ def search_user_info(request: HttpRequest) -> Response:
                         else None
                     ),
                 },
+                "nbRules": nb_rules,
+                "nbCreatedCategories": nb_created_categories,
                 "nbTokensInput": nb_tokens_input,
                 "nbTokensOutput": nb_tokens_output,
                 "estimatedCostUser": {
@@ -361,7 +368,9 @@ def get_dashboard_data(request: HttpRequest) -> Response:
     )
 
     try:
-        email_count = Email.objects.count()
+        nb_emails = Email.objects.count()
+        nb_rules = Rule.objects.count()
+        nb_created_categories = Category.objects.exclude(name=DEFAULT_CATEGORY).count()
         social_api_counts = SocialAPI.objects.aggregate(
             microsoft_count=Count(Case(When(type_api=MICROSOFT, then=1))),
             google_count=Count(Case(When(type_api=GOOGLE, then=1))),
@@ -378,7 +387,13 @@ def get_dashboard_data(request: HttpRequest) -> Response:
         )
         return Response(
             {
-                "emailCount": email_count,
+                "email": {
+                    "count": nb_emails,
+                    "avgPerUser": nb_emails / regular_user_count,
+                },
+                "avgRulesPerUser": nb_rules / regular_user_count,
+                "avgCreatedCategoriesPerUser": nb_created_categories
+                / regular_user_count,
                 "socialApiCount": {
                     MICROSOFT: social_api_counts["microsoft_count"],
                     GOOGLE: social_api_counts["google_count"],

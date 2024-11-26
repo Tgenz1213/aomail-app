@@ -119,6 +119,7 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
 import { API_BASE_URL } from "@/global/const";
 import { i18n } from "@/global/preferences";
+import { fetchWithToken } from "@/global/security";
 
 const username = ref<string>("");
 const password = ref<string>("");
@@ -129,7 +130,12 @@ const notificationMessage = ref<string>("");
 const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
 
-onMounted(() => {
+onMounted(async () => {
+    const response = await fetchWithToken(`${API_BASE_URL}is_authenticated/`);
+    const data = await response?.json();
+    if (data?.isAuthenticated) {
+        router.push({ name: "home" });
+    }
     document.addEventListener("keydown", handleKeyDown);
 });
 
@@ -170,7 +176,11 @@ function displayPopup(type: "success" | "error", title: string, message: string)
 
 async function login() {
     if (username.value.length > 150) {
-        displayPopup("error", i18n.global.t("userLoginPage.loginError"), i18n.global.t("userLoginPage.maxUsernameLength"));
+        displayPopup(
+            "error",
+            i18n.global.t("userLoginPage.loginError"),
+            i18n.global.t("userLoginPage.maxUsernameLength")
+        );
         return;
     }
 
@@ -193,10 +203,18 @@ async function login() {
             localStorage.setItem("accessToken", data.accessToken);
             router.push({ name: "home" });
         } else {
-            displayPopup("error", i18n.global.t("userLoginPage.loginError"), i18n.global.t("userLoginPage.invalidCredentials"));
+            displayPopup(
+                "error",
+                i18n.global.t("userLoginPage.loginError"),
+                i18n.global.t("userLoginPage.invalidCredentials")
+            );
         }
     } catch (error) {
-        displayPopup("error", i18n.global.t("userLoginPage.loginError"), i18n.global.t("userLoginPage.invalidCredentials"));
+        displayPopup(
+            "error",
+            i18n.global.t("userLoginPage.loginError"),
+            i18n.global.t("userLoginPage.invalidCredentials")
+        );
     }
 }
 </script>

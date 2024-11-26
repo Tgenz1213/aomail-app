@@ -105,14 +105,18 @@
             </Listbox>
         </div>
     </div>
+    <AomailFilters :isOpen="isAomailFiltersOpen" />
+    <ApiFilters :isOpen="isApiFiltersOpen" />
 </template>
 
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
-import { Email, EmailDetails, KeyValuePair } from "@/global/types";
+import { AomailSearchFilter, Email, EmailDetails, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { inject, onMounted, onUnmounted, ref, Ref } from "vue";
+import { inject, onMounted, onUnmounted, provide, ref, Ref } from "vue";
+import AomailFilters from "./AomailFilters.vue";
+import ApiFilters from "./ApiFilters.vue";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -123,6 +127,11 @@ const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const inputValue = ref("");
 const isFocused = ref(false);
+const isAomailFiltersOpen = ref(false);
+const isApiFiltersOpen = ref(false);
+const aomailSearchFilters = ref<AomailSearchFilter>({});
+
+provide("aomailSearchFilters", aomailSearchFilters);
 
 const searchModes: KeyValuePair[] = [
     { key: "aomail", value: "Aomail" },
@@ -130,11 +139,16 @@ const searchModes: KeyValuePair[] = [
 ];
 const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
 
-async function toggleFilters() {
+const closeFilters = () => {
+    isApiFiltersOpen.value = false;
+    isAomailFiltersOpen.value = false;
+};
+
+function toggleFilters() {
     if (selectedSearchMode.value.key === "aomail") {
-        // todo: show aomail filters
+        isAomailFiltersOpen.value = !isAomailFiltersOpen.value;
     } else {
-        // todo: show api filters
+        isApiFiltersOpen.value = !isApiFiltersOpen.value;
     }
 }
 
@@ -160,10 +174,38 @@ onUnmounted(() => {
 async function searchEmails() {
     loading?.();
     scrollToBottom?.();
+    closeFilters?.();
 
-    const result = await postData(`user/emails_ids/`, {
-        search: inputValue.value,
-    });
+    let result;
+    if (
+        aomailSearchFilters.value.emailProvider ||
+        aomailSearchFilters.value.subject ||
+        aomailSearchFilters.value.senderEmail ||
+        aomailSearchFilters.value.senderName ||
+        aomailSearchFilters.value.CCEmails ||
+        aomailSearchFilters.value.CCNames ||
+        aomailSearchFilters.value.category ||
+        aomailSearchFilters.value.emailAddresses ||
+        aomailSearchFilters.value.archive ||
+        aomailSearchFilters.value.replyLater ||
+        aomailSearchFilters.value.read ||
+        aomailSearchFilters.value.sentDate ||
+        aomailSearchFilters.value.readDate ||
+        aomailSearchFilters.value.answer ||
+        aomailSearchFilters.value.relevance ||
+        aomailSearchFilters.value.priority ||
+        aomailSearchFilters.value.hasAttachments ||
+        aomailSearchFilters.value.spam ||
+        aomailSearchFilters.value.scam ||
+        aomailSearchFilters.value.newsletter ||
+        aomailSearchFilters.value.notification ||
+        aomailSearchFilters.value.meeting
+    ) {
+        aomailSearchFilters.value.advanced = true;
+        result = await postData(`user/emails_ids/`, aomailSearchFilters.value);
+    } else {
+        result = await postData(`user/emails_ids/`, inputValue.value ? { search: inputValue.value } : {});
+    }
 
     if (!result.success) {
         displayPopup?.("error", "Failed to fetch emails", result.error as string);

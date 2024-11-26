@@ -1,4 +1,15 @@
 import { Component as VueComponent } from "vue";
+import {
+    ANSWER_REQUIRED,
+    HIGHLY_RELEVANT,
+    IMPORTANT,
+    INFORMATIVE,
+    MIGHT_REQUIRE_ANSWER,
+    NO_ANSWER_REQUIRED,
+    NOT_RELEVANT,
+    POSSIBLY_RELEVANT,
+    USELESS,
+} from "./const";
 
 export interface KeyValuePair {
     key: string;
@@ -113,4 +124,30 @@ export interface EmailMapping {
 export interface AiRecipient {
     username: string;
     email: string[];
+}
+
+export interface AomailSearchFilter {
+    advanced?: boolean;
+    emailProvider?: string[];
+    subject?: string;
+    senderEmail?: string;
+    senderName?: string;
+    CCEmails?: string[];
+    CCNames?: string[];
+    category?: string;
+    emailAddresses?: string[];
+    archive?: boolean;
+    replyLater?: boolean;
+    read?: boolean;
+    sentDate?: Date;
+    readDate?: Date;
+    answer?: (typeof ANSWER_REQUIRED | typeof MIGHT_REQUIRE_ANSWER | typeof NO_ANSWER_REQUIRED)[];
+    relevance?: (typeof HIGHLY_RELEVANT | typeof POSSIBLY_RELEVANT | typeof NOT_RELEVANT)[];
+    priority?: (typeof IMPORTANT | typeof INFORMATIVE | typeof USELESS)[];
+    hasAttachments?: boolean;
+    spam?: boolean;
+    scam?: boolean;
+    newsletter?: boolean;
+    notification?: boolean;
+    meeting?: boolean;
 }

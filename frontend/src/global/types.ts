@@ -1,9 +1,11 @@
 import { Component as VueComponent } from "vue";
 import {
     ANSWER_REQUIRED,
+    GOOGLE,
     HIGHLY_RELEVANT,
     IMPORTANT,
     INFORMATIVE,
+    MICROSOFT,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
     NOT_RELEVANT,
@@ -11,9 +13,16 @@ import {
     USELESS,
 } from "./const";
 
+export type EmailProvider = typeof GOOGLE | typeof MICROSOFT;
+
 export interface KeyValuePair {
     key: string;
     value: string;
+}
+
+export interface AttachmentType {
+    extension: string;
+    name: string;
 }
 
 export interface EmailSender {
@@ -70,26 +79,26 @@ export interface Recipient {
 }
 
 export interface Email {
-    id: number;
+    id?: number;
     subject: string;
     sender: Sender;
     providerId: string;
-    shortSummary: string;
-    oneLineSummary: string;
+    shortSummary?: string;
+    oneLineSummary?: string;
     cc: Sender[];
     bcc: Sender[];
-    read: boolean;
-    answerLater: boolean;
-    rule: EmailRule;
+    read?: boolean;
+    answerLater?: boolean;
+    rule?: EmailRule;
     hasAttachments: boolean;
     attachments: EmailAttachment[];
     sentDate: string;
     sentTime: string;
-    answer: boolean;
-    archive: boolean;
-    relevance: string;
-    priority: string;
-    flags: EmailFlags;
+    answer?: boolean;
+    archive?: boolean;
+    relevance?: string;
+    priority?: string;
+    flags?: EmailFlags;
     category?: string;
     htmlContent?: string;
 }

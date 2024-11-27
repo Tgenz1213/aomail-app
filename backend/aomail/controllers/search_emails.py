@@ -10,7 +10,7 @@ Endpoints:
 import json
 import logging
 from collections import defaultdict
-from django.db.models import Exists, OuterRef, F, Q, Subquery
+from django.db.models import Exists, OuterRef, Q, Subquery
 from django.db.models.manager import BaseManager
 from django.http import HttpRequest
 from rest_framework import status
@@ -343,29 +343,28 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
             email_count (int): Total number of emails in the queryset.
             email_ids (list): List of email IDs from the queryset.
     """
-    priority_order = ['important', 'informative', 'useless']
+    priority_order = ["important", "informative", "useless"]
     email_ids = []
-    
+
     for priority in priority_order:
         priority_unread_ids = list(
-            queryset.filter(
-                priority=priority,
-                read=False
-            ).order_by('-date').values_list('id', flat=True)
+            queryset.filter(priority=priority, read=False)
+            .order_by("-date")
+            .values_list("id", flat=True)
         )
         email_ids.extend(priority_unread_ids)
 
     for priority in priority_order:
         priority_read_ids = list(
-            queryset.filter(
-                priority=priority,
-                read=True
-            ).order_by('-date').values_list('id', flat=True)
+            queryset.filter(priority=priority, read=True)
+            .order_by("-date")
+            .values_list("id", flat=True)
         )
         email_ids.extend(priority_read_ids)
 
     email_count = len(email_ids)
     return email_count, email_ids
+
 
 @api_view(["POST"])
 @subscription(ALLOWED_PLANS)

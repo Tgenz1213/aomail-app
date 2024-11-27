@@ -62,6 +62,7 @@ import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import AiSearchMenu from "./components/AiSearchMenu.vue";
 import EmailList from "./components/EmailList.vue";
+import { EmailApiListType } from "./utils/types";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -84,6 +85,7 @@ const contacts: Recipient[] = [];
 const queryGetRecipients = ref("");
 const emailIds = ref<number[]>([]);
 const emailList = ref<Email[]>([]);
+const emailApiList = ref<EmailApiListType>({});
 
 onMounted(() => {
     checkLoginStatus();
@@ -114,6 +116,7 @@ provide("selectedPerson", selectedPerson);
 provide("selectedSearchIn", selectedSearchIn);
 provide("emailIds", emailIds);
 provide("emailList", emailList);
+provide("emailApiList", emailApiList);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

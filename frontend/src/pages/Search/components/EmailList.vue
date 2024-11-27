@@ -13,6 +13,24 @@
                     </template>
                 </ul>
             </template>
+            <template v-else-if="showEmailApiList">
+                <ul class="space-y-4 pr-4">
+                    <template v-for="(dictEmails, provider) in emailApiList" :key="provider">
+                        --- {{ provider }} ---
+                        <div v-for="(emailList, userEmail) in dictEmails" :key="userEmail">
+                            ___ {{ userEmail }} ___
+                            <div v-for="email in emailList" :key="email.providerId">
+                                <EmailItem :email="email" />
+                            </div>
+                            <li class="flex relative pt-2">
+                                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                    <div class="w-full border-t border-gray-300"></div>
+                                </div>
+                            </li>
+                        </div>
+                    </template>
+                </ul>
+            </template>
             <template v-else>
                 <div
                     class="flex flex-col items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-300"
@@ -43,10 +61,17 @@
 <script setup lang="ts">
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { Email } from "@/global/types";
-import { computed, inject, provide, Ref, ref } from "vue";
+import { computed, inject, Ref, ref, watch } from "vue";
 import EmailItem from "./EmailItem.vue";
+import { EmailApiListType } from "../utils/types";
 
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
+const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailApiListType>({});
+let showEmailApiList = false;
+
+watch(emailApiList, (emailApiList) => {
+    showEmailApiList = emailApiList.google !== undefined || emailApiList.microsoft !== undefined;
+});
 
 const sortedEmailList = computed(() => {
     const priorityOrder: Record<string, number> = {
@@ -56,9 +81,7 @@ const sortedEmailList = computed(() => {
     };
 
     return [...emailList.value].sort((a, b) => {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+        return priorityOrder[a.priority as string] - priorityOrder[b.priority as string];
     });
 });
-
-provide("emailList", emailList);
 </script>

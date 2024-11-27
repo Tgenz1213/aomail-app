@@ -111,13 +111,14 @@
 
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
-import { AomailSearchFilter, ApiSearchFilter, Email, EmailDetails, KeyValuePair } from "@/global/types";
+import { AomailSearchFilter, ApiSearchFilter, Email, EmailDetails, EmailProvider, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { inject, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
 import AomailFilters from "./AomailFilters.vue";
 import ApiFilters from "./ApiFilters.vue";
 import { AOMAIL_SEARCH_KEY, API_SEARCH_KEY } from "@/global/const";
+import { EmailApiIds, EmailApiListType } from "../utils/types";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -125,7 +126,9 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const hideLoading = inject<() => void>("hideLoading");
 
 const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
+const emailApiIds = inject<Ref<EmailApiIds>>("emailApiIds") || ref<EmailApiIds>({});
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
+const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailApiListType>({});
 const inputValue = ref("");
 const isFocused = ref(false);
 const isAomailFiltersOpen = ref(false);
@@ -190,6 +193,7 @@ async function searchApiEmails() {
     loading?.();
     scrollToBottom?.();
     closeFilters?.();
+    emailList.value = [];
 
     let result;
     if (
@@ -205,10 +209,46 @@ async function searchApiEmails() {
         apiSearchFilters.value.toAddresses
     ) {
         apiSearchFilters.value.advanced = true;
-        result = await postData(`user/search_api_emails_ids/`, apiSearchFilters.value);
+        result = await postData(`user/get_api_emails_ids/`, apiSearchFilters.value);
     } else {
-        result = await postData(`user/search_api_emails_ids/`, inputValue.value ? { query: inputValue.value } : {});
+        result = await postData(`user/get_api_emails_ids/`, inputValue.value ? { query: inputValue.value } : {});
     }
+
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch emails", result.error as string);
+        hideLoading?.();
+        return;
+    }
+
+    emailApiIds.value = result.data;
+    let nbLimitedApiIds = 0;
+    let limitedApiIds: EmailApiIds = {};
+
+    Object.entries(emailApiIds.value).forEach(([provider, dictEmails]) => {
+        const typedProvider = provider as EmailProvider;
+
+        Object.entries(dictEmails).forEach(([email, listIds]) => {
+            if (nbLimitedApiIds < 50) {
+                if (!limitedApiIds[typedProvider]) {
+                    limitedApiIds[typedProvider] = {};
+                }
+                limitedApiIds[typedProvider][email] = listIds.slice(0, 50 - nbLimitedApiIds);
+                nbLimitedApiIds += limitedApiIds[typedProvider][email].length;
+            }
+        });
+    });
+
+    result = await postData(`user/get_api_emails_data/`, {
+        limitedApiIds,
+    });
+
+    hideLoading?.();
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch email details", result.error as string);
+        return;
+    }
+
+    emailApiList.value = result.data.data;
 }
 
 async function searchAomailEmails() {
@@ -259,12 +299,11 @@ async function searchAomailEmails() {
         ids: limitedEmails,
     });
 
+    hideLoading?.();
     if (!resultEmailsData.success) {
         displayPopup?.("error", "Failed to fetch email details", resultEmailsData.error as string);
-        hideLoading?.();
         return;
     }
-    hideLoading?.();
 
     const emailDetails: EmailDetails = resultEmailsData.data;
 

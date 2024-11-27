@@ -80,7 +80,7 @@ urlpatterns = [
 
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'),
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'),
-    path('user/search_emails/', views.search_emails , name='search_emails'),
+    path('user/search_api_emails_ids/', views.search_api_emails_ids , name='search_api_emails_ids'),
     path('user/social_api/check_connectivity/', views.check_connectivity, name='check_connectivity'),
     path('user/social_api/synchronize/', views.synchronize, name='synchronize'),    
     path('user/social_api/send_email/', views.send_email, name='send_email'),

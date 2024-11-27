@@ -108,7 +108,7 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
     if request.method == "POST":
         content_type = request.content_type
 
-        if content_type.startswith('application/json'):
+        if content_type.startswith("application/json"):
             try:
                 parameters = json.loads(request.body)
                 email = parameters.get("email") or request.headers.get("email")
@@ -117,10 +117,10 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
                     {"error": "Invalid JSON in request body"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        elif content_type.startswith('multipart/form-data'):
+        elif content_type.startswith("multipart/form-data"):
             email = request.POST.get("email") or request.headers.get("email")
             parameters = request.POST.dict()
-            parameters.update({'attachments': request.FILES.getlist('attachments')})
+            parameters.update({"attachments": request.FILES.getlist("attachments")})
         else:
             return Response(
                 {"error": "Unsupported Content-Type"},
@@ -284,24 +284,28 @@ def get_emails_linked(request: HttpRequest) -> Response:
 
 @api_view(["POST"])
 @subscription(ALLOWED_PLANS)
-def search_emails(request: HttpRequest) -> Response:
+def search_api_emails_ids(request: HttpRequest) -> Response:
     """
     Searches emails based on user-specified parameters.
 
     Args:
         request (HttpRequest): HTTP request object containing the search parameters in the request body.
             Expects JSON body with:
-                emails (list of str): List of email addresses to search.
-                max_results (int): Maximum number of results to return.
+                emailProvider (list[str]): List of email providers to filter by.
+                maxResults (int): Maximum number of results to return.
                 query (str): The user query for the search.
-                file_extensions (list of str): List of file extensions to filter attachments.
+                fileExtensions (list[str]): List of file extensions to filter attachments.
                 advanced (bool): Flag to indicate if advanced search is enabled.
-                from_addresses (list of str): List of sender email addresses to filter.
-                to_addresses (list of str): List of recipient email addresses to filter.
+                fromAddresses (list[str]): List of sender email addresses to filter.
+                toAddresses (list[str]): List of recipient email addresses to filter.
                 subject (str): Subject of the emails to filter.
                 body (str): Body content of the emails to filter.
-                date_from (str): Start date to filter emails.
-                search_in (dict): Additional search parameters.
+                dateFrom (str): Start date to filter emails.
+                searchIn (dict[str, bool], optional): A dictionary specifying the folders to search in:
+                    spams: Search in spam/junk folder.
+                    deleted_emails: Search in deleted items folder.
+                    drafts: Search in drafts folder.
+                    sent_emails: Search in sent items folder.
 
     Returns:
         Response: A JSON response with the search results categorized by email provider and email address,
@@ -309,17 +313,18 @@ def search_emails(request: HttpRequest) -> Response:
     """
     data: dict = json.loads(request.body)
     user = request.user
-    emails: list = data["emails"]
-    max_results: int = data["max_results"]
-    query: str = data["query"]
-    file_extensions: list = data["file_extensions"]
-    advanced: bool = data["advanced"]
-    from_addresses: list = data["from_addresses"]
-    to_addresses: list = data["to_addresses"]
-    subject: str = data["subject"]
-    body: str = data["body"]
-    date_from: str = data["date_from"]
-    search_in: dict = data["search_in"]
+    email_provider: list[str] = data.get("emailProvider", [GOOGLE, MICROSOFT])
+    max_results: int = data.get("maxResults")
+    query: str = data.get("query")
+    file_extensions: list = data.get("fileExtensions")
+    filenames: list = data.get("filenames")
+    advanced: bool = data.get("advanced")
+    from_addresses: list = data.get("fromAddresses")
+    to_addresses: list = data.get("toAddresses")
+    subject: str = data.get("subject")
+    body: str = data.get("body")
+    date_from: str = data.get("dateFrom")
+    search_in: dict = data.get("searchIn")
 
     def append_to_result(provider: str, email: str, data: list):
         if len(data) > 0:
@@ -328,59 +333,65 @@ def search_emails(request: HttpRequest) -> Response:
             result[provider][email] = data
 
     result = {}
-    for email in emails:
-        social_api = SocialAPI.objects.get(email=email)
-        type_api = social_api.type_api
+    for provider in email_provider:
+        social_apis = SocialAPI.objects.filter(user=user, type_api=provider)
 
-        if type_api == GOOGLE:
-            services = auth_google.authenticate_service(user, email, ["gmail"])
-            search_result = threading.Thread(
-                target=append_to_result,
-                args=(
-                    GOOGLE,
-                    email,
-                    email_operations_google.search_emails_manually(
-                        services,
-                        query,
-                        max_results,
-                        file_extensions,
-                        advanced,
-                        search_in,
-                        from_addresses,
-                        to_addresses,
-                        subject,
-                        body,
-                        date_from,
-                    ),
-                ),
-            )
-        elif type_api == MICROSOFT:
-            access_token = auth_microsoft.refresh_access_token(
-                auth_microsoft.get_social_api(user, email)
-            )
-            search_result = threading.Thread(
-                target=append_to_result,
-                args=(
-                    MICROSOFT,
-                    email,
-                    email_operations_microsoft.search_emails_manually(
-                        access_token,
-                        query,
-                        max_results,
-                        file_extensions,
-                        advanced,
-                        search_in,
-                        from_addresses,
-                        to_addresses,
-                        subject,
-                        body,
-                        date_from,
-                    ),
-                ),
-            )
+        for social_api in social_apis:
+            email = social_api.email
+            social_api = SocialAPI.objects.get(email=email)
+            type_api = social_api.type_api
 
-        search_result.start()
-        search_result.join()
+            if type_api == GOOGLE:
+                services = auth_google.authenticate_service(user, email, ["gmail"])
+                search_result = threading.Thread(
+                    target=append_to_result,
+                    args=(
+                        GOOGLE,
+                        email,
+                        email_operations_google.search_emails_manually(
+                            services,
+                            query,
+                            max_results,
+                            file_extensions,
+                            filenames,
+                            advanced,
+                            search_in,
+                            from_addresses,
+                            to_addresses,
+                            subject,
+                            body,
+                            date_from,
+                        ),
+                    ),
+                )
+            elif type_api == MICROSOFT:
+                access_token = auth_microsoft.refresh_access_token(
+                    auth_microsoft.get_social_api(user, email)
+                )
+                search_result = threading.Thread(
+                    target=append_to_result,
+                    args=(
+                        MICROSOFT,
+                        email,
+                        email_operations_microsoft.search_emails_manually(
+                            access_token,
+                            query,
+                            max_results,
+                            file_extensions,
+                            filenames,
+                            advanced,
+                            search_in,
+                            from_addresses,
+                            to_addresses,
+                            subject,
+                            body,
+                            date_from,
+                        ),
+                    ),
+                )
+
+            search_result.start()
+            search_result.join()
 
     return Response(result, status=status.HTTP_200_OK)
 

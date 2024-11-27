@@ -3,7 +3,7 @@
         <div class="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
             <div class="max-h-[400px] overflow-y-auto p-2">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold mb-4">Advanced Optional Filters</h2>
+                    <h2 class="text-lg font-semibold mb-4">Advanced Optional Filters - Aomail Search</h2>
                     <button
                         @click="resetFilters"
                         class="bg-gray-100 px-3 py-2 text-gray-600 text-sm rounded-md hover:bg-gray-200"
@@ -83,15 +83,15 @@
                             :key="category.name"
                             class="flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-50 px-6 py-4 shadow hover:shadow-md text-gray-700 relative"
                         >
-                            <span>{{ category.name }}</span>
+                            {{ category.name }}
                         </option>
                     </select>
                 </div>
 
-                <!-- Sent Date -->
+                <!-- Received Date -->
                 <div>
                     <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">
-                        Search from Sent Date (choose a date to filter emails from that day until now)
+                        Search from Received Date (choose a date to filter emails from that day until now)
                     </h3>
                     <input
                         type="date"

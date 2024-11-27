@@ -102,11 +102,6 @@ export interface EmailDetails {
     };
 }
 
-export interface AttachmentType {
-    extension: string;
-    name: string;
-}
-
 export interface EmailLinked {
     email: string;
     typeApi: string;
@@ -150,4 +145,17 @@ export interface AomailSearchFilter {
     newsletter?: boolean;
     notification?: boolean;
     meeting?: boolean;
+}
+
+export interface ApiSearchFilter {
+    advanced?: boolean;
+    emailProvider?: string[];
+    fileExtensions?: string[];
+    filenames?: string[];
+    searchIn?: Record<string, boolean>;
+    fromAddresses?: string[];
+    toAddresses?: string[];
+    subject?: string;
+    body?: string;
+    dateFrom?: string; // Format allowed: YYYY-MM-DD
 }

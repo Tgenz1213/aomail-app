@@ -111,12 +111,13 @@
 
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
-import { AomailSearchFilter, Email, EmailDetails, KeyValuePair } from "@/global/types";
+import { AomailSearchFilter, ApiSearchFilter, Email, EmailDetails, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { inject, onMounted, onUnmounted, provide, ref, Ref } from "vue";
+import { inject, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
 import AomailFilters from "./AomailFilters.vue";
 import ApiFilters from "./ApiFilters.vue";
+import { AOMAIL_SEARCH_KEY, API_SEARCH_KEY } from "@/global/const";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -130,12 +131,14 @@ const isFocused = ref(false);
 const isAomailFiltersOpen = ref(false);
 const isApiFiltersOpen = ref(false);
 const aomailSearchFilters = ref<AomailSearchFilter>({});
+const apiSearchFilters = ref<ApiSearchFilter>({});
 
 provide("aomailSearchFilters", aomailSearchFilters);
+provide("apiSearchFilters", apiSearchFilters);
 
 const searchModes: KeyValuePair[] = [
-    { key: "aomail", value: "Aomail" },
-    { key: "api", value: "API" },
+    { key: AOMAIL_SEARCH_KEY, value: "Aomail" },
+    { key: API_SEARCH_KEY, value: "API" },
 ];
 const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
 
@@ -145,7 +148,7 @@ const closeFilters = () => {
 };
 
 function toggleFilters() {
-    if (selectedSearchMode.value.key === "aomail") {
+    if (selectedSearchMode.value.key === AOMAIL_SEARCH_KEY) {
         isAomailFiltersOpen.value = !isAomailFiltersOpen.value;
     } else {
         isApiFiltersOpen.value = !isApiFiltersOpen.value;
@@ -163,6 +166,10 @@ const handleKeyDown = (event: KeyboardEvent) => {
     }
 };
 
+watch(selectedSearchMode, () => {
+    closeFilters();
+});
+
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
 });
@@ -171,7 +178,40 @@ onUnmounted(() => {
     document.removeEventListener("keydown", handleKeyDown);
 });
 
-async function searchEmails() {
+function searchEmails() {
+    if (selectedSearchMode.value.key === AOMAIL_SEARCH_KEY) {
+        searchAomailEmails();
+    } else {
+        searchApiEmails();
+    }
+}
+
+async function searchApiEmails() {
+    loading?.();
+    scrollToBottom?.();
+    closeFilters?.();
+
+    let result;
+    if (
+        apiSearchFilters.value.emailProvider ||
+        apiSearchFilters.value.subject ||
+        apiSearchFilters.value.body ||
+        apiSearchFilters.value.dateFrom ||
+        apiSearchFilters.value.fileExtensions ||
+        apiSearchFilters.value.filenames ||
+        apiSearchFilters.value.fromAddresses ||
+        apiSearchFilters.value.fromAddresses ||
+        apiSearchFilters.value.searchIn ||
+        apiSearchFilters.value.toAddresses
+    ) {
+        apiSearchFilters.value.advanced = true;
+        result = await postData(`user/search_api_emails_ids/`, apiSearchFilters.value);
+    } else {
+        result = await postData(`user/search_api_emails_ids/`, inputValue.value ? { query: inputValue.value } : {});
+    }
+}
+
+async function searchAomailEmails() {
     loading?.();
     scrollToBottom?.();
     closeFilters?.();

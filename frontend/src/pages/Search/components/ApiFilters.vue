@@ -1,370 +1,204 @@
 <template>
     <div v-if="isOpen" class="absolute left-0 right-0 z-50">
-        <div class="flex space-x-2 hidden pr-2 w-full mb-4">
-            <div class="flex flex-col gap-4">
-                <div class="flex gap-4 gap-y-2 w-full flex-wrap">
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Combobox as="div" v-model="selectedPerson">
-                            <div class="relative flex items-center w-full">
-                                <user-icon
-                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-                                />
-                                <ComboboxInput
-                                    class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                                    @input="queryGetRecipients = $event.target.value"
-                                    :display-value="(person) => person?.username"
-                                    :placeholder="$t('searchPage.toAddressesSelectedPlaceholder')"
-                                    style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden"
-                                />
-                                <ComboboxButton
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none"
-                                >
-                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </ComboboxButton>
-                            </div>
-                            <ComboboxOptions
-                                v-if="filteredPeople.length > 0"
-                                class="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0"
-                            >
-                                <ComboboxOption
-                                    v-for="person in filteredPeople"
-                                    :value="person"
-                                    :key="person"
-                                    as="template"
-                                    v-slot="{ active, selected }"
-                                >
-                                    <li
-                                        @click="toggleSelection(person)"
-                                        :class="[
-                                            'relative cursor-default select-none py-2 pl-3 pr-9',
-                                            active ? 'bg-gray-500 text-white' : 'text-gray-900',
-                                        ]"
-                                    >
-                                        <div class="flex">
-                                            <span :class="['truncate', selected && 'font-semibold']">
-                                                {{ person.username }}
-                                            </span>
-                                            <span
-                                                :class="[
-                                                    'ml-2 truncate hidden text-gray-500',
-                                                    active ? 'text-indigo-200' : 'text-gray-500',
-                                                ]"
-                                            >
-                                                &lt;{{ person.email }}&gt;
-                                            </span>
-                                        </div>
-                                        <span
-                                            v-if="selected"
-                                            :class="[
-                                                'absolute inset-y-0 right-0 flex items-center pr-4',
-                                                active ? 'text-white' : 'text-gray-500',
-                                            ]"
-                                        >
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                        </span>
-                                    </li>
-                                </ComboboxOption>
-                            </ComboboxOptions>
-                        </Combobox>
+        <div class="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+            <div class="max-h-[400px] overflow-y-auto p-2">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold mb-4">Advanced Optional Filters - API Search</h2>
+                    <button
+                        @click="resetFilters"
+                        class="bg-gray-100 px-3 py-2 text-gray-600 text-sm rounded-md hover:bg-gray-200"
+                    >
+                        Clear All Filters
+                    </button>
+                </div>
+
+                <!-- Email Provider Section -->
+                <div>
+                    <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">
+                        Choose the Email Providers you want to include in your search
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="gmail"
+                            :value="GOOGLE"
+                            v-model="emailProviders"
+                            class="rounded text-gray-600 focus:ring-gray-500"
+                        />
+                        <label for="gmail" class="flex items-center">Gmail</label>
                     </div>
-                    <div class="flex-1 min-w-[150px] mt-2">
-                        <div class="relative">
-                            <div
-                                class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                @click="toggleDropdown"
-                                @click.self="toggleDropdown"
-                            >
-                                <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
-                                <span class="block truncate text-gray-700">
-                                    {{
-                                        attachmentsSelected.length > 0
-                                            ? attachmentsSelected.map((item: any) => item.name).join(", ")
-                                            : $t("searchPage.attachmentSelectedPlaceholder")
-                                    }}
-                                </span>
-                                <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
-                                </span>
-                            </div>
-                            <transition
-                                leave-active-class="transition ease-in duration-100"
-                                leave-from-class="opacity-100"
-                                leave-to-class="opacity-0"
-                            >
-                                <div
-                                    v-if="isAttachmentDropdownOpen"
-                                    class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                                >
-                                    <div
-                                        v-for="type in attachmentTypes"
-                                        :key="type.extension"
-                                        class="relative cursor-default select-none py-2 pl-3 pr-9"
-                                        :class="[isSelected(type) ? 'bg-gray-500 text-white' : 'text-gray-900']"
+                    <div class="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="outlook"
+                            :value="MICROSOFT"
+                            v-model="emailProviders"
+                            class="rounded text-gray-600 focus:ring-gray-500"
+                        />
+                        <label for="outlook" class="flex items-center">Outlook</label>
+                    </div>
+                </div>
+
+                <!-- Subject -->
+                <div>
+                    <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Subject</h3>
+                    <input
+                        type="text"
+                        v-model="apiSearchFilters.subject"
+                        placeholder="Subject contains..."
+                        class="w-full rounded-md border border-gray-300 p-2"
+                    />
+                </div>
+
+                <!-- Sender Email -->
+                <div>
+                    <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Sender Email</h3>
+                    <input
+                        type="text"
+                        v-model="fromAddress"
+                        placeholder="Sender Email Address contains..."
+                        class="w-full rounded-md border border-gray-300 p-2"
+                    />
+                </div>
+
+                <!-- To Address -->
+                <div>
+                    <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Recipient Email</h3>
+                    <input
+                        type="text"
+                        v-model="toAddress"
+                        placeholder="Recipient Email Address contains..."
+                        class="w-full rounded-md border border-gray-300 p-2"
+                    />
+                </div>
+
+                <!-- Body -->
+                <div>
+                    <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Email body</h3>
+                    <input
+                        type="text"
+                        v-model="apiSearchFilters.body"
+                        placeholder="Email body contains..."
+                        class="w-full rounded-md border border-gray-300 p-2"
+                    />
+                </div>
+
+                <!-- Received Date -->
+                <div>
+                    <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">
+                        Search from Received Date (choose a date to filter emails from that day until now)
+                    </h3>
+                    <input
+                        type="date"
+                        v-model="apiSearchFilters.dateFrom"
+                        class="w-full rounded-md border border-gray-300 p-2"
+                    />
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Attachment Types Multi-select -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Attachment Types</label>
+                        <div
+                            @click="toggleAttachmentDropdown"
+                            class="border rounded-md p-2 flex justify-between items-center cursor-pointer bg-white"
+                        >
+                            <div class="flex flex-wrap gap-1">
+                                <template v-if="selectedAttachments.length">
+                                    <span
+                                        v-for="key in selectedAttachments"
+                                        :key="key"
+                                        class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
                                     >
-                                        <div class="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                :id="type.extension"
-                                                :value="type"
-                                                v-model="attachmentsSelected"
-                                                class="form-checkbox h-4 w-4 text-gray-600 transition duration-150 ease-in-out"
-                                            />
-                                            <label
-                                                :for="type.extension"
-                                                class="ml-2 block truncate"
-                                                :class="[isSelected(type) ? 'font-semibold' : 'font-normal']"
-                                            >
-                                                {{ type.name }} {{ type.extension }}
-                                            </label>
-                                        </div>
-                                        <span
-                                            v-if="isSelected(type)"
-                                            class="absolute inset-y-0 right-0 flex items-center pr-4"
-                                            :class="[isSelected(type) ? 'text-white' : 'text-gray-500']"
-                                        >
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                        </span>
-                                    </div>
-                                </div>
-                            </transition>
+                                        {{ attachmentTypes.find((type) => type.key === key)?.value }}
+                                    </span>
+                                </template>
+                                <span v-else class="text-gray-500">Select attachment types...</span>
+                            </div>
+                            <svg
+                                class="w-4 h-4 text-gray-400"
+                                :class="{ 'transform rotate-180': isAttachmentOpen }"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </div>
+
+                        <!-- Attachment Dropdown Content -->
+                        <div
+                            v-show="isAttachmentOpen"
+                            class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto"
+                        >
+                            <div class="p-2 space-y-1">
+                                <label
+                                    v-for="type in attachmentTypes"
+                                    :key="type.key"
+                                    class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        :value="type.key"
+                                        v-model="selectedAttachments"
+                                        class="rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                                    />
+                                    <span class="ml-2">{{ type.value }}</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Combobox as="div" v-model="fromSelectedPerson">
-                            <div class="relative flex items-center w-full">
-                                <user-icon
-                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-                                />
-                                <ComboboxInput
-                                    class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                                    @input="queryGetRecipients = $event.target.value"
-                                    :display-value="(person) => person?.username"
-                                    :placeholder="$t('searchPage.fromAddressesSelectedPlaceholder')"
-                                    style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden"
-                                />
-                                <ComboboxButton
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none"
-                                >
-                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </ComboboxButton>
+
+                    <!-- Search In Folders Multi-select -->
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Search In</label>
+                        <div
+                            @click="toggleSearchDropdown"
+                            class="border rounded-md p-2 flex justify-between items-center cursor-pointer bg-white"
+                        >
+                            <div class="flex flex-wrap gap-1">
+                                <template v-if="selectedSearchIn.length">
+                                    <span
+                                        v-for="key in selectedSearchIn"
+                                        :key="key"
+                                        class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
+                                    >
+                                        {{ searchIn.find((option) => option.key === key)?.value }}
+                                    </span>
+                                </template>
+                                <span v-else class="text-gray-500">Select search options...</span>
                             </div>
-                            <ComboboxOptions
-                                v-if="filteredPeople.length > 0"
-                                class="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0"
+                            <svg
+                                class="w-4 h-4 text-gray-400"
+                                :class="{ 'transform rotate-180': isSearchOpen }"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
                             >
-                                <ComboboxOption
-                                    v-for="person in filteredPeople"
-                                    :value="person"
-                                    :key="person"
-                                    as="template"
-                                    v-slot="{ active, selected }"
-                                >
-                                    <li
-                                        @click="toggleSelection(person)"
-                                        :class="[
-                                            'relative cursor-default select-none py-2 pl-3 pr-9',
-                                            active ? 'bg-gray-500 text-white' : 'text-gray-900',
-                                        ]"
-                                    >
-                                        <div class="flex">
-                                            <span :class="['truncate', selected && 'font-semibold']">
-                                                {{ person.username }}
-                                            </span>
-                                            <span
-                                                :class="[
-                                                    'ml-2 truncate hidden text-gray-500',
-                                                    active ? 'text-indigo-200' : 'text-gray-500',
-                                                ]"
-                                            >
-                                                &lt;{{ person.email }}&gt;
-                                            </span>
-                                        </div>
-                                        <span
-                                            v-if="selected"
-                                            :class="[
-                                                'absolute inset-y-0 right-0 flex items-center pr-4',
-                                                active ? 'text-white' : 'text-gray-500',
-                                            ]"
-                                        >
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                        </span>
-                                    </li>
-                                </ComboboxOption>
-                            </ComboboxOptions>
-                        </Combobox>
-                    </div>
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <div class="relative flex items-center w-full">
-                            <EnvelopeIcon
-                                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-                            />
-                            <input
-                                type="text"
-                                class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                :placeholder="$t('searchPage.subjectSelectedPlaceholder')"
-                            />
+                                <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" />
+                            </svg>
                         </div>
-                    </div>
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <div class="relative flex items-center w-full">
-                            <HashtagIcon
-                                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-                            />
-                            <input
-                                type="text"
-                                class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                :placeholder="$t('searchPage.keywordsPlaceholder')"
-                            />
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <div class="relative flex items-center w-full">
-                            <CalendarIcon
-                                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                            />
-                            <input
-                                type="date"
-                                :value="startDate"
-                                @input="updateDate"
-                                class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 appearance-none"
-                                :placeholder="$t('searchPage.dateFromPlaceholder')"
-                            />
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Listbox as="div" v-model="selectedSearchIn">
-                            <div class="relative">
-                                <ListboxButton
-                                    class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+
+                        <!-- Search Dropdown Content -->
+                        <div
+                            v-show="isSearchOpen"
+                            class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg"
+                        >
+                            <div class="p-2 space-y-1">
+                                <label
+                                    v-for="option in searchIn"
+                                    :key="option.key"
+                                    class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"
                                 >
-                                    <MagnifyingGlassIcon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
-                                    <span class="block truncate text-gray-700">
-                                        {{
-                                            selectedSearchIn
-                                                ? $t(`searchPage.searchIn.${selectedSearchIn.key}`)
-                                                : $t("searchPage.searchInSelectedPlaceholder")
-                                        }}
-                                    </span>
-                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
-                                    </span>
-                                </ListboxButton>
-                                <transition
-                                    leave-active-class="transition ease-in duration-100"
-                                    leave-from-class="opacity-100"
-                                    leave-to-class="opacity-0"
-                                >
-                                    <ListboxOptions
-                                        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                                    >
-                                        <ListboxOption
-                                            v-for="option in searchIn"
-                                            :key="option.key"
-                                            :value="option"
-                                            v-slot="{ active, selected }"
-                                        >
-                                            <li
-                                                :class="[
-                                                    active ? 'bg-gray-500 text-white' : 'text-gray-900',
-                                                    'relative cursor-default select-none py-2 pl-3 pr-9',
-                                                ]"
-                                            >
-                                                <span
-                                                    :class="[
-                                                        selected ? 'font-semibold' : 'font-normal',
-                                                        'block truncate ml-7 mr-2',
-                                                    ]"
-                                                >
-                                                    {{ $t(`searchPage.searchIn.${option.key}`) }}
-                                                </span>
-                                                <span
-                                                    v-if="selected"
-                                                    :class="[
-                                                        active ? 'text-white' : 'text-gray-500',
-                                                        'absolute inset-y-0 right-0 flex items-center pr-4',
-                                                    ]"
-                                                >
-                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                </span>
-                                            </li>
-                                        </ListboxOption>
-                                    </ListboxOptions>
-                                </transition>
+                                    <input
+                                        type="checkbox"
+                                        :value="option.key"
+                                        v-model="selectedSearchIn"
+                                        class="rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                                    />
+                                    <span class="ml-2">{{ option.value }}</span>
+                                </label>
                             </div>
-                        </Listbox>
-                    </div>
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Listbox as="div" v-model="selectedInterval">
-                            <div class="relative">
-                                <ListboxButton
-                                    class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                >
-                                    <CalendarIcon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
-                                    <span class="block truncate text-gray-700">
-                                        {{
-                                            selectedInterval
-                                                ? $t(`searchPage.dateIntervals.${selectedInterval}`)
-                                                : $t("searchPage.dateRangePlaceholder")
-                                        }}
-                                    </span>
-                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
-                                    </span>
-                                </ListboxButton>
-                                <transition
-                                    leave-active-class="transition ease-in duration-100"
-                                    leave-from-class="opacity-100"
-                                    leave-to-class="opacity-0"
-                                >
-                                    <ListboxOptions
-                                        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                                    >
-                                        <ListboxOption
-                                            v-for="interval in dateIntervals"
-                                            :key="interval.key"
-                                            :value="interval"
-                                            v-slot="{ active, selected }"
-                                        >
-                                            <li
-                                                :class="[
-                                                    active ? 'bg-gray-500 text-white' : 'text-gray-900',
-                                                    'relative cursor-default select-none py-2 pl-3 pr-9',
-                                                ]"
-                                            >
-                                                <span
-                                                    :class="[
-                                                        selected ? 'font-semibold' : 'font-normal',
-                                                        'block truncate ml-7 mr-2',
-                                                    ]"
-                                                >
-                                                    {{ $t(`searchPage.dateIntervals.${interval.key}`) }}
-                                                </span>
-                                                <span
-                                                    v-if="selected"
-                                                    :class="[
-                                                        active ? 'text-white' : 'text-gray-500',
-                                                        'absolute inset-y-0 right-0 flex items-center pr-4',
-                                                    ]"
-                                                >
-                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                </span>
-                                            </li>
-                                        </ListboxOption>
-                                    </ListboxOptions>
-                                </transition>
-                            </div>
-                        </Listbox>
-                    </div>
-                    <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <div class="relative flex items-center w-full">
-                            <HandRaisedIcon
-                                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-                            />
-                            <input
-                                type="text"
-                                class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                :placeholder="$t('searchPage.doesntContainPlaceholder')"
-                            />
                         </div>
                     </div>
                 </div>
@@ -374,126 +208,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, ComputedRef } from "vue";
-import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import {
-    CheckIcon,
-    ChevronUpDownIcon,
-    MagnifyingGlassIcon,
-    UserIcon,
-    AdjustmentsHorizontalIcon,
-    EnvelopeIcon,
-    HashtagIcon,
-    CalendarIcon,
-    HandRaisedIcon,
-} from "@heroicons/vue/24/outline";
-import { AttachmentType, KeyValuePair, Recipient } from "@/global/types";
-import { i18n } from "@/global/preferences";
+import { ref, inject, Ref, watch, onMounted, onUnmounted } from "vue";
+import { ApiSearchFilter, KeyValuePair } from "@/global/types";
+import { GOOGLE, MICROSOFT } from "@/global/const";
+
+const apiSearchFilters = inject<Ref<ApiSearchFilter>>("apiSearchFilters") || ref<ApiSearchFilter>({});
+const emailProviders = ref<string[]>([]);
+const fromAddress = ref("");
+const toAddress = ref("");
+const attachmentTypes: KeyValuePair[] = [
+    { key: ".docx", value: "Word Document" },
+    { key: ".xlsx", value: "Excel Spreadsheet" },
+    { key: ".pptx", value: "PowerPoint Presentation" },
+    { key: ".pdf", value: "PDF Document" },
+    { key: ".jpg", value: "JPEG Image" },
+    { key: ".png", value: "PNG Image" },
+    { key: ".gif", value: "GIF Image" },
+    { key: ".txt", value: "Text Document" },
+    { key: ".zip", value: "ZIP Archive" },
+    { key: ".mp3", value: "MP3 Audio" },
+    { key: ".mp4", value: "MP4 Video" },
+    { key: ".html", value: "HTML Document" },
+];
+const searchIn: KeyValuePair[] = [
+    { key: "spams", value: "Spams" },
+    { key: "deleted_emails", value: "Deleted emails" },
+    { key: "drafts", value: "Drafts" },
+    { key: "sent_emails", value: "Sent emails" },
+];
+
+const selectedAttachments = ref<string[]>([]);
+const selectedSearchIn = ref<string[]>([]);
+const isAttachmentOpen = ref(false);
+const isSearchOpen = ref(false);
+
+const toggleAttachmentDropdown = () => {
+    isAttachmentOpen.value = !isAttachmentOpen.value;
+    if (isAttachmentOpen.value) isSearchOpen.value = false;
+};
+
+const toggleSearchDropdown = () => {
+    isSearchOpen.value = !isSearchOpen.value;
+    if (isSearchOpen.value) isAttachmentOpen.value = false;
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest(".relative")) {
+        isAttachmentOpen.value = false;
+        isSearchOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("click", handleClickOutside);
+});
+
+watch(fromAddress, (fromAddress) => {
+    apiSearchFilters.value.fromAddresses = [fromAddress];
+});
+
+watch(toAddress, (toAddress) => {
+    apiSearchFilters.value.toAddresses = [toAddress];
+});
+
+watch(emailProviders, (emailProviders) => {
+    apiSearchFilters.value.emailProvider = emailProviders;
+});
+
+watch(selectedAttachments, (selectedAttachments) => {
+    apiSearchFilters.value.fileExtensions = selectedAttachments;
+});
+
+watch(selectedSearchIn, (selectedSearchIn) => {
+    if (selectedSearchIn.length > 0) {
+        apiSearchFilters.value.searchIn = {};
+
+        selectedSearchIn.map((item) => {
+            if (!apiSearchFilters.value.searchIn) {
+                apiSearchFilters.value.searchIn = {};
+            }
+            apiSearchFilters.value.searchIn[item] = true;
+        });
+    }
+});
 
 defineProps({
     isOpen: Boolean,
 });
 
-const isFocused = ref(false);
-const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
-const filteredPeople = inject<ComputedRef<Recipient[]>>("filteredPeople");
-const people = inject<Ref<Recipient[]>>("people") || ref([]);
-const attachmentsSelected = inject<Ref<AttachmentType[]>>("attachmentsSelected") || ref([]);
-const startDate = inject<Ref<string>>("startDate") || ref("");
-const selectedInterval = inject<Ref<string>>("selectedInterval") || ref("");
-const selectedRecipients = inject<Ref<Recipient[]>>("selectedRecipients") || ref([]);
-const fromSelectedPerson = inject<Ref<Recipient[]>>("fromSelectedPerson") || ref([]);
-const selectedPerson = inject<Ref<Recipient[]>>("selectedPerson") || ref([]);
-const selectedSearchIn = inject<Ref<KeyValuePair>>("selectedSearchIn") || ref({});
-const isAttachmentDropdownOpen = ref(false);
+const resetFilters = () => {
+    apiSearchFilters.value = {
+        advanced: undefined,
+        emailProvider: undefined,
+        fileExtensions: undefined,
+        filenames: undefined,
+        searchIn: undefined,
+        fromAddresses: undefined,
+        toAddresses: undefined,
+        subject: undefined,
+        body: undefined,
+        dateFrom: undefined,
+    };
 
-const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-
-const updateDate = (event: { target: { value: string } }) => {
-    startDate.value = event.target.value;
+    emailProviders.value = [];
+    fromAddress.value = "";
+    toAddress.value = "";
+    selectedSearchIn.value = [];
+    selectedAttachments.value = [];
 };
-
-const dateIntervals = [
-    { key: "oneDay" },
-    { key: "threeDays" },
-    { key: "oneWeek" },
-    { key: "twoWeeks" },
-    { key: "oneMonth" },
-    { key: "twoMonths" },
-    { key: "sixMonths" },
-    { key: "oneYear" },
-];
-
-const searchIn: KeyValuePair[] = [
-    { key: "all", value: "All" },
-    { key: "read", value: "Read" },
-    { key: "notRead", value: "Not read" },
-];
-
-const attachmentTypes: AttachmentType[] = [
-    { extension: ".docx", name: "Word Document" },
-    { extension: ".xlsx", name: "Excel Spreadsheet" },
-    { extension: ".pptx", name: "PowerPoint Presentation" },
-    { extension: ".pdf", name: "PDF Document" },
-    { extension: ".jpg", name: "JPEG Image" },
-    { extension: ".png", name: "PNG Image" },
-    { extension: ".gif", name: "GIF Image" },
-    { extension: ".txt", name: "Text Document" },
-    { extension: ".zip", name: "ZIP Archive" },
-    { extension: ".mp3", name: "MP3 Audio" },
-    { extension: ".mp4", name: "MP4 Video" },
-    { extension: ".html", name: "HTML Document" },
-];
-
-const toggleDropdown = () => {
-    isAttachmentDropdownOpen.value = !isAttachmentDropdownOpen.value;
-};
-
-const isSelected = (type: AttachmentType): boolean => {
-    return attachmentsSelected.value.some((item: AttachmentType) => item.extension === type.extension);
-};
-
-const toggleSelection = (person: Recipient) => {
-    const index = selectedRecipients.value.findIndex((recipient) => recipient.email === person.email);
-    if (index === -1) {
-        selectedRecipients.value.push(person);
-    } else {
-        selectedRecipients.value.splice(index, 1);
-    }
-};
-
-function handleBlur(event: FocusEvent) {
-    isFocused.value = false;
-
-    const target = event.target as HTMLInputElement;
-    const inputValue = target.value.trim().toLowerCase();
-    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (inputValue && emailFormat.test(inputValue)) {
-        if (!people.value.find((person: Recipient) => person.email === inputValue)) {
-            const newPerson: Recipient = { email: inputValue };
-            people.value.push(newPerson);
-            selectedPeople.value.push(newPerson);
-        }
-    } else if (!filteredPeople?.value.length && inputValue) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.invalidEmail"),
-            i18n.global.t("constants.popUpConstants.errorMessages.emailFormatIncorrect")
-        );
-    }
-}
 </script>
-
-<style scoped>
-input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-}
-</style>

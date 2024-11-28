@@ -106,7 +106,7 @@
                     <ul class="space-y-2">
                         <li v-for="(value, key) in data[selectedMetric]?.since" :key="key" class="flex justify-between">
                             <span>{{ metricLabelTranslations[key as MetricKeys] || key }}</span>
-                            <span class="font-semibold">{{ value }}</span>
+                            <span class="font-semibold">{{ formatInteger(value) }}</span>
                         </li>
                     </ul>
                 </div>
@@ -122,12 +122,18 @@
                         >
                             <span>{{ metricLabelTranslations[key as MetricKeys] || key }}</span>
                             <span>
-                                Avg:
-                                <strong>{{ period.avg }}</strong>
-                                , Min:
-                                <strong>{{ period.min }}</strong>
-                                , Max:
-                                <strong>{{ period.max }}</strong>
+                                <template v-if="period.avg !== null && period.avg !== undefined">
+                                    Avg:
+                                    <strong>{{ formatFloat(period.avg) }}</strong>
+                                </template>
+                                <template v-if="period.min !== null && period.min !== undefined">
+                                    Min:
+                                    <strong>{{ formatInteger(period.min) }}</strong>
+                                </template>
+                                <template v-if="period.max !== null && period.max !== undefined">
+                                    Max:
+                                    <strong>{{ formatInteger(period.max) }}</strong>
+                                </template>
                             </span>
                         </li>
                     </ul>
@@ -141,6 +147,7 @@
 import { ref, onMounted, watch } from "vue";
 import { postData } from "@/global/fetchData";
 import { inject } from "vue";
+import { formatInteger, formatFloat } from "@/global/formatters";
 
 type MetricKeys = keyof typeof metricLabelTranslations;
 
@@ -204,7 +211,7 @@ const data = ref<Record<string, Metric>>({});
 const selectedMetric = ref<MetricKeys>(statisticsMetrics[0]);
 const selectedSinceOptions = ref<MetricKeys[]>(sinceOptions);
 const selectedPeriodOptions = ref<MetricKeys[]>(periodOptions);
-const selectedDataOptions = ref<{ avg: boolean; min: boolean; max: boolean }>({
+const selectedDataOptions = ref<{ avg?: boolean; min?: boolean; max?: boolean }>({
     avg: true,
     min: true,
     max: true,
@@ -233,5 +240,14 @@ const fetchStatistics = async () => {
 };
 
 onMounted(fetchStatistics);
-watch([selectedMetric, selectedSinceOptions, selectedPeriodOptions, selectedDataOptions], fetchStatistics);
+watch([selectedMetric, selectedSinceOptions, selectedPeriodOptions], () => {
+    fetchStatistics();
+});
+watch(
+    () => selectedDataOptions.value,
+    () => {
+        fetchStatistics();
+    },
+    { deep: true }
+);
 </script>

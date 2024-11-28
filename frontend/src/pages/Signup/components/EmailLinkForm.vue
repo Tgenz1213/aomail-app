@@ -92,9 +92,15 @@
 
 <script setup lang="ts">
 import { API_BASE_URL, GOOGLE, MICROSOFT } from "@/global/const";
-import { inject } from "vue";
+import { inject, onMounted } from "vue";
 
-const goStepSignUpSummary = inject<() => void>("goStepSignUpSummary");
+const goStepSignUpSummary = inject<(event: Event) => void>("goStepSignUpSummary");
+
+onMounted(() => {
+    if (sessionStorage.getItem("typeApi")) {
+        goStepSignUpSummary?.(new Event("synthetic"));
+    }
+});
 
 function authorizeGoogle(event: Event) {
     event.preventDefault();

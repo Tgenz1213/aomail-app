@@ -86,6 +86,7 @@ provide("goStepLinkEmail", goStepLinkEmail);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
+    sessionStorage.clear();
 });
 
 function handleKeyDown(event: KeyboardEvent) {

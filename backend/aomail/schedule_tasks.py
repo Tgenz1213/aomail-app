@@ -35,7 +35,7 @@ def renew_gmail_subscriptions():
     # Get all GoogleListener instances that need to be renewed
     google_listeners = GoogleListener.objects.filter(
         last_modified__lte=renewal_threshold
-    )
+    ).exclude(social_api__user__subscription__is_block=True)
 
     nb_subrenew = 0
 

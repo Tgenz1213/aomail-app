@@ -45,6 +45,7 @@ from aomail.models import (
     Email,
     MicrosoftListener,
     SocialAPI,
+    Subscription,
 )
 from aomail.email_providers.utils import email_to_db
 
@@ -341,32 +342,47 @@ class MicrosoftSubscriptionNotification(View):
                     expiration_date_str
                 )
                 subscription_id = subscription_data["value"][0]["subscriptionId"]
-                subscription = MicrosoftListener.objects.get(
+                microsoft_listener = MicrosoftListener.objects.filter(
                     subscription_id=subscription_id
                 )
                 current_datetime = datetime.datetime.now(datetime.timezone.utc)
+                subscription = Subscription.objects.get(
+                    user=microsoft_listener.first().user
+                )
 
-                if (
+                if not microsoft_listener.exists():
+                    pass
+                elif subscription.is_block:
+                    LOGGER.info(
+                        f"User with email: {microsoft_listener.first().email} is blocked. Unsubscribing user from subscription {subscription_id}."
+                    )
+                    delete_subscription(
+                        microsoft_listener.first().user, microsoft_listener.first()
+                    )
+                elif (
                     subscription_expiration_date - current_datetime
                     <= datetime.timedelta(minutes=15)
                 ):
                     renew_subscription(
-                        subscription.user, subscription.email, subscription_id
+                        microsoft_listener.first().user,
+                        microsoft_listener.first().email,
+                        subscription_id,
                     )
-
-                if lifecycle_event == "reauthorizationRequired":
+                elif lifecycle_event == "reauthorizationRequired":
                     reauthorize_subscription(
-                        subscription.user, subscription.email, subscription_id
+                        microsoft_listener.first().user,
+                        microsoft_listener.first().email,
+                        subscription_id,
                     )
 
                 # TODO: handle "subscriptionRemoved or missed"
-                if lifecycle_event == "subscriptionRemoved":
+                elif lifecycle_event == "subscriptionRemoved":
                     # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#actions-to-take-1
                     LOGGER.error(
                         f"subscriptionRemoved: current time: {current_datetime}, expiration time: {expiration_date_str}"
                     )
 
-                if lifecycle_event == "missed":
+                elif lifecycle_event == "missed":
                     # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#responding-to-missed-notifications
                     LOGGER.error(
                         f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}"
@@ -424,16 +440,30 @@ class MicrosoftEmailNotification(View):
                 change_type = email_data["value"][0]["changeType"]
                 email_id = email_data["value"][0]["resourceData"]["id"]
                 subscription_id = email_data["value"][0]["subscriptionId"]
-                subscription = MicrosoftListener.objects.filter(
+                microsoft_listener = MicrosoftListener.objects.filter(
                     subscription_id=subscription_id
                 )
+                subscription = Subscription.objects.get(
+                    user=microsoft_listener.first().user
+                )
 
-                if change_type == "deleted":
+                if not microsoft_listener.exists():
+                    pass
+                elif subscription.is_block:
+                    LOGGER.info(
+                        f"User with email: {microsoft_listener.first().email} is blocked. Unsubscribing user from subscription {subscription_id}."
+                    )
+                    delete_subscription(
+                        microsoft_listener.first().user,
+                        microsoft_listener.first().email,
+                        microsoft_listener.first().subscription_id,
+                    )
+                elif change_type == "deleted":
                     Email.objects.get(provider_id=email_id).delete()
-
-                elif subscription.exists():
+                else:
                     social_api = get_social_api(
-                        subscription.first().user, subscription.first().email
+                        microsoft_listener.first().user,
+                        microsoft_listener.first().email,
                     )
 
                     def process_email():
@@ -451,14 +481,14 @@ class MicrosoftEmailNotification(View):
                                 break
                             else:
                                 LOGGER.critical(
-                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {subscription.first().email} and email ID: {email_id}"
+                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {microsoft_listener.first().email} and email ID: {email_id}"
                                 )
                                 context = {
                                     "error": result,
                                     "attempt_number": i + 1,
-                                    "email": subscription.first().email,
+                                    "email": microsoft_listener.first().email,
                                     "email_provider": MICROSOFT,
-                                    "user": subscription.first().user,
+                                    "user": microsoft_listener.first().user,
                                 }
                                 email_html = render_to_string(
                                     "ai_failed_email.html", context
@@ -530,18 +560,35 @@ class MicrosoftContactNotification(View):
             if contact_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
                 id_contact = contact_data["value"][0]["resourceData"]["id"]
                 subscription_id = contact_data["value"][0]["subscriptionId"]
-                subscription = MicrosoftListener.objects.get(
+                microsoft_listener = MicrosoftListener.objects.filter(
                     subscription_id=subscription_id
                 )
-                access_token = refresh_access_token(
-                    get_social_api(subscription.user, subscription.email)
-                )
                 change_type = contact_data["value"][0]["changeType"]
+                subscription = Subscription.objects.get(
+                    user=microsoft_listener.first().user
+                )
 
-                if change_type == "deleted":
+                if not microsoft_listener.exists():
+                    pass
+                elif subscription.is_block:
+                    LOGGER.info(
+                        f"User with email: {microsoft_listener.first().email} is blocked. Unsubscribing user from subscription {subscription_id}."
+                    )
+                    delete_subscription(
+                        microsoft_listener.first().user,
+                        microsoft_listener.first().email,
+                        microsoft_listener.first().subscription_id,
+                    )
+                elif change_type == "deleted":
                     contact = Contact.objects.get(provider_id=id_contact)
                     contact.delete()
                 else:
+                    access_token = refresh_access_token(
+                        get_social_api(
+                            microsoft_listener.first().user,
+                            microsoft_listener.first().email,
+                        )
+                    )
                     url = f"https://graph.microsoft.com/v1.0/me/contacts/{id_contact}"
                     headers = get_headers(access_token)
 
@@ -555,7 +602,10 @@ class MicrosoftContactNotification(View):
 
                             if change_type == "created":
                                 email_processing.save_email_sender(
-                                    subscription.user, name, email, id_contact
+                                    microsoft_listener.first().user,
+                                    name,
+                                    email,
+                                    id_contact,
                                 )
 
                             if change_type == "updated":

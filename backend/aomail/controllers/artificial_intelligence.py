@@ -23,7 +23,7 @@ from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.utils.security import subscription
+from aomail.utils.security import block_user, subscription
 from aomail.ai_providers import claude
 from aomail.constants import (
     EMAIL_ADMIN,
@@ -98,6 +98,7 @@ def dict_to_chat_history(data: dict) -> ChatMessageHistory:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def get_new_email_response(request: HttpRequest) -> Response:
     """
@@ -167,6 +168,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def improve_draft(request: HttpRequest) -> Response:
     """
@@ -239,6 +241,7 @@ def improve_draft(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def search_emails_ai(request: HttpRequest) -> Response:
     """
@@ -337,6 +340,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def search_tree_knowledge(request: HttpRequest) -> Response:
     """
@@ -412,6 +416,7 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def find_user_view_ai(request: HttpRequest) -> Response:
     """
@@ -493,6 +498,7 @@ def find_user_view_ai(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def new_email_ai(request: HttpRequest) -> Response:
     """
@@ -528,6 +534,7 @@ def new_email_ai(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def correct_email_language(request: HttpRequest) -> Response:
     """
@@ -562,6 +569,7 @@ def correct_email_language(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def check_email_copywriting(request: HttpRequest) -> Response:
     """
@@ -598,6 +606,7 @@ def check_email_copywriting(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def generate_email_response_keywords(request: HttpRequest) -> Response:
     """
@@ -635,6 +644,7 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
+@block_user
 @subscription(ALLOWED_PLANS)
 def generate_email_answer(request: HttpRequest) -> Response:
     """

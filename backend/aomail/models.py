@@ -17,6 +17,7 @@ class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_trial = models.BooleanField(default=True)
+    is_block = models.BooleanField(default=False)
 
 
 class Statistics(models.Model):

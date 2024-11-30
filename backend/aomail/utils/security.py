@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from aomail.models import Subscription
 from rest_framework.response import Response
 from rest_framework import status
-from aomail.constants import INACTIVE
+from aomail.constants import EMAIL_ADMIN, INACTIVE
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -53,6 +53,30 @@ def get_ip_with_port(request: HttpRequest) -> str | None:
 
 
 # ----------------------- DECORATOR -----------------------#
+def block_user(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request: HttpRequest, *args, **kwargs):
+        """
+        Decorator to restrict access to users with a blocked subscription.
+
+        Returns:
+            Function: The wrapped view function if the user is not blocked.
+                      Otherwise, returns a 403 response with an error message.
+        """
+        user = request.user
+        subscription = Subscription.objects.get(user=user)
+        if subscription.is_block:
+            return Response(
+                {
+                    "error": f"You have been blocked. Send an email at: {EMAIL_ADMIN} to get more informations"
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped_view
+
+
 def subscription(allowed_plans: list):
     """
     Decorator to ensure that the requesting user has an active subscription and the required plan.

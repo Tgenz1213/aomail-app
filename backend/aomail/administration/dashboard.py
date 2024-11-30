@@ -295,6 +295,7 @@ def search_user_info(request: HttpRequest) -> Response:
                 },
                 "emailsStats": computed_stats,
                 "plan": {
+                    "isBlock": subscription.is_block,
                     "creationDate": subscription.created_at,
                     "name": subscription.plan,
                     "isTrial": subscription.is_trial,
@@ -602,6 +603,7 @@ def update_user_info(request: HttpRequest) -> Response:
             - username (str, optional): The username of the user to be updated.
             - emailAddress (str, optional): The email address of the user to be updated.
             - plan (str, optional): The new subscription plan to assign to the user.
+            - blockUser (bool, optional): Indicates whether the user should be blocked. Defaults to False.
 
     Returns:
         Response: JSON response indicating success or failure.
@@ -617,6 +619,7 @@ def update_user_info(request: HttpRequest) -> Response:
     username = parameters.get("username")
     email_address = parameters.get("emailAddress")
     plan = parameters.get("plan")
+    block_user = parameters.get("blockUser", False)
 
     user = None
 
@@ -631,17 +634,22 @@ def update_user_info(request: HttpRequest) -> Response:
         if not user:
             raise User.DoesNotExist()
 
-        if plan not in ALLOWED_PLANS:
+        if plan and plan not in ALLOWED_PLANS:
             raise ValueError("Plan not allowed")
 
         subscription = Subscription.objects.get(user=user)
-        subscription.plan = plan
-        subscription.is_trial = False
+        if plan:
+            subscription.plan = plan
+            subscription.is_trial = False
+            LOGGER.info(
+                f"Admin {admin.id} ({admin.username}) updated the plan for user {user.username} to '{plan}'."
+            )
+        subscription.is_block = block_user
         subscription.save()
-
         LOGGER.info(
-            f"Admin {admin.id} ({admin.username}) updated the plan for user {user.username} to '{plan}'."
+            f"Admin {admin.id} ({admin.username}) updated the block status for user {user.username} to '{block_user}'."
         )
+
         return Response(
             {"message": "User information updated successfully."},
             status=status.HTTP_200_OK,

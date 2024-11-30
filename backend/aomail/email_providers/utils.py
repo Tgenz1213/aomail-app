@@ -42,6 +42,7 @@ from aomail.models import (
     Picture,
     Attachment,
     Statistics,
+    Subscription,
 )
 from aomail.email_providers.microsoft import (
     email_operations as email_operations_microsoft,
@@ -70,6 +71,11 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
     """
     user = social_api.user
     api_type = social_api.type_api
+    subscription = Subscription.objects.get(user=user)
+
+    if subscription.is_block:
+        LOGGER.info(f"Skipping processing for blocked user ID: {user.id}.")
+        return True
 
     LOGGER.info(
         f"Saving email to database for user ID: {user.id} using {api_type.capitalize()} API"

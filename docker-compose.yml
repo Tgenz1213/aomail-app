@@ -37,6 +37,7 @@ services:
       - backend_network
     volumes:
       - ./backend:/app
+      - /home/prod/prod/backend/media/pictures:/app/media/pictures
 
   backend_prod:
     build:
@@ -54,6 +55,8 @@ services:
     command: [ "gunicorn", "config.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000" ]
     networks:
       - backend_network
+    volumes:
+      - /home/prod/prod/backend/media/pictures:/app/media/pictures
 
   frontend_dev:
     build:

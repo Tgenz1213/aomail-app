@@ -71,6 +71,7 @@
     "popUpConstants": {
       "errorMessages": {
         "emailSendError": "Erreur d'envoi d'email",
+        "pleaseEnterAnEmail": "Erreur saissisez un email",
         "contactFetchError": "Erreur de récupération des contacts",
         "primaryEmailFetchError": "Erreur récupération de votre email primaire",
         "emailLinkedFetchError": "Erreur récupération de vos emails",
@@ -123,6 +124,7 @@
     "rule": "règle",
     "rules": "règles",
     "email": " e-mail.",
+    "emailUppercase": "Email",
     "emails": " e-mails.",
     "redirectionInProgress": "Redirection en cours...",
     "homeNavbar": "Accueil",

@@ -23,18 +23,12 @@
                             </div>
                             <div class="bg-white px-6 py-4 sm:px-12">
                                 <form class="space-y-6">
-                                    <EmailLinkForm v-if="step === 3" />
-                                    <Summary v-if="step === 4" />
+                                    <EmailLinkForm v-if="step === 1" />
+                                    <CategoriesForm v-if="step === 2" />
                                 </form>
                             </div>
                         </div>
                     </div>
-                    <p class="mt-6 text-center text-sm text-gray-500">
-                        {{ $t("signUpPart1Page.youHaveAnAccount") }}
-                        <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">
-                            {{ $t("constants.userActions.login") }}
-                        </a>
-                    </p>
                 </div>
             </div>
         </div>
@@ -58,7 +52,7 @@ const notificationTitle = ref<string>("");
 const notificationMessage = ref<string>("");
 const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
-const step = ref(3);
+const step = ref(1);
 
 provide("step", step);
 provide("submitSignupData", submitSignupData);

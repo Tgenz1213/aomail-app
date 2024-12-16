@@ -72,6 +72,7 @@
       "errorMessages": {
         "emailSendError": "Email send error",
         "contactFetchError": "Contact fetch error",
+        "pleaseEnterAnEmail": "Pls enter an email",
         "primaryEmailFetchError": "Primary email fetch error",
         "emailLinkedFetchError": "Email fetch error",
         "invalidEmail": "Invalid email",
@@ -123,6 +124,7 @@
     "rule": "rule",
     "rules": "rules",
     "email": "email",
+    "emailUppercase": "Email",
     "emails": "emails",
     "redirectionInProgress": "Redirection in progress...",
     "homeNavbar": "Home",
@@ -183,6 +185,7 @@
     "youHaveAnAccount": "Do you have an account?"
   },
   "signuUpLinkPage": {
+    "linkYourMailAccount": "Link your Gmail or Outlook account",
     "authorizationError": "Authorization error",
     "authorizationCodeNotFound": "Authorization code not found in URL",
     "accountCreationInProgress": "Account creation in progress...",

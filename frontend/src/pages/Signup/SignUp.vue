@@ -47,7 +47,6 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { Category } from "@/global/types";
 import router from "@/router/router";
 import CredentialsForm from "./components/CredentialsForm.vue";
-import CategoriesForm from "./components/CategoriesForm.vue";
 import StepsTracker from "./components/StepsTracker.vue";
 import { API_BASE_URL } from "@/global/const";
 
@@ -83,6 +82,23 @@ provide("goStepLinkEmail", goStepLinkEmail);
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     sessionStorage.clear();
+
+    const browserLanguage = navigator.language.toLowerCase();
+    const languageKey = browserLanguage.startsWith('fr') ? 'french' : 'american';
+
+    if (!localStorage.getItem('language')) {
+        localStorage.setItem('language', languageKey);
+        i18n.global.locale = languageKey;
+    }
+
+    if (!localStorage.getItem('timezone')) {
+        try {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            localStorage.setItem('timezone', timezone);
+        } catch {
+            localStorage.setItem('timezone', 'UTC');
+        }
+    }
 });
 
 function handleKeyDown(event: KeyboardEvent) {

@@ -43,7 +43,6 @@ import { i18n } from "@/global/preferences";
 import logo from "@/assets/logo-aomail.png";
 import StepsTracker from "./components/StepsTracker.vue";
 import EmailLinkForm from "./components/EmailLinkForm.vue";
-import Summary from "./components/Summary.vue";
 import router from "@/router/router";
 import { API_BASE_URL } from "@/global/const";
 
@@ -56,7 +55,6 @@ const step = ref(1);
 
 provide("step", step);
 provide("submitSignupData", submitSignupData);
-provide("goStepSignUpSummary", goStepSignUpSummary);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -66,25 +64,8 @@ function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Enter") {
         event.preventDefault();
         if (step.value === 3) {
-            goStepSignUpSummary(event);
+            submitSignupData(event);
         }
-    }
-}
-
-async function goStepSignUpSummary(event: Event) {
-    event.preventDefault();
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorizationCode = urlParams.get("code");
-
-    if (authorizationCode) {
-        sessionStorage.setItem("code", authorizationCode);
-        step.value++;
-    } else {
-        displayPopup(
-            "error",
-            i18n.global.t("signuUpLinkPage.authorizationError"),
-            i18n.global.t("signuUpLinkPage.authorizationCodeNotFound")
-        );
     }
 }
 
@@ -118,21 +99,30 @@ async function submitSignupData(event: Event) {
         i18n.global.t("signuUpLinkPage.waitingDatabaseResponse")
     );
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const authorizationCode = urlParams.get("code");
+    if (authorizationCode) {
+        sessionStorage.setItem("code", authorizationCode);
+    } else {
+        displayPopup(
+            "error",
+            i18n.global.t("signuUpLinkPage.authorizationError"),
+            i18n.global.t("signuUpLinkPage.authorizationCodeNotFound")
+        );
+    }
+
     const requestOptions = {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            login: sessionStorage.getItem("login"),
+            login: sessionStorage.getItem("email"),
             password: sessionStorage.getItem("password"),
             timezone: localStorage.getItem("timezone"),
             language: localStorage.getItem("language"),
-            theme: localStorage.getItem("theme"),
-            categories: localStorage.getItem("categories"),
             code: sessionStorage.getItem("code"),
             typeApi: sessionStorage.getItem("typeApi"),
-            userDescription: sessionStorage.getItem("userDescription"),
         }),
     };
 
@@ -143,8 +133,7 @@ async function submitSignupData(event: Event) {
             const data = await response.json();
             localStorage.setItem("accessToken", data.accessToken);
             sessionStorage.clear();
-            localStorage.removeItem("categories");
-            router.push({ name: "home" });
+            step.value++;
         } else {
             const data = await response.json();
             displayPopup("error", i18n.global.t("signuUpLinkPage.accountCreationError"), data.error);

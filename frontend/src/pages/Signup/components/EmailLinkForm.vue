@@ -81,7 +81,7 @@
                         <ShieldCheckIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
                         <span>
                             {{ $t("signuUpLinkPage.ESOFCyberScore") }} 9.7/10
-                            <a href="https://tacsecurity.com/" class="text-blue-600 hover:underline" target="_blank">
+                            <a href="https://aomail.ai/aomail-tac-security-tier2-assessment.pdf" class="text-blue-600 hover:underline" target="_blank">
                                 {{ $t("signuUpLinkPage.cyberScoreAssessor") }}
                             </a>
                         </span>

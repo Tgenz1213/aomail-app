@@ -36,6 +36,7 @@ urlpatterns = [
     #----------------------- CATEGORIES -----------------------#
     path('user/categories/', categories.get_user_categories, name='get_user_categories'),
     path('create_category/', categories.create_category, name='create_category'),
+    path('create_categories/', categories.create_categories, name='create_categories'),
     path('get_category_id/', categories.get_category_id, name='get_category_id'),
     path('update_category/', categories.update_category, name='update_category'),
     path('delete_category/', categories.delete_category, name='delete_category'),

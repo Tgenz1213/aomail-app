@@ -98,10 +98,6 @@ def signup(request: HttpRequest) -> Response:
             password (str): User's password.
             timezone (str): User's preferred timezone.
             language (str): User's preferred language.
-            theme (str): User's preferred theme.
-            color (str): User's preferred color.
-            categories (list): List of categories associated with the user.
-            userDescription (str): Description or bio of the user.
 
     Returns:
         Response: JSON response with user ID, access token, and email on success,
@@ -122,9 +118,6 @@ def signup(request: HttpRequest) -> Response:
     password: str = parameters.get("password", "")
     timezone: str = parameters.get("timezone", "")
     language: str = parameters.get("language", "")
-    theme: str = parameters.get("theme", "")
-    categories: list = parameters.get("categories", [])
-    user_description: str = parameters.get("userDescription", "")
 
     validation_result: dict = validate_signup_data(username, password, code)
     if "error" in validation_result:
@@ -183,12 +176,9 @@ def signup(request: HttpRequest) -> Response:
     result = save_user_data(
         user,
         type_api,
-        user_description,
         email,
         access_token,
         refresh_token,
-        theme,
-        categories,
         language,
         timezone,
     )
@@ -545,12 +535,9 @@ def validate_signup_data(username: str, password: str, code: str) -> dict:
 def save_user_data(
     user: User,
     type_api: str,
-    user_description: str,
     email: str,
     access_token: str,
     refresh_token: str,
-    theme: str,
-    categories: dict,
     language: str,
     timezone: str,
 ) -> dict:
@@ -580,33 +567,13 @@ def save_user_data(
         )
         SocialAPI.objects.create(
             user=user,
-            user_description=user_description,
             type_api=type_api,
             email=email,
             access_token=access_token,
             refresh_token=refresh_token_encrypted,
         )
         Preference.objects.create(
-            theme=theme, language=language, timezone=timezone, user=user
-        )
-
-        if categories:
-            try:
-                categories_json: list[dict] = json.loads(categories)
-                for category_data in categories_json:
-                    category_name = category_data.get("name")
-                    category_description = category_data.get("description")
-
-                    Category.objects.create(
-                        name=category_name, description=category_description, user=user
-                    )
-            except json.JSONDecodeError:
-                return {"error": "Invalid categories data"}
-
-        Category.objects.create(
-            name=DEFAULT_CATEGORY,
-            description="",
-            user=user,
+            language=language, timezone=timezone, user=user
         )
 
         Statistics.objects.create(user=user)

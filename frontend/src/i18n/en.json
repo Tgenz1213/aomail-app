@@ -106,7 +106,8 @@
         "recuperationRules": "Error retrieving the rules",
         "identifierMustNotContainSpaces": "The identifier must not contain spaces",
         "maxUsernameLength150Characters": "Maximum username length: 150 characters",
-        "identifierIsAlreadyInUse": "The identifier is already in use"
+        "identifierIsAlreadyInUse": "The identifier is already in use",
+        "invalidEmailFormat": "Please enter a valid email address"
       },
       "successMessages": {
         "success": "Success!",

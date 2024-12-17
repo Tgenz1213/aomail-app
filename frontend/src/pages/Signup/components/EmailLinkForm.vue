@@ -14,7 +14,10 @@
             <div class="relative items-stretch mt-2 flex justify-center items-center gap-4">
                 <button
                     type="button"
-                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    :class="[
+                        'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                        isGoogleLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600'
+                    ]"
                     @click="authorizeGoogle"
                 >
                     <svg
@@ -46,10 +49,14 @@
                         ></path>
                     </svg>
                     {{ $t("signuUpLinkPage.linkYourGmailAccount") }}
+                    <CheckIcon v-if="isGoogleLinked" class="h-5 w-5 text-white" aria-hidden="true" />
                 </button>
                 <button
                     type="button"
-                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    :class="[
+                        'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                        isMicrosoftLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600'
+                    ]"
                     @click="authorizeMicrosoft"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
@@ -60,6 +67,7 @@
                         <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                     </svg>
                     {{ $t("signuUpLinkPage.linkYourOutlookAccount") }}
+                    <CheckIcon v-if="isMicrosoftLinked" class="h-5 w-5 text-white" aria-hidden="true" />
                 </button>
             </div>
         </div>
@@ -150,10 +158,20 @@
 
 <script setup lang="ts">
 import { API_BASE_URL, GOOGLE, MICROSOFT } from "@/global/const";
-import { inject, onMounted } from "vue";
-import { ShieldCheckIcon, LockClosedIcon, CloudIcon } from "@heroicons/vue/24/outline";
-
+import { inject, onMounted, ref } from "vue";
+import { ShieldCheckIcon, LockClosedIcon, CloudIcon, CheckIcon } from "@heroicons/vue/24/outline";
 const submitSignupData = inject<() => void>("submitSignupData");
+const isGoogleLinked = ref(false);
+const isMicrosoftLinked = ref(false);
+
+onMounted(() => {
+    const typeApi = sessionStorage.getItem('typeApi');
+    if (typeApi === GOOGLE) {
+        isGoogleLinked.value = true;
+    } else if (typeApi === MICROSOFT) {
+        isMicrosoftLinked.value = true;
+    }
+});
 
 function authorizeGoogle(event: Event) {
     event.preventDefault();

@@ -8,7 +8,7 @@ Endpoints:
 - ✅ get_dependencies: Retrieve the number of rules and emails linked to a specified category.
 - ✅ create_category: Create a new category.
 - ✅ get_category_id: Retrieve the ID of a category based on its name.
-- ✅ create_categories: Create multiple categories for the authenticated user from a dictionary.
+- ✅ create_categories: Create multiple categories for the authenticated user from a dictionary or list.
 """
 
 import json
@@ -304,21 +304,24 @@ def get_category_id(request: HttpRequest) -> Response:
 @subscription(ALLOWED_PLANS)
 def create_categories(request: HttpRequest) -> Response:
     """
-    Create multiple categories for the authenticated user from a dictionary.
+    Create multiple categories for the authenticated user from a dictionary or list.
 
     Args:
         request (HttpRequest): The HTTP request object containing the following JSON data:
-            categories (dict): Dictionary where keys are category names and values are descriptions
-                             Format: {'category_name': 'category_description', ...}
+            categories (dict|list): Either:
+                - Dictionary where keys are category names and values are descriptions
+                  Format: {'category_name': 'category_description', ...}
+                - List of dictionaries with name and description
+                  Format: [{'name': 'category_name', 'description': 'category_description'}, ...]
 
     Returns:
         Response: JSON response with the created categories data on success,
                  or error messages on failure.
     """
     data: dict = json.loads(request.body)
-    categories_dict = data.get("categories", {})
+    categories_data = data.get("categories", {})
     
-    if not categories_dict:
+    if not categories_data:
         return Response(
             {"error": "No categories provided"}, 
             status=status.HTTP_400_BAD_REQUEST
@@ -326,6 +329,14 @@ def create_categories(request: HttpRequest) -> Response:
 
     created_categories = []
     errors = []
+
+    if isinstance(categories_data, list):
+        categories_dict = {
+            item.get('name', ''): item.get('description', '')
+            for item in categories_data
+        }
+    else:
+        categories_dict = categories_data
 
     for name, description in categories_dict.items():
         if not name or not description:
@@ -344,7 +355,6 @@ def create_categories(request: HttpRequest) -> Response:
             errors.append(f"Description for '{name}' exceeds 300 characters")
             continue
 
-        # Check if category already exists for this user
         if Category.objects.filter(user=request.user, name=name).exists():
             errors.append(f"Category '{name}' already exists")
             continue

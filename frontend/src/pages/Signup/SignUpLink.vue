@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, provide } from "vue";
+import { postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/global/preferences";
@@ -170,20 +171,15 @@ function createCategories(categories: Category[]) {
         return;
     }
 
-    fetch(`${API_BASE_URL}categories/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ categories })
+    postData("create_categories/", {
+        categories
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(response => {
+        console.log(response);
+        if (response.success) {
             router.push({ name: "home" });
         } else {
-            displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), data.error);
+            displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"),"");
         }
     })
     .catch(error => {

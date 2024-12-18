@@ -211,7 +211,8 @@
     "ESOFCyberScore": "Score Cyber ESOF :",
     "cyberScoreAssessor": "Évaluateur de sécurité TAC Security",
     "emailsAreEncryptedAtRest": "Le contenu des e-mails est crypté au repos dans notre base de données",
-    "emailsFallbackToProviders": "Les e-mails restent disponibles dans Gmail ou Outlook en tant que solution de secours"
+    "emailsFallbackToProviders": "Les e-mails restent disponibles dans Gmail ou Outlook en tant que solution de secours",
+    "startApp": "Démarrer l'application 🚀"
   },
   "homePage": {
     "otherCategory": "Autres",

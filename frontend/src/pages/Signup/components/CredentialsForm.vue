@@ -202,7 +202,6 @@
 <script setup lang="ts">
 import { inject, Ref, ref } from "vue";
 
-const userDescription = inject<Ref<string>>("userDescription") || ref("");
 const email = inject<Ref<string>>("email") || ref("");
 const password = inject<Ref<string>>("password") || ref("");
 const confirmPassword = inject<Ref<string>>("confirmPassword") || ref("");

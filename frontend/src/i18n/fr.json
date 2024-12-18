@@ -176,6 +176,7 @@
     "submitSignUpFormError": "Erreur lors de l'envoi des données",
     "categoryAlreadyExists": "La catégorie existe déjà",
     "summaryUserPlaceholder": "Résumez-vous avec votre nom afin d'aider Ao",
+    "categoryCreationError": "Erreur lors de la création de la catégorie",
     "signUp": "S'inscrire",
     "passwordConfirm": "Confirmer le mot de passe",
     "continue": "Continuer",

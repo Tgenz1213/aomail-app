@@ -43,8 +43,10 @@ import { i18n } from "@/global/preferences";
 import logo from "@/assets/logo-aomail.png";
 import StepsTracker from "./components/StepsTracker.vue";
 import EmailLinkForm from "./components/EmailLinkForm.vue";
+import CategoriesForm from "./components/CategoriesForm.vue";
 import router from "@/router/router";
 import { API_BASE_URL } from "@/global/const";
+import { Category } from "@/global/types";
 
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");
@@ -55,6 +57,7 @@ const step = ref(1);
 
 provide("step", step);
 provide("submitSignupData", submitSignupData);
+provide("createCategories", createCategories);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -63,8 +66,10 @@ onMounted(() => {
 function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Enter") {
         event.preventDefault();
-        if (step.value === 3) {
+        if (step.value === 1) {
             submitSignupData(event);
+        } else if (step.value === 2) {
+            router.push({ name: "home" });
         }
     }
 }
@@ -157,5 +162,32 @@ function dismissPopup() {
     if (timerId.value !== null) {
         clearTimeout(timerId.value);
     }
+}
+
+function createCategories(categories: Category[]) {
+    if (categories.length === 0) {
+        router.push({ name: "home" });
+        return;
+    }
+
+    fetch(`${API_BASE_URL}categories/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ categories })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            router.push({ name: "home" });
+        } else {
+            displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), data.error);
+        }
+    })
+    .catch(error => {
+        displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), error.message);
+    });
 }
 </script>

@@ -211,7 +211,8 @@
     "ESOFCyberScore": "ESOF Cyber score:",
     "cyberScoreAssessor": "TAC Security assessor",
     "emailsAreEncryptedAtRest": "Emails content are encrypted at rest on our database",
-    "emailsFallbackToProviders": "Emails still available in Gmail or Outlook as a fallback"
+    "emailsFallbackToProviders": "Emails still available in Gmail or Outlook as a fallback",
+    "categoryCreationError": "Error creating category"
   },
   "homePage": {
     "otherCategory": "Others",

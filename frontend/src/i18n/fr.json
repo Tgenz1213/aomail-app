@@ -181,7 +181,7 @@
     "passwordConfirm": "Confirmer le mot de passe",
     "continue": "Continuer",
     "colors": "Couleurs",
-    "createCategory": "Créez vos différentes catégories dans lesquelles vous souhaitez que Ao classe automatiquement vos e-mails.",
+    "createCategory": "Avant de commencer, vous pouvez créer les différentes catégories dans lesquelles vous souhaitez que l'IA classe automatiquement vos e-mails. C'est optionnel mais recommandé.",
     "wantToKnowMore": "Vous voulez en savoir plus ?",
     "addAnotherCategory": "Ajouter une autre catégorie",
     "youHaveAnAccount": "Vous avez un compte ?"

@@ -180,7 +180,7 @@
     "passwordConfirm": "Confirm Password",
     "continue": "Continue",
     "colors": "Colors",
-    "createCategory": "Create your different categories where you want Ao to automatically place your emails.",
+    "createCategory": "Before you start, you can create different categories where you want the AI to automatically categorize your emails. This is optional but recommended",
     "wantToKnowMore": "Want to know more?",
     "addAnotherCategory": "Add another category",
     "youHaveAnAccount": "Do you have an account?"

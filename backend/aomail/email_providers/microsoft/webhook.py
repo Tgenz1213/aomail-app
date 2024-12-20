@@ -472,35 +472,32 @@ class MicrosoftEmailNotification(View):
                         Attempts to store the email in the database using AI processing for a limited number of retries.
                         Logs critical failures and sends an email alert to administrators on failure.
                         """
-                        for i in range(MAX_RETRIES):
-                            result = email_to_db(
-                                social_api,
-                                email_id,
+                        result = email_to_db(
+                            social_api,
+                            email_id,
+                        )
+                        if not result:
+                            LOGGER.critical(
+                                f"[Attempt n°{1}] Failed to process email with AI for email: {microsoft_listener.first().email} and email ID: {email_id}"
                             )
-                            if result:
-                                break
-                            else:
-                                LOGGER.critical(
-                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {microsoft_listener.first().email} and email ID: {email_id}"
-                                )
-                                context = {
-                                    "error": result,
-                                    "attempt_number": i + 1,
-                                    "email": microsoft_listener.first().email,
-                                    "email_provider": MICROSOFT,
-                                    "user": microsoft_listener.first().user,
-                                }
-                                email_html = render_to_string(
-                                    "ai_failed_email.html", context
-                                )
-                                send_mail(
-                                    subject="Critical Alert: Email Processing Failure",
-                                    message="",
-                                    recipient_list=[EMAIL_ADMIN],
-                                    from_email=EMAIL_NO_REPLY,
-                                    html_message=email_html,
-                                    fail_silently=False,
-                                )
+                            context = {
+                                "error": result,
+                                "attempt_number": 1,
+                                "email": microsoft_listener.first().email,
+                                "email_provider": MICROSOFT,
+                                "user": microsoft_listener.first().user,
+                            }
+                            email_html = render_to_string(
+                                "ai_failed_email.html", context
+                            )
+                            send_mail(
+                                subject="Critical Alert: Email Processing Failure",
+                                message="",
+                                recipient_list=[EMAIL_ADMIN],
+                                from_email=EMAIL_NO_REPLY,
+                                html_message=email_html,
+                                fail_silently=False,
+                            )
 
                     threading.Thread(target=process_email).start()
 

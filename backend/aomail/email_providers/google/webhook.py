@@ -24,7 +24,6 @@ from aomail.constants import (
     GOOGLE,
     GOOGLE_PROJECT_ID,
     GOOGLE_TOPIC_NAME,
-    MAX_RETRIES,
 )
 from aomail.email_providers.google.authentication import authenticate_service
 from aomail.models import SocialAPI, Subscription
@@ -70,33 +69,28 @@ def receive_mail_notifications(request: HttpRequest) -> Response:
             else:
 
                 def process_email():
-                    for i in range(MAX_RETRIES):
-                        result = email_to_db(social_api)
+                    result = email_to_db(social_api)
 
-                        if result:
-                            break
-                        else:
-                            LOGGER.critical(
-                                f"[Attempt {i+1}] Failed to process email with AI for email: {email}"
-                            )
-                            context = {
-                                "error": result,
-                                "attempt_number": i + 1,
-                                "email": email,
-                                "email_provider": GOOGLE,
-                                "user": social_api.user,
-                            }
-                            email_html = render_to_string(
-                                "ai_failed_email.html", context
-                            )
-                            send_mail(
-                                subject="Critical Alert: Email Processing Failure",
-                                message="",
-                                recipient_list=[EMAIL_ADMIN],
-                                from_email=EMAIL_NO_REPLY,
-                                html_message=email_html,
-                                fail_silently=False,
-                            )
+                    if not result:
+                        LOGGER.critical(
+                            f"[Attempt {1}] Failed to process email with AI for email: {email}"
+                        )
+                        context = {
+                            "error": result,
+                            "attempt_number": 1,
+                            "email": email,
+                            "email_provider": GOOGLE,
+                            "user": social_api.user,
+                        }
+                        email_html = render_to_string("ai_failed_email.html", context)
+                        send_mail(
+                            subject="Critical Alert: Email Processing Failure",
+                            message="",
+                            recipient_list=[EMAIL_ADMIN],
+                            from_email=EMAIL_NO_REPLY,
+                            html_message=email_html,
+                            fail_silently=False,
+                        )
 
                 threading.Thread(target=process_email).start()
 

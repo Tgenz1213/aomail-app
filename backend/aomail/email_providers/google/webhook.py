@@ -28,10 +28,23 @@ from aomail.constants import (
 from aomail.email_providers.google.authentication import authenticate_service
 from aomail.models import SocialAPI, Subscription
 from aomail.email_providers.utils import email_to_db
+from aomail.controllers.authentication import subscribe_listeners
 
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
+
+
+def check_and_resubscribe_to_missing_resources(type_api: str, user: User, email: str):
+    """
+    Check all subscriptions for the given user and resubscribe to missing resources (email).
+
+    Args:
+        type_api (str): The email service API used.
+        user (User): The Django User object.
+        email (str): The email address of the user.
+    """
+    subscribe_listeners(type_api, user, email)
 
 
 @api_view(["POST"])

@@ -23,6 +23,9 @@ from aomail.email_providers.google.authentication import (
     fetch_email_ids_since,
 )
 from aomail.email_providers.utils import email_to_db
+from aomail.email_providers.google.webhook import (
+    check_and_resubscribe_to_missing_resources,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -85,13 +88,15 @@ def synchronize(request: HttpRequest) -> Response:
     nb_missed_emails = parameters["nbMissedEmails"]
     user = request.user
 
+    # Resubscribe user to email notifications in case
+    social_api = SocialAPI.objects.get(user=user, email=email)
+    check_and_resubscribe_to_missing_resources(social_api.type_api, user, email)
+
     services = authenticate_service(user, email, ["gmail"])
 
     subscription = Subscription.objects.get(user=user)
     start_date = subscription.created_at
     email_ids = fetch_email_ids_since(services["gmail"], email, start_date)
-
-    social_api = SocialAPI.objects.get(user=user, email=email)
 
     LOGGER.info(
         f"Starting to process {len(email_ids)} emails for user ID: {user.id} and social API ID: {social_api.id}"

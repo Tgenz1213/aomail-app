@@ -186,6 +186,7 @@
     "youHaveAnAccount": "Do you have an account?"
   },
   "signuUpLinkPage": {
+    "processingLastEmails": "Processing your last 5 emails...",
     "linkYourMailAccount": "Link your Gmail or Outlook account",
     "authorizationError": "Authorization error", 
     "authorizationCodeNotFound": "Authorization code not found in URL",

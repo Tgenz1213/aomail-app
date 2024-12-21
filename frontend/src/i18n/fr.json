@@ -187,6 +187,7 @@
     "youHaveAnAccount": "Vous avez un compte ?"
   },
   "signuUpLinkPage": {
+    "processingLastEmails": "Traitement de vos 5 derniers emails...",
     "authorizationError": "Erreur d'autorisation",
     "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL", 
     "accountCreationInProgress": "Création de compte en cours...",

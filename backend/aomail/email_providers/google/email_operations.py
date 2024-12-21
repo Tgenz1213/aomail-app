@@ -444,7 +444,7 @@ def get_demo_list(user: User, email: str) -> list[str]:
     results: dict = (
         service.users()
         .messages()
-        .list(userId="me", labelIds=["INBOX"], maxResults=10)
+        .list(userId="me", labelIds=["INBOX"], maxResults=5)
         .execute()
     )
     messages = results.get("messages", [])

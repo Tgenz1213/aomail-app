@@ -299,7 +299,6 @@ def get_category_id(request: HttpRequest) -> Response:
             {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-
 @api_view(["POST"])
 @subscription(ALLOWED_PLANS)
 def create_categories(request: HttpRequest) -> Response:
@@ -329,6 +328,17 @@ def create_categories(request: HttpRequest) -> Response:
 
     created_categories = []
     errors = []
+
+    if not Category.objects.filter(user=request.user, name=DEFAULT_CATEGORY).exists():
+        try:
+            Category.objects.create(
+                name=DEFAULT_CATEGORY,
+                description="",
+                user=request.user,
+            )
+        except Exception as e:
+            LOGGER.error(f"Error creating default category: {str(e)}")
+            errors.append("Error creating default category")
 
     if isinstance(categories_data, list):
         categories_dict = {

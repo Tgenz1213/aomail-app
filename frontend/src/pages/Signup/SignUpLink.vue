@@ -59,6 +59,7 @@ const step = ref(1);
 provide("step", step);
 provide("submitSignupData", submitSignupData);
 provide("createCategories", createCategories);
+provide("processDemoEmails", processDemoEmails);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -138,7 +139,8 @@ async function submitSignupData(event: Event) {
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem("accessToken", data.accessToken);
-            sessionStorage.clear();
+            localStorage.setItem("signupToken", data.signupToken);
+            localStorage.setItem("emailSocial", data.emailSocial);
             step.value++;
         } else {
             const data = await response.json();
@@ -165,25 +167,34 @@ function dismissPopup() {
     }
 }
 
-function createCategories(categories: Category[]) {
-    if (categories.length === 0) {
-        router.push({ name: "home" });
-        return;
+async function createCategories(categories: Category[]) {
+    try {
+        const response = await postData("create_categories/", {
+            categories
+        });
+        if (!response.success) {
+            displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), "");
+        }
+    } catch (error) {
+        displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), (error as Error).message);
     }
+}
 
-    postData("create_categories/", {
-        categories
-    })
-    .then(response => {
-        console.log(response);
+async function processDemoEmails() {
+    try {
+        const response = await postData("process_demo_data/", {
+            emailSocial: localStorage.getItem("emailSocial"),
+            typeApi: sessionStorage.getItem("typeApi"),
+            signupToken: localStorage.getItem("signupToken")
+        });
         if (response.success) {
+            sessionStorage.clear();
             router.push({ name: "home" });
         } else {
-            displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"),"");
+            displayPopup("error", i18n.global.t("signuUpLinkPage.demoProcessingError"), "");
         }
-    })
-    .catch(error => {
-        displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), error.message);
-    });
+    } catch (error) {
+        displayPopup("error", i18n.global.t("signuUpLinkPage.demoProcessingError"), (error as Error).message);
+    }
 }
 </script>

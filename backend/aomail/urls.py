@@ -30,6 +30,7 @@ urlpatterns = [
     path('token/refresh/', auth.refresh_token, name='refresh_token'),
     path('delete_account/', auth.delete_account, name='delete_account'),
     path('signup/', auth.signup, name='signup'),
+    path('process_demo_data/', auth.process_demo_data, name='process_demo_data'),
     path('check_username/', auth.check_username, name='check_username'),
     path('user/social_api/unlink/', auth.unlink_email, name='unlink_email'),
     path('user/social_api/link/', auth.link_email, name='link_email'),

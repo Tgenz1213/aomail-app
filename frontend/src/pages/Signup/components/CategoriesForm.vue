@@ -122,7 +122,7 @@
         </div>
     </div>
     <div>
-        <div class="pt-4">
+        <div class="pt-2">
             <button
                 @click.prevent="goToApp"
                 class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
@@ -153,9 +153,11 @@ const isModalNewCategoryOpen = inject<Ref<boolean>>("isModalNewCategoryOpen") ||
 const isModalUpdateCategoryOpen = inject<Ref<boolean>>("isModalUpdateCategoryOpen") || ref(false);
 
 const createCategories = inject<(categories: Category[]) => void>("createCategories");
+const processDemoEmails = inject<() => void>("processDemoEmails");
 
-const goToApp = () => {
-    createCategories?.(categories.value);
+const goToApp = async () => {
+    await createCategories?.(categories.value);
+    await processDemoEmails?.();
 };
 
 provide("categoryName", categoryName);

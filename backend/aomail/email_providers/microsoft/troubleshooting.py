@@ -23,6 +23,9 @@ from aomail.email_providers.microsoft.authentication import (
     refresh_access_token,
 )
 from aomail.email_providers.utils import email_to_db
+from aomail.email_providers.microsoft.webhook import (
+    check_and_resubscribe_to_missing_resources,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -43,6 +46,7 @@ def check_connectivity(request: HttpRequest) -> Response:
     parameters: dict = json.loads(request.body)
     email = parameters["email"]
     user = request.user
+    check_and_resubscribe_to_missing_resources(user, email)
 
     subscription = Subscription.objects.get(user=user)
     start_date = subscription.created_at

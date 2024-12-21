@@ -5,10 +5,6 @@ Endpoints:
 - ✅ MicrosoftSubscriptionNotification: Handles POST requests containing subscription notifications.
 - ✅ MicrosoftEmailNotification: Handles email notifications from subscriptions.
 - ✅ MicrosoftContactNotification: Handles POST requests containing contact notifications.
-
-
-TODO:
-- [SUBSCRIPTION] handle "subscriptionRemoved or missed"
 """
 
 import datetime
@@ -36,7 +32,6 @@ from aomail.constants import (
     EMAIL_ADMIN,
     EMAIL_NO_REPLY,
     GRAPH_URL,
-    MAX_RETRIES,
     MICROSOFT,
     MICROSOFT_CLIENT_STATE,
 )
@@ -48,6 +43,7 @@ from aomail.models import (
     Subscription,
 )
 from aomail.email_providers.utils import email_to_db
+from aomail.email_providers.microsoft import webhook as webhook_microsoft
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -71,6 +67,45 @@ def calculate_expiration_date(days=0, hours=0, minutes=0) -> str:
     )
     expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
     return expiration_date_str
+
+
+def check_and_resubscribe_to_missing_resources(user: User, email: str):
+    """
+    Check all subscriptions for the given user and resubscribe to missing resources (email or contacts).
+
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+    """
+    url = f"{GRAPH_URL}subscriptions"
+    access_token = refresh_access_token(get_social_api(user, email))
+    headers = get_headers(access_token)
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        subscription_data = response.json()
+
+        active_email_subscription = False
+        active_contact_subscription = False
+
+        for subscription in subscription_data["value"]:
+            resource = subscription.get("resource", "")
+
+            if "me/mailFolders('inbox')/messages" in resource:
+                active_email_subscription = True
+            if "me/contacts" in resource:
+                active_contact_subscription = True
+
+        if not active_email_subscription:
+            webhook_microsoft.subscribe_to_email_notifications(user, email)
+
+        if not active_contact_subscription:
+            webhook_microsoft.subscribe_to_contact_notifications(user, email)
+
+    else:
+        LOGGER.error(
+            f"Failed to fetch subscriptions. Status code: {response.status_code}"
+        )
 
 
 def subscribe_to_email_notifications(user: User, email: str) -> bool:
@@ -357,7 +392,9 @@ class MicrosoftSubscriptionNotification(View):
                         f"User with email: {microsoft_listener.first().email} is blocked. Unsubscribing user from subscription {subscription_id}."
                     )
                     delete_subscription(
-                        microsoft_listener.first().user, microsoft_listener.first()
+                        microsoft_listener.first().user,
+                        microsoft_listener.first().email,
+                        microsoft_listener.first().subscription_id,
                     )
                 elif (
                     subscription_expiration_date - current_datetime
@@ -375,17 +412,16 @@ class MicrosoftSubscriptionNotification(View):
                         subscription_id,
                     )
 
-                # TODO: handle "subscriptionRemoved or missed"
-                elif lifecycle_event == "subscriptionRemoved":
-                    # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#actions-to-take-1
+                elif (
+                    lifecycle_event == "subscriptionRemoved"
+                    or lifecycle_event == "missed"
+                ):
                     LOGGER.error(
-                        f"subscriptionRemoved: current time: {current_datetime}, expiration time: {expiration_date_str}"
+                        f"{lifecycle_event}: current time: {current_datetime}, expiration time: {expiration_date_str}"
                     )
-
-                elif lifecycle_event == "missed":
-                    # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#responding-to-missed-notifications
-                    LOGGER.error(
-                        f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}"
+                    check_and_resubscribe_to_missing_resources(
+                        microsoft_listener.first().user,
+                        microsoft_listener.first().email,
                     )
 
             return JsonResponse(
@@ -472,35 +508,32 @@ class MicrosoftEmailNotification(View):
                         Attempts to store the email in the database using AI processing for a limited number of retries.
                         Logs critical failures and sends an email alert to administrators on failure.
                         """
-                        for i in range(MAX_RETRIES):
-                            result = email_to_db(
-                                social_api,
-                                email_id,
+                        result = email_to_db(
+                            social_api,
+                            email_id,
+                        )
+                        if not result:
+                            LOGGER.critical(
+                                f"[Attempt n°{1}] Failed to process email with AI for email: {microsoft_listener.first().email} and email ID: {email_id}"
                             )
-                            if result:
-                                break
-                            else:
-                                LOGGER.critical(
-                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {microsoft_listener.first().email} and email ID: {email_id}"
-                                )
-                                context = {
-                                    "error": result,
-                                    "attempt_number": i + 1,
-                                    "email": microsoft_listener.first().email,
-                                    "email_provider": MICROSOFT,
-                                    "user": microsoft_listener.first().user,
-                                }
-                                email_html = render_to_string(
-                                    "ai_failed_email.html", context
-                                )
-                                send_mail(
-                                    subject="Critical Alert: Email Processing Failure",
-                                    message="",
-                                    recipient_list=[EMAIL_ADMIN],
-                                    from_email=EMAIL_NO_REPLY,
-                                    html_message=email_html,
-                                    fail_silently=False,
-                                )
+                            context = {
+                                "error": result,
+                                "attempt_number": 1,
+                                "email": microsoft_listener.first().email,
+                                "email_provider": MICROSOFT,
+                                "user": microsoft_listener.first().user,
+                            }
+                            email_html = render_to_string(
+                                "ai_failed_email.html", context
+                            )
+                            send_mail(
+                                subject="Critical Alert: Email Processing Failure",
+                                message="",
+                                recipient_list=[EMAIL_ADMIN],
+                                from_email=EMAIL_NO_REPLY,
+                                html_message=email_html,
+                                fail_silently=False,
+                            )
 
                     threading.Thread(target=process_email).start()
 

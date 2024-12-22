@@ -300,7 +300,7 @@ def get_category_id(request: HttpRequest) -> Response:
         )
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def create_categories(request: HttpRequest) -> Response:
     """
     Create multiple categories for the authenticated user from a dictionary or list.

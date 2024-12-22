@@ -23,10 +23,7 @@ from aomail.email_providers.microsoft.authentication import (
     refresh_access_token,
 )
 from aomail.utils import email_processing
-from aomail.constants import (
-    ALLOWED_PLANS,
-    GRAPH_URL,
-)
+from aomail.constants import ALLOW_ALL, GRAPH_URL
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -134,7 +131,7 @@ def get_info_contacts(access_token: str) -> list:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Microsoft Graph API.

@@ -23,7 +23,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
-from aomail.constants import ALLOWED_PLANS, INACTIVE
+from aomail.constants import ALLOW_ALL
 from aomail.models import Preference, Subscription
 
 
@@ -33,7 +33,7 @@ THEMES = ["dark", "light"]
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def update_username(request: HttpRequest) -> Response:
     """
     Update the username for the authenticated user.
@@ -77,7 +77,7 @@ def update_username(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def update_password(request: HttpRequest) -> Response:
     """
     Update the password for the authenticated user.
@@ -112,7 +112,7 @@ def update_password(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def get_user_language(request: HttpRequest) -> Response:
     """
     Retrieve the language setting for the authenticated user.
@@ -140,7 +140,7 @@ def get_user_language(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def set_user_language(request: HttpRequest) -> Response:
     """
     Set the language for the authenticated user.
@@ -181,7 +181,7 @@ def set_user_language(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def get_user_theme(request: HttpRequest) -> Response:
     """
     Retrieve the theme setting for the authenticated user.
@@ -206,7 +206,7 @@ def get_user_theme(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def set_user_theme(request: HttpRequest) -> Response:
     """
     Set the theme for the authenticated user.
@@ -248,7 +248,7 @@ def set_user_theme(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def get_user_timezone(request: HttpRequest) -> Response:
     """
     Retrieve the timezone setting for the authenticated user.
@@ -273,7 +273,7 @@ def get_user_timezone(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def set_user_timezone(request: HttpRequest) -> Response:
     """
     Set the timezone for the authenticated user.
@@ -310,14 +310,14 @@ def set_user_timezone(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def get_user_details(request: HttpRequest) -> Response:
     """Returns the username of authenticated user."""
     return Response({"username": request.user.username}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def get_user_plan(request: HttpRequest) -> Response:
     """Returns the subscription plan of the authenticated user."""
     user = request.user

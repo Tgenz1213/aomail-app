@@ -14,7 +14,7 @@ from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.constants import ALLOWED_PLANS
+from aomail.constants import ALLOW_ALL
 from aomail.models import Category, Rule, Sender
 from aomail.utils.security import subscription
 from django.contrib.auth.models import User
@@ -25,7 +25,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_rules_data(request: HttpRequest) -> Response:
     """
     Retrieves detailed data for multiple rules based on provided rule IDs.
@@ -100,7 +100,7 @@ def get_rules_data(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_user_rule_ids(request: HttpRequest) -> Response:
     """
     Retrieves rules associated with the authenticated user.

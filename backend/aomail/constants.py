@@ -38,6 +38,7 @@ START_PLAN = "start"
 PREMIUM_PLAN = "premium"
 ENTREPRISE_PLAN = "entreprise"
 ALLOWED_PLANS = [START_PLAN, PREMIUM_PLAN, ENTREPRISE_PLAN]
+ALLOW_ALL = ALLOWED_PLANS + [INACTIVE]
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))

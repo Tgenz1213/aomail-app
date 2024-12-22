@@ -18,9 +18,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
-from aomail.constants import (
-    ALLOWED_PLANS,
-)
+from aomail.constants import ALLOW_ALL
 from aomail.models import (
     Email,
     Rule,
@@ -36,7 +34,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:
     """
     Sets a blocking rule for the sender of the specified email associated with the authenticated user.
@@ -63,7 +61,7 @@ def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     """
     Retrieves details of a specific rule owned by the authenticated user.
@@ -96,7 +94,7 @@ def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def delete_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     """
     Deletes a specific rule owned by the authenticated user.
@@ -120,7 +118,7 @@ def delete_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def create_user_rule(request: HttpRequest) -> Response:
     """
     Creates a new rule for the authenticated user based on the request data.
@@ -161,7 +159,7 @@ def create_user_rule(request: HttpRequest) -> Response:
 
 
 @api_view(["PUT"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def update_user_rule(request: HttpRequest) -> Response:
     """
     Updates an existing rule for the authenticated user based on the request data.

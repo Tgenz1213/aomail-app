@@ -9,12 +9,10 @@ Endpoints:
 
 import base64
 import datetime
-import json
 import logging
 import threading
 import requests
 from django.http import HttpRequest
-from django.core.files.uploadedfile import UploadedFile
 from django.utils.timezone import make_aware
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -24,20 +22,13 @@ from django.contrib.auth.models import User
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from aomail.utils.serializers import (
-    EmailDataSerializer,
-    EmailScheduleDataSerializer,
-)
 from aomail.email_providers.microsoft.authentication import (
     get_headers,
     get_social_api,
     refresh_access_token,
 )
 from aomail.utils import email_processing
-from aomail.constants import (
-    ALLOWED_PLANS,
-    GRAPH_URL,
-)
+from aomail.constants import ALLOW_ALL, GRAPH_URL
 from aomail.models import Attachment, Email, SocialAPI
 
 
@@ -108,7 +99,7 @@ def parse_message_body(message_data: dict) -> str | None:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def send_schedule_email(request: HttpRequest) -> Response:
     """
     Schedule the sending of an email using the Microsoft Graph API with deferred delivery.
@@ -173,34 +164,41 @@ def send_schedule_email(request: HttpRequest) -> Response:
                 )
                 multipart_message.attach(part)
 
-        raw_message = base64.b64encode(multipart_message.as_string().encode("utf-8")).decode("utf-8")
+        raw_message = base64.b64encode(
+            multipart_message.as_string().encode("utf-8")
+        ).decode("utf-8")
 
         email_content = {
             "message": {
                 "subject": subject,
                 "body": {"contentType": "HTML", "content": message},
-                "toRecipients": [
-                    {"emailAddress": {"address": email}} for email in to
-                ],
-                "ccRecipients": [
-                    {"emailAddress": {"address": email}} for email in cc
-                ] if cc else [],
-                "bccRecipients": [
-                    {"emailAddress": {"address": email}} for email in bcc
-                ] if bcc else [],
-                "attachments": [
-                    {
-                        "@odata.type": "#microsoft.graph.fileAttachment",
-                        "name": uploaded_file.name,
-                        "contentBytes": base64.b64encode(uploaded_file.read()).decode("utf-8")
-                    } for uploaded_file in attachments
-                ] if attachments else []
+                "toRecipients": [{"emailAddress": {"address": email}} for email in to],
+                "ccRecipients": (
+                    [{"emailAddress": {"address": email}} for email in cc] if cc else []
+                ),
+                "bccRecipients": (
+                    [{"emailAddress": {"address": email}} for email in bcc]
+                    if bcc
+                    else []
+                ),
+                "attachments": (
+                    [
+                        {
+                            "@odata.type": "#microsoft.graph.fileAttachment",
+                            "name": uploaded_file.name,
+                            "contentBytes": base64.b64encode(
+                                uploaded_file.read()
+                            ).decode("utf-8"),
+                        }
+                        for uploaded_file in attachments
+                    ]
+                    if attachments
+                    else []
+                ),
             }
         }
 
-        response = requests.post(
-            graph_endpoint, headers=headers, json=email_content
-        )
+        response = requests.post(graph_endpoint, headers=headers, json=email_content)
 
         if response.status_code == 202:
             threading.Thread(
@@ -226,7 +224,7 @@ def send_schedule_email(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Microsoft Graph API.
@@ -291,34 +289,41 @@ def send_email(request: HttpRequest) -> Response:
                 )
                 multipart_message.attach(part)
 
-        raw_message = base64.b64encode(multipart_message.as_string().encode("utf-8")).decode("utf-8")
+        raw_message = base64.b64encode(
+            multipart_message.as_string().encode("utf-8")
+        ).decode("utf-8")
 
         email_content = {
             "message": {
                 "subject": subject,
                 "body": {"contentType": "HTML", "content": message},
-                "toRecipients": [
-                    {"emailAddress": {"address": email}} for email in to
-                ],
-                "ccRecipients": [
-                    {"emailAddress": {"address": email}} for email in cc
-                ] if cc else [],
-                "bccRecipients": [
-                    {"emailAddress": {"address": email}} for email in bcc
-                ] if bcc else [],
-                "attachments": [
-                    {
-                        "@odata.type": "#microsoft.graph.fileAttachment",
-                        "name": uploaded_file.name,
-                        "contentBytes": base64.b64encode(uploaded_file.read()).decode("utf-8")
-                    } for uploaded_file in attachments
-                ] if attachments else []
+                "toRecipients": [{"emailAddress": {"address": email}} for email in to],
+                "ccRecipients": (
+                    [{"emailAddress": {"address": email}} for email in cc] if cc else []
+                ),
+                "bccRecipients": (
+                    [{"emailAddress": {"address": email}} for email in bcc]
+                    if bcc
+                    else []
+                ),
+                "attachments": (
+                    [
+                        {
+                            "@odata.type": "#microsoft.graph.fileAttachment",
+                            "name": uploaded_file.name,
+                            "contentBytes": base64.b64encode(
+                                uploaded_file.read()
+                            ).decode("utf-8"),
+                        }
+                        for uploaded_file in attachments
+                    ]
+                    if attachments
+                    else []
+                ),
             }
         }
 
-        response = requests.post(
-            graph_endpoint, headers=headers, json=email_content
-        )
+        response = requests.post(graph_endpoint, headers=headers, json=email_content)
 
         if response.status_code == 202:
             threading.Thread(

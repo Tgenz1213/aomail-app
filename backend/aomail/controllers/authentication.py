@@ -28,6 +28,7 @@ from django.db import IntegrityError
 from django.http import HttpRequest, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -82,7 +83,6 @@ from aomail.email_providers.utils import email_to_db
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 
-
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signup(request: HttpRequest) -> Response:
@@ -97,10 +97,6 @@ def signup(request: HttpRequest) -> Response:
             password (str): User's password.
             timezone (str): User's preferred timezone.
             language (str): User's preferred language.
-            theme (str): User's preferred theme.
-            color (str): User's preferred color.
-            categories (list): List of categories associated with the user.
-            userDescription (str): Description or bio of the user.
 
     Returns:
         Response: JSON response with user ID, access token, and email on success,
@@ -119,11 +115,8 @@ def signup(request: HttpRequest) -> Response:
     code: str = parameters.get("code", "")
     username: str = parameters.get("login", "")
     password: str = parameters.get("password", "")
-    timezone: str = parameters.get("timezone", "")
+    user_timezone: str = parameters.get("timezone", "")
     language: str = parameters.get("language", "")
-    theme: str = parameters.get("theme", "")
-    categories: list = parameters.get("categories", [])
-    user_description: str = parameters.get("userDescription", "")
 
     validation_result: dict = validate_signup_data(username, password, code)
     if "error" in validation_result:
@@ -164,7 +157,6 @@ def signup(request: HttpRequest) -> Response:
         return Response(
             {"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST
         )
-
     user = User.objects.create_user(username, "", password)
     LOGGER.info(f"User {username} created successfully")
 
@@ -182,14 +174,11 @@ def signup(request: HttpRequest) -> Response:
     result = save_user_data(
         user,
         type_api,
-        user_description,
         email,
         access_token,
         refresh_token,
-        theme,
-        categories,
         language,
-        timezone,
+        user_timezone,
     )
     if "error" in result:
         LOGGER.error(f"Failed to save user data: {result['error']}")
@@ -225,7 +214,6 @@ def signup(request: HttpRequest) -> Response:
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-
     Subscription.objects.create(
         user=user,
         plan=PREMIUM_PLAN,
@@ -234,13 +222,18 @@ def signup(request: HttpRequest) -> Response:
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
+        signup_token = jwt.encode({
+            'user_id': user.id,
+            'type': 'signup',
+            'exp': timezone.now() + timezone.timedelta(minutes=30)
+        }, settings.SECRET_KEY, algorithm='HS256')
         LOGGER.info(f"User {username} subscribed to listeners successfully")
-
-        threading.Thread(
-            target=process_demo_emails, args=(type_api, user, email)
-        ).start()
         return Response(
-            {"accessToken": django_access_token},
+            {
+                "accessToken": django_access_token,
+                "signupToken": signup_token,
+                "emailSocial": email,
+            },
             status=status.HTTP_201_CREATED,
         )
     else:
@@ -251,7 +244,6 @@ def signup(request: HttpRequest) -> Response:
             {"error": "Could not subscribe to listener"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-
 
 def process_demo_emails(type_api: str, user: User, email: str):
     """
@@ -270,11 +262,9 @@ def process_demo_emails(type_api: str, user: User, email: str):
         email_ids = email_operations_google.get_demo_list(user, email)
     elif type_api == MICROSOFT:
         email_ids = email_operations_microsoft.get_demo_list(user, email)
-
-    if not email_ids:
-        LOGGER.info(f"No emails found for user ID {user.id} in {type_api} inbox.")
+    else:
+        LOGGER.error(f"Unsupported email provider type: {type_api}")
         return
-
     LOGGER.info(
         f"Retrieved {len(email_ids)} email IDs for user ID {user.id}. Processing each email now."
     )
@@ -544,12 +534,9 @@ def validate_signup_data(username: str, password: str, code: str) -> dict:
 def save_user_data(
     user: User,
     type_api: str,
-    user_description: str,
     email: str,
     access_token: str,
     refresh_token: str,
-    theme: str,
-    categories: dict,
     language: str,
     timezone: str,
 ) -> dict:
@@ -579,33 +566,13 @@ def save_user_data(
         )
         SocialAPI.objects.create(
             user=user,
-            user_description=user_description,
             type_api=type_api,
             email=email,
             access_token=access_token,
             refresh_token=refresh_token_encrypted,
         )
         Preference.objects.create(
-            theme=theme, language=language, timezone=timezone, user=user
-        )
-
-        if categories:
-            try:
-                categories_json: list[dict] = json.loads(categories)
-                for category_data in categories_json:
-                    category_name = category_data.get("name")
-                    category_description = category_data.get("description")
-
-                    Category.objects.create(
-                        name=category_name, description=category_description, user=user
-                    )
-            except json.JSONDecodeError:
-                return {"error": "Invalid categories data"}
-
-        Category.objects.create(
-            name=DEFAULT_CATEGORY,
-            description="",
-            user=user,
+            language=language, timezone=timezone, user=user
         )
 
         Statistics.objects.create(user=user)
@@ -1087,4 +1054,72 @@ def reset_password(
         LOGGER.info(f"Password reset successfully for user: {user.username}")
         return Response(
             {"message": "Password reset successfully"}, status=status.HTTP_200_OK
+        )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def process_demo_data(request: HttpRequest) -> Response:
+    """
+    Process the 10 most recent emails for a newly signed up user.
+    This endpoint should only be accessible during the signup process.
+    
+    Args:
+        request (HttpRequest): HTTP request containing:
+            email (str): User's email address
+            signup_token (str): Temporary token from signup process
+            
+    Returns:
+        Response: Success or error message
+    """
+    try:
+        parameters: dict = json.loads(request.body)
+        email = parameters.get("emailSocial")
+        type_api = parameters.get("typeApi")
+        signup_token = parameters.get("signupToken")
+
+        if not email or not signup_token:
+            return Response(
+                {"error": "Missing required parameters"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            decoded_token = jwt.decode(
+                signup_token,
+                settings.SECRET_KEY,
+                algorithms=["HS256"]
+            )
+            
+            if (decoded_token.get("type") != "signup" or
+                decoded_token.get("exp") < timezone.now().timestamp()):
+                return Response(
+                    {"error": "Invalid or expired signup token"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+                
+            user_id = decoded_token.get("user_id")
+            user = User.objects.get(id=user_id)
+            
+        except (jwt.InvalidTokenError, User.DoesNotExist):
+            return Response(
+                {"error": "Invalid signup token"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        threading.Thread(
+            target=process_demo_emails,
+            args=(type_api, user, email)
+        ).start()
+
+        return Response(
+            {"message": "Demo email processing started"},
+            status=status.HTTP_202_ACCEPTED
+        )
+
+    except Exception as e:
+        LOGGER.error(f"Error processing demo emails: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

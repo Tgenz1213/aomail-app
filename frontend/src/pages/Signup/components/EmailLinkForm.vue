@@ -6,15 +6,18 @@
             </div>
             <div class="relative flex justify-center">
                 <span class="bg-white px-2 text-sm text-gray-500">
-                    {{ $t("signuUpLinkPage.linkAGmailAccount") }}
+                    {{ $t("signuUpLinkPage.linkYourMailAccount") }}
                 </span>
             </div>
         </div>
         <div class="py-4">
-            <div class="relative items-stretch mt-2 flex justify-center items-center">
+            <div class="relative items-stretch mt-2 flex justify-center items-center gap-4">
                 <button
                     type="button"
-                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    :class="[
+                        'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                        isGoogleLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600'
+                    ]"
                     @click="authorizeGoogle"
                 >
                     <svg
@@ -46,24 +49,14 @@
                         ></path>
                     </svg>
                     {{ $t("signuUpLinkPage.linkYourGmailAccount") }}
+                    <CheckIcon v-if="isGoogleLinked" class="h-5 w-5 text-white" aria-hidden="true" />
                 </button>
-            </div>
-        </div>
-        <div class="relative">
-            <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                <div class="w-full border-t border-gray-300"></div>
-            </div>
-            <div class="relative flex justify-center">
-                <span class="bg-white px-2 text-sm text-gray-500">
-                    {{ $t("signuUpLinkPage.linkAnOutlookAccount") }}
-                </span>
-            </div>
-        </div>
-        <div class="pt-4">
-            <div class="relative items-stretch mt-2 flex justify-center items-center">
                 <button
                     type="button"
-                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    :class="[
+                        'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                        isMicrosoftLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600'
+                    ]"
                     @click="authorizeMicrosoft"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
@@ -74,17 +67,90 @@
                         <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                     </svg>
                     {{ $t("signuUpLinkPage.linkYourOutlookAccount") }}
+                    <CheckIcon v-if="isMicrosoftLinked" class="h-5 w-5 text-white" aria-hidden="true" />
                 </button>
             </div>
         </div>
+        <div class="pt-4">
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="bg-white px-2 text-sm text-gray-500">
+                        {{ $t("signuUpLinkPage.informationOnDataConfidentiality") }}
+                    </span>
+                </div>
+            </div>
+            <div class="pt-4">
+                <div class="relative items-stretch mt-2">
+                    <!-- Keypoint 1: ESOF Cyber Score -->
+                    <div class="flex items-center space-x-3">
+                        <ShieldCheckIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
+                        <span>
+                            {{ $t("signuUpLinkPage.ESOFCyberScore") }} 9.7/10
+                            <a href="https://aomail.ai/aomail-tac-security-tier2-assessment.pdf" class="text-blue-600 hover:underline" target="_blank">
+                                {{ $t("signuUpLinkPage.cyberScoreAssessor") }}
+                            </a>
+                        </span>
+                    </div>
+                    <!-- Keypoint 2: Emails Content Encryption -->
+                    <div class="flex items-center space-x-3 mt-4">
+                        <LockClosedIcon class="h-6 w-6 text-gray-600" aria-hidden="true" />
+                        <span>{{ $t("signuUpLinkPage.emailsAreEncryptedAtRest") }}</span>
+                    </div>
+                    <!-- Keypoint 3: Emails Fallback to Gmail/Outlook -->
+                    <div class="flex items-center space-x-3 mt-4">
+                        <CloudIcon class="h-6 w-6 text-indigo-600" aria-hidden="true" />
+                        <span>{{ $t("signuUpLinkPage.emailsFallbackToProviders") }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div>
-            <div class="pt-10">
+            <div class="pt-8">
                 <button
-                    @click="goStepSignUpSummary"
+                    id="submit-button"
+                    @click="submitSignupData"
                     class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                 >
-                    {{ $t("signUpPart1Page.continue") }}
+                    {{ $t("signuUpLinkPage.finalizeRegistration") }}
                 </button>
+            </div>
+        </div>
+        <div class="space-y-5 pt-3">
+            <div class="relative flex items-start">
+                <div class="flex h-6 items-center">
+                    <input
+                        id="comments"
+                        aria-describedby="comments-description"
+                        name="comments"
+                        type="checkbox"
+                        class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
+                    />
+                </div>
+                <div class="ml-3 text-sm leading-6 w-full">
+                    <label for="comments" class="text-gray-500 font-normal">
+                        {{ $t("signuUpLinkPage.iAcceptThe") }}
+                        <a
+                            href="https://aomail.ai/terms-of-service"
+                            class="font-medium text-black hover:underline"
+                            target="_blank"
+                        >
+                            {{ $t("signuUpLinkPage.termsOfService") }}
+                        </a>
+                        {{ $t("signuUpLinkPage.andThe") }}
+                        <a
+                            href="https://aomail.ai/privacy-policy"
+                            class="font-medium text-black hover:underline"
+                            target="_blank"
+                        >
+                            {{ $t("signuUpLinkPage.privacyPolicy") }}
+                        </a>
+                        {{ $t("signuUpLinkPage.of") }}
+                        Aomail
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -92,13 +158,18 @@
 
 <script setup lang="ts">
 import { API_BASE_URL, GOOGLE, MICROSOFT } from "@/global/const";
-import { inject, onMounted } from "vue";
-
-const goStepSignUpSummary = inject<(event: Event) => void>("goStepSignUpSummary");
+import { inject, onMounted, ref } from "vue";
+import { ShieldCheckIcon, LockClosedIcon, CloudIcon, CheckIcon } from "@heroicons/vue/24/outline";
+const submitSignupData = inject<() => void>("submitSignupData");
+const isGoogleLinked = ref(false);
+const isMicrosoftLinked = ref(false);
 
 onMounted(() => {
-    if (sessionStorage.getItem("typeApi")) {
-        goStepSignUpSummary?.(new Event("synthetic"));
+    const typeApi = sessionStorage.getItem('typeApi');
+    if (typeApi === GOOGLE) {
+        isGoogleLinked.value = true;
+    } else if (typeApi === MICROSOFT) {
+        isMicrosoftLinked.value = true;
     }
 });
 

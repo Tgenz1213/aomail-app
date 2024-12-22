@@ -6,7 +6,7 @@
         <div>
             <div class="flex gap-x-1 items-center">
                 <svg
-                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns="http://www.w3.org/2000/svg" 
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
@@ -16,18 +16,18 @@
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                        d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
                     />
                 </svg>
-                <label for="login" class="block text-sm font-medium leading-6 text-gray-900">
-                    {{ $t("constants.username") }}
+                <label for="email" class="block text-sm font-medium leading-6 text-gray-900">
+                    {{ $t("constants.emailUppercase") }}
                 </label>
             </div>
             <div class="mt-2">
                 <input
-                    v-model="login"
-                    id="login"
-                    type="login"
+                    v-model="email"
+                    id="email"
+                    type="email"
                     class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                 />
             </div>
@@ -187,38 +187,9 @@
             </div>
         </div>
         <div>
-            <div class="flex gap-x-1 items-center">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                    />
-                </svg>
-                <label for="login" class="block text-sm font-medium leading-6 text-gray-900">
-                    {{ $t("settingsPage.accountPage.optionalDescription") }}
-                </label>
-            </div>
-            <div class="mt-2">
-                <input
-                    v-model="userDescription"
-                    :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
-                    id="userDescription"
-                    class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                />
-            </div>
-        </div>
-        <div>
             <div class="pt-2">
                 <button
-                    @click.prevent="goStepPreferencesForm"
+                    @click.prevent="goStepLinkEmail"
                     class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
                 >
                     {{ $t("signUpPart1Page.continue") }}
@@ -231,15 +202,14 @@
 <script setup lang="ts">
 import { inject, Ref, ref } from "vue";
 
-const userDescription = inject<Ref<string>>("userDescription") || ref("");
-const login = inject<Ref<string>>("login") || ref("");
+const email = inject<Ref<string>>("email") || ref("");
 const password = inject<Ref<string>>("password") || ref("");
 const confirmPassword = inject<Ref<string>>("confirmPassword") || ref("");
 const credentialError = inject<Ref<string>>("credentialError") || ref("");
 const showPassword = ref<boolean>(false);
 const showConfirmPassword = ref<boolean>(false);
 
-const goStepPreferencesForm = inject<() => void>("goStepPreferencesForm");
+const goStepLinkEmail = inject<() => void>("goStepLinkEmail");
 const clearError = inject<() => void>("clearError");
 
 function togglePasswordVisibility() {

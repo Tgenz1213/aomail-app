@@ -71,6 +71,7 @@
     "popUpConstants": {
       "errorMessages": {
         "emailSendError": "Erreur d'envoi d'email",
+        "pleaseEnterAnEmail": "Erreur saissisez un email",
         "contactFetchError": "Erreur de récupération des contacts",
         "primaryEmailFetchError": "Erreur récupération de votre email primaire",
         "emailLinkedFetchError": "Erreur récupération de vos emails",
@@ -105,7 +106,8 @@
         "recuperationRules": "Erreur lors de la récupération des règles",
         "identifierMustNotContainSpaces": "L'identifiant ne doit pas contenir d'espaces",
         "maxUsernameLength150Characters": "Longueur max nom d'utilisateur : 150 caractères",
-        "identifierIsAlreadyInUse": "L'identifiant est déjà utilisé"
+        "identifierIsAlreadyInUse": "L'identifiant est déjà utilisé",
+        "invalidEmailFormat": "Veuillez entrer un email valide"
       },
       "successMessages": {
         "success": "Succès !",
@@ -123,6 +125,7 @@
     "rule": "règle",
     "rules": "règles",
     "email": " e-mail.",
+    "emailUppercase": "Email",
     "emails": " e-mails.",
     "redirectionInProgress": "Redirection en cours...",
     "homeNavbar": "Accueil",
@@ -173,28 +176,31 @@
     "submitSignUpFormError": "Erreur lors de l'envoi des données",
     "categoryAlreadyExists": "La catégorie existe déjà",
     "summaryUserPlaceholder": "Résumez-vous avec votre nom afin d'aider Ao",
+    "categoryCreationError": "Erreur lors de la création de la catégorie",
     "signUp": "S'inscrire",
     "passwordConfirm": "Confirmer le mot de passe",
     "continue": "Continuer",
     "colors": "Couleurs",
-    "createCategory": "Créez vos différentes catégories dans lesquelles vous souhaitez que Ao classe automatiquement vos e-mails.",
+    "createCategory": "Avant de commencer, vous pouvez créer les différentes catégories dans lesquelles vous souhaitez que l'IA classe automatiquement vos e-mails. C'est optionnel mais recommandé.",
     "wantToKnowMore": "Vous voulez en savoir plus ?",
     "addAnotherCategory": "Ajouter une autre catégorie",
     "youHaveAnAccount": "Vous avez un compte ?"
   },
   "signuUpLinkPage": {
+    "processingLastEmails": "Traitement de vos 5 derniers emails...",
     "authorizationError": "Erreur d'autorisation",
-    "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL",
+    "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL", 
     "accountCreationInProgress": "Création de compte en cours...",
     "fetchingYourEmails": "Récupération de vos emails",
     "waitingDatabaseResponse": "Attente de réponse de la base de données",
     "accountCreationError": "Erreur lors de la création du compte",
     "registerToAomail": "Inscription à Aomail",
-    "AcceptTerms": "Vous devez accepter les termes de Aomail",
+    "acceptTerms": "Vous devez accepter les termes de Aomail",
+    "termsNotAccepted": "Veuillez accepter les conditions d'utilisation et la politique de confidentialité pour continuer",
     "linkAGmailAccount": "Lier un compte Gmail",
     "linkAnOutlookAccount": "Lier un compte Outlook",
-    "linkYourGmailAccount": "Lier votre compte Google",
-    "linkYourOutlookAccount": "Lier votre compte Outlook",
+    "linkYourGmailAccount": "Lier un compte Google", 
+    "linkYourOutlookAccount": "Lier un compte Outlook",
     "toolsPresentation": "Présentation des outils",
     "finalizeRegistration": "Finaliser votre inscription",
     "iAcceptThe": "J'accepte les",
@@ -206,7 +212,8 @@
     "ESOFCyberScore": "Score Cyber ESOF :",
     "cyberScoreAssessor": "Évaluateur de sécurité TAC Security",
     "emailsAreEncryptedAtRest": "Le contenu des e-mails est crypté au repos dans notre base de données",
-    "emailsFallbackToProviders": "Les e-mails restent disponibles dans Gmail ou Outlook en tant que solution de secours"
+    "emailsFallbackToProviders": "Les e-mails restent disponibles dans Gmail ou Outlook en tant que solution de secours",
+    "startApp": "Démarrer l'application 🚀"
   },
   "homePage": {
     "otherCategory": "Autres",

@@ -23,8 +23,6 @@
                             </div>
                             <div class="bg-white px-6 py-4">
                                 <CredentialsForm v-if="step === 0" />
-                                <PreferencesForm v-if="step === 1" />
-                                <CategoriesForm v-if="step === 2" />
                             </div>
                         </div>
                     </div>
@@ -49,14 +47,12 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { Category } from "@/global/types";
 import router from "@/router/router";
 import CredentialsForm from "./components/CredentialsForm.vue";
-import PreferencesForm from "./components/PreferencesForm.vue";
-import CategoriesForm from "./components/CategoriesForm.vue";
 import StepsTracker from "./components/StepsTracker.vue";
 import { API_BASE_URL } from "@/global/const";
 
 const showNotification = ref<boolean>(false);
 const step = ref<number>(0);
-const login = ref<string>("");
+const email = ref<string>("");
 const userDescription = ref<string>("");
 const password = ref<string>("");
 const confirmPassword = ref<string>("");
@@ -73,59 +69,89 @@ provide("step", step);
 provide("isModalNewCategoryOpen", isModalNewCategoryOpen);
 provide("isModalUpdateCategoryOpen", isModalUpdateCategoryOpen);
 provide("userDescription", userDescription);
-provide("login", login);
+provide("email", email);
 provide("password", password);
 provide("confirmPassword", confirmPassword);
 provide("credentialError", credentialError);
 provide("categories", categories);
 provide("displayPopup", displayPopup);
 provide("clearError", clearError);
-provide("goStepPreferencesForm", goStepPreferencesForm);
 provide("goStepCategoriesForm", goStepCategoriesForm);
 provide("goStepLinkEmail", goStepLinkEmail);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     sessionStorage.clear();
+
+    const browserLanguage = navigator.language.toLowerCase();
+    const languageKey = browserLanguage.startsWith('fr') ? 'french' : 'american';
+
+    if (!localStorage.getItem('language')) {
+        localStorage.setItem('language', languageKey);
+        i18n.global.locale = languageKey;
+    }
+
+    if (!localStorage.getItem('timezone')) {
+        try {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            localStorage.setItem('timezone', timezone);
+        } catch {
+            localStorage.setItem('timezone', 'UTC');
+        }
+    }
 });
 
 function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Tab") {
         event.preventDefault();
         if (step.value == 0) {
-            if (document.activeElement?.id === "login") {
+            if (document.activeElement?.id === "email") {
                 document.getElementById("password")?.focus();
             } else if (document.activeElement?.id === "password") {
                 document.getElementById("confirmPassword")?.focus();
             } else if (document.activeElement?.id === "confirmPassword") {
                 document.getElementById("userDescription")?.focus();
             } else {
-                document.getElementById("login")?.focus();
+                document.getElementById("email")?.focus();
             }
         }
     } else if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         if (step.value === 0) {
-            goStepPreferencesForm();
+            goStepLinkEmail();
         } else if (step.value === 1) {
             goStepCategoriesForm();
-        } else if (step.value === 2 && !isModalNewCategoryOpen.value && !isModalUpdateCategoryOpen.value) {
-            goStepLinkEmail();
         }
     }
 }
 
-async function goStepPreferencesForm() {
-    if (!login.value) {
-        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseEnterAnIdentifier");
+function goStepCategoriesForm() {
+    step.value++;
+}
+
+function clearError() {
+    credentialError.value = "";
+}
+
+async function goStepLinkEmail() {
+    if (!email.value) {
+        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseEnterAnEmail");
         return;
     }
-    if (login.value.includes(" ")) {
-        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.identifierMustNotContainSpaces");
+
+    if (email.value.includes(" ")) {
+        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.emailMustNotContainSpaces");
         return;
     }
-    if (login.value.length > 150) {
-        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.maxUsernameLength150Characters");
+
+    if (email.value.length > 150) {
+        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.maxEmailLength150Characters");
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.value)) {
+        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.invalidEmailFormat");
         return;
     }
 
@@ -134,7 +160,7 @@ async function goStepPreferencesForm() {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                username: login.value,
+                email: email.value,
             },
         };
 
@@ -142,20 +168,20 @@ async function goStepPreferencesForm() {
         const data = await result.json();
 
         if (data.available === false) {
-            credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.identifierIsAlreadyInUse");
+            credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.emailIsAlreadyInUse");
             return;
         }
     } catch (error) {
         if (error instanceof Error) {
             displayPopup?.(
                 "error",
-                i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationIdentifier"),
+                i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationEmail"),
                 error.message
             );
         } else {
             displayPopup?.(
                 "error",
-                i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationIdentifier"),
+                i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationEmail"),
                 "An unknown error occurred"
             );
         }
@@ -172,38 +198,18 @@ async function goStepPreferencesForm() {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseConfirmPassword");
         return;
     } else if (password.value.length < minLength || password.value.length > maxLength) {
-        credentialError.value = i18n.global.t(
-            "constants.popUpConstants.errorMessages.passwordLengthShouldBeBetween8And32Characters"
-        );
+        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.passwordLengthShouldBeBetween8And32Characters");
         return;
     } else if (password.value !== confirmPassword.value) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.passwordsDoNotMatch");
         return;
     }
 
-    sessionStorage.setItem("login", login.value);
+    sessionStorage.setItem("email", email.value);
     sessionStorage.setItem("userDescription", userDescription.value);
     sessionStorage.setItem("password", password.value);
 
-    clearError();
-    step.value++;
-}
-
-function goStepCategoriesForm() {
-    step.value++;
-}
-
-function clearError() {
-    credentialError.value = "";
-}
-
-async function goStepLinkEmail() {
-    try {
-        localStorage.setItem("categories", JSON.stringify(categories.value));
-        router.push({ name: "signupLink" });
-    } catch (error) {
-        displayPopup("error", "Error submitting data", error instanceof Error ? error.message : String(error));
-    }
+    router.push({ name: "signupLink" });
 }
 
 function displayPopup(type: "success" | "error", title: string, message: string) {

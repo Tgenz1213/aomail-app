@@ -685,7 +685,7 @@ def get_demo_list(user: User, email: str) -> list[str]:
     headers = get_headers(access_token)
 
     params = {
-        "$top": 10,
+        "$top": 5,
         "$select": "id",
     }
     response = requests.get(url, headers=headers, params=params)

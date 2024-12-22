@@ -72,6 +72,7 @@
       "errorMessages": {
         "emailSendError": "Email send error",
         "contactFetchError": "Contact fetch error",
+        "pleaseEnterAnEmail": "Pls enter an email",
         "primaryEmailFetchError": "Primary email fetch error",
         "emailLinkedFetchError": "Email fetch error",
         "invalidEmail": "Invalid email",
@@ -105,7 +106,8 @@
         "recuperationRules": "Error retrieving the rules",
         "identifierMustNotContainSpaces": "The identifier must not contain spaces",
         "maxUsernameLength150Characters": "Maximum username length: 150 characters",
-        "identifierIsAlreadyInUse": "The identifier is already in use"
+        "identifierIsAlreadyInUse": "The identifier is already in use",
+        "invalidEmailFormat": "Please enter a valid email address"
       },
       "successMessages": {
         "success": "Success!",
@@ -123,6 +125,7 @@
     "rule": "rule",
     "rules": "rules",
     "email": "email",
+    "emailUppercase": "Email",
     "emails": "emails",
     "redirectionInProgress": "Redirection in progress...",
     "homeNavbar": "Home",
@@ -177,24 +180,27 @@
     "passwordConfirm": "Confirm Password",
     "continue": "Continue",
     "colors": "Colors",
-    "createCategory": "Create your different categories where you want Ao to automatically place your emails.",
+    "createCategory": "Before you start, you can create different categories where you want the AI to automatically categorize your emails. This is optional but recommended.",
     "wantToKnowMore": "Want to know more?",
     "addAnotherCategory": "Add another category",
     "youHaveAnAccount": "Do you have an account?"
   },
   "signuUpLinkPage": {
-    "authorizationError": "Authorization error",
+    "processingLastEmails": "Processing your last 5 emails...",
+    "linkYourMailAccount": "Link your Gmail or Outlook account",
+    "authorizationError": "Authorization error", 
     "authorizationCodeNotFound": "Authorization code not found in URL",
     "accountCreationInProgress": "Account creation in progress...",
     "fetchingYourEmails": "Fetching your emails",
     "waitingDatabaseResponse": "Waiting for database response",
     "accountCreationError": "Error creating account",
     "registerToAomail": "Register to Aomail",
-    "AcceptTerms": "You must accept Aomail terms",
+    "acceptTerms": "You must accept Aomail terms",
+    "termsNotAccepted": "Please accept the terms of service and privacy policy to continue",
     "linkAGmailAccount": "Link a Gmail account",
-    "linkAnOutlookAccount": "Link an Outlook account",
-    "linkYourGmailAccount": "Link your Gmail account",
-    "linkYourOutlookAccount": "Link your Outlook account",
+    "linkAnOutlookAccount": "Link an Outlook account", 
+    "linkYourGmailAccount": "Link your Gmail",
+    "linkYourOutlookAccount": "Link your Outlook",
     "toolsPresentation": "Tools presentation",
     "finalizeRegistration": "Finalize your registration",
     "iAcceptThe": "I accept the",
@@ -206,7 +212,9 @@
     "ESOFCyberScore": "ESOF Cyber score:",
     "cyberScoreAssessor": "TAC Security assessor",
     "emailsAreEncryptedAtRest": "Emails content are encrypted at rest on our database",
-    "emailsFallbackToProviders": "Emails still available in Gmail or Outlook as a fallback"
+    "emailsFallbackToProviders": "Emails still available in Gmail or Outlook as a fallback",
+    "categoryCreationError": "Error creating category",
+    "startApp": "Start the app 🚀"
   },
   "homePage": {
     "otherCategory": "Others",

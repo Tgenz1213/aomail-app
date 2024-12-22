@@ -39,9 +39,9 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from aomail.utils import security
 from aomail.utils.security import subscription, admin_access_required
 from aomail.constants import (
+    ALLOW_ALL,
     BASE_URL,
     EMAIL_ADMIN,
-    ALLOWED_PLANS,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
@@ -49,7 +49,6 @@ from aomail.constants import (
     ENTREPRISE_PLAN,
     GOOGLE,
     GOOGLE,
-    INACTIVE,
     MAX_RETRIES,
     MICROSOFT,
     MICROSOFT,
@@ -707,7 +706,7 @@ def refresh_token(request: HttpRequest) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def delete_account(request: HttpRequest) -> Response:
     """
     Removes the authenticated user's account from the database.
@@ -755,7 +754,7 @@ def delete_account(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def unlink_email(request: HttpRequest) -> Response:
     """
     Unlinks the specified email and deletes all stored emails associated with the user's account.
@@ -920,7 +919,7 @@ def link_email(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def is_authenticated(request: HttpRequest) -> Response:
     """
     Check if the user is authenticated and return their subscription status.

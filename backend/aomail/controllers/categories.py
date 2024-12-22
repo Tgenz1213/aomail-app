@@ -18,8 +18,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import (
+    ALLOW_ALL,
     DEFAULT_CATEGORY,
-    ALLOWED_PLANS,
 )
 from aomail.models import (
     Category,
@@ -37,7 +37,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_user_categories(request: HttpRequest) -> Response:
     """
     Retrieve categories associated with the authenticated user.
@@ -55,7 +55,7 @@ def get_user_categories(request: HttpRequest) -> Response:
 
 
 @api_view(["PUT"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def update_category(request: HttpRequest) -> Response:
     """
     Update an existing category for the authenticated user.
@@ -123,7 +123,7 @@ def update_category(request: HttpRequest) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def delete_category(request: HttpRequest) -> Response:
     """
     Delete a category associated with the authenticated user.
@@ -164,7 +164,7 @@ def delete_category(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_dependencies(request: HttpRequest) -> Response:
     """
     Retrieves the number of rules and emails linked to a specified category for the authenticated user.
@@ -203,7 +203,7 @@ def get_dependencies(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def create_category(request: HttpRequest) -> Response:
     """
     Create a new category for the authenticated user.
@@ -268,7 +268,7 @@ def create_category(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_category_id(request: HttpRequest) -> Response:
     """
     Retrieve the ID of a category based on its name for the authenticated user.

@@ -10,13 +10,13 @@ Endpoints:
 import json
 import logging
 from collections import defaultdict
-from django.db.models import Exists, OuterRef, F, Q, Subquery
+from django.db.models import Exists, OuterRef, Q, Subquery
 from django.db.models.manager import BaseManager
 from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.constants import ALLOWED_PLANS, ENCRYPTION_KEYS
+from aomail.constants import ALLOW_ALL, ENCRYPTION_KEYS
 from aomail.models import Category, SocialAPI, Email, Rule
 from aomail.utils.security import subscription, decrypt_text
 from django.contrib.auth.models import User
@@ -33,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_emails_data(request: HttpRequest) -> Response:
     """
     Retrieves detailed data for multiple emails based on provided email IDs.
@@ -145,7 +145,7 @@ def get_emails_data(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_email_content(request: HttpRequest) -> Response:
     """
     Retrieves the HTML content of an email based on the provided email ID.
@@ -343,32 +343,31 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
             email_count (int): Total number of emails in the queryset.
             email_ids (list): List of email IDs from the queryset.
     """
-    priority_order = ['important', 'informative', 'useless']
+    priority_order = ["important", "informative", "useless"]
     email_ids = []
-    
+
     for priority in priority_order:
         priority_unread_ids = list(
-            queryset.filter(
-                priority=priority,
-                read=False
-            ).order_by('-date').values_list('id', flat=True)
+            queryset.filter(priority=priority, read=False)
+            .order_by("-date")
+            .values_list("id", flat=True)
         )
         email_ids.extend(priority_unread_ids)
 
     for priority in priority_order:
         priority_read_ids = list(
-            queryset.filter(
-                priority=priority,
-                read=True
-            ).order_by('-date').values_list('id', flat=True)
+            queryset.filter(priority=priority, read=True)
+            .order_by("-date")
+            .values_list("id", flat=True)
         )
         email_ids.extend(priority_read_ids)
 
     email_count = len(email_ids)
     return email_count, email_ids
 
+
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_user_emails_ids(request: HttpRequest) -> Response:
     """
     Retrieves filtered user emails ids based on provided criteria and formats them grouped by category and priority.

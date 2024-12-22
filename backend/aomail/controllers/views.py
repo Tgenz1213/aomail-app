@@ -35,10 +35,10 @@ from aomail.email_providers.google import (
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.constants import (
+    ALLOW_ALL,
     ALLOWED_PLANS,
     GOOGLE,
     GOOGLE,
-    INACTIVE,
     MICROSOFT,
     MICROSOFT,
     MEDIA_ROOT,
@@ -60,19 +60,19 @@ LOGGER = logging.getLogger(__name__)
 
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_profile_image(request: Request):
     return forward_request(request._request, "profile", "get_profile_image")
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def send_email(request: Request):
     return forward_request(request._request, "email_operations", "send_email")
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def send_schedule_email(request: Request):
     return forward_request(request._request, "email_operations", "send_schedule_email")
 
@@ -108,7 +108,7 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
     if request.method == "POST":
         content_type = request.content_type
 
-        if content_type.startswith('application/json'):
+        if content_type.startswith("application/json"):
             try:
                 parameters = json.loads(request.body)
                 email = parameters.get("email") or request.headers.get("email")
@@ -117,10 +117,10 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
                     {"error": "Invalid JSON in request body"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        elif content_type.startswith('multipart/form-data'):
+        elif content_type.startswith("multipart/form-data"):
             email = request.POST.get("email") or request.headers.get("email")
             parameters = request.POST.dict()
-            parameters.update({'attachments': request.FILES.getlist('attachments')})
+            parameters.update({"attachments": request.FILES.getlist("attachments")})
         else:
             return Response(
                 {"error": "Unsupported Content-Type"},
@@ -203,7 +203,7 @@ def serve_image(request: HttpRequest, image_name: str) -> Response:
 
 ############################# CONTACT ##############################
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_user_contacts(request: HttpRequest) -> Response:
     """
     Retrieve contacts associated with the authenticated user.
@@ -227,7 +227,7 @@ def get_user_contacts(request: HttpRequest) -> Response:
 
 ######################## DATABASE OPERATIONS ########################
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def check_sender_for_user(request: HttpRequest) -> Response:
     """
     Check if a sender with the specified email exists.
@@ -254,7 +254,7 @@ def check_sender_for_user(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def get_emails_linked(request: HttpRequest) -> Response:
     """
     Returns the list of emails linked to the authenticated user's account.
@@ -283,7 +283,7 @@ def get_emails_linked(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def search_emails(request: HttpRequest) -> Response:
     """
     Searches emails based on user-specified parameters.
@@ -386,7 +386,7 @@ def search_emails(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def update_user_description(request: HttpRequest) -> Response:
     """
     Updates the user description of the given email.
@@ -424,7 +424,7 @@ def update_user_description(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_user_description(request: HttpRequest) -> Response:
     """
     Retrieves user description of the given email.
@@ -459,7 +459,7 @@ def get_user_description(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def create_sender(request: HttpRequest) -> Response:
     """
     Create a new sender associated with the authenticated user.

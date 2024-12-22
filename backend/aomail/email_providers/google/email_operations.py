@@ -7,16 +7,12 @@ Endpoints:
 """
 
 import base64
-import json
 import logging
 import uuid
-from urllib.parse import unquote 
 import re
-import string
 import threading
-import time
-import random
 import os
+from urllib.parse import unquote
 from rest_framework import status
 from django.http import HttpRequest
 from django.contrib.auth.models import User
@@ -28,12 +24,10 @@ from httpx import HTTPError
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from email.utils import parsedate_to_datetime
-from aomail.utils.serializers import EmailDataSerializer
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import api_view
 from aomail.utils.security import subscription
 from aomail.constants import (
-    ALLOWED_PLANS,
+    ALLOW_ALL,
     MEDIA_ROOT,
     MEDIA_URL,
     BASE_URL_MA,
@@ -44,7 +38,6 @@ from aomail.email_providers.google.authentication import (
 from aomail.utils import email_processing
 from aomail.models import SocialAPI
 from base64 import urlsafe_b64encode
-from base64 import b64encode, b64decode
 from bs4 import BeautifulSoup
 
 
@@ -53,7 +46,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Gmail API.
@@ -66,7 +59,7 @@ def send_email(request: HttpRequest) -> Response:
     """
     try:
         user = request.user
-        
+
         email = request.POST.get("email")
         subject = request.POST.get("subject")
         message = request.POST.get("message")
@@ -74,7 +67,7 @@ def send_email(request: HttpRequest) -> Response:
         cc = request.POST.getlist("cc")
         bcc = request.POST.getlist("bcc")
         attachments = request.FILES.getlist("attachments")
-        
+
         if not email or not subject or not message or not to:
             return Response(
                 {"error": "Missing required email parameters."},
@@ -131,7 +124,7 @@ def send_email(request: HttpRequest) -> Response:
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-        
+
 def delete_email(user: User, email: str, email_id: str) -> dict:
     """
     Moves the email with the specified ID to the bin of the user's Gmail account.
@@ -476,7 +469,9 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             - image_files (list[str]): List of filenames for images embedded in the email.
             - attachments (list[dict]): List of dictionaries containing details about each attachment (ID and name).
     """
-    service = authenticate_service(social_api.user, social_api.email, ["gmail"])["gmail"]
+    service = authenticate_service(social_api.user, social_api.email, ["gmail"])[
+        "gmail"
+    ]
 
     if not email_id:
         results: dict = (
@@ -512,13 +507,15 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             sent_date = parsedate_to_datetime(values["value"])
 
     has_attachments = False
-    is_reply = "in-reply-to" in {header["name"].lower() for header in msg["payload"]["headers"]}
+    is_reply = "in-reply-to" in {
+        header["name"].lower() for header in msg["payload"]["headers"]
+    }
     email_html = ""
     email_txt_html = ""
     email_detect_html = False
     image_files = []
     attachments = []
-    cid_to_filename = {} 
+    cid_to_filename = {}
 
     def process_part(part: dict[str, str]):
         nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments, cid_to_filename
@@ -526,13 +523,17 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
         if part["mimeType"] == "text/plain":
             if "data" in part["body"]:
                 data = part["body"]["data"]
-                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
+                    "utf-8"
+                )
                 email_txt_html += f"<pre>{decoded_data}</pre>"
         elif part["mimeType"] == "text/html":
             if "data" in part["body"]:
                 email_detect_html = True
                 data = part["body"]["data"]
-                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
+                    "utf-8"
+                )
                 email_html += decoded_data
 
                 # Find and replace base64 encoded images in the HTML
@@ -579,7 +580,9 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
                 )
                 file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
             elif "data" in part["body"]:
-                file_data = base64.urlsafe_b64decode(part["body"]["data"].encode("UTF-8"))
+                file_data = base64.urlsafe_b64decode(
+                    part["body"]["data"].encode("UTF-8")
+                )
             else:
                 return
 
@@ -597,7 +600,9 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
         elif "filename" in part:
             has_attachments = True
             attachment_id = part["body"]["attachmentId"]
-            attachments.append({"attachmentId": attachment_id, "attachmentName": part["filename"]})
+            attachments.append(
+                {"attachmentId": attachment_id, "attachmentName": part["filename"]}
+            )
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -617,7 +622,9 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             cid_ref = unquote(cid_ref).lower()
             LOGGER.info(f"Found CID in HTML: '{cid_ref}'")
             if cid_ref in cid_to_filename:
-                img["src"] = f"{BASE_URL_MA}pictures/{cid_to_filename[cid_ref]}?v={uuid.uuid4()}"
+                img["src"] = (
+                    f"{BASE_URL_MA}pictures/{cid_to_filename[cid_ref]}?v={uuid.uuid4()}"
+                )
             else:
                 LOGGER.error(f"CID '{cid_ref}' not found in mapping")
 

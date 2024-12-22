@@ -17,11 +17,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from aomail.constants import (
-    ALLOWED_PLANS,
+    ALLOW_ALL,
     BASE_URL,
     CREDS_PATH,
     ENV,
-    INACTIVE,
     MAX_RETRIES,
 )
 from aomail.models import Subscription
@@ -126,7 +125,7 @@ def cancel_subscription(subscription: Subscription) -> bool:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS + [INACTIVE])
+@subscription(ALLOW_ALL)
 def create_checkout_session(request: HttpRequest):
     """
     Creates a Stripe Checkout session for a subscription.

@@ -15,7 +15,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
-from aomail.constants import ALLOWED_PLANS
+from aomail.constants import ALLOW_ALL
 from aomail.models import Filter, Category
 from aomail.utils.serializers import (
     FilterSerializer,
@@ -26,7 +26,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def get_user_filter(request: HttpRequest) -> Response:
     """
     Retrieve filters of the user for a category.
@@ -62,7 +62,7 @@ def get_user_filter(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def create_filter(request: HttpRequest) -> Response:
     """
     Create a new filter for the authenticated user.
@@ -108,7 +108,7 @@ def create_filter(request: HttpRequest) -> Response:
 
 
 @api_view(["PUT"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def update_filter(request: HttpRequest) -> Response:
     """
     Update an existing filter for the authenticated user.
@@ -143,7 +143,7 @@ def update_filter(request: HttpRequest) -> Response:
 
 
 @api_view(["DELETE"])
-@subscription(ALLOWED_PLANS)
+@subscription(ALLOW_ALL)
 def delete_filter(request: HttpRequest) -> Response:
     """
     Delete a filter associated with the authenticated user.

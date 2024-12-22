@@ -311,7 +311,7 @@ def create_categories(request: HttpRequest) -> Response:
                 - Dictionary where keys are category names and values are descriptions
                   Format: {'category_name': 'category_description', ...}
                 - List of dictionaries with name and description
-                  Format: [{'name': 'category_name', 'description': 'category_description'}, ...]
+                  Format: [{'name': 'category_name', 'description': 'category_description'}, ...}
 
     Returns:
         Response: JSON response with the created categories data on success,
@@ -320,88 +320,78 @@ def create_categories(request: HttpRequest) -> Response:
     data: dict = json.loads(request.body)
     categories_data = data.get("categories", {})
     
-    if not categories_data:
-        return Response(
-            {"error": "No categories provided"}, 
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
     created_categories = []
     errors = []
 
     if not Category.objects.filter(user=request.user, name=DEFAULT_CATEGORY).exists():
         try:
-            default_category = Category.objects.create(
+            Category.objects.create(
                 name=DEFAULT_CATEGORY,
                 description="",
                 user=request.user,
             )
-            created_categories.append({
-                "id": default_category.id,
-                "name": default_category.name,
-                "description": default_category.description,
-                "user": default_category.user.id
-            })
         except Exception as e:
             LOGGER.error(f"Error creating default category: {str(e)}")
             errors.append("Error creating default category")
 
-    if isinstance(categories_data, list):
-        categories_dict = {
-            item.get('name', ''): item.get('description', '')
-            for item in categories_data
-        }
-    else:
-        categories_dict = categories_data
-
-    for name, description in categories_dict.items():
-        if not name or not description:
-            errors.append(f"Missing name or description for category")
-            continue
-            
-        if name == DEFAULT_CATEGORY:
-            errors.append(f"Cannot create category with name: {DEFAULT_CATEGORY}")
-            continue
-            
-        if len(name) > 50:
-            errors.append(f"Category name '{name}' exceeds 50 characters")
-            continue
-            
-        if len(description) > 300:
-            errors.append(f"Description for '{name}' exceeds 300 characters")
-            continue
-
-        if Category.objects.filter(user=request.user, name=name).exists():
-            errors.append(f"Category '{name}' already exists")
-            continue
-
-        try:
-            category_data = {
-                "name": name,
-                "description": description,
-                "user": request.user.id
+    if categories_data:
+        if isinstance(categories_data, list):
+            categories_dict = {
+                item.get('name', ''): item.get('description', '')
+                for item in categories_data
             }
-            
-            serializer = NewCategorySerializer(data=category_data)
-            if serializer.is_valid():
-                serializer.save()
-                created_categories.append(serializer.data)
-            else:
-                errors.append(f"Invalid data for category '{name}': {serializer.errors}")
+        else:
+            categories_dict = categories_data
+
+        for name, description in categories_dict.items():
+            if not name or not description:
+                errors.append(f"Missing name or description for category")
+                continue
                 
-        except Exception as e:
-            LOGGER.error(f"Error creating category '{name}': {str(e)}")
-            errors.append(f"Error creating category '{name}'")
+            if name == DEFAULT_CATEGORY:
+                errors.append(f"Cannot create category with name: {DEFAULT_CATEGORY}")
+                continue
+                
+            if len(name) > 50:
+                errors.append(f"Category name '{name}' exceeds 50 characters")
+                continue
+                
+            if len(description) > 300:
+                errors.append(f"Description for '{name}' exceeds 300 characters")
+                continue
+
+            if Category.objects.filter(user=request.user, name=name).exists():
+                errors.append(f"Category '{name}' already exists")
+                continue
+
+            try:
+                category_data = {
+                    "name": name,
+                    "description": description,
+                    "user": request.user.id
+                }
+                
+                serializer = NewCategorySerializer(data=category_data)
+                if serializer.is_valid():
+                    serializer.save()
+                    created_categories.append(serializer.data)
+                else:
+                    errors.append(f"Invalid data for category '{name}': {serializer.errors}")
+                    
+            except Exception as e:
+                LOGGER.error(f"Error creating category '{name}': {str(e)}")
+                errors.append(f"Error creating category '{name}'")
 
     response_data = {
         "created_categories": created_categories,
         "errors": errors
     }
     
-    if created_categories:
-        return Response(response_data, status=status.HTTP_201_CREATED)
-    else:
+    if errors:
         return Response(
             {"error": "No categories were created", "details": errors},
             status=status.HTTP_400_BAD_REQUEST
         )
+    else:
+        return Response(response_data, status=status.HTTP_201_CREATED)
+

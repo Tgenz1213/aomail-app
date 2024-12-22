@@ -331,11 +331,17 @@ def create_categories(request: HttpRequest) -> Response:
 
     if not Category.objects.filter(user=request.user, name=DEFAULT_CATEGORY).exists():
         try:
-            Category.objects.create(
+            default_category = Category.objects.create(
                 name=DEFAULT_CATEGORY,
                 description="",
                 user=request.user,
             )
+            created_categories.append({
+                "id": default_category.id,
+                "name": default_category.name,
+                "description": default_category.description,
+                "user": default_category.user.id
+            })
         except Exception as e:
             LOGGER.error(f"Error creating default category: {str(e)}")
             errors.append("Error creating default category")

@@ -104,7 +104,14 @@
                     </li>
                 </ul>
             </nav>
-            <div class="flex justify-center">
+            <div class="flex flex-col items-center justify-center">
+                <a 
+                    href="https://github.com/Ao-Mail/desktop" 
+                    target="_blank"
+                    class="text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                    <InformationCircleIcon class="h-5 w-5 mb-1" />
+                </a>
                 <p class="text-gray-900 font-semibold">{{ VERSION }}</p>
             </div>
         </div>
@@ -123,6 +130,7 @@ import {
     MagnifyingGlassIcon,
     ArrowUturnLeftIcon,
     BeakerIcon,
+    InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { NavigationPage } from "@/global/types";
 import logo from "@/assets/logo-aomail.png";

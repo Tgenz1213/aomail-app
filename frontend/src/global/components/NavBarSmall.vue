@@ -106,7 +106,7 @@
             </nav>
             <div class="flex flex-col items-center justify-center">
                 <a 
-                    href="https://github.com/Ao-Mail/desktop" 
+                    :href="getGithubLink"
                     target="_blank"
                     class="text-gray-500 hover:text-gray-900 transition-colors"
                 >
@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
 import {
@@ -147,4 +147,25 @@ const navigation: NavigationPage[] = [
     { name: i18n.global.t("constants.replyLaterNavbar"), href: "/reply-later", icon: ArrowUturnLeftIcon },
     { name: i18n.global.t("constants.settingsNavbar"), href: "/settings", icon: CogIcon },
 ];
+
+const route = useRoute();
+const getGithubLink = computed(() => {
+    const basePath = 'https://github.com/Ao-Mail';
+    switch (route.path) {
+        case '/home':
+            return `${basePath}/desktop#inbox`;
+        case '/new':
+            return `${basePath}/desktop#compose`;
+        case '/search':
+            return `${basePath}/desktop#search`;
+        case '/rules':
+            return `${basePath}/desktop#rules`;
+        case '/reply-later':
+            return `${basePath}/desktop#reply-later`;
+        case '/settings':
+            return `${basePath}/desktop#settings`;
+        default:
+            return `${basePath}/desktop`;
+    }
+});
 </script>

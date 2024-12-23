@@ -17,7 +17,7 @@
             <form class="space-y-6">
                 <div>
                     <label for="username" class="block text-sm font-medium leading-6 text-gray-900">
-                        {{ $t("constants.username") }}
+                        {{ $t("constants.emailUppercase") }}
                     </label>
                     <div class="mt-2">
                         <input

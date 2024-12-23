@@ -21,10 +21,14 @@ from aomail.constants import (
     BASE_URL,
     CREDS_PATH,
     ENV,
+    GOOGLE,
     MAX_RETRIES,
+    MICROSOFT,
 )
-from aomail.models import Subscription
+from aomail.models import SocialAPI, Subscription
 from aomail.utils.security import subscription
+from aomail.email_providers.microsoft import webhook as webhook_microsoft
+from aomail.email_providers.google import webhook as webhook_google
 
 
 LOGGER = logging.getLogger(__name__)
@@ -91,14 +95,12 @@ def cancel_subscription(subscription: Subscription) -> bool:
                 return True
             else:
                 LOGGER.error(
-                    f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} "
-                    f"for user {subscription.user.id}: {str(e)}"
+                    f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} for user {subscription.user.id}: {str(e)}"
                 )
 
         except stripe.StripeError as e:
             LOGGER.error(
-                f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} "
-                f"for user {subscription.user.id}: {str(e)}"
+                f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} for user {subscription.user.id}: {str(e)}"
             )
 
         except Subscription.DoesNotExist:
@@ -109,8 +111,7 @@ def cancel_subscription(subscription: Subscription) -> bool:
 
         except Exception as e:
             LOGGER.critical(
-                f"Attempt {attempt}: An unexpected error occurred while canceling the subscription "
-                f"for user {subscription.user.id}: {e}"
+                f"Attempt {attempt}: An unexpected error occurred while canceling the subscription for user {subscription.user.id}: {e}"
             )
 
         if attempt < MAX_RETRIES:
@@ -251,6 +252,18 @@ def handle_checkout_session_completed(event: dict):
         subscription.plan = plan
         subscription.save()
 
+        # Resubscribe user to email notifications in case
+        social_apis = SocialAPI.objects.filter(user=user)
+        for social_api in social_apis:
+            if social_api.type_api == GOOGLE:
+                webhook_google.check_and_resubscribe_to_missing_resources(
+                    social_api.type_api, user, social_api.email
+                )
+            elif social_api.type_api == MICROSOFT:
+                webhook_microsoft.check_and_resubscribe_to_missing_resources(
+                    user, social_api.email
+                )
+
         LOGGER.info(
             f"Payment succeeded for user ID {user.id}, Plan: {plan} activated successfully."
         )
@@ -318,6 +331,18 @@ def handle_updated_subscription(event: dict):
         subscription = Subscription.objects.get(subscription_id=subscription_id)
         subscription.plan = plan
         subscription.save()
+
+        # Resubscribe user to email notifications in case
+        social_apis = SocialAPI.objects.filter(user=subscription.user)
+        for social_api in social_apis:
+            if social_api.type_api == GOOGLE:
+                webhook_google.check_and_resubscribe_to_missing_resources(
+                    social_api.type_api, subscription.user, social_api.email
+                )
+            elif social_api.type_api == MICROSOFT:
+                webhook_microsoft.check_and_resubscribe_to_missing_resources(
+                    subscription.user, social_api.email
+                )
 
         LOGGER.info(
             f"Subscription {subscription_id} for user ID {subscription.user.id} updated to {plan} plan successfully."

@@ -6,7 +6,7 @@
             </div>
             <div class="relative flex justify-center">
                 <span class="bg-white px-2 text-sm text-gray-500">
-                    {{ $t("signuUpLinkPage.linkYourMailAccount") }}
+                    {{ $t("signUpLinkPage.linkYourMailAccount") }}
                 </span>
             </div>
         </div>
@@ -48,7 +48,7 @@
                             fill="#EB4335"
                         ></path>
                     </svg>
-                    {{ $t("signuUpLinkPage.linkYourGmailAccount") }}
+                    {{ $t("signUpLinkPage.linkYourGmailAccount") }}
                     <CheckIcon v-if="isGoogleLinked" class="h-5 w-5 text-white" aria-hidden="true" />
                 </button>
                 <button
@@ -66,7 +66,7 @@
                         <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
                         <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                     </svg>
-                    {{ $t("signuUpLinkPage.linkYourOutlookAccount") }}
+                    {{ $t("signUpLinkPage.linkYourOutlookAccount") }}
                     <CheckIcon v-if="isMicrosoftLinked" class="h-5 w-5 text-white" aria-hidden="true" />
                 </button>
             </div>
@@ -78,7 +78,7 @@
                 </div>
                 <div class="relative flex justify-center">
                     <span class="bg-white px-2 text-sm text-gray-500">
-                        {{ $t("signuUpLinkPage.informationOnDataConfidentiality") }}
+                        {{ $t("signUpLinkPage.informationOnDataConfidentiality") }}
                     </span>
                 </div>
             </div>
@@ -88,21 +88,21 @@
                     <div class="flex items-center space-x-3">
                         <ShieldCheckIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
                         <span>
-                            {{ $t("signuUpLinkPage.ESOFCyberScore") }} 9.7/10
+                            {{ $t("signUpLinkPage.ESOFCyberScore") }} 9.7/10
                             <a href="https://aomail.ai/aomail-tac-security-tier2-assessment.pdf" class="text-blue-600 hover:underline" target="_blank">
-                                {{ $t("signuUpLinkPage.cyberScoreAssessor") }}
+                                {{ $t("signUpLinkPage.cyberScoreAssessor") }}
                             </a>
                         </span>
                     </div>
                     <!-- Keypoint 2: Emails Content Encryption -->
                     <div class="flex items-center space-x-3 mt-4">
                         <LockClosedIcon class="h-6 w-6 text-gray-600" aria-hidden="true" />
-                        <span>{{ $t("signuUpLinkPage.emailsAreEncryptedAtRest") }}</span>
+                        <span>{{ $t("signUpLinkPage.emailsAreEncryptedAtRest") }}</span>
                     </div>
                     <!-- Keypoint 3: Emails Fallback to Gmail/Outlook -->
                     <div class="flex items-center space-x-3 mt-4">
                         <CloudIcon class="h-6 w-6 text-indigo-600" aria-hidden="true" />
-                        <span>{{ $t("signuUpLinkPage.emailsFallbackToProviders") }}</span>
+                        <span>{{ $t("signUpLinkPage.emailsFallbackToProviders") }}</span>
                     </div>
                 </div>
             </div>
@@ -114,7 +114,7 @@
                     @click="submitSignupData"
                     class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                 >
-                    {{ $t("signuUpLinkPage.finalizeRegistration") }}
+                    {{ $t("signUpLinkPage.finalizeRegistration") }}
                 </button>
             </div>
         </div>
@@ -131,23 +131,23 @@
                 </div>
                 <div class="ml-3 text-sm leading-6 w-full">
                     <label for="comments" class="text-gray-500 font-normal">
-                        {{ $t("signuUpLinkPage.iAcceptThe") }}
+                        {{ $t("signUpLinkPage.iAcceptThe") }}
                         <a
                             href="https://aomail.ai/terms-of-service"
                             class="font-medium text-black hover:underline"
                             target="_blank"
                         >
-                            {{ $t("signuUpLinkPage.termsOfService") }}
+                            {{ $t("signUpLinkPage.termsOfService") }}
                         </a>
-                        {{ $t("signuUpLinkPage.andThe") }}
+                        {{ $t("signUpLinkPage.andThe") }}
                         <a
                             href="https://aomail.ai/privacy-policy"
                             class="font-medium text-black hover:underline"
                             target="_blank"
                         >
-                            {{ $t("signuUpLinkPage.privacyPolicy") }}
+                            {{ $t("signUpLinkPage.privacyPolicy") }}
                         </a>
-                        {{ $t("signuUpLinkPage.of") }}
+                        {{ $t("signUpLinkPage.of") }}
                         Aomail
                     </label>
                 </div>

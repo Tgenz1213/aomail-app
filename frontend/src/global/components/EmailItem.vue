@@ -480,7 +480,7 @@ import { getData, getDataRawResponse, postData, deleteData, putData } from "@/gl
 import { i18n } from "@/global/preferences";
 import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
-import { formatSentTime } from "@/global/preferences";
+import { formatSentTime } from "@/global/formatters";
 
 const props = withDefaults(
     defineProps<{

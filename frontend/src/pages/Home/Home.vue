@@ -47,6 +47,20 @@
                             </button>
                         </p>
                     </div>
+                    <div
+                        v-if="isFreeTrialExpired"
+                        class="bg-gray-50 border-b border-black shadow-sm border-opacity-10 overflow-hidden whitespace-nowrap"
+                    >
+                        <p class="animate-marquee">
+                            <button
+                                @click="goToSubscriptionSection"
+                                class="rounded-md bg-gray-800 p-2 m-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
+                            >
+                                {{ $t("constants.isFreeTrialExpired") }}
+                                {{ $t("constants.freeTrialExpiredDesc") }}
+                            </button>
+                        </p>
+                    </div>
                     <Categories
                         :selected-category="selectedCategory"
                         :category-totals="categoryTotals"
@@ -126,6 +140,7 @@ const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 const toSearch = ref(false);
 const showFeedbackForm = ref(false);
+const isFreeTrialExpired = ref(false);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
@@ -158,6 +173,10 @@ watch(
 const hideFeedbackForm = () => {
     showFeedbackForm.value = false;
     localStorage.setItem("hideFeedbackForm", "true");
+};
+
+const goToSubscriptionSection = () => {
+    window.location.replace("/settings?goto=subscription");
 };
 
 const fetchEmailsData = async (categoryName: string) => {
@@ -454,6 +473,12 @@ const processFeedBackForm = async () => {
 
         if (differenceInDays >= 14 && !localStorage.getItem("hideFeedbackForm")) {
             showFeedbackForm.value = true;
+        }
+
+        if (result.data.isTrial) {
+            if (new Date().getTime() > new Date(result.data.expiresThe).getTime()) {
+                isFreeTrialExpired.value = true;
+            }
         }
     }
 };

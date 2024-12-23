@@ -121,6 +121,8 @@
         "emailScheduledSuccessfully": "Votre email a été programmé et sera envoyé à temps."
       }
     },
+    "freeTrialExpired": "Essai gratuit expiré",
+    "freeTrialExpiredDesc": "Nous ne traitons plus vos e-mails. Veuillez mettre à niveau votre abonnement.",
     "and": "et",
     "rule": "règle",
     "rules": "règles",
@@ -186,10 +188,10 @@
     "addAnotherCategory": "Ajouter une autre catégorie",
     "youHaveAnAccount": "Vous avez un compte ?"
   },
-  "signuUpLinkPage": {
+  "signUpLinkPage": {
     "processingLastEmails": "Traitement de vos 5 derniers emails...",
     "authorizationError": "Erreur d'autorisation",
-    "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL", 
+    "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL",
     "accountCreationInProgress": "Création de compte en cours...",
     "fetchingYourEmails": "Récupération de vos emails",
     "waitingDatabaseResponse": "Attente de réponse de la base de données",
@@ -199,7 +201,7 @@
     "termsNotAccepted": "Veuillez accepter les conditions d'utilisation et la politique de confidentialité pour continuer",
     "linkAGmailAccount": "Lier un compte Gmail",
     "linkAnOutlookAccount": "Lier un compte Outlook",
-    "linkYourGmailAccount": "Lier un compte Google", 
+    "linkYourGmailAccount": "Lier un compte Google",
     "linkYourOutlookAccount": "Lier un compte Outlook",
     "toolsPresentation": "Présentation des outils",
     "finalizeRegistration": "Finaliser votre inscription",

@@ -7,11 +7,14 @@
             role="alert"
         >
             <p class="font-bold">Free Trial</p>
-            <p>
-                You're using a free trial and have access to all premium features during the beta period
-                <!-- that expires on -->
-                <!-- <span class="font-semibold">{{ formatDate(new Date(userPlan?.expiresThe)) }}</span>
-                ({{ daysLeft(new Date(userPlan?.expiresThe)) }} days left). -->
+            <p v-if="daysLeft(new Date(userPlan?.expiresThe)) > 0">
+                You're using a free trial and have access to all premium features during the beta period that expires on
+                <span class="font-semibold">{{ formatDate(new Date(userPlan?.expiresThe)) }}</span>
+                ({{ daysLeft(new Date(userPlan?.expiresThe)) }} days left).
+            </p>
+            <p v-else>
+                {{ $t("constants.freeTrialExpired") }}
+                {{ $t("constants.freeTrialExpiredDesc") }}
             </p>
         </div>
         <div
@@ -223,15 +226,15 @@ const getActionLabel = (plan: PlanType): string => {
     return currentPlanLevel < targetPlanLevel ? "Upgrade" : "Downgrade";
 };
 
-// function formatDate(date: Date): string {
-//     return date.toLocaleDateString();
-// }
+function formatDate(date: Date): string {
+    return date.toLocaleDateString();
+}
 
-// function daysLeft(expirationDate: Date): number {
-//     const today = new Date();
-//     const timeDiff = expirationDate.getTime() - today.getTime();
-//     return Math.ceil(timeDiff / (1000 * 3600 * 24));
-// }
+function daysLeft(expirationDate: Date): number {
+    const today = new Date();
+    const timeDiff = expirationDate.getTime() - today.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+}
 
 const redirectPaymentPage = async (product: string) => {
     const result = await postData("stripe/create_checkout_session/", {

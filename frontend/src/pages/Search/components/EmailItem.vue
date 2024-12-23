@@ -119,7 +119,8 @@ import { EyeIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import router from "@/router/router";
-import { i18n, formatSentDateAndTime } from "@/global/preferences";
+import { i18n } from "@/global/preferences";
+import { formatSentDateAndTime } from "@/global/formatters";
 
 const props = defineProps<{
     email: Email;

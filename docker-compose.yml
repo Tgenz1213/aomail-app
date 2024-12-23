@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:13-alpine
@@ -38,6 +36,7 @@ services:
     volumes:
       - ./backend:/app
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
+      - /home/prod/prod/backend/media/labels:/app/media/labels
 
   backend_prod:
     build:
@@ -57,6 +56,7 @@ services:
       - backend_network
     volumes:
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
+      - /home/prod/prod/backend/media/labels:/app/media/labels
 
   frontend_dev:
     build:

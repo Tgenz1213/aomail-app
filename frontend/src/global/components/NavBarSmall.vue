@@ -150,22 +150,22 @@ const navigation: NavigationPage[] = [
 
 const route = useRoute();
 const getGithubLink = computed(() => {
-    const basePath = 'https://github.com/Ao-Mail';
+    const basePath = 'https://info.aomail.ai/article';
     switch (route.path) {
         case '/home':
-            return `${basePath}/desktop#inbox`;
+            return `${basePath}/4/🧐-how-to-use-the-home-page-of-aomail-`;
         case '/new':
-            return `${basePath}/desktop#compose`;
+            return `${basePath}/5/🧐-how-to-use-the-new-page-of-aomail-`;
         case '/search':
-            return `${basePath}/desktop#search`;
+            return `${basePath}/6/🧐-how-to-use-the-search-page-of-aomail-`;
         case '/rules':
-            return `${basePath}/desktop#rules`;
+            return `${basePath}/7/🧐-how-to-use-the-rules-page-of-aomail-`;
         case '/reply-later':
-            return `${basePath}/desktop#reply-later`;
+            return `${basePath}/8/🧐-how-to-use-the-reply-later-page-of-aomail-`;
         case '/settings':
-            return `${basePath}/desktop#settings`;
+            return `${basePath}/9/🧐-how-to-use-the-settings-page-of-aomail-`;
         default:
-            return `${basePath}/desktop`;
+            return `${basePath}/4/🧐-how-to-use-the-home-page-of-aomail-`;
     }
 });
 </script>

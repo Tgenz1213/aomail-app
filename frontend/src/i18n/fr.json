@@ -121,6 +121,7 @@
         "emailScheduledSuccessfully": "Votre email a été programmé et sera envoyé à temps."
       }
     },
+    "loadingEmails": "Chargement des e-mails...",
     "and": "et",
     "rule": "règle",
     "rules": "règles",

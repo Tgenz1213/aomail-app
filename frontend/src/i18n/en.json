@@ -121,6 +121,7 @@
         "emailScheduledSuccessfully": "Your email has been scheduled and will be sent on time"
       }
     },
+    "loadingEmails": "Loading emails...",
     "and": "and",
     "rule": "rule",
     "rules": "rules",

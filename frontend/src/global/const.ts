@@ -22,5 +22,5 @@ export const UNAUTHENTICATED_URLS = [
     `${BASE_URL}not-authorized`,
 ];
 export const STRIPE_PUBLISHABLE_KEY =
-    "pk_test_51Q9kHvK8H3QtVm1pWD1x67C6lQXl8D6EmD4vaEQowjTyrCbnbk0sJt3S4va5ErH7BEvJOuFlQMqxvuIHLshrc6zx00CUKTvZgX";
+    "pk_live_51Q9kHvK8H3QtVm1poy56IRXxMg7VUycAoIz7v6WWS1RoupyTQjO1MvNt1o6H3xAHW9fylKUyEFbnJgB5KYhuKDra00ob4EvFBO";
 export const SUBSCRIPTION_MANAGEMENT_URL = "https://billing.stripe.com/p/login/test_9AQ6rvghmeKZ90Y288";

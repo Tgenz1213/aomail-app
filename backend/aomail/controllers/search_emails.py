@@ -440,3 +440,99 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+
+@api_view(["POST"])
+@subscription(ALLOW_ALL)
+def get_email_counts(request: HttpRequest) -> Response:
+    """
+    Retrieves the count of unread emails by priority and the number of read emails for the authenticated user,
+    based on provided filtering criteria.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.
+
+    JSON Body:
+        Optional filters:
+            advanced (bool): True if specific filters have been used.
+            sort (str): Sorting order ("asc" for ascending, "desc" for descending). Default is "asc".
+            emailProvider (list[str]): List of email providers to filter by.
+            subject (str): Keyword to filter by email subject.
+            senderEmail (str): Keyword to filter by sender's email.
+            senderName (str): Keyword to filter by sender's name.
+            CCEmails (list[str]): List of email addresses to filter by CC recipients.
+            CCNames (list[str]): List of names to filter by CC recipients.
+            category (str): The category of emails to filter by.
+            emailAddresses (list[str]): List of email addresses to filter by any associated email.
+            archive (bool): Filter by archive status.
+            replyLater (bool): Filter by reply later status.
+            read (bool): Filter by read/unread status.
+            sentDate (datetime): Filter by sent date (emails sent on or after this date).
+            readDate (datetime): Filter by read date (emails read on or after this date).
+            answer (list[str]): Filter by answer status.
+            relevance (list[str]): Filter by relevance status.
+            priority (list[str]): Filter by priority status.
+            hasAttachments (bool): Filter by emails with attachments.
+            spam (bool): Filter by spam status.
+            scam (bool): Filter by scam status.
+            newsletter (bool): Filter by newsletter status.
+            notification (bool): Filter by notification status.
+            meeting (bool): Filter by meeting status.
+
+    Returns:
+        Response: JSON response containing the counts.
+            {
+                "useless_count": int,
+                "important_count": int,
+                "informative_count": int,
+                "read_count": int
+            }
+    """
+    try:
+        user = request.user
+        valid_data = validate_and_parse_parameters(request)
+        parameters: dict = valid_data["parameters"]
+
+        and_filters, or_filters, or_filters_search = construct_filters(user, parameters)
+
+        queryset = Email.objects.filter(user=user)
+
+        if and_filters:
+            queryset = queryset.filter(**and_filters)
+        if or_filters:
+            queryset = queryset.filter(or_filters)
+        if or_filters_search:
+            queryset = queryset.filter(or_filters_search)
+
+        useless_count = queryset.filter(priority="useless", read=False).count()
+        important_count = queryset.filter(priority="important", read=False).count()
+        informative_count = queryset.filter(priority="informative", read=False).count()
+        read_count = queryset.filter(read=True, archive=False).count()
+
+        counts = {
+            "useless_count": useless_count,
+            "important_count": important_count,
+            "informative_count": informative_count,
+            "read_count": read_count,
+        }
+
+        return Response(counts, status=status.HTTP_200_OK)
+
+    except ValueError as e:
+        LOGGER.error(f"ValueError in get_email_counts: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except KeyError:
+        LOGGER.error("KeyError in get_email_counts: Missing keys in request data")
+        return Response(
+            {"error": "Invalid JSON keys in request body"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        LOGGER.error(f"Unexpected error in get_email_counts: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

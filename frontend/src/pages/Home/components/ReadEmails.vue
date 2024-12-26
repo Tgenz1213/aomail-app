@@ -15,9 +15,9 @@
                 <p class="cursor-pointer">
                     {{ $t("homePage.youRead") }}
                     <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                        {{ nbrEmailsRead }}
+                        {{ readCount }}
                     </span>
-                    <span v-if="nbrEmailsRead === 1">
+                    <span v-if="readCount === 1">
                         {{ $t("homePage.readEmail") }}
                     </span>
                     <span v-else>
@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, ref, Ref, watch, onMounted, inject } from "vue";
 import { CheckIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
@@ -124,6 +124,8 @@ import { formatSentDate } from "@/global/preferences";
 const props = defineProps<{
     emails: Email[];
 }>();
+
+const readCount = inject("readCount") as Ref<number>;
 
 let showEmailDescriptions = ref(false);
 const localEmails = ref<Email[]>([]);

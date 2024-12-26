@@ -15,9 +15,9 @@
                 <p class="cursor-pointer">
                     {{ $t("homePage.youReceived") }}
                     <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                        {{ nbrEmailsUseless }}
+                        {{ uselessCount }}
                     </span>
-                    <span v-if="nbrEmailsUseless === 1">
+                    <span v-if="uselessCount === 1">
                         {{ $t("homePage.uselessEmail") }}
                     </span>
                     <span v-else>
@@ -115,11 +115,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, ref, Ref, watch, onMounted, inject } from "vue";
 import { TrashIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "../preferences";
+
+const uselessCount = inject("uselessCount") as Ref<number>;
 
 const props = defineProps<{
     emails: Email[];

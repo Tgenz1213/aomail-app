@@ -38,20 +38,20 @@ SECRET_KEY = STRIPE_CREDS["secret_key"]
 WEBHOOK_SECRET = STRIPE_CREDS[ENV + "_webhook_secret"]
 PRODUCTS = {
     "start": {
-        "monthly": "price_1Q9nJBK8H3QtVm1pZFyeR37V",
-        "yearly": "price_1Q9nXSK8H3QtVm1pNkx2zscT",
+        "monthly": "price_1QaFTRK8H3QtVm1pHDyJyrp5",
+        "yearly": "price_1QaFUCK8H3QtVm1pcEpFL8eI",
     },
     "premium": {
-        "monthly": "price_1Q9na2K8H3QtVm1peN7oqrVS",
-        "yearly": "price_1Q9naRK8H3QtVm1p8qftrgvj",
+        "monthly": "price_1QaFXTK8H3QtVm1prTpGnDY4",
+        "yearly": "price_1QaFaoK8H3QtVm1pgEqJYQ1b",
     },
-    "entreprise": {
-        "monthly": "price_1Q9nbjK8H3QtVm1piHUqrxEf",
-        "yearly": "price_1Q9nc3K8H3QtVm1p9qgl2Udi",
-    },
-    "prod_R1r1SojHfBmNRn": "start",
-    "prod_R1rIjwktRkHlkX": "premium",
-    "prod_R1rKdtMxUxyRER": "entreprise",
+    # "entreprise": {
+    #     "monthly": "price_1Q9nbjK8H3QtVm1piHUqrxEf",
+    #     "yearly": "price_1Q9nc3K8H3QtVm1p9qgl2Udi",
+    # },
+    "prod_RTBrMtXObupyaZ": "start",
+    "prod_RTBvgvYNKdE6Sg": "premium",
+    # "prod_R1rKdtMxUxyRER": "entreprise",
 }
 
 
@@ -137,11 +137,6 @@ def create_checkout_session(request: HttpRequest):
     Returns:
         Response: A JSON response containing the session ID or an error message.
     """
-    return Response(
-        {"error": "Plans are not available during the beta period"},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
-
     try:
         user = request.user
         parameters: dict = json.loads(request.body)

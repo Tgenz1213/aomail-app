@@ -56,7 +56,7 @@
                                 @click="goToSubscriptionSection"
                                 class="rounded-md bg-gray-800 p-2 m-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
                             >
-                                {{ $t("constants.isFreeTrialExpired") }}
+                                {{ $t("constants.freeTrialExpired") }}
                                 {{ $t("constants.freeTrialExpiredDesc") }}
                             </button>
                         </p>

@@ -69,7 +69,14 @@
                         @open-update-category-modal="openUpdateCategoryModal"
                     />
                     <div v-if="!hasEmails" class="flex-1">
-                        <div class="flex flex-col w-full h-full rounded-xl">
+                        <div v-if="isLoading || firstLoad" class="flex flex-col justify-center items-center h-full">
+                            <svg class="animate-spin h-12 w-12 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <p class="mt-4 text-lg font-semibold">{{ $t("loadingEmails") }}</p>
+                        </div>
+                        <div v-else class="flex flex-col w-full h-full rounded-xl">
                             <div v-if="toSearch || selectedFilter"><SearchBar /></div>
                             <div
                                 class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -159,6 +166,7 @@ const categoryTotals = ref<{ [key: string]: number }>({});
 const emailsPerPage = 10;
 const currentPage = ref(1);
 const isLoading = ref(false);
+const firstLoad = ref(true);
 const allEmailIds = ref<string[]>([]);
 const searchQuery = ref("");
 
@@ -326,7 +334,7 @@ provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
 provide("openUpdateFilterModal", openUpdateFilterModal);
-provide("fetchFildersData", fetchFiltersData);
+provide("fetchFiltersData", fetchFiltersData);
 provide("scroll", scroll);
 provide("handleScroll", handleScroll);
 provide("emails", emails);
@@ -391,6 +399,7 @@ const hasEmails = computed(() => {
 });
 
 const selectCategory = async (category: Category) => {
+    firstLoad.value = true;
     selectedCategory.value = category.name;
     currentPage.value = 1;
     emails.value = {};
@@ -401,6 +410,8 @@ const selectCategory = async (category: Category) => {
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
+
+    firstLoad.value = false;
 
     scroll();
 };
@@ -499,6 +510,8 @@ onMounted(async () => {
 
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
+
+    firstLoad.value = false;
 
     scroll();
 });

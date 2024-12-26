@@ -104,7 +104,14 @@
                     </li>
                 </ul>
             </nav>
-            <div class="flex justify-center">
+            <div class="flex flex-col items-center justify-center">
+                <a 
+                    :href="getGithubLink"
+                    target="_blank"
+                    class="text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                    <InformationCircleIcon class="h-5 w-5 mb-1" />
+                </a>
                 <p class="text-gray-900 font-semibold">{{ VERSION }}</p>
             </div>
         </div>
@@ -112,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
 import {
@@ -123,6 +130,7 @@ import {
     MagnifyingGlassIcon,
     ArrowUturnLeftIcon,
     BeakerIcon,
+    InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { NavigationPage } from "@/global/types";
 import logo from "@/assets/logo-aomail.png";
@@ -139,4 +147,25 @@ const navigation: NavigationPage[] = [
     { name: i18n.global.t("constants.replyLaterNavbar"), href: "/reply-later", icon: ArrowUturnLeftIcon },
     { name: i18n.global.t("constants.settingsNavbar"), href: "/settings", icon: CogIcon },
 ];
+
+const route = useRoute();
+const getGithubLink = computed(() => {
+    const basePath = 'https://info.aomail.ai/article';
+    switch (route.path) {
+        case '/home':
+            return `${basePath}/4/🧐-how-to-use-the-home-page-of-aomail-`;
+        case '/new':
+            return `${basePath}/5/🧐-how-to-use-the-new-page-of-aomail-`;
+        case '/search':
+            return `${basePath}/6/🧐-how-to-use-the-search-page-of-aomail-`;
+        case '/rules':
+            return `${basePath}/7/🧐-how-to-use-the-rules-page-of-aomail-`;
+        case '/reply-later':
+            return `${basePath}/8/🧐-how-to-use-the-reply-later-page-of-aomail-`;
+        case '/settings':
+            return `${basePath}/9/🧐-how-to-use-the-settings-page-of-aomail-`;
+        default:
+            return `${basePath}/4/🧐-how-to-use-the-home-page-of-aomail-`;
+    }
+});
 </script>

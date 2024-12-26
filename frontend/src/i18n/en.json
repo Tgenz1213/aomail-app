@@ -123,6 +123,7 @@
     },
     "freeTrialExpired": "Free trial expired",
     "freeTrialExpiredDesc": "We are no longer processing your emails. Please upgrade your plan.",
+    "loadingEmails": "Loading emails...",
     "and": "and",
     "rule": "rule",
     "rules": "rules",

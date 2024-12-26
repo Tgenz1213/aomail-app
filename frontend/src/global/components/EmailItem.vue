@@ -508,6 +508,8 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
 const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Promise<void>;
 const emails = inject("emails") as Ref<{ [key: string]: { [key: string]: Email[] } }>;
+const readCount = inject("readCount") as Ref<number>;
+const uselessCount = inject("uselessCount") as Ref<number>;
 
 const toggleShortSummary = () => {
     isShortSummaryVisible.value = !isShortSummaryVisible.value;
@@ -565,12 +567,16 @@ async function markEmailAsRead() {
             const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
             if (index !== -1) {
                 emails.value[category][subCategory][index].read = true;
+                if (emails.value[category][subCategory][index].priority === "useless") {
+                    uselessCount.value--;
+                }
                 break;
             }
         }
     }
     const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "read" });
     fetchCategoriesAndTotals();
+    readCount.value++;
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
     }
@@ -582,12 +588,16 @@ async function markEmailAsUnread() {
             const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
             if (index !== -1) {
                 emails.value[category][subCategory][index].read = false;
+                if (emails.value[category][subCategory][index].priority === "useless") {
+                    uselessCount.value++;
+                }
                 break;
             }
         }
     }
     const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unread" });
     fetchCategoriesAndTotals();
+    readCount.value--;
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);
     }

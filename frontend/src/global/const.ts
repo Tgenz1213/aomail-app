@@ -1,4 +1,4 @@
-export const VERSION = "v 1.0.5"
+export const VERSION = "v 1.1.0";
 export const BASE_URL = `https://${process.env.VUE_APP_ENV}.aomail.ai/`;
 export const API_BASE_URL = `https://${process.env.VUE_APP_ENV}.aomail.ai/aomail/`;
 export const MICROSOFT = "microsoft";
@@ -23,4 +23,4 @@ export const UNAUTHENTICATED_URLS = [
 ];
 export const STRIPE_PUBLISHABLE_KEY =
     "pk_live_51Q9kHvK8H3QtVm1poy56IRXxMg7VUycAoIz7v6WWS1RoupyTQjO1MvNt1o6H3xAHW9fylKUyEFbnJgB5KYhuKDra00ob4EvFBO";
-export const SUBSCRIPTION_MANAGEMENT_URL = "https://billing.stripe.com/p/login/test_9AQ6rvghmeKZ90Y288";
+export const SUBSCRIPTION_MANAGEMENT_URL = "https://billing.stripe.com/p/login/6oE9AK5iOe0ycs8fYY";

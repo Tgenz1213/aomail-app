@@ -77,6 +77,7 @@ urlpatterns = [
     path('user/emails/<str:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 
     path('get_mail_by_id', emails.get_mail_by_id, name='get_mail_by_id'),
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'),
+    path('user/emails_counts/', search_emails.get_email_counts, name='get_email_counts'),
     #----------------------- VIEWS -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
 

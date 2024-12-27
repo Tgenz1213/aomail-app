@@ -169,6 +169,10 @@ const isLoading = ref(false);
 const firstLoad = ref(true);
 const allEmailIds = ref<string[]>([]);
 const searchQuery = ref("");
+const uselessCount = ref(0);
+const importantCount = ref(0);
+const informativeCount = ref(0);
+const readCount = ref(0);
 
 watch(
     () => [activeFilters.value, selectedCategory.value],
@@ -185,6 +189,65 @@ const hideFeedbackForm = () => {
 
 const goToSubscriptionSection = () => {
     window.location.replace("/settings?goto=subscription");
+};
+
+const fetchEmailCounts = async (categoryName: string) => {
+    let response: FetchDataResult;
+    if (selectedFilter.value) {
+        const priorities = [];
+        if (selectedFilter.value?.important) {
+            priorities.push("important");
+        }
+        if (selectedFilter.value?.informative) {
+            priorities.push("informative");
+        }
+        if (selectedFilter.value?.useless) {
+            priorities.push("useless");
+        }
+
+        if (toSearch.value) {
+            response = await postData("user/emails_counts/", {
+                advanced: true,
+                search: searchQuery.value,
+                category: categoryName,
+                priority: priorities,
+                spam: selectedFilter.value?.spam,
+                scam: selectedFilter.value?.scam,
+                meeting: selectedFilter.value?.meeting,
+                notification: selectedFilter.value?.notification,
+                newsletter: selectedFilter.value?.newsletter,
+                read: selectedFilter.value?.read,
+            });
+        } else {
+            response = await postData("user/emails_counts/", {
+                advanced: true,
+                category: categoryName,
+                priority: priorities,
+                spam: selectedFilter.value?.spam,
+                scam: selectedFilter.value?.scam,
+                meeting: selectedFilter.value?.meeting,
+                notification: selectedFilter.value?.notification,
+                newsletter: selectedFilter.value?.newsletter,
+                read: selectedFilter.value?.read,
+            });
+        }
+    } else {
+        if (toSearch.value) {
+            response = await postData("user/emails_counts/", {
+                search: searchQuery.value,
+                category: categoryName,
+            });
+        } else {
+            response = await postData("user/emails_counts/", {
+                category: categoryName,
+            });
+        }
+    }
+    const data = response.data;
+    uselessCount.value = data.useless_count;
+    importantCount.value = data.important_count;
+    informativeCount.value = data.informative_count;
+    readCount.value = data.read_count;
 };
 
 const fetchEmailsData = async (categoryName: string) => {
@@ -345,6 +408,10 @@ provide("selectedFilter", selectedFilter);
 provide("activeFilters", activeFilters);
 provide("toSearch", toSearch);
 provide("searchQuery", searchQuery);
+provide("uselessCount", uselessCount);
+provide("importantCount", importantCount);
+provide("informativeCount", informativeCount);
+provide("readCount", readCount);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({
@@ -381,7 +448,7 @@ const readEmails = computed(() => {
         ...(emails.value[selectedCategory.value]?.informative || []),
         ...(emails.value[selectedCategory.value]?.useless || []),
     ];
-    const filteredEmails = allEmails.filter((email) => !email.answerLater && !email.archive);
+    const filteredEmails = allEmails.filter((email) => email.read && !email.answerLater && !email.archive);
     return addCategoryToEmails(filteredEmails, selectedCategory.value);
 });
 
@@ -409,6 +476,7 @@ const selectCategory = async (category: Category) => {
 
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
+    await fetchEmailCounts(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
 
     firstLoad.value = false;
@@ -510,6 +578,7 @@ onMounted(async () => {
 
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
+    await fetchEmailCounts(selectedCategory.value);
 
     firstLoad.value = false;
 

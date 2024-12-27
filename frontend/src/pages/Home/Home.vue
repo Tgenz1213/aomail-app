@@ -173,6 +173,11 @@ const uselessCount = ref(0);
 const importantCount = ref(0);
 const informativeCount = ref(0);
 const readCount = ref(0);
+const previousScrollTop = ref(0);
+const previousTime = ref(0);
+let totalPages = computed(() => {
+  return Math.ceil(allEmailIds.value.length / emailsPerPage);
+});
 
 watch(
     () => [activeFilters.value, selectedCategory.value],
@@ -310,46 +315,87 @@ const fetchEmailsData = async (categoryName: string) => {
     await loadMoreEmails();
 };
 
-const loadMoreEmails = async () => {
-    if (isLoading.value) return;
-    isLoading.value = true;
+async function loadPage(pageNumber: number) {
+  const startIndex = (pageNumber - 1) * emailsPerPage;
+  const endIndex = startIndex + emailsPerPage;
+  const idsToFetch = allEmailIds.value.slice(startIndex, endIndex);
 
-    const startIndex = (currentPage.value - 1) * emailsPerPage;
-    const endIndex = startIndex + emailsPerPage;
-    const idsToFetch = allEmailIds.value.slice(startIndex, endIndex);
+  if (!idsToFetch.length) return;
 
-    if (idsToFetch.length > 0) {
-        const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
-        const newEmails = emails_details.data.data;
+  const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
+  const newEmails = emails_details.data.data;
 
-        for (const category in newEmails) {
-            if (!emails.value[category]) {
-                emails.value[category] = {};
-            }
-            for (const type in newEmails[category]) {
-                if (!emails.value[category][type]) {
-                    emails.value[category][type] = [];
-                }
-                emails.value[category][type].push(...newEmails[category][type]);
-            }
-        }
-
-        currentPage.value++;
+  for (const category in newEmails) {
+    if (!emails.value[category]) {
+      emails.value[category] = {};
     }
+    for (const type in newEmails[category]) {
+      if (!emails.value[category][type]) {
+        emails.value[category][type] = [];
+      }
+      emails.value[category][type].push(...newEmails[category][type]);
+    }
+  }
+}
 
-    isLoading.value = false;
+const loadMoreEmails = async (pagesToLoad = 1) => {
+  if (isLoading.value) return;
+  isLoading.value = true;
+
+  for (let i = 0; i < pagesToLoad; i++) {
+    if (currentPage.value <= totalPages.value) {
+      await loadPage(currentPage.value);
+      currentPage.value++;
+    } else {
+      break;
+    }
+  }
+
+  if (currentPage.value <= totalPages.value) {
+    loadPage(currentPage.value).catch(err => {
+      console.error("Prefetch error:", err);
+    });
+    currentPage.value++;
+  }
+
+  isLoading.value = false;
 };
 
-const handleScroll = () => {
-    const container = document.querySelector(".custom-scrollbar");
-    if (container) {
-        const { scrollTop, scrollHeight, clientHeight } = container;
-        const threshold = 250;
-        if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
-            loadMoreEmails();
-        }
+function debounce(func: (...args: any[]) => void, wait: number) {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  return (...args: any[]) => {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func(...args);
+      timeout = null;
+    }, wait);
+  };
+}
+
+const handleScroll = debounce(() => {
+  const container = document.querySelector(".custom-scrollbar");
+  if (!container) return;
+
+  const { scrollTop, scrollHeight, clientHeight } = container;
+  const now = performance.now(); 
+  const distance = Math.abs(scrollTop - previousScrollTop.value);
+  const elapsedTime = now - previousTime.value; 
+  const speed = distance / elapsedTime || 0;
+
+  previousScrollTop.value = scrollTop;
+  previousTime.value = now;
+
+  const threshold = 800; 
+  if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
+    if (speed > 1.5) {
+      loadMoreEmails(2); 
+    } else {
+      loadMoreEmails(1);
     }
-};
+  }
+}, 100);
+
+
 
 const scroll = () => {
     const container = document.querySelector(".custom-scrollbar");

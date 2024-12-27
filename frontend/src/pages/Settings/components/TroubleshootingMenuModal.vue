@@ -158,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, inject, Ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, inject, Ref, computed, onMounted, onUnmounted } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { postData } from "@/global/fetchData";
 import { EmailLinked } from "@/global/types";

@@ -121,6 +121,8 @@
         "emailScheduledSuccessfully": "Your email has been scheduled and will be sent on time"
       }
     },
+    "freeTrialExpired": "Free trial expired",
+    "freeTrialExpiredDesc": "We are no longer processing your emails. Please upgrade your plan.",
     "loadingEmails": "Loading emails...",
     "and": "and",
     "rule": "rule",
@@ -146,7 +148,6 @@
     "password": "Password",
     "workInProgress": "Work in progress",
     "underDevelopment": "Under Development",
-    "announcedPricingAfterBeta": "Announced after the beta",
     "language": "Language",
     "languagesList": {
       "french": "French 🇫🇷",
@@ -186,7 +187,7 @@
     "addAnotherCategory": "Add another category",
     "youHaveAnAccount": "Do you have an account?"
   },
-  "signuUpLinkPage": {
+  "signUpLinkPage": {
     "processingLastEmails": "Processing your last 5 emails...",
     "linkYourMailAccount": "Link your Gmail or Outlook account",
     "authorizationError": "Authorization error", 

@@ -60,7 +60,6 @@
                             d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
                         />
                     </svg>
-                    <!-- remove @click="toggleEmailVisibility"-->
                     <p @click="toggleEmailVisibility" class="cursor-pointer">{{ $t("homePage.clickToSeeTheEmail") }}</p>
                 </div>
             </div>
@@ -119,7 +118,7 @@ import { computed, ref, Ref, watch, onMounted, inject } from "vue";
 import { TrashIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
-import { formatSentDate } from "../preferences";
+import { formatSentDate } from "../formatters";
 
 const uselessCount = inject("uselessCount") as Ref<number>;
 
@@ -162,10 +161,6 @@ const groupedEmails = computed(() => {
 
 const hasEmails = computed(() => {
     return Object.keys(groupedEmails.value).length > 0;
-});
-
-const nbrEmailsUseless = computed(() => {
-    return Object.values(groupedEmails.value).reduce((acc, emails) => acc + emails.length, 0);
 });
 
 function toggleEmailVisibility() {

@@ -15,49 +15,6 @@ const languageSelected = ref("american");
 export const themeSelected = ref("light");
 export const timezoneSelected = ref("UTC");
 
-export const formatSentDateAndTime = (sentDateString: string, sentTimeString: string) => {
-    const sentDateAndTimeString = `${sentDateString}T${sentTimeString}:00Z`;
-    const sentDateObject = new Date(sentDateAndTimeString);
-
-    const formattedSentDateAndTime = sentDateObject.toLocaleString(i18n.global.locale, {
-        timeZone: timezoneSelected.value,
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-
-    return formattedSentDateAndTime;
-};
-
-export const formatSentDate = (sentDateString: string) => {
-    const sentDateObject = new Date(`${sentDateString}T00:00:00Z`);
-
-    const formattedSentDate = sentDateObject.toLocaleDateString(i18n.global.locale, {
-        timeZone: timezoneSelected.value,
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "long",
-    });
-
-    return formattedSentDate;
-};
-
-export const formatSentTime = (sentDateString: string, sentTimeString: string) => {
-    const sentDateTimeString = `${sentDateString}T${sentTimeString}:00Z`;
-    const sentDateTimeObject = new Date(sentDateTimeString);
-
-    const formattedSentTime = sentDateTimeObject.toLocaleTimeString(i18n.global.locale, {
-        timeZone: timezoneSelected.value,
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-
-    return formattedSentTime;
-};
-
 const fetchUserPreference = async (
     endpoint: string,
     key: keyof UserPreferenceResponse,

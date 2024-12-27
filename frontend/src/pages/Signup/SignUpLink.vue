@@ -90,8 +90,8 @@ async function submitSignupData(event: Event) {
 
         displayPopup(
             "error",
-            i18n.global.t("signuUpLinkPage.acceptTerms"),
-            i18n.global.t("signuUpLinkPage.termsNotAccepted")
+            i18n.global.t("signUpLinkPage.acceptTerms"),
+            i18n.global.t("signUpLinkPage.termsNotAccepted")
         );
         return;
     } else {
@@ -102,8 +102,8 @@ async function submitSignupData(event: Event) {
     }
     displayPopup(
         "success",
-        i18n.global.t("signuUpLinkPage.accountCreationInProgress"),
-        i18n.global.t("signuUpLinkPage.waitingDatabaseResponse")
+        i18n.global.t("signUpLinkPage.accountCreationInProgress"),
+        i18n.global.t("signUpLinkPage.waitingDatabaseResponse")
     );
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -113,8 +113,8 @@ async function submitSignupData(event: Event) {
     } else {
         displayPopup(
             "error",
-            i18n.global.t("signuUpLinkPage.authorizationError"),
-            i18n.global.t("signuUpLinkPage.authorizationCodeNotFound")
+            i18n.global.t("signUpLinkPage.authorizationError"),
+            i18n.global.t("signUpLinkPage.authorizationCodeNotFound")
         );
     }
 
@@ -144,10 +144,10 @@ async function submitSignupData(event: Event) {
             step.value++;
         } else {
             const data = await response.json();
-            displayPopup("error", i18n.global.t("signuUpLinkPage.accountCreationError"), data.error);
+            displayPopup("error", i18n.global.t("signUpLinkPage.accountCreationError"), data.error);
         }
     } catch (error) {
-        displayPopup("error", i18n.global.t("signuUpLinkPage.accountCreationError"), (error as Error).message);
+        displayPopup("error", i18n.global.t("signUpLinkPage.accountCreationError"), (error as Error).message);
     }
 }
 
@@ -173,10 +173,10 @@ async function createCategories(categories: Category[]) {
             categories
         });
         if (!response.success) {
-            displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), "");
+            displayPopup("error", i18n.global.t("signUpLinkPage.categoryCreationError"), "");
         }
     } catch (error) {
-        displayPopup("error", i18n.global.t("signuUpLinkPage.categoryCreationError"), (error as Error).message);
+        displayPopup("error", i18n.global.t("signUpLinkPage.categoryCreationError"), (error as Error).message);
     }
 }
 
@@ -205,7 +205,7 @@ async function processDemoEmails() {
         
         const text = document.createElement('div');
         text.className = 'text-lg font-semibold text-gray-900 text-center';
-        text.textContent = i18n.global.t("signuUpLinkPage.processingLastEmails");
+        text.textContent = i18n.global.t("signUpLinkPage.processingLastEmails");
 
         const progressContainer = document.createElement('div');
         progressContainer.className = 'w-64 h-2 bg-gray-200 rounded-full overflow-hidden';
@@ -249,10 +249,10 @@ async function processDemoEmails() {
             sessionStorage.clear();
             router.push({ name: "home" });
         } else {
-            displayPopup("error", i18n.global.t("signuUpLinkPage.demoProcessingError"), "");
+            displayPopup("error", i18n.global.t("signUpLinkPage.demoProcessingError"), "");
         }
     } catch (error) {
-        displayPopup("error", i18n.global.t("signuUpLinkPage.demoProcessingError"), (error as Error).message);
+        displayPopup("error", i18n.global.t("signUpLinkPage.demoProcessingError"), (error as Error).message);
     }
 }
 </script>

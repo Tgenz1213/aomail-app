@@ -47,7 +47,7 @@
                     >
                         <ul role="list" class="divide-y divide-gray-200">
                             <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
-                                <EmailItem :email="email" color="orange" :replyLater=replyLater />
+                                <EmailItem :email="email" color="orange" :replyLater="replyLater" />
                             </li>
                         </ul>
                     </div>
@@ -62,7 +62,7 @@ import { ref, computed, watch } from "vue";
 import { ExclamationTriangleIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
-import { formatSentDate } from "../preferences";
+import { formatSentDate } from "../formatters";
 
 const props = defineProps<{
     emails: Email[];

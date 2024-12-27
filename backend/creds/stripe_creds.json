@@ -1,7 +1,7 @@
 {
-    "publishable_key": "pk_test_51Q9kHvK8H3QtVm1pWD1x67C6lQXl8D6EmD4vaEQowjTyrCbnbk0sJt3S4va5ErH7BEvJOuFlQMqxvuIHLshrc6zx00CUKTvZgX",
-    "secret_key": "sk_test_51Q9kHvK8H3QtVm1pBfhbw9mBSeFJRB3BTQFhNCxq1PfQXmiWGWLZpod7AvUGfgbdpw7NRJtbJT6U90iAmFTAwFx000cAvzKrQX",
+    "publishable_key": "pk_live_51Q9kHvK8H3QtVm1poy56IRXxMg7VUycAoIz7v6WWS1RoupyTQjO1MvNt1o6H3xAHW9fylKUyEFbnJgB5KYhuKDra00ob4EvFBO",
+    "secret_key": "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",
     "augustin_webhook_secret": "whsec_6PYNONU3nGtVn5a01qIykZbUHU6yUCs9",
-    "theo_webhook_secret": "whsec_6PYNONU3nGtVn5a01qIykZbUHU6yUCs9",
-    "app_webhook_secret": "whsec_8wALW3xwasLR144oNCLHI38lXzZeQjMC"
+    "theo_webhook_secret": "whsec_idOybiViqATDqsVppHsZiJKv3TfR21Hq",
+    "app_webhook_secret": "whsec_x2LjXoezvrhhojyrncSLkN4hUeEQ8cJq"
 }

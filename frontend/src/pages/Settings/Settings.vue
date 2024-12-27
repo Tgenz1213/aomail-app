@@ -237,11 +237,13 @@ function checkStripePaymentStatus() {
     const urlParams = new URLSearchParams(window.location.search);
     const stripePaymentSuccess = urlParams.get("stripe-payment-success");
     const subscriptionUpdated = urlParams.get("subscription-updated");
+    const goto = urlParams.get("goto");
 
     const modifiedUrl = window.location.origin + window.location.pathname;
     window.history.replaceState({}, document.title, modifiedUrl);
-
-    if (subscriptionUpdated === "true") {
+    if (goto === "subscription") {
+        activeSection.value = "subscription";
+    } else if (subscriptionUpdated === "true") {
         activeSection.value = "subscription";
         displayPopup(
             "success",

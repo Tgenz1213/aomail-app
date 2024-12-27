@@ -96,14 +96,14 @@ def subscription(allowed_plans: list):
             subscription = Subscription.objects.get(user=user)
 
             if not INACTIVE in allowed_plans:
-                # if subscription.is_trial:
-                #     trial_period = timedelta(days=30)
-                #     if timezone.now() - subscription.created_at > trial_period:
-                #         LOGGER.info(f"Free trial expired for user ID: {user.id}")
-                #         return Response(
-                #             {"error": "Free trial expired"},
-                #             status=status.HTTP_403_FORBIDDEN,
-                #         )
+                if subscription.is_trial:
+                    trial_period = timedelta(days=30)
+                    if timezone.now() - subscription.created_at > trial_period:
+                        LOGGER.info(f"Free trial expired for user ID: {user.id}")
+                        return Response(
+                            {"error": "Free trial expired"},
+                            status=status.HTTP_403_FORBIDDEN,
+                        )
 
                 if subscription.plan not in allowed_plans:
                     LOGGER.info(

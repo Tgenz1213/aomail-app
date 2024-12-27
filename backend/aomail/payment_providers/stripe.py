@@ -21,10 +21,14 @@ from aomail.constants import (
     BASE_URL,
     CREDS_PATH,
     ENV,
+    GOOGLE,
     MAX_RETRIES,
+    MICROSOFT,
 )
-from aomail.models import Subscription
+from aomail.models import SocialAPI, Subscription
 from aomail.utils.security import subscription
+from aomail.email_providers.microsoft import webhook as webhook_microsoft
+from aomail.email_providers.google import webhook as webhook_google
 
 
 LOGGER = logging.getLogger(__name__)
@@ -34,20 +38,20 @@ SECRET_KEY = STRIPE_CREDS["secret_key"]
 WEBHOOK_SECRET = STRIPE_CREDS[ENV + "_webhook_secret"]
 PRODUCTS = {
     "start": {
-        "monthly": "price_1Q9nJBK8H3QtVm1pZFyeR37V",
-        "yearly": "price_1Q9nXSK8H3QtVm1pNkx2zscT",
+        "monthly": "price_1QaFTRK8H3QtVm1pHDyJyrp5",
+        "yearly": "price_1QaFUCK8H3QtVm1pcEpFL8eI",
     },
     "premium": {
-        "monthly": "price_1Q9na2K8H3QtVm1peN7oqrVS",
-        "yearly": "price_1Q9naRK8H3QtVm1p8qftrgvj",
+        "monthly": "price_1QaFXTK8H3QtVm1prTpGnDY4",
+        "yearly": "price_1QaFaoK8H3QtVm1pgEqJYQ1b",
     },
-    "entreprise": {
-        "monthly": "price_1Q9nbjK8H3QtVm1piHUqrxEf",
-        "yearly": "price_1Q9nc3K8H3QtVm1p9qgl2Udi",
-    },
-    "prod_R1r1SojHfBmNRn": "start",
-    "prod_R1rIjwktRkHlkX": "premium",
-    "prod_R1rKdtMxUxyRER": "entreprise",
+    # "entreprise": {
+    #     "monthly": "price_1Q9nbjK8H3QtVm1piHUqrxEf",
+    #     "yearly": "price_1Q9nc3K8H3QtVm1p9qgl2Udi",
+    # },
+    "prod_RTBrMtXObupyaZ": "start",
+    "prod_RTBvgvYNKdE6Sg": "premium",
+    # "prod_R1rKdtMxUxyRER": "entreprise",
 }
 
 
@@ -91,14 +95,12 @@ def cancel_subscription(subscription: Subscription) -> bool:
                 return True
             else:
                 LOGGER.error(
-                    f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} "
-                    f"for user {subscription.user.id}: {str(e)}"
+                    f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} for user {subscription.user.id}: {str(e)}"
                 )
 
         except stripe.StripeError as e:
             LOGGER.error(
-                f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} "
-                f"for user {subscription.user.id}: {str(e)}"
+                f"Attempt {attempt}: Failed to cancel Stripe subscription {subscription.subscription_id} for user {subscription.user.id}: {str(e)}"
             )
 
         except Subscription.DoesNotExist:
@@ -109,8 +111,7 @@ def cancel_subscription(subscription: Subscription) -> bool:
 
         except Exception as e:
             LOGGER.critical(
-                f"Attempt {attempt}: An unexpected error occurred while canceling the subscription "
-                f"for user {subscription.user.id}: {e}"
+                f"Attempt {attempt}: An unexpected error occurred while canceling the subscription for user {subscription.user.id}: {e}"
             )
 
         if attempt < MAX_RETRIES:
@@ -136,11 +137,6 @@ def create_checkout_session(request: HttpRequest):
     Returns:
         Response: A JSON response containing the session ID or an error message.
     """
-    return Response(
-        {"error": "Plans are not available during the beta period"},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
-
     try:
         user = request.user
         parameters: dict = json.loads(request.body)
@@ -251,6 +247,18 @@ def handle_checkout_session_completed(event: dict):
         subscription.plan = plan
         subscription.save()
 
+        # Resubscribe user to email notifications in case
+        social_apis = SocialAPI.objects.filter(user=user)
+        for social_api in social_apis:
+            if social_api.type_api == GOOGLE:
+                webhook_google.check_and_resubscribe_to_missing_resources(
+                    social_api.type_api, user, social_api.email
+                )
+            elif social_api.type_api == MICROSOFT:
+                webhook_microsoft.check_and_resubscribe_to_missing_resources(
+                    user, social_api.email
+                )
+
         LOGGER.info(
             f"Payment succeeded for user ID {user.id}, Plan: {plan} activated successfully."
         )
@@ -318,6 +326,18 @@ def handle_updated_subscription(event: dict):
         subscription = Subscription.objects.get(subscription_id=subscription_id)
         subscription.plan = plan
         subscription.save()
+
+        # Resubscribe user to email notifications in case
+        social_apis = SocialAPI.objects.filter(user=subscription.user)
+        for social_api in social_apis:
+            if social_api.type_api == GOOGLE:
+                webhook_google.check_and_resubscribe_to_missing_resources(
+                    social_api.type_api, subscription.user, social_api.email
+                )
+            elif social_api.type_api == MICROSOFT:
+                webhook_microsoft.check_and_resubscribe_to_missing_resources(
+                    subscription.user, social_api.email
+                )
 
         LOGGER.info(
             f"Subscription {subscription_id} for user ID {subscription.user.id} updated to {plan} plan successfully."

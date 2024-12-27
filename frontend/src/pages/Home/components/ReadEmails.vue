@@ -119,7 +119,7 @@ import { computed, ref, Ref, watch, onMounted, inject } from "vue";
 import { CheckIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
-import { formatSentDate } from "@/global/preferences";
+import { formatSentDate } from "@/global/formatters";
 
 const props = defineProps<{
     emails: Email[];

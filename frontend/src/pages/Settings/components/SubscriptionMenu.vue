@@ -69,7 +69,7 @@
                 <p class="mt-4 text-sm leading-6 text-gray-600">{{ tier.description }}</p>
                 <p class="mt-6 flex items-baseline gap-x-1">
                     <span class="text-md font-semibold tracking-tight text-gray-900">
-                        {{ $t("constants.announcedPricingAfterBeta") }}
+                        ${{ selectedFrequency.key == "monthly" ? tier.price["monthly"] : tier.price["yearly"] }}
                     </span>
                     <span class="text-sm font-semibold leading-6 text-gray-600">
                         {{ $t(selectedFrequency.priceSuffix) }}
@@ -187,7 +187,7 @@ const tiers: Tier[] = reactive([
     {
         name: "Start",
         plan: "start",
-        price: { monthly: "10", yearly: "85" },
+        price: { monthly: "15", yearly: "120" },
         description: i18n.global.t("settingsPage.subscriptionPage.basic.description"),
         features: i18n.global.tm("settingsPage.subscriptionPage.basic.features"),
         selected: false,
@@ -196,7 +196,7 @@ const tiers: Tier[] = reactive([
     {
         name: "Premium",
         plan: "premium",
-        price: { monthly: "15", yearly: "100" },
+        price: { monthly: "20", yearly: "180" },
         description: i18n.global.t("settingsPage.subscriptionPage.premium.description"),
         features: i18n.global.tm("settingsPage.subscriptionPage.premium.features"),
         selected: false,
@@ -205,7 +205,7 @@ const tiers: Tier[] = reactive([
     {
         name: "Entreprise",
         plan: "entreprise",
-        price: { monthly: "50", yearly: "500" },
+        price: { monthly: "Contact Us", yearly: "Contact Us" },
         description: i18n.global.t("settingsPage.subscriptionPage.entreprise.description"),
         features: i18n.global.tm("settingsPage.subscriptionPage.entreprise.features"),
         selected: false,

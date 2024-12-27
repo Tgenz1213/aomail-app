@@ -8,9 +8,10 @@
                 <div class="ml-auto flex items-center space-x-2">
                     <button
                         @click="markAllAsRead"
-                        class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md"
+                        class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md flex items-center gap-1"
                         :disabled="isMarking?.useless"
                     >
+                        <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless"/>
                         {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
                     </button>
                     <trash-icon class="w-6 h-6 text-gray-500" />
@@ -122,7 +123,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch, onMounted, inject } from "vue";
-import { TrashIcon } from "@heroicons/vue/24/outline";
+import { TrashIcon, CheckIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "../formatters";

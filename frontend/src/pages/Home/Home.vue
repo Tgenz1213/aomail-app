@@ -120,8 +120,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
-import { getData, postData } from "@/global/fetchData";
+import { ref, computed, provide, onMounted, onUnmounted, watch, reactive } from "vue";
+import { getData, postData, putData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult } from "@/global/types";
 import { Filter } from "./utils/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
@@ -139,6 +139,7 @@ import ReadEmail from "./components/ReadEmails.vue";
 import Categories from "./components/Categories.vue";
 import SearchBar from "./components/SearchBar.vue";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
+import { i18n } from "@/global/preferences";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -149,7 +150,7 @@ const toSearch = ref(false);
 const showFeedbackForm = ref(false);
 const isFreeTrialExpired = ref(false);
 
-const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
+const emails = ref<Record<string, Record<string, Email[]>>>({});
 const selectedCategory = ref<string>("");
 const activeFilters = ref<{ [category: string]: Filter | undefined }>({});
 const selectedFilter = ref<Filter | undefined>(activeFilters.value[selectedCategory.value]);
@@ -175,6 +176,12 @@ const informativeCount = ref(0);
 const readCount = ref(0);
 const previousScrollTop = ref(0);
 const previousTime = ref(0);
+const isMarking = ref({
+    important: false,
+    informative: false,
+    useless: false,
+});
+
 let totalPages = computed(() => {
   return Math.ceil(allEmailIds.value.length / emailsPerPage);
 });
@@ -438,6 +445,64 @@ const openUpdateFilterModal = (filter: Filter) => {
     isModalUpdateFilterOpen.value = true;
 };
 
+const markCategoryAsRead = async (category: 'important' | 'informative' | 'useless') => {
+    isMarking.value[category] = true;
+    try {
+        let emailsToMark: Email[] = [];
+        switch(category) {
+            case 'important':
+                emailsToMark = importantEmails.value;
+                break;
+            case 'informative':
+                emailsToMark = informativeEmails.value;
+                break;
+            case 'useless':
+                emailsToMark = uselessEmails.value;
+                break;
+            default:
+                emailsToMark = [];
+        }
+
+        const ids = emailsToMark.map(email => email.id);
+
+        if (ids.length === 0) {
+            displayPopup?.("error", i18n.global.t("constants.popUpConstants.infoMessages.noEmailsToMark"), "");
+            return;
+        }
+
+        const result = await putData("user/emails/update/", { ids, action: "read" });
+
+        if (result.success) {
+            await fetchEmailsData(selectedCategory.value);
+            await fetchFiltersData(selectedCategory.value);
+            await fetchEmailCounts(selectedCategory.value);
+            emailsToMark.forEach(email => {
+                email.read = true;
+            });
+            displayPopup?.(
+                "success",
+                i18n.global.t("constants.popUpConstants.successMessages.emailsMarkedAsRead"),
+                i18n.global.t("constants.popUpConstants.successMessages.emailsMarkedAsReadDescription")
+            );
+        } else {
+            displayPopup?.(
+                "error", 
+                i18n.global.t("constants.popUpConstants.errorMessages.failedToMarkAsRead"),
+                result.error as string
+            );
+        }
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.unexpectedError"),
+            (error as Error).message
+        );
+    } finally {
+        isMarking.value[category] = false;
+    }
+};
+
+provide("markCategoryAsRead", markCategoryAsRead);
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
@@ -446,6 +511,7 @@ provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFiltersData", fetchFiltersData);
 provide("scroll", scroll);
 provide("handleScroll", handleScroll);
+provide("isMarking", isMarking);
 provide("emails", emails);
 provide("categories", categories);
 provide("filters", filters);

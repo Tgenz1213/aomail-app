@@ -1,11 +1,18 @@
 <template>
     <div v-if="hasEmails" class="px-6 py-6">
         <div class="bg-gray-100 bg-opacity-90 rounded-md">
-            <div class="flex px-2 py-2">
+            <div class="flex px-3 py-2">
                 <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
                     {{ $t("constants.ruleModalConstants.useless") }}
                 </p>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center space-x-2">
+                    <button
+                        @click="markAllAsRead"
+                        class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md"
+                        :disabled="isMarking?.useless"
+                    >
+                        {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
+                    </button>
                     <trash-icon class="w-6 h-6 text-gray-500" />
                 </div>
             </div>
@@ -167,6 +174,17 @@ function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
     localStorage.setItem("showUseless", JSON.stringify(showEmailDescriptions.value));
 }
+
+const markCategoryAsRead = inject<(category: 'important' | 'informative' | 'useless') => void>("markCategoryAsRead");
+const isMarking = inject<{
+    important: boolean;
+    informative: boolean;
+    useless: boolean;
+}>("isMarking");
+
+const markAllAsRead = () => {
+    markCategoryAsRead && markCategoryAsRead('useless');
+};
 
 onMounted(() => {
     const storedShowUseless = localStorage.getItem("showUseless");

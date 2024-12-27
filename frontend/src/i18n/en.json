@@ -70,6 +70,8 @@
     },
     "popUpConstants": {
       "errorMessages": {
+        "markAllAsRead": "Failed to mark all as read",
+        "markAllAsReadDescription": "An unexpected error occurred.",
         "emailSendError": "Email send error",
         "contactFetchError": "Contact fetch error",
         "pleaseEnterAnEmail": "Pls enter an email",
@@ -118,7 +120,9 @@
         "updateFilterSuccess": "Filter has been updated",
         "filterAddedSuccess": "Filter has been added",
         "deleteFilterSuccess": "Your filter has been deleted",
-        "emailScheduledSuccessfully": "Your email has been scheduled and will be sent on time"
+        "emailScheduledSuccessfully": "Your email has been scheduled and will be sent on time",
+        "emailsMarkedAsRead": "Emails Marked as Read",
+        "emailsMarkedAsReadDescription": "All selected emails have been marked as read."
       }
     },
     "freeTrialExpired": "Free trial expired",
@@ -614,5 +618,7 @@
     "noEmailsToReplyLater": "No emails to reply later",
     "removeFromReplyLater": "Remove from Reply Later",
     "markEmailNotReplyLaterFailure": "Failed to mark email as not reply later"
-  }
+  },
+  "markAllAsRead": "Mark All as Read",
+  "loading": "Loading"
 }

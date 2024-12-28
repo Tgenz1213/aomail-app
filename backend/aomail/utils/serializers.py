@@ -14,6 +14,7 @@ from aomail.models import (
     Sender,
     Contact,
     Filter,
+    Signature,
 )
 
 
@@ -227,3 +228,10 @@ class FilterSerializer(serializers.ModelSerializer):
             "relevance",
             "answer",
         )
+
+
+class SignatureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Signature
+        fields = ['id', 'user', 'social_api', 'signature_content']
+        read_only_fields = ['id', 'user']

@@ -14,6 +14,7 @@ from aomail.controllers import categories, filters, rules, emails, search_emails
 from aomail.controllers import statistics
 from aomail.controllers import search_labels
 from aomail.controllers import labels
+from aomail.controllers import signatures
 from aomail.payment_providers import stripe
 from aomail.administration import dashboard
 from .controllers import views
@@ -134,4 +135,9 @@ urlpatterns = [
     #----------------------- PAYMENT PROVIDER API -----------------------# 
     path('stripe/create_checkout_session/', stripe.create_checkout_session, name='stripe_create_checkout_session'), 
     path('stripe/webhook/', stripe.webhook, name='stripe_webhook'), 
+    #----------------------- SIGNATURES -----------------------#
+    path('user/signatures/', signatures.list_signatures, name='list_signatures'),
+    path('user/signatures/create/', signatures.create_signature, name='create_signature'),
+    path('user/signatures/<int:signature_id>/update/', signatures.update_signature, name='update_signature'),
+    path('user/signatures/<int:signature_id>/delete/', signatures.delete_signature, name='delete_signature'),
 ]

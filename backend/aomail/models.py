@@ -250,3 +250,11 @@ class KeyPoint(models.Model):
     topic = models.TextField(max_length=50)
     content = models.TextField(max_length=50)
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
+
+
+class Signature(models.Model):
+    """Model for storing user email signatures."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='signatures')
+    social_api = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, related_name='signatures')
+    signature_content = models.TextField()

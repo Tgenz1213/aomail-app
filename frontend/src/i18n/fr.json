@@ -70,6 +70,10 @@
     },
     "popUpConstants": {
       "errorMessages": {
+        "noEmailsToArchive": "Aucun e-mail à archiver",
+        "failedToArchive": "Échec de l'archivage des e-mails",
+        "failedToMarkAsRead": "Échec du marquage des e-mails comme lus",
+        "noEmailsToMark": "Aucun e-mail à marquer",
         "emailSendError": "Erreur d'envoi d'email",
         "pleaseEnterAnEmail": "Erreur saissisez un email",
         "contactFetchError": "Erreur de récupération des contacts",
@@ -118,7 +122,11 @@
         "updateFilterSuccess": "Le filtre a été mis à jour",
         "filterAddedSuccess": "Le filtre a été ajoutée",
         "deleteFilterSuccess": "Le filtre a été supprimée",
-        "emailScheduledSuccessfully": "Votre email a été programmé et sera envoyé à temps."
+        "emailScheduledSuccessfully": "Votre email a été programmé et sera envoyé à temps.",
+        "emailsMarkedAsRead": "Emails marqués comme lus",
+        "emailsMarkedAsReadDescription": "Tous les e-mails sélectionnés ont été marqués comme lus.",
+        "emailsArchived": "Emails archivés",
+        "emailsArchivedDescription": "Tous les e-mails sélectionnés ont été archivés."
       }
     },
     "freeTrialExpired": "Essai gratuit expiré",
@@ -613,5 +621,8 @@
     "noEmailsToReplyLater": "Pas d'e-mails à répondre plus tard",
     "removeFromReplyLater": "Retirer de Répondre plus tard",
     "markEmailNotReplyLaterFailure": "Échec de marquage d'email à ne plus répondre plus tard"
-  }
+  },
+  "markAllAsRead": "Marquer tous comme lu",
+  "markAllAsArchive": "Marquer tous comme archivé",
+  "loading": "Chargement..."
 }

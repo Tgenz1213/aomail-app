@@ -180,6 +180,7 @@ const isMarking = ref({
     important: false,
     informative: false,
     useless: false,
+    archiveRead: false
 });
 
 let totalPages = computed(() => {
@@ -466,7 +467,7 @@ const markCategoryAsRead = async (category: 'important' | 'informative' | 'usele
         const ids = emailsToMark.map(email => email.id);
 
         if (ids.length === 0) {
-            displayPopup?.("error", i18n.global.t("constants.popUpConstants.infoMessages.noEmailsToMark"), "");
+            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noEmailsToMark"), "");
             return;
         }
 
@@ -502,7 +503,68 @@ const markCategoryAsRead = async (category: 'important' | 'informative' | 'usele
     }
 };
 
+const archiveReadEmails = async () => {
+    const category = selectedCategory.value;
+    if (!category) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.noCategorySelected"),
+            ""
+        );
+        return;
+    }
+
+    isMarking.value['archiveRead'] = true;
+
+    try {
+        const readEmailsInCategory = readEmails.value;
+        const ids = readEmailsInCategory.map(email => email.id);
+
+        if (ids.length === 0) {
+            displayPopup?.(
+                "error", 
+                i18n.global.t("constants.popUpConstants.errorMessages.noEmailsToArchive"), 
+                ""
+            );
+            return;
+        }
+
+        const result = await putData("user/emails/update/", { ids, action: "archive" });
+
+        if (result.success) {
+            await fetchEmailsData(category);
+            await fetchFiltersData(category);
+            await fetchEmailCounts(category);
+
+            readEmailsInCategory.forEach(email => {
+                email.archive = true;
+            });
+
+            displayPopup?.(
+                "success",
+                i18n.global.t("constants.popUpConstants.successMessages.emailsArchived"),
+                i18n.global.t("constants.popUpConstants.successMessages.emailsArchivedDescription")
+            );
+        } else {
+            displayPopup?.(
+                "error", 
+                i18n.global.t("constants.popUpConstants.errorMessages.failedToArchive"),
+                result.error as string
+            );
+        }
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.unexpectedError"),
+            (error as Error).message
+        );
+    } finally {
+        isMarking.value['archiveRead'] = false;
+    }
+};
+
 provide("markCategoryAsRead", markCategoryAsRead);
+provide("archiveReadEmails", archiveReadEmails);
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);

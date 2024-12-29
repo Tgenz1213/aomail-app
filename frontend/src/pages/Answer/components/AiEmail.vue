@@ -54,7 +54,6 @@ const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const AIContainer =
     inject<Ref<HTMLElement | null>>("AIContainer") || ref<HTMLElement | null>(document.getElementById("AIContainer"));
 const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
-const quill = inject<Ref<Quill | null>>("quill");
 const history = inject<Ref<Record<string, any>>>("history") || ref({});
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const importance = inject<Ref<string>>("importance") || ref("");
@@ -64,6 +63,8 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const hideLoading = inject<() => void>("hideLoading");
 const loading = inject<() => void>("loading");
+
+const getQuill = inject<() => Quill | null>("getQuill");
 
 function handleEnterKey(event: KeyboardEvent) {
     const target = event.target as HTMLElement | null;
@@ -112,13 +113,14 @@ function handleAIClick() {
 }
 
 const generateNewEmailResponse = async () => {
-    if (!AIContainer.value || !quill?.value) return;
+    const quillInstance = getQuill?.();
+    if (!AIContainer.value || !quillInstance) return;
 
     loading?.();
     scrollToBottom?.();
 
     const result = await postData("get_new_email_response/", {
-        body: quill?.value.root.innerHTML,
+        body: quillInstance.root.innerHTML,
         userInput: textareaValueSave.value,
         subject: subjectInput.value,
         importance: importance.value,
@@ -134,7 +136,7 @@ const generateNewEmailResponse = async () => {
     }
 
     history.value = result.data.history;
-    const quillEditorContainer = quill.value.root;
+    const quillEditorContainer = quillInstance.root;
     quillEditorContainer.innerHTML = result.data.emailBody.replace(
         /(<ul>|<ol>|<\/li>)(?:[\s]+)(<li>|<\/ul>|<\/ol>)/g,
         "$1$2"

@@ -56,8 +56,8 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  selectedEmailId: {
-    type: Number,
+  selectedEmail: {
+    type: String,
     required: true,
   },
 });
@@ -127,7 +127,7 @@ const handleDrop = async (e: DragEvent) => {
 };
 
 const handleSubmit = async () => {
-  if (!props.selectedEmailId) {
+  if (!props.selectedEmail) {
     displayPopup?.("error", 
       i18n.global.t("newPage.signatureModal.error.noEmailSelected") as string, 
       i18n.global.t("newPage.signatureModal.error.noEmailSelectedMessage") as string
@@ -135,12 +135,13 @@ const handleSubmit = async () => {
     return;
   }
 
-  const formData = new FormData();
-  formData.append("social_api_id", props.selectedEmailId.toString());
-  formData.append("signature_content", signatureContent.value);
+  const payload = {
+    email: props.selectedEmail,
+    signature_content: signatureContent.value,
+  };
 
   try {
-    const response = await postData("user/signatures/create/", formData, true);
+    const response = await postData("user/signatures/create/", payload);
     if (response.success) {
       displayPopup?.("success", 
         i18n.global.t("newPage.signatureModal.success.title") as string, 
@@ -163,7 +164,7 @@ const handleSubmit = async () => {
 };
 
 const handleEmptySignature = async () => {
-  if (!props.selectedEmailId) {
+  if (!props.selectedEmail) {
     displayPopup?.("error", 
       i18n.global.t("newPage.signatureModal.error.noEmailSelected") as string, 
       i18n.global.t("newPage.signatureModal.error.noEmailSelectedMessage") as string
@@ -171,14 +172,16 @@ const handleEmptySignature = async () => {
     return;
   }
 
-  const formData = new FormData();
-  formData.append("social_api_id", props.selectedEmailId.toString());
-  formData.append("signature_content", "");
+  const payload = {
+    email: props.selectedEmail,
+    signature_content: "",
+  };
 
   try {
-    const response = await postData("user/signatures/create/", formData, true);
+    const response = await postData("user/signatures/create/", payload);
     if (response.success) {
       emit("created", response.data);
+      emit("close");
     }
   } catch (error) {
     console.error(i18n.global.t("newPage.signatureModal.error.emptyCreationFailed") as string, error);

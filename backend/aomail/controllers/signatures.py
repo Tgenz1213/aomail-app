@@ -15,18 +15,18 @@ def create_signature(request: HttpRequest) -> Response:
     
     Args:
         request (HttpRequest): HTTP request containing:
-            social_api_id (int): ID of the SocialAPI.
+            email (str): Email of the SocialAPI.
             signature_content (str): The signature content.
     Returns:
         Response: JSON response with signature data or error message.
     """
     try:
         data = json.loads(request.body)
-        social_api_id = data.get('social_api_id')
+        email = data.get('email')
         signature_content = data.get('signature_content')
         
         try:
-            social_api = SocialAPI.objects.get(id=social_api_id, user=request.user)
+            social_api = SocialAPI.objects.get(email=email, user=request.user)
         except SocialAPI.DoesNotExist:
             return Response(
                 {"error": "SocialAPI not found."},
@@ -61,34 +61,57 @@ def create_signature(request: HttpRequest) -> Response:
 
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
-def update_signature(request: HttpRequest, signature_id: int) -> Response:
+def update_signature(request: HttpRequest) -> Response:
     """
     Update an existing email signature.
-    
+
     Args:
         request (HttpRequest): HTTP request containing:
+            email (str): Email of the SocialAPI.
             signature_content (str): The new signature content.
-        signature_id (int): ID of the signature to update.
+            signature_id (int): ID of the signature to update.
     
     Returns:
         Response: JSON response with updated signature data or error message.
     """
     try:
-        signature = Signature.objects.get(id=signature_id, user=request.user)
-    except Signature.DoesNotExist:
+        data = json.loads(request.body)
+        email = data.get('email')
+        signature_id = data.get('signature_id')
+        signature_content = data.get('signature_content')
+        
+        try:
+            social_api = SocialAPI.objects.get(email=email, user=request.user)
+        except SocialAPI.DoesNotExist:
+            return Response(
+                {"error": "SocialAPI not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        try:
+            signature = Signature.objects.get(id=signature_id, user=request.user, social_api=social_api)
+        except Signature.DoesNotExist:
+            return Response(
+                {"error": "Signature not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        signature.signature_content = signature_content
+        signature.save()
+        
+        serializer = SignatureSerializer(signature)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    except json.JSONDecodeError:
         return Response(
-            {"error": "Signature not found."},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "Invalid JSON."},
+            status=status.HTTP_400_BAD_REQUEST
         )
-    
-    data = json.loads(request.body)
-    signature_content = data.get('signature_content', signature.signature_content)
-    
-    signature.signature_content = signature_content
-    signature.save()
-    
-    serializer = SignatureSerializer(signature)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])

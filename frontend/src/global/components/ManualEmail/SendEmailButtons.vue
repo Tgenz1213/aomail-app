@@ -56,7 +56,6 @@ import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 const isMenuOpen = ref(false);
 const active = ref(false);
 const isScheduleSendModalOpen = ref(false);
-const quill = inject<Ref<Quill | null>>("quill");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const fileObjects = inject<Ref<File[]>>("fileObjects") || ref([]);
@@ -70,6 +69,8 @@ const uploadedFiles = inject<Ref<UploadedFile[]>>("uploadedFiles") || ref([]);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
+
+const getQuill = inject<() => Quill | null>("getQuill");
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey && event.key === "Enter") {
@@ -104,10 +105,11 @@ const handleClickOutside = (event: MouseEvent) => {
 
 
 async function sendEmail() {
-    if (!AIContainer.value || !quill?.value) return;
+    const quillInstance = getQuill?.();
+    if (!AIContainer.value || !quillInstance) return;
 
     const emailSubject = subjectInput.value;
-    const emailBody = quill.value.root.innerHTML;
+    const emailBody = quillInstance.root.innerHTML;
 
     if (!emailSubject.trim()) {
         displayPopup?.(
@@ -174,7 +176,7 @@ async function sendEmail() {
         );
 
         subjectInput.value = "";
-        quill.value.root.innerHTML = "";
+        quillInstance.root.innerHTML = "";
         selectedPeople.value = [];
         selectedCC.value = [];
         selectedBCC.value = [];
@@ -198,7 +200,8 @@ async function sendEmail() {
 
 
 function validateScheduledSend(): boolean {
-    if (!quill?.value) return false;
+    const quillInstance = getQuill?.();
+    if (!quillInstance) return false;
 
     for (const tupleEmail of emailsLinked.value) {
         if (emailSelected.value === tupleEmail.email && tupleEmail.typeApi !== MICROSOFT) {
@@ -217,7 +220,7 @@ function validateScheduledSend(): boolean {
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoSubject")
         );
         return false;
-    } else if (quill.value.root.innerHTML == "<p><br></p>") {
+    } else if (quillInstance.root.innerHTML == "<p><br></p>") {
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),

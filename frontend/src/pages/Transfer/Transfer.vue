@@ -56,7 +56,7 @@ const selectedFormality = ref("formal");
 const timerId = ref<number | null>(null);
 const AIContainer = ref<HTMLElement | null>(null);
 const scrollableDiv = ref<HTMLDivElement | null>(null);
-const quill: Ref<Quill | null> = ref(null);
+let quill: Quill | null = null;
 const counterDisplay = ref(0);
 const history = ref({});
 const emailsLinked = ref<EmailLinked[]>([]);
@@ -76,13 +76,17 @@ const scrollToBottom = async () => {
     element.scrollTop = element.scrollHeight;
 };
 
+function getQuill() {
+  return quill;
+}
+
 provide("imageURL", imageURL);
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
 provide("selectedCC", selectedCC);
 provide("selectedBCC", selectedBCC);
-provide("quill", quill);
 provide("stepContainer", stepContainer);
+provide("getQuill", getQuill);
 provide("AIContainer", AIContainer);
 provide("counterDisplay", counterDisplay);
 provide("isWriting", isWriting);
@@ -194,8 +198,9 @@ onMounted(async () => {
     forwardedMessage += "\n\n";
     forwardedMessage += decodedData;
 
-    if (quill.value) {
-        const quillEditorContainer = quill.value.root;
+    const quillInstance = getQuill?.();
+    if (quillInstance) {
+        const quillEditorContainer = quillInstance.root;
         quillEditorContainer.innerHTML = forwardedMessage;
     }
 
@@ -300,7 +305,7 @@ async function initializeQuill() {
 
     const editorElement = document.getElementById("editor");
     if (editorElement) {
-        quill.value = new Quill(editorElement, {
+        quill = new Quill(editorElement, {
             theme: "snow",
             modules: { toolbar: toolbarOptions },
         });

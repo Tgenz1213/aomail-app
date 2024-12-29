@@ -592,7 +592,27 @@
     "bccRecipient": "Blind Copy",
     "moveToNextStep": "Move to next step",
     "signatureModal": {
-      "editLaterInfo": "You will be able to create/edit your signature later in the settings (preferences)"
+      "title": "Create Email Signature",
+      "signatureContentLabel": "Signature Content:",
+      "signaturePlaceholder": "Type your signature or paste/drop an image here",
+      "editLaterInfo": "You will be able to create/edit your signature later in the settings (preferences)",
+      "cancel": "Cancel",
+      "create": "Create",
+      "error": {
+        "noEmailSelected": "Error",
+        "noEmailSelectedMessage": "No email selected.",
+        "creationFailed": "Error",
+        "creationFailedMessage": "Failed to create signature.",
+        "unexpected": "Error",
+        "unexpectedMessage": "An unexpected error occurred.",
+        "emptyCreationFailed": "Error",
+        "fetchFailed": "Error",
+        "fetchFailedMessage": "Failed to fetch signatures."
+      },
+      "success": {
+        "title": "Success",
+        "message": "Signature created successfully."
+      }
     }
   },
   "answerPage": {

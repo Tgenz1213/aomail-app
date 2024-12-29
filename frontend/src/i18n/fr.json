@@ -63,7 +63,7 @@
       "spellingCorrectionRequest": "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?",
       "processingErrorApology": "Je m'excuse, j'ai fait une erreur de traitement.",
       "copywritingCheckRequest": "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?",
-      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent",
+      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionnez les mails qui correspondent",
       "pickSendingDateTime": "Choisissez une date et une heure d'envoi",
       "selectTimeAndDate": "Veuillez sélectionner une date et une heure, s'il vous plaît.",
       "sendScheduledEmail": "Envoyer l'email programmé"
@@ -591,7 +591,27 @@
     "bccRecipient": "Copie cachée",
     "moveToNextStep": "Passez à la suite",
     "signatureModal": {
-      "editLaterInfo": "Vous pouvez modifier/créer votre signature plus tard dans les paramètres (préférences)"
+      "title": "Créer une Signature d'E-mail",
+      "signatureContentLabel": "Contenu de la Signature :",
+      "signaturePlaceholder": "Tapez votre signature ou collez/glissez une image ici",
+      "editLaterInfo": "Vous pourrez créer/éditer votre signature plus tard dans les paramètres (préférences)",
+      "cancel": "Annuler",
+      "create": "Créer",
+      "error": {
+        "noEmailSelected": "Erreur",
+        "noEmailSelectedMessage": "Aucun e-mail sélectionné.",
+        "creationFailed": "Erreur",
+        "creationFailedMessage": "Échec de la création de la signature.",
+        "unexpected": "Erreur",
+        "unexpectedMessage": "Une erreur inattendue s'est produite.",
+        "emptyCreationFailed": "Erreur",
+        "fetchFailed": "Erreur",
+        "fetchFailedMessage": "Échec de la récupération des signatures."
+      },
+      "success": {
+        "title": "Succès",
+        "message": "Signature créée avec succès."
+      }
     }
   },
   "answerPage": {

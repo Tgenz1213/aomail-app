@@ -25,10 +25,16 @@
             </div>
         </div>
     </div>
+    <SignatureModal
+        :visible="showSignatureModal"
+        :selectedEmailId="parsedEmailId"
+        @close="showSignatureModal = false"
+        @created="handleSignatureCreated"
+    />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch, computed } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -39,6 +45,7 @@ import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userImage from "@/assets/user.png";
+import SignatureModal from "@/global/components/SignatureModal.vue";
 
 const showNotification = ref(false);
 const isWriting = ref(false);
@@ -69,6 +76,10 @@ const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
 const imageURL = ref<string>(userImage);
+const showSignatureModal = ref(false);
+const signatures = ref<any[]>([]);
+
+const parsedEmailId = computed(() => parseInt(emailSelected.value) || 0);
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -115,6 +126,8 @@ provide("getProfileImage", getProfileImage);
 provide("askContent", askContent);
 
 onMounted(async () => {
+    await fetchSignatures();
+    checkSignature();
     getProfileImage();
     await initializeQuill();
 
@@ -137,6 +150,7 @@ onUnmounted(() => {
 
 watch(emailSelected, () => {
     getProfileImage();
+    checkSignature();
 });
 
 async function getProfileImage() {
@@ -605,4 +619,28 @@ async function writeBetter() {
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     await displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
 }
+
+const fetchSignatures = async () => {
+    const result = await getData("user/signatures/");
+    if (result.success) {
+        signatures.value = result.data;
+    } else {
+        displayPopup(
+            "error",
+            "Error",
+            "Failed to fetch signatures"
+        );
+    }
+};
+
+const checkSignature = () => {
+    const hasSignature = signatures.value.some((sig) => sig.social_api === emailSelected.value);
+    if (!hasSignature) {
+        showSignatureModal.value = true;
+    }
+};
+
+const handleSignatureCreated = (newSignature: any) => {
+    signatures.value.push(newSignature);
+};
 </script>

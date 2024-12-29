@@ -590,7 +590,10 @@
     "mainRecipient": "Main Recipient",
     "ccRecipient": "Copy",
     "bccRecipient": "Blind Copy",
-    "moveToNextStep": "Move to next step"
+    "moveToNextStep": "Move to next step",
+    "signatureModal": {
+      "editLaterInfo": "You will be able to create/edit your signature later in the settings (preferences)"
+    }
   },
   "answerPage": {
     "responseSentTitle": "Response sent!",

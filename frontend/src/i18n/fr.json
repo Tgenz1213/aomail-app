@@ -589,7 +589,10 @@
     "mainRecipient": "Principal",
     "ccRecipient": "Copie",
     "bccRecipient": "Copie cachée",
-    "moveToNextStep": "Passez à la suite"
+    "moveToNextStep": "Passez à la suite",
+    "signatureModal": {
+      "editLaterInfo": "Vous pouvez modifier/créer votre signature plus tard dans les paramètres (préférences)"
+    }
   },
   "answerPage": {
     "responseSentTitle": "Réponse envoyée !",

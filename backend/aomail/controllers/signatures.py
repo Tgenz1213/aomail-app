@@ -59,7 +59,7 @@ def create_signature(request: HttpRequest) -> Response:
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-@api_view(['PUT', 'PATCH'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_signature(request: HttpRequest) -> Response:
     """
@@ -67,7 +67,6 @@ def update_signature(request: HttpRequest) -> Response:
 
     Args:
         request (HttpRequest): HTTP request containing:
-            email (str): Email of the SocialAPI.
             signature_content (str): The new signature content.
             signature_id (int): ID of the signature to update.
     
@@ -76,20 +75,11 @@ def update_signature(request: HttpRequest) -> Response:
     """
     try:
         data = json.loads(request.body)
-        email = data.get('email')
         signature_id = data.get('signature_id')
         signature_content = data.get('signature_content')
         
         try:
-            social_api = SocialAPI.objects.get(email=email, user=request.user)
-        except SocialAPI.DoesNotExist:
-            return Response(
-                {"error": "SocialAPI not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        try:
-            signature = Signature.objects.get(id=signature_id, user=request.user, social_api=social_api)
+            signature = Signature.objects.get(id=signature_id, user=request.user)
         except Signature.DoesNotExist:
             return Response(
                 {"error": "Signature not found."},

@@ -138,6 +138,6 @@ urlpatterns = [
     #----------------------- SIGNATURES -----------------------#
     path('user/signatures/', signatures.list_signatures, name='list_signatures'),
     path('user/signatures/create/', signatures.create_signature, name='create_signature'),
-    path('user/signatures/<int:signature_id>/update/', signatures.update_signature, name='update_signature'),
+    path('user/signatures/update/', signatures.update_signature, name='update_signature'),
     path('user/signatures/<int:signature_id>/delete/', signatures.delete_signature, name='delete_signature'),
 ]

@@ -347,7 +347,18 @@
           "themeUpdatedSuccessfully": "Thème mis à jour avec succès",
           "timezoneUpdatedSuccessfully": "Fuseau horaire mis à jour avec succès"
         }
-      }
+      },
+      "signatureManagement": "Gestion de la Signature",
+      "selectSignature": "Sélectionnez une signature",
+      "editSignature": "Modifier la Signature",
+      "updateSignature": "Mettre à jour la Signature",
+      "signaturePlaceholder": "Tapez votre signature ici...",
+      "createSignature": "Créer une Signature",
+      "cancel": "Annuler",
+      "updateSuccess": "Signature mise à jour avec succès.",
+      "updateError": "Échec de la mise à jour de la signature.",
+      "creationSuccess": "Signature créée avec succès.",
+      "creationError": "Échec de la création de la signature."
     },
     "subscriptionPage": {
       "subscriptionTitle": "Abonnement",

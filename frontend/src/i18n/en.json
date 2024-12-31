@@ -348,7 +348,18 @@
           "themeUpdatedSuccessfully": "Theme updated successfully",
           "timezoneUpdatedSuccessfully": "Timezone updated successfully"
         }
-      }
+      },
+      "signatureManagement": "Signature Management",
+      "selectSignature": "Select a signature",
+      "editSignature": "Edit Signature",
+      "updateSignature": "Update Signature",
+      "signaturePlaceholder": "Type your signature here...",
+      "createSignature": "Create Signature",
+      "cancel": "Cancel",
+      "updateSuccess": "Signature updated successfully.",
+      "updateError": "Failed to update signature.",
+      "creationSuccess": "Signature created successfully.",
+      "creationError": "Failed to create signature."
     },
     "subscriptionPage": {
       "subscriptionTitle": "Subscription",

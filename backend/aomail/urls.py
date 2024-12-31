@@ -91,13 +91,14 @@ urlpatterns = [
     path('user/social_api/send_schedule_email/', views.send_schedule_email, name='send_schedule_email'),
     path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'),
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'),
-    path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'),
-    path('user/social_api/review_user_description/', custom_categorization.review_user_description, name='review_user_description'),
+    path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'),    
     path('create_sender', views.create_sender, name='create_sender'),
     path('check_sender', views.check_sender_for_user, name='check_sender_for_user'),
     #----------------------- STATISTICS -----------------------#
     path('user/statistics/', statistics.get_statistics , name='statistics'),
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
+    path('user/social_api/review_user_description/', custom_categorization.review_user_description, name='review_user_description'),
+    path('user/generate_categories_scratch/', custom_categorization.generate_categories_scratch, name='generate_categories_scratch'),
     path('search_emails_ai/', ai.search_emails_ai , name='search_emails_ai'),
     path('search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'),
     path('find_user_ai/', ai.find_user_view_ai, name='find_user_view_ai'),

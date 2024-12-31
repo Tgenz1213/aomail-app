@@ -124,22 +124,83 @@ onMounted(async () => {
 
     if (categories.value.length === 1) {
         userDescriptionWorkflow();
-        displayAIMsg("user categorization workflow under development")
+        displayAIMsg("You currently have no categories. I can help you create some.");
+        displayAIMsg(
+            "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+        );
+
+        let userInput = await waitForUserInput();
+        let aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
+        validateCategories(aiGeneratedCategories);
     } else {
         displayAIMsg("Do you like your current email categorization");
         const userInput = await waitForUserInput();
 
         // todo: replace with clean buttons
         if (userInput === "yes") {
-            // starts user categorization workflow
-            displayAIMsg("user categorization workflow under development")
+            // user likes its email categorization, no need to change anything. User can close the page
         } else if (userInput === "no") {
             userDescriptionWorkflow();
+            displayAIMsg(
+                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+            );
+
+            let userInput = await waitForUserInput();
+            let aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
+            validateCategories(aiGeneratedCategories);
         } else if (userInput === "bof") {
             userDescriptionWorkflow();
+
+            // in this case we first need to get Ai feedback and Then wxe can ask user input
+            let aiGeneratedCategories = await generateCategoriesScratch(
+                categories.value.filter((category) => {
+                    category.name != "Others";
+                }) as any
+            );
+            // todo: display the categories as a table
+            displayAIMsg(`Categories: ${JSON.stringify(aiGeneratedCategories.categories)}`);
+
+            let userInput = await waitForUserInput();
+            aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
+            validateCategories(aiGeneratedCategories);
         }
     }
 });
+
+async function generateCategoriesScratch(userTopics: string) {
+    const result = await postData("user/generate_categories_scratch/", { userTopics: userTopics });
+    return result.data.categories;
+}
+
+async function validateCategories(aiGeneratedCategories: any) {
+    let userSatisfaction = false;
+    while (!userSatisfaction) {
+        displayAIMsg("Please review the categories, do you want to keep them?");
+        // todo: display the categories as a table
+        displayAIMsg(`Categories: ${JSON.stringify(aiGeneratedCategories.categories)}`);
+
+        const userInput = await waitForUserInput();
+
+        if (userInput === "yes") {
+            userSatisfaction = true;
+            displayAIMsg("Great!");
+            displayAIMsg("Email prioritization workflow implementation coming soon!");
+        } else if (userInput === "no") {
+            displayAIMsg(
+                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+            );
+            const userInputTopics = waitForUserInput();
+            aiGeneratedCategories = await generateCategoriesScratch(userInputTopics as any);
+        } else if (userInput === "bof") {
+            displayAIMsg("OK, let's improve them. Please improve them according to my feedback.");
+            displayAIMsg(`AI feedback: ${JSON.stringify(aiGeneratedCategories)}`);
+            const userInputTopics = waitForUserInput();
+            aiGeneratedCategories = await generateCategoriesScratch(userInputTopics as any);
+        } else {
+            displayAIMsg("Invalid input. Please enter 'yes', 'no', or 'bof'.");
+        }
+    }
+}
 
 async function fetchEmailsLinked() {
     const result = await getData(`user/emails_linked/`);

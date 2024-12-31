@@ -11,6 +11,8 @@ Features:
 - ✅ generate_email_response: Crafts responses based on input type.
 - ✅ search_emails: Searches and structures email data.
 - ✅ categorize_and_summarize_email: Categorizes and summarizes an email.
+- ✅ review_user_description: Reviews a user-provided description and provides validation and feedback.
+- ✅ generate_categories_scratch: Generates categories based on user topics for email classification.
 """
 
 import ast
@@ -520,7 +522,76 @@ def review_user_description(user_description: str) -> dict:
         "feedback": "short sentence describing the quality of the description"
     }}
     """
+    response = get_prompt_response(prompt)
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
 
+    return result_json
+
+
+def generate_categories_scratch(user_topics: list | str) -> dict:
+    """
+    Generates categories based on user topics for email classification.
+
+    Args:
+        user_topics (list | str): List or string of topics provided by the user.
+
+    Returns:
+        dict: JSON response with category names, descriptions, and feedback.
+    """
+    prompt = f"""You are an assistant helping a user to create categories to automatically classify emails. The user has provided the following list of topics: {user_topics}
+    
+    Good examples of user topics:
+    [[
+        {{
+            "name": "Sport",
+            "description": "Category for all sports-related emails. I like to play football and basketball.",
+        }},
+        {{
+            "name": "ESAIP",
+            "description": "Category for all emails related to ESAIP. I am a student at ESAIP, an engineering school specialized in Computer Science.",
+        }},
+        {{
+            "name": "CDS",
+            "description": "Category for all emails related to CDS. I am an Integration Development Intern at CDS, a company that creates software for 3D printing.",
+        }},
+        {{
+            "name": "Apprenticeship",
+            "description": "Emails related to my payslips and Aomail, the application I am working on. Théo HUBERT is my employer.",
+        }},
+        {{
+            "name": "International internship",
+            "description": 'Everything related with ITII organization talking about "PSI" in French. All answers positive or negatives to my applications from companies must be set as Important. Put all verification codes and any application related emails',
+        }},
+    ]],
+
+    "I like sports and I am a student at ESAIP, an engineering school specialized in Computer Science. I am an Integration Development Intern at CDS, a company that creates software for 3D printing. I am working on an application called Aomail and my employer is Théo HUBERT. I am also applying for an international internship through ITII organization."
+
+    Tasks:
+    - The topics will be used to classify incoming emails.
+    - Review the list of topics provided by the user.
+    - If you see an obvious mistake in the name or the desctiption you can correct it.
+    - The description should be clear and precise with enough details to classify incoming emails.
+    - Avoid creating categories that are too similar to each other.
+    - Provide feedback on the quality of the name and description for each category. It MUST be short and will only be visible by the user if he dislikes the name or description.
+
+    The response MUST be a JSON formatted as follows:
+    {{
+        "categories": [
+            {{
+                "name": "Category 1",
+                "description": "Description of the category",
+                "feedback": "short sentence describing the quality of the name and description"
+            }},
+            {{
+                "name": "Category 2",
+                "description": "Description of the category",
+                "feedback": "short sentence describing the quality of the name and description"
+            }}
+        ]
+    }}
+    """
     response = get_prompt_response(prompt)
     result_json = extract_json_from_response(response.text)
     result_json["tokens_input"] = response.usage_metadata.prompt_token_count

@@ -3,6 +3,7 @@ Module to handle the logic of email categorization customization
 
 Endpoints:
 - ✅ review_user_description: Reviews and validates the user-provided description for email categorization.
+- ✅ generate_categories_scratch: Generates categories based on user-provided topics for email classification.
 """
 
 import json
@@ -33,6 +34,28 @@ def review_user_description(request: HttpRequest) -> dict:
     parameters: dict = json.loads(request.body)
     user_description: str = parameters["description"]
     result = gemini.review_user_description(user_description)
+    update_tokens_stats(request.user, result)
+
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@subscription(ALLOW_ALL)
+def generate_categories_scratch(request: HttpRequest) -> dict:
+    """
+    Generates email categories based on user-provided topics for automatic email classification.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the user topics.
+            Expects a JSON body with:
+                userTopics (str | list): A list or string of topics provided by the user.
+
+    Returns:
+        Response: A JSON response with generated categories, descriptions, and feedback.
+    """
+    parameters: dict = json.loads(request.body)
+    user_topics: str = parameters["userTopics"]
+    result = gemini.generate_categories_scratch(user_topics)
     update_tokens_stats(request.user, result)
 
     return Response(result, status=status.HTTP_200_OK)

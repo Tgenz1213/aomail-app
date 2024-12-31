@@ -491,6 +491,44 @@ def search_emails(query: str, language: str) -> dict:
     return result_json
 
 
+def review_user_description(user_description: str) -> dict:
+    """
+    Reviews a user-provided description and provides validation and feedback.
+
+    Args:
+        user_description (str): User's description for categorizing emails.
+
+    Returns:
+        dict: JSON response with 'valid' status and 'feedback' message.
+    """
+    prompt = f"""You are an assistant helping a user to create categories to automatically classify emails. The user has provided the following description for a category: {user_description}
+    
+    The category should be clear and precise with enough details to classify incoming emails. The description should be in the third person and provide a clear understanding of the category.
+    Here are some good examples:
+                'Augustin ROLET is a student at ESAIP (Engineering School specialized in Computer Science),
+                Augustin ROLET is an Integration Development Intern at CDS (Cognitive Design Systems is a company that creates software for 3D printing).'
+
+    Tasks:
+    - Review the description provided by the user.
+    - Provide feedback on the quality of the description.
+    - Indicate whether the description is valid. As long as the description is clear and provides enough details, it should be considered valid.
+    - Do not be strict about the details: as long as the description is a short sentence and contains a few relevant keywords, it should be considered valid.
+
+    The response MUST be a JSON formatted as follows:
+    {{
+        "valid": boolean,
+        "feedback": "short sentence describing the quality of the description"
+    }}
+    """
+
+    response = get_prompt_response(prompt)
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
+
+    return result_json
+
+
 ###########################################################
 ######################## TO DELETE ########################
 ###########################################################

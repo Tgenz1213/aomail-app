@@ -18,6 +18,7 @@ import ResetPasswordForm from "@/pages/ResetPassword/ResetPasswordForm.vue";
 import { Component } from "vue";
 import Labels from "@/pages/Labels/Labels.vue";
 import Logout from "@/pages/Logout/Logout.vue";
+import CustomCategorization from "@/pages/CustomCategorization/CustomCategorization.vue";
 
 export interface RouteConfig {
     path: string;
@@ -143,6 +144,13 @@ const labels: RouteConfig = {
     component: Labels,
 };
 
+const customCategorization: RouteConfig = {
+    path: "/custom-categorization",
+    name: "customCategorization",
+    meta: { requiresAuth: true },
+    component: CustomCategorization,
+};
+
 const notAuthorized: RouteConfig = {
     path: "/not-authorized",
     name: "not-authorized",
@@ -173,6 +181,7 @@ const routes: RouteConfig[] = [
     passwordResetLink,
     resetPasswordForm,
     labels,
+    customCategorization,
     notAuthorized,
     notFound,
 ];

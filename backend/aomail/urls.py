@@ -16,6 +16,7 @@ from aomail.controllers import search_labels
 from aomail.controllers import labels
 from aomail.payment_providers import stripe
 from aomail.administration import dashboard
+from aomail.controllers import custom_categorization
 from .controllers import views
 
 app_name = 'aomail'
@@ -91,6 +92,7 @@ urlpatterns = [
     path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'),
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'),
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'),
+    path('user/social_api/review_user_description/', custom_categorization.review_user_description, name='review_user_description'),
     path('create_sender', views.create_sender, name='create_sender'),
     path('check_sender', views.check_sender_for_user, name='check_sender_for_user'),
     #----------------------- STATISTICS -----------------------#

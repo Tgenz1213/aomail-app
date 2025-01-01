@@ -117,7 +117,7 @@
                             <div
                                 ref="signatureEditorRef"
                                 contenteditable="true"
-                                class="w-full border border-gray-300 bg-white rounded-md p-2 min-h-[150px] overflow-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="w-full border border-gray-300 bg-white rounded-md p-2 min-h-[150px] overflow-auto focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-gray-800"
                                 :placeholder="$t('settingsPage.preferencesPage.signaturePlaceholder')"
                                 @input="handleSignatureInput"
                                 @paste.prevent="handlePaste"

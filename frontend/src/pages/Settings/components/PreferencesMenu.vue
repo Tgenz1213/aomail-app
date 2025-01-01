@@ -61,17 +61,56 @@
                         </div>
                     </div>
                     <div class="pt-10 pb-10">
-                        <select
-                            v-model="selectedSignatureId"
-                            class="mb-4 w-full p-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            @change="loadSelectedSignature"
-                        >
-                            <option disabled value="">{{ $t("settingsPage.preferencesPage.signaturePlaceholder") }}</option>
-                            <option v-for="signature in signatures" :key="signature.id" :value="signature.id">
-                                {{ signature.name || `Signature ${signature.id}` }}
-                            </option>
-                        </select>
-                        <div v-if="selectedSignature" class="mb-4">
+                        <Listbox v-model="selectedSignatureId" @update:modelValue="loadSelectedSignature">
+                            <div class="relative mt-1">
+                                <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                    <span class="block truncate">
+                                        {{ selectedSignature ? selectedSignature.name || `Signature ${selectedSignature.id}` : $t("settingsPage.preferencesPage.signaturePlaceholder") }}
+                                    </span>
+                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                    </span>
+                                </ListboxButton>
+
+                                <transition
+                                    leave-active-class="transition ease-in duration-100"
+                                    leave-from-class="opacity-100"
+                                    leave-to-class="opacity-0"
+                                >
+                                    <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                        <ListboxOption
+                                            v-for="signature in signatures"
+                                            :key="signature.id"
+                                            :value="signature.id"
+                                            as="template"
+                                            v-slot="{ active, selected }"
+                                        >
+                                            <li
+                                                :class="[
+                                                    active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                    'relative cursor-default select-none py-2 pl-3 pr-9',
+                                                ]"
+                                            >
+                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                    {{ signature.name || `Signature ${signature.id}` }}
+                                                </span>
+                                                <span
+                                                    v-if="selected"
+                                                    :class="[
+                                                        active ? 'text-white' : 'text-gray-500',
+                                                        'absolute inset-y-0 right-0 flex items-center pr-4',
+                                                    ]"
+                                                >
+                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </transition>
+                            </div>
+                        </Listbox>
+
+                        <div v-if="selectedSignature" class="mt-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 {{ $t("settingsPage.preferencesPage.editSignature") }}
                             </label>
@@ -84,13 +123,14 @@
                                 @paste.prevent="handlePaste"
                                 @drop.prevent="handleDrop"
                             ></div>
-                            <button
-                                v-if="selectedSignature"
-                                @click="updateSignature"
-                                class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                {{ $t("settingsPage.preferencesPage.updateSignature") }}
-                            </button>
+                            <div class="flex justify-end pt-4">
+                                <button
+                                    @click="updateSignature"
+                                    class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+                                >
+                                    {{ $t("settingsPage.preferencesPage.updateSignature") }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,6 +171,9 @@ import { i18n } from "@/global/preferences";
 import TimeZoneSelection from "@/pages/Settings/components/TimeZoneSelection.vue";
 import LanguageSelection from "@/pages/Settings/components/LanguageSelection.vue";
 import ThemeSelection from "@/pages/Settings/components/ThemeSelection.vue";
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
+import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
+import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 
 const signatures = ref<any[]>([]);
 const selectedSignatureId = ref<string>("");
@@ -141,15 +184,8 @@ const signatureEditorRef = ref<HTMLElement | null>(null);
 
 const displayPopup = inject<Function>("displayPopup");
 
-// Optional: For managing a selected image
-// const selectedImage = ref<HTMLImageElement | null>(null);
-
 onMounted(async () => {
     await fetchSignatures();
-});
-
-watch(selectedSignatureId, async () => {
-    await loadSelectedSignature();
 });
 
 const fetchSignatures = async () => {
@@ -166,6 +202,7 @@ const fetchSignatures = async () => {
 };
 
 const loadSelectedSignature = async () => {
+    console.log(selectedSignatureId.value);
     if (!selectedSignatureId.value) {
         selectedSignature.value = null;
         editedSignatureContent.value = "";
@@ -175,13 +212,14 @@ const loadSelectedSignature = async () => {
         return;
     }
     const sig = signatures.value.find(sig => sig.id === selectedSignatureId.value);
+    console.log(sig);
     if (sig) {
         selectedSignature.value = sig;
         editedSignatureContent.value = sig.signature_content;
+        await nextTick();
         if (signatureEditorRef.value) {
             signatureEditorRef.value.innerHTML = sig.signature_content;
         }
-        await nextTick();
         placeCursorAtEnd();
     }
 };
@@ -239,36 +277,16 @@ const insertImageAtCursor = (img: HTMLImageElement) => {
     const range = selection.getRangeAt(0);
     range.collapse(false);
     range.insertNode(img);
-    editedSignatureContent.value = signatureEditorRef.value?.innerHTML || "";
+    if (signatureEditorRef.value) {
+        editedSignatureContent.value = signatureEditorRef.value.innerHTML || "";
+    }
     range.setStartAfter(img);
     range.setEndAfter(img);
     selection.removeAllRanges();
     selection.addRange(range);
 };
 
-// Optional : Method to delete a selected image
-/*
-const deleteSelectedImage = () => {
-    if (selectedImage.value && signatureEditorRef.value) {
-        selectedImage.value.remove();
-        editedSignatureContent.value = signatureEditorRef.value.innerHTML;
-        selectedImage.value = null;
-    }
-};
-
-// Écouter les clics pour sélectionner une image
-const handleEditorClick = (event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (target.tagName === "IMG") {
-        selectedImage.value = target as HTMLImageElement;
-    } else {
-        selectedImage.value = null;
-    }
-};
-*/
-
 const updateSignature = async () => {
-    console.log("selectedSignature.value", selectedSignature.value);
     if (!selectedSignature.value) return;
 
     const payload = {
@@ -278,7 +296,6 @@ const updateSignature = async () => {
 
     try {
         const response = await putData(`user/signatures/update/`, payload);
-        console.log("response", response);
         if (response.success) {
             const index = signatures.value.findIndex(sig => sig.id === response.data.id);
             if (index !== -1) {
@@ -315,10 +332,8 @@ const placeCursorAtEnd = () => {
         sel?.addRange(range);
     }
 };
-
-onMounted(() => {
-    if (signatureEditorRef.value) {
-        // Additional mounted logic if needed
-    }
-});
 </script>
+
+<style scoped>
+/* Add any component-specific styles here */
+</style>

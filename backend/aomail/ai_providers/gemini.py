@@ -542,32 +542,6 @@ def generate_categories_scratch(user_topics: list | str) -> dict:
     """
     prompt = f"""You are an assistant helping a user to create categories to automatically classify emails. The user has provided the following list of topics: {user_topics}
     
-    Good examples of user topics:
-    [[
-        {{
-            "name": "Sport",
-            "description": "Category for all sports-related emails. I like to play football and basketball.",
-        }},
-        {{
-            "name": "ESAIP",
-            "description": "Category for all emails related to ESAIP. I am a student at ESAIP, an engineering school specialized in Computer Science.",
-        }},
-        {{
-            "name": "CDS",
-            "description": "Category for all emails related to CDS. I am an Integration Development Intern at CDS, a company that creates software for 3D printing.",
-        }},
-        {{
-            "name": "Apprenticeship",
-            "description": "Emails related to my payslips and Aomail, the application I am working on. Théo HUBERT is my employer.",
-        }},
-        {{
-            "name": "International internship",
-            "description": 'Everything related with ITII organization talking about "PSI" in French. All answers positive or negatives to my applications from companies must be set as Important. Put all verification codes and any application related emails',
-        }},
-    ]],
-
-    "I like sports and I am a student at ESAIP, an engineering school specialized in Computer Science. I am an Integration Development Intern at CDS, a company that creates software for 3D printing. I am working on an application called Aomail and my employer is Théo HUBERT. I am also applying for an international internship through ITII organization."
-
     Tasks:
     - The topics will be used to classify incoming emails.
     - Review the list of topics provided by the user.

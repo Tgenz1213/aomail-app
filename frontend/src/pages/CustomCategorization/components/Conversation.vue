@@ -1,17 +1,28 @@
 <template>
     <div class="flex-1 p-4 bg-white">
         <div v-for="(message, index) in messages" :key="index" class="mb-4">
-            <div :class="['p-2 rounded-md', message.isUser ? 'bg-blue-500 text-white' : 'bg-gray-300']">
-                <p>{{ message.text }}</p>
+            <ChatBubble :message="message.textHtml" :isUser="message.isUser" />
+            <div v-if="message.buttonOptions" class="flex flex-col items-center">
+                <div class="flex-row space-x-5">
+                    <button
+                        v-for="(option, idx) in message.buttonOptions"
+                        :key="idx"
+                        @click="handleButtonClick(option)"
+                        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                    >
+                        {{ option }}
+                    </button>
+                </div>
             </div>
         </div>
-        <chat-input @response="handleUserResponse" />
+        <ChatInput @response="handleUserResponse" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref } from "vue";
 import ChatInput from "./ChatInput.vue";
+import ChatBubble from "./ChatBubble.vue";
 import { Category, EmailLinked } from "@/global/types";
 import { postData, getData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
@@ -20,30 +31,64 @@ const categories = inject("categories") as Ref<Category[]>;
 const emailsLinked = inject("emailsLinked") as Ref<EmailLinked[]>;
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-const messages = ref([{ text: "Hello and welcome to the custom email categorization feature", isUser: false }]);
+type Message = {
+    textHtml: string;
+    isUser: boolean;
+    buttonOptions?: string[];
+};
+
+const messages = ref<Message[]>([
+    {
+        textHtml: "Hello and welcome to the custom email categorization feature",
+        isUser: false,
+        buttonOptions: ["Yes", "No", "Bof"],
+    },
+]);
 
 const displayUserMsg = (message: string) => {
-    messages.value.push({ text: message, isUser: true });
+    messages.value.push({ textHtml: message, isUser: true });
 };
 
-const displayAIMsg = (message: string) => {
-    messages.value.push({ text: message, isUser: false });
-};
-
-// Declare `userInputResolver` as a Ref that can hold a function or null
-const userInputResolver = ref<((value: string) => void) | null>(null);
-
-async function waitForUserInput() {
-    return new Promise((resolve) => {
-        userInputResolver.value = resolve; // Store the resolve function
+const displayAIMsg = (message: string, options: string[] | undefined = undefined) => {
+    messages.value.push({
+        textHtml: message,
+        isUser: false,
+        buttonOptions: options,
     });
-}
+};
 
 const handleUserResponse = (response: string) => {
     displayUserMsg(response);
     if (userInputResolver.value) {
-        userInputResolver.value(response); // Resolve the promise with user input
-        userInputResolver.value = null; // Reset the resolver
+        userInputResolver.value(response);
+        userInputResolver.value = null;
+    }
+};
+
+const handleButtonClick = async (option: string) => {
+    displayUserMsg(option);
+    switch (option.toLowerCase()) {
+        case "yes":
+            displayAIMsg("Great! No changes will be made.");
+            break;
+        case "no":
+            await userDescriptionWorkflow();
+            displayAIMsg(
+                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+            );
+            const userInput = await waitForUserInput();
+            let aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
+            validateCategories(aiGeneratedCategories);
+            break;
+        case "bof":
+            await userDescriptionWorkflow();
+            let aiFeedback = await generateCategoriesScratch(
+                JSON.stringify(categories.value.filter((category) => category.name != "Others"))
+            );
+            displayAIMsg(`AI feedback: ${JSON.stringify(aiFeedback)}`, ["Yes", "No", "Bof"]);
+            break;
+        default:
+            displayAIMsg("Invalid input. Please choose again.");
     }
 };
 
@@ -57,10 +102,7 @@ async function userDescriptionWorkflow() {
 
             while (!valid) {
                 displayAIMsg(
-                    `Please provide a description for this email: ${emailLinked.email}.
-  It should be a short sentence describing yourself using the third person. Here are some good examples:
-  - 'Augustin ROLET is a student at ESAIP (Engineering School specialized in Computer Science),
-  - Augustin ROLET is an Integration Development Intern at CDS (Cognitive Design Systems is a company that creates software for 3D printing).'`
+                    `Please provide a description for this email: ${emailLinked.email}. It should be a short sentence.`
                 );
 
                 const userInput = await waitForUserInput();
@@ -75,47 +117,20 @@ async function userDescriptionWorkflow() {
                         email: emailLinked.email,
                     });
                 } else {
-                    displayAIMsg("The description provided is not valid");
+                    displayAIMsg("The description is not valid");
                     displayAIMsg(validationResult.data.feedback);
-                }
-            }
-        } else {
-            const validationResult = await postData(`user/social_api/review_user_description/`, { description });
-            let valid = validationResult.data.valid;
-
-            if (!valid) {
-                displayAIMsg("The description provided is not valid");
-                displayAIMsg(validationResult.data.feedback);
-
-                while (!valid) {
-                    displayAIMsg(
-                        `Please provide a description for this email: ${emailLinked.email}.
-  It should be a short sentence describing yourself using the third person. Here are some good examples:
-  - 'Augustin ROLET is a student at ESAIP (Engineering School specialized in Computer Science),
-  - Augustin ROLET is an Integration Development Intern at CDS (Cognitive Design Systems is a company that creates software for 3D printing).'`
-                    );
-
-                    const userInput = await waitForUserInput();
-                    description = userInput;
-
-                    const validationResult = await postData(`user/social_api/review_user_description/`, {
-                        description,
-                    });
-
-                    if (validationResult.data.valid) {
-                        valid = true;
-                        await postData(`user/social_api/update_user_description/`, {
-                            userDescription: description,
-                            email: emailLinked.email,
-                        });
-                    } else {
-                        displayAIMsg("The description provided is not valid");
-                        displayAIMsg(validationResult.data.feedback);
-                    }
                 }
             }
         }
     }
+}
+
+const userInputResolver = ref<((value: string) => void) | null>(null);
+
+async function waitForUserInput() {
+    return new Promise((resolve) => {
+        userInputResolver.value = resolve;
+    });
 }
 
 onMounted(async () => {
@@ -125,49 +140,16 @@ onMounted(async () => {
     if (categories.value.length === 1) {
         userDescriptionWorkflow();
         displayAIMsg("You currently have no categories. I can help you create some.");
-        displayAIMsg(
-            "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-        );
-
+        displayAIMsg("Please list some topics to categorize your emails.");
         let userInput = await waitForUserInput();
         let aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
         validateCategories(aiGeneratedCategories);
     } else {
-        displayAIMsg("Do you like your current email categorization");
-        const userInput = await waitForUserInput();
-
-        // todo: replace with clean buttons
-        if (userInput === "yes") {
-            // user likes its email categorization, no need to change anything. User can close the page
-        } else if (userInput === "no") {
-            userDescriptionWorkflow();
-            displayAIMsg(
-                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-            );
-
-            let userInput = await waitForUserInput();
-            let aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
-            validateCategories(aiGeneratedCategories);
-        } else if (userInput === "bof") {
-            userDescriptionWorkflow();
-
-            // in this case we first need to get Ai feedback and Then wxe can ask user input
-            let aiGeneratedCategories = await generateCategoriesScratch(
-                categories.value.filter((category) => {
-                    category.name != "Others";
-                }) as any
-            );
-            // todo: display the categories as a table
-            displayAIMsg(`Categories: ${JSON.stringify(aiGeneratedCategories.categories)}`);
-
-            let userInput = await waitForUserInput();
-            aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
-            validateCategories(aiGeneratedCategories);
-        }
+        displayAIMsg("Do you like your current email categorization?", ["Yes", "No", "Bof"]);
     }
 });
 
-async function generateCategoriesScratch(userTopics: string) {
+async function generateCategoriesScratch(userTopics: string): Promise<Category[]> {
     const result = await postData("user/generate_categories_scratch/", { userTopics: userTopics });
     return result.data.categories;
 }
@@ -175,27 +157,21 @@ async function generateCategoriesScratch(userTopics: string) {
 async function validateCategories(aiGeneratedCategories: any) {
     let userSatisfaction = false;
     while (!userSatisfaction) {
-        displayAIMsg("Please review the categories, do you want to keep them?");
-        // todo: display the categories as a table
-        displayAIMsg(`Categories: ${JSON.stringify(aiGeneratedCategories.categories)}`);
+        displayAIMsg("Please review the categories, do you want to keep them?", ["Yes", "No", "Bof"]);
 
         const userInput = await waitForUserInput();
 
         if (userInput === "yes") {
             userSatisfaction = true;
-            displayAIMsg("Great!");
-            displayAIMsg("Email prioritization workflow implementation coming soon!");
+            displayAIMsg("Great! Categories have been updated.");
         } else if (userInput === "no") {
-            displayAIMsg(
-                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-            );
-            const userInputTopics = waitForUserInput();
+            displayAIMsg("Please provide common topics for categorization.");
+            const userInputTopics = await waitForUserInput();
             aiGeneratedCategories = await generateCategoriesScratch(userInputTopics as any);
         } else if (userInput === "bof") {
-            displayAIMsg("OK, let's improve them. Please improve them according to my feedback.");
-            displayAIMsg(`AI feedback: ${JSON.stringify(aiGeneratedCategories)}`);
-            const userInputTopics = waitForUserInput();
-            aiGeneratedCategories = await generateCategoriesScratch(userInputTopics as any);
+            displayAIMsg("I'll improve them according to your feedback.");
+            const feedback = await waitForUserInput();
+            aiGeneratedCategories = await generateCategoriesScratch(feedback as any);
         } else {
             displayAIMsg("Invalid input. Please enter 'yes', 'no', or 'bof'.");
         }

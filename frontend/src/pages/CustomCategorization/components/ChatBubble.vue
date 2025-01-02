@@ -6,14 +6,12 @@
 
         <!-- Chat bubble -->
         <div
+            v-html="message"
             :class="[
-                'px-4 py-3 rounded-xl text-sm max-w-xs',
-                isUser ? 'bg-blue-500 text-white ml-2' : 'bg-green-100 text-gray-800 mr-2',
+                'px-4 py-4 rounded-lg text-sm max-w-xs',
+                isUser ? 'bg-blue-500 text-white mr-2' : 'bg-green-100 text-gray-800 ml-2',
             ]"
-            :style="isUser ? 'border-top-right-radius: 0.5rem;' : 'border-top-left-radius: 0.5rem;'"
-        >
-            {{ message }}
-        </div>
+        ></div>
     </div>
 </template>
 

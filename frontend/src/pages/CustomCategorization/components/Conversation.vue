@@ -1,55 +1,49 @@
 <template>
-    <div class="flex-1 p-4 bg-white">
-        <div v-for="(message, index) in messages" :key="index" class="mb-4">
-            <ChatBubble :message="message.textHtml" :isUser="message.isUser" />
-            <div v-if="message.buttonOptions" class="flex flex-col items-center">
-                <div class="flex-row space-x-5">
-                    <button
-                        v-for="(option, idx) in message.buttonOptions"
-                        :key="idx"
-                        @click="handleButtonClick(option)"
-                        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
-                    >
-                        {{ option }}
-                    </button>
+    <div class="flex-1 p-4 bg-white flex flex-col relative">
+        <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+            <div v-for="(message, index) in messages" :key="index" class="mb-4">
+                <ChatBubble :message="message.textHtml" :isUser="message.isUser" />
+                <div v-if="message.buttonOptions" class="flex flex-col items-center">
+                    <div class="flex-row space-x-5">
+                        <button
+                            v-for="(option, idx) in message.buttonOptions"
+                            :key="idx"
+                            @click="handleButtonClick(option, index)"
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                        >
+                            {{ option.value }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-        <ChatInput @response="handleUserResponse" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref } from "vue";
-import ChatInput from "./ChatInput.vue";
 import ChatBubble from "./ChatBubble.vue";
-import { Category, EmailLinked } from "@/global/types";
-import { postData, getData } from "@/global/fetchData";
+import { Category, EmailLinked, KeyValuePair, Message } from "@/global/types";
+import { postData, getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
+import { DEFAULT_CATEGORY } from "@/global/const";
 
-const categories = inject("categories") as Ref<Category[]>;
-const emailsLinked = inject("emailsLinked") as Ref<EmailLinked[]>;
+const currentStep = ref<"userDescription" | "categories" | "priorization">("userDescription");
+const currentUserCategories = ref<Category[]>([]);
+const categories = ref<Category[]>([]);
+const emailsLinked = ref<EmailLinked[]>([]);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-type Message = {
-    textHtml: string;
-    isUser: boolean;
-    buttonOptions?: string[];
+const messages = inject("messages") as Ref<Message[]>;
+const waitForButtonClick = inject("waitForButtonClick") as Ref<boolean>;
+const displayUserMsg = inject<(message: string) => void>("displayUserMsg")!;
+const waitForUserInput = inject<() => Promise<string>>("waitForUserInput")!;
+
+type CategoryByAI = Category & {
+    feedback: string;
 };
 
-const messages = ref<Message[]>([
-    {
-        textHtml: "Hello and welcome to the custom email categorization feature",
-        isUser: false,
-        buttonOptions: ["Yes", "No", "Bof"],
-    },
-]);
-
-const displayUserMsg = (message: string) => {
-    messages.value.push({ textHtml: message, isUser: true });
-};
-
-const displayAIMsg = (message: string, options: string[] | undefined = undefined) => {
+const displayAIMsg = (message: string, options: KeyValuePair[] | undefined = undefined) => {
     messages.value.push({
         textHtml: message,
         isUser: false,
@@ -57,38 +51,74 @@ const displayAIMsg = (message: string, options: string[] | undefined = undefined
     });
 };
 
-const handleUserResponse = (response: string) => {
-    displayUserMsg(response);
-    if (userInputResolver.value) {
-        userInputResolver.value(response);
-        userInputResolver.value = null;
-    }
-};
+const handleButtonClick = async (option: KeyValuePair, index: number) => {
+    waitForButtonClick.value = false;
+    displayUserMsg(option.value);
+    // remove the button options after clicking
+    messages.value[index].buttonOptions = undefined;
+    let aiGeneratedCategories;
 
-const handleButtonClick = async (option: string) => {
-    displayUserMsg(option);
-    switch (option.toLowerCase()) {
-        case "yes":
-            displayAIMsg("Great! No changes will be made.");
-            break;
-        case "no":
-            await userDescriptionWorkflow();
-            displayAIMsg(
-                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-            );
-            const userInput = await waitForUserInput();
-            let aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
-            validateCategories(aiGeneratedCategories);
-            break;
-        case "bof":
-            await userDescriptionWorkflow();
-            let aiFeedback = await generateCategoriesScratch(
-                JSON.stringify(categories.value.filter((category) => category.name != "Others"))
-            );
-            displayAIMsg(`AI feedback: ${JSON.stringify(aiFeedback)}`, ["Yes", "No", "Bof"]);
-            break;
-        default:
-            displayAIMsg("Invalid input. Please choose again.");
+    if (currentStep.value === "userDescription") {
+        switch (option.key) {
+            case "yes":
+                displayAIMsg("Email prioritization workflow implementation coming soon!");
+                currentStep.value = "priorization";
+                break;
+            case "no":
+                await userDescriptionWorkflow();
+                displayAIMsg(
+                    "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+                );
+                const userInput = await waitForUserInput();
+                aiGeneratedCategories = await generateCategoriesScratch(userInput);
+                categoriesReview(aiGeneratedCategories);
+                break;
+            case "soso":
+                await userDescriptionWorkflow();
+                aiGeneratedCategories = await generateCategoriesScratch(
+                    JSON.stringify(categories.value.filter((category) => category.name != DEFAULT_CATEGORY))
+                );
+                categoriesReview(aiGeneratedCategories);
+        }
+    } else if (currentStep.value === "categories") {
+        switch (option.key) {
+            case "yes":
+                categories.value.map(async (category) => {
+                    if (
+                        currentUserCategories.value.filter(
+                            (currentUserCategory) => currentUserCategory.name === category.name
+                        ).length > 0
+                    ) {
+                        await putData(`update_category/`, {
+                            newCategoryName: category.name,
+                            description: category.description,
+                            categoryName: category.name,
+                        });
+                    } else {
+                        await postData(`create_category/`, {
+                            name: category.name,
+                            description: category.description,
+                        });
+                    }
+                });
+                displayAIMsg("Great! Categories have been updated.");
+                currentStep.value = "priorization";
+                break;
+            case "no":
+                displayAIMsg(
+                    "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+                );
+                const userInputTopics = await waitForUserInput();
+                aiGeneratedCategories = await generateCategoriesScratch(userInputTopics);
+                categoriesReview(aiGeneratedCategories);
+                break;
+            case "soso":
+                displayAIMsg("OK, let's improve them. Please improve them according to my feedback.");
+                const feedback = await waitForUserInput();
+                aiGeneratedCategories = await generateCategoriesScratch(feedback, messages.value);
+                categoriesReview(aiGeneratedCategories);
+                break;
+        }
     }
 };
 
@@ -117,65 +147,86 @@ async function userDescriptionWorkflow() {
                         email: emailLinked.email,
                     });
                 } else {
-                    displayAIMsg("The description is not valid");
+                    displayAIMsg("The description is not valid, Improve it according to my feedback:");
                     displayAIMsg(validationResult.data.feedback);
                 }
             }
         }
     }
-}
-
-const userInputResolver = ref<((value: string) => void) | null>(null);
-
-async function waitForUserInput() {
-    return new Promise((resolve) => {
-        userInputResolver.value = resolve;
-    });
+    currentStep.value = "categories";
 }
 
 onMounted(async () => {
     await fetchEmailsLinked();
     await fetchCategories();
 
+    // No categories have been created (only Others as default)
     if (categories.value.length === 1) {
-        userDescriptionWorkflow();
+        await userDescriptionWorkflow();
         displayAIMsg("You currently have no categories. I can help you create some.");
         displayAIMsg("Please list some topics to categorize your emails.");
-        let userInput = await waitForUserInput();
-        let aiGeneratedCategories = await generateCategoriesScratch(userInput as any);
-        validateCategories(aiGeneratedCategories);
+        const userInput = await waitForUserInput();
+        const aiGeneratedCategories = await generateCategoriesScratch(userInput);
+        categoriesReview(aiGeneratedCategories);
     } else {
-        displayAIMsg("Do you like your current email categorization?", ["Yes", "No", "Bof"]);
+        waitForButtonClick.value = true;
+        displayAIMsg("Do you like your current email categorization?", [
+            { key: "yes", value: "Yes" },
+            { key: "no", value: "No" },
+            { key: "soso", value: "Needs Improvement" },
+        ]);
     }
 });
 
-async function generateCategoriesScratch(userTopics: string): Promise<Category[]> {
-    const result = await postData("user/generate_categories_scratch/", { userTopics: userTopics });
+async function generateCategoriesScratch(
+    userTopics: string,
+    chatHistory: Message[] | undefined = undefined
+): Promise<CategoryByAI[]> {
+    const result = await postData("user/generate_categories_scratch/", {
+        userTopics: userTopics,
+        chatHistory: chatHistory,
+    });
+    // update categories locally in case User had None when starting
+    categories.value = [
+        ...categories.value.filter((category) => category.name !== DEFAULT_CATEGORY),
+        ...result.data.categories.map((category: Category) => ({
+            name: category.name,
+            description: category.description,
+        })),
+    ];
+    categories.value.map((category) => console.log(category.name));
     return result.data.categories;
 }
 
-async function validateCategories(aiGeneratedCategories: any) {
-    let userSatisfaction = false;
-    while (!userSatisfaction) {
-        displayAIMsg("Please review the categories, do you want to keep them?", ["Yes", "No", "Bof"]);
-
-        const userInput = await waitForUserInput();
-
-        if (userInput === "yes") {
-            userSatisfaction = true;
-            displayAIMsg("Great! Categories have been updated.");
-        } else if (userInput === "no") {
-            displayAIMsg("Please provide common topics for categorization.");
-            const userInputTopics = await waitForUserInput();
-            aiGeneratedCategories = await generateCategoriesScratch(userInputTopics as any);
-        } else if (userInput === "bof") {
-            displayAIMsg("I'll improve them according to your feedback.");
-            const feedback = await waitForUserInput();
-            aiGeneratedCategories = await generateCategoriesScratch(feedback as any);
-        } else {
-            displayAIMsg("Invalid input. Please enter 'yes', 'no', or 'bof'.");
-        }
-    }
+async function categoriesReview(aiGeneratedCategories: CategoryByAI[]) {
+    displayAIMsg(
+        `<table class="rounded text-left border border-separate border-tools-table-outline border-black border-1">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Name</th>
+                        <th scope="col" class="px-6 py-3">Description</th>
+                        <th scope="col" class="px-6 py-3">Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>${aiGeneratedCategories
+                    .map(
+                        (category) =>
+                            `<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <td class="px-6 py-4">${category.name}</td>
+                                <td class="px-6 py-4">${category.description}</td>
+                                <td class="px-6 py-4">${category.feedback}</td>
+                            </tr>`
+                    )
+                    .join("")}
+                </tbody>
+            </table>`
+    );
+    waitForButtonClick.value = true;
+    displayAIMsg("Please review the categories, do you want to keep them?", [
+        { key: "yes", value: "Yes" },
+        { key: "no", value: "No" },
+        { key: "soso", value: "Needs Improvement" },
+    ]);
 }
 
 async function fetchEmailsLinked() {
@@ -203,7 +254,7 @@ async function fetchCategories() {
         );
         return;
     }
-
+    currentUserCategories.value = result.data;
     categories.value = result.data;
 }
 </script>

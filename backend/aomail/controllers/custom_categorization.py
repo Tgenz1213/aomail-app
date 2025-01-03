@@ -49,13 +49,15 @@ def generate_categories_scratch(request: HttpRequest) -> dict:
         request (HttpRequest): HTTP request object containing the user topics.
             Expects a JSON body with:
                 userTopics (str | list): A list or string of topics provided by the user.
+                chatHistory (list): A list of messages between user and AI.
 
     Returns:
         Response: A JSON response with generated categories, descriptions, and feedback.
     """
     parameters: dict = json.loads(request.body)
     user_topics: str = parameters["userTopics"]
-    result = gemini.generate_categories_scratch(user_topics)
+    chat_history: str = parameters.get("chatHistory")
+    result = gemini.generate_categories_scratch(user_topics, chat_history)
     update_tokens_stats(request.user, result)
 
     return Response(result, status=status.HTTP_200_OK)

@@ -17,7 +17,7 @@
                                             class="group items-center text-gray-600 text-sm font-medium"
                                         >
                                             <div
-                                                v-if="category.name !== 'Others'"
+                                                v-if="category.name !== DEFAULT_CATEGORY"
                                                 class="flex cursor-pointer"
                                                 @click="selectCategory(category)"
                                             >
@@ -128,6 +128,7 @@
 
 <script setup lang="ts">
 import { Ref, inject } from "vue";
+import { DEFAULT_CATEGORY } from "@/global/const";
 import { Category } from "@/global/types";
 
 const props = defineProps<{

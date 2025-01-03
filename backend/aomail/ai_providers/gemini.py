@@ -530,25 +530,34 @@ def review_user_description(user_description: str) -> dict:
     return result_json
 
 
-def generate_categories_scratch(user_topics: list | str) -> dict:
+def generate_categories_scratch(
+    user_topics: list | str, chat_history: list = None
+) -> dict:
     """
     Generates categories based on user topics for email classification.
 
     Args:
         user_topics (list | str): List or string of topics provided by the user.
+        chat_history (list | None): List of messages between user and AI.
 
     Returns:
         dict: JSON response with category names, descriptions, and feedback.
     """
+    chat_history_text = (
+        f"- Take into account the chat history, but prioritize the latest guidelines from the user:\n  {chat_history}"
+        if chat_history
+        else ""
+    )
     prompt = f"""You are an assistant helping a user to create categories to automatically classify emails. The user has provided the following list of topics: {user_topics}
     
     Tasks:
     - The topics will be used to classify incoming emails.
-    - Review the list of topics provided by the user.
     - If you see an obvious mistake in the name or the desctiption you can correct it.
     - The description should be clear and precise with enough details to classify incoming emails.
-    - Avoid creating categories that are too similar to each other.
+    - Avoid creating categories that are too similar to each other the categories MUST have no links between them or very little if not possible.
+    - Stay as minimal as possible with the numers of created categories, DO NOT TRY to add additional categories that might fit the user.
     - Provide feedback on the quality of the name and description for each category. It MUST be short and will only be visible by the user if he dislikes the name or description.
+    {chat_history_text}
 
     The response MUST be a JSON formatted as follows:
     {{

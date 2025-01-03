@@ -114,3 +114,9 @@ export interface AiRecipient {
     username: string;
     email: string[];
 }
+
+export type Message = {
+    textHtml: string;
+    isUser: boolean;
+    buttonOptions?: KeyValuePair[];
+};

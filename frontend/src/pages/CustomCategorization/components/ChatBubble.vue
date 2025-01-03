@@ -8,7 +8,7 @@
         <div
             v-html="message"
             :class="[
-                'px-4 py-4 rounded-lg text-sm max-w-xs',
+                'px-4 py-4 rounded-lg text-sm',
                 isUser ? 'bg-blue-500 text-white mr-2' : 'bg-green-100 text-gray-800 ml-2',
             ]"
         ></div>

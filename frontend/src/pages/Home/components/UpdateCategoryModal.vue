@@ -104,6 +104,7 @@ import { i18n } from "@/global/preferences";
 import { Category } from "@/global/types";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
 import { deleteData, putData, postData } from "@/global/fetchData";
+import { DEFAULT_CATEGORY } from "@/global/const";
 import CategoryDeletionModal from "./CategoryDeletionModal.vue";
 
 const handleKeyDown = (event: KeyboardEvent) => {
@@ -279,7 +280,7 @@ const deleteCategory = async () => {
         );
     } else {
         emit("selectCategory", {
-            name: "Others",
+            name: DEFAULT_CATEGORY,
             description: "",
         });
         const index = categories.value.findIndex((category) => category.name === categoryName.value);

@@ -70,8 +70,20 @@
                     />
                     <div v-if="!hasEmails" class="flex-1">
                         <div v-if="isLoading || firstLoad" class="flex flex-col justify-center items-center h-full">
-                            <svg class="animate-spin h-12 w-12 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <svg
+                                class="animate-spin h-12 w-12 text-black"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    class="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                ></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                             </svg>
                             <p class="mt-4 text-lg font-semibold">{{ $t("loadingEmails") }}</p>
@@ -123,6 +135,7 @@
 import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult } from "@/global/types";
+import { DEFAULT_CATEGORY } from "@/global/const";
 import { Filter } from "./utils/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
@@ -571,7 +584,7 @@ onMounted(async () => {
     if (storedTopic) {
         selectedCategory.value = storedTopic;
     } else {
-        selectedCategory.value = "Others";
+        selectedCategory.value = DEFAULT_CATEGORY;
     }
 
     await loadActiveFilters();

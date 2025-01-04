@@ -29,15 +29,11 @@ const props = defineProps({
     isCurrentStep: { type: Boolean, default: false },
     isCompleted: { type: Boolean, default: false },
     isLastStep: { type: Boolean, default: false },
-    onClick: Function,
 });
 
 const emits = defineEmits(["onClick"]);
 
 const handleClick = (event: Event) => {
-    if (props.onClick) {
-        props.onClick(event);
-    }
     emits("onClick", event);
 };
 

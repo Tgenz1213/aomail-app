@@ -6,17 +6,30 @@
         :backgroundColor="backgroundColor"
         @dismissPopup="dismissPopup"
     />
-    <div class="max-w-2xl mx-auto p-4 border border-gray-200 rounded-lg">
-        <SearchMenu />
-        <ActionButtons />
-        <div v-if="loading" class="text-center mt-4">Loading...</div>
-        <div v-if="labelsData.length > 0" class="mt-4">
-            <ul class="list-none p-0">
-                <Label v-for="label in labelsData" :key="label.id" :label="label" />
-            </ul>
+    <div class="h-screen flex flex-col">
+        <div class="flex h-full w-full">
+            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+                <NavBarSmall />
+            </div>
+            <div class="flex-grow p-4 border border-gray-200 flex flex-col">
+                <SearchMenu />
+                <ActionButtons />
+                <div v-if="loading" class="text-center mt-4">Loading...</div>
+                <div v-if="labelsData.length > 0" class="mt-4 flex flex-col flex-grow overflow-hidden">
+                    <div class="flex grid grid-cols-4 items-center text-center mb-2 p-2 bg-gray-100 rounded">
+                        <span class="font-bold text-lg">Item Name</span>
+                        <span class="font-bold text-lg">Postage Deadline</span>
+                        <span class="font-bold text-lg">Carrier</span>
+                        <span class="font-bold text-lg">Platform</span>
+                    </div>
+                    <div class="overflow-y-auto">
+                        <Label v-for="label in labelsData" :key="label.id" :label="label" />
+                    </div>
+                </div>
+                <div v-if="!loading && labelsData.length === 0" class="text-center mt-4">No labels found.</div>
+                <div ref="loadingIndicator" class="text-center mt-4" v-if="loadingMore">Loading more labels...</div>
+            </div>
         </div>
-        <div v-if="!loading && labelsData.length === 0" class="text-center mt-4">No labels found.</div>
-        <div ref="loadingIndicator" class="text-center mt-4" v-if="loadingMore">Loading more labels...</div>
     </div>
 </template>
 
@@ -29,6 +42,7 @@ import Label from "./components/Label.vue";
 import ActionButtons from "./components/ActionButtons.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import { LabelData } from "./utils/types";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
 
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");

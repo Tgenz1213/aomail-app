@@ -1,6 +1,6 @@
 <template>
     <li
-        class="flex flex-col p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 relative"
+        class="flex flex-row p-8 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 relative"
     >
         <div class="absolute top-2 right-2 flex items-center space-x-2">
             <input type="checkbox" class="h-4 w-4" :checked="isSelected" @change="toggleSelection" />
@@ -21,21 +21,11 @@
                 </svg>
             </button>
         </div>
-        <div class="text-gray-700 mb-2">
-            <strong>Item Name:</strong>
-            {{ label.itemName }}
-        </div>
-        <div class="text-gray-700 mb-2">
-            <strong>Postage Deadline:</strong>
-            {{ label.postageDeadlineDate }} {{ label.postageDeadlineTime }}
-        </div>
-        <div class="text-gray-700 mb-2">
-            <strong>Carrier:</strong>
-            {{ carrierNames[label.carrier] || label.carrier }}
-        </div>
-        <div class="text-gray-700 mb-2">
-            <strong>Platform:</strong>
-            {{ label.platform }}
+        <div class="flex-grow grid grid-cols-4 gap-4 items-center text-center">
+            <span>{{ label.itemName }}</span>
+            <span>{{ label.postageDeadlineDate }} {{ label.postageDeadlineTime }}</span>
+            <span>{{ carrierNames[label.carrier] || label.carrier }}</span>
+            <span>{{ label.platform }}</span>
         </div>
     </li>
 </template>

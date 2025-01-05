@@ -146,6 +146,7 @@ async function userDescriptionWorkflow() {
                         userDescription: description,
                         email: emailLinked.email,
                     });
+                    displayAIMsg("I have updated your description to help me better categorize your emails.");
                 } else {
                     displayAIMsg("The description is not valid, Improve it according to my feedback:");
                     displayAIMsg(validationResult.data.feedback);

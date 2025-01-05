@@ -11,6 +11,7 @@ Endpoints:
 - ✅ set_user_timezone: Set the timezone.
 - ✅ update_password: Update the password.
 - ✅ update_username: Update the username.
+prioritization
 """
 
 import json
@@ -337,4 +338,40 @@ def get_user_plan(request: HttpRequest) -> Response:
             ),
         },
         status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
+@subscription(ALLOW_ALL)
+def prioritization(request: HttpRequest) -> Response:
+    """
+    Update the user's email prioritization guidelines based on the input received.
+
+    Args:
+        request (HttpRequest): The HTTP request containing the following parameters:
+            - importantGuidelines (str): Description of important emails.
+            - informativeGuidelines (str): Description of informative emails.
+            - uselessGuidelines (str): Description of useless emails.
+
+    Returns:
+        Response: A JSON response indicating the success or failure of updating the prioritization guidelines.
+    """
+    parameters: dict = json.loads(request.body)
+
+    important_guidelines = parameters.get("importantGuidelines")
+    informative_guidelines = parameters.get("informativeGuidelines")
+    useless_guidelines = parameters.get("uselessGuidelines")
+
+    preference = get_object_or_404(Preference, user=request.user)
+
+    if important_guidelines:
+        preference.important_guidelines = important_guidelines
+    if informative_guidelines:
+        preference.informative_guidelines = informative_guidelines
+    if useless_guidelines:
+        preference.useless_guidelines = useless_guidelines
+    preference.save()
+
+    return Response(
+        {"message": "Guidelines updated successfully"}, status=status.HTTP_200_OK
     )

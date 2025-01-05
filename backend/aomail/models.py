@@ -89,6 +89,18 @@ class Preference(models.Model):
     timezone = models.CharField(max_length=50, default="UTC")
     theme = models.CharField(max_length=50, default="light")
     language = models.CharField(max_length=50, default="american")
+    important_guidelines = models.CharField(
+        max_length=1000,
+        default="if it's strictly work-related AND either urgent or requires prompt business action",
+    )
+    informative_guidelines = models.CharField(
+        max_length=1000,
+        default="if it's strictly work-related AND contains company updates or non-urgent team info",
+    )
+    useless_guidelines = models.CharField(
+        max_length=1000,
+        default="it's promotional OR newsletter content (like TV shows, marketing emails, subscriptions)",
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 

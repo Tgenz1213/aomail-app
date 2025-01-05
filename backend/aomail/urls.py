@@ -67,6 +67,7 @@ urlpatterns = [
     path('user/preferences/set_timezone/', prefs.set_user_timezone, name='set_user_timezone'),
     path('user/preferences/username/', prefs.get_user_details, name='get_user_details'),
     path('user/preferences/plan/', prefs.get_user_plan, name='get_user_plan'),
+    path('user/preferences/prioritization/', prefs.prioritization, name='user_prioritization'),
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
    

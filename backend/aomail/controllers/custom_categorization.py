@@ -11,7 +11,7 @@ import json
 from rest_framework.decorators import api_view
 from aomail.utils.security import block_user, subscription
 from django.http import HttpRequest
-from aomail.constants import ALLOW_ALL, ALLOWED_PLANS
+from aomail.constants import ALLOWED_PLANS
 from aomail.ai_providers import gemini
 from aomail.ai_providers.utils import update_tokens_stats
 from rest_framework import status

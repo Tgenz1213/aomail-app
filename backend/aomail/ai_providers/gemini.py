@@ -353,6 +353,9 @@ def categorize_and_summarize_email(
     category_dict: dict,
     user_description: str,
     sender: str,
+    important_guidelines: str,
+    informative_guidelines: str,
+    useless_guidelines: str,
 ) -> dict:
     """
     Categorizes and summarizes an email.
@@ -405,10 +408,10 @@ def categorize_and_summarize_email(
     Relevance Categories:
     {relevance_list}
 
-    Follow those rules :
-    An email is "important" if it's strictly work-related AND either urgent or requires prompt business action.
-    An email is "informative" if it's strictly work-related AND contains company updates or non-urgent team info.
-    An email is "useless" it's promotional OR newsletter content (like TV shows, marketing emails, subscriptions).
+    Follow those rules:
+    "important" emails: {important_guidelines}
+    "informative" emails: {informative_guidelines}
+    "useless" emails: {useless_guidelines}
     
     Complete the following tasks in same language used in the email:
     - Categorize the email according to the user description (if provided) and given categories.
@@ -596,24 +599,28 @@ def generate_prioritization_scratch(user_input: dict | str) -> dict:
               - informative emails
               - useless emails
     """
-    prompt = f"""You are an assistant helping a user to create guidance for prioritizing emails.
-    The user has provided the following guidance: {user_input}
-    The guidance will be used by an AI system to automatically prioritize emails.    
+    prompt = f"""You are an intelligent email assistant tasked with helping a user create detailed and effective email prioritization guidelines.
+    
+    The user has provided the following input: {user_input}
+    This input will be used to guide an AI system in automatically categorizing and prioritizing emails based on the user's preferences.
 
-    Tasks:
-    - Review the guidance provided by the user for accuracy and completeness.
-    - Correct any obvious mistakes in the names or descriptions.
-    - Enhance the descriptions to make them clear, specific, and effective for email prioritization.
-    - Ensure that the descriptions are concise and user-friendly.
+    Your tasks are:
+    1. Review the user's guidance for accuracy, completeness, and clarity.
+    2. Correct any inconsistencies or errors in descriptions.
+    3. Improve the descriptions to ensure they are:
+       - Clear and concise
+       - Specific and actionable
+       - Aligned with the user's input
+    4. Adapt the descriptions while taking inspiration from the example provided below, ensuring the response remains user-specific.
 
-    A good example of prioritization guidance is:
+    Example of effective prioritization guidance:
     {{
         "important": "Emails requiring immediate attention, such as meetings and deadlines.",
         "informative": "General updates or communications that don't need urgent action.",
         "useless": "Spam, marketing emails, and newsletters that are not useful."
     }}
 
-    The response MUST be a JSON object in the following format:
+    Your response MUST strictly follow this JSON format:
     {{
         "important": "Description of what important emails are for the user.",
         "informative": "Description of what informative emails are for the user.",

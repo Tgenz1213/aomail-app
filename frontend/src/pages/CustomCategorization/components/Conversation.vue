@@ -28,20 +28,26 @@ import { postData, getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { DEFAULT_CATEGORY } from "@/global/const";
 
+type CategoryByAI = Category & {
+    feedback: string;
+};
+
+type Guideline = {
+    importantGuidelines: string;
+    informativeGuidelines: string;
+    uselessGuidelines: string;
+};
+
 const currentStep = ref<"userDescription" | "categories" | "prioritization">("userDescription");
 const currentUserCategories = ref<Category[]>([]);
 const categories = ref<Category[]>([]);
 const emailsLinked = ref<EmailLinked[]>([]);
-const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-
 const messages = inject("messages") as Ref<Message[]>;
+const guidelines = ref<Guideline>({ importantGuidelines: "", informativeGuidelines: "", uselessGuidelines: "" });
 const waitForButtonClick = inject("waitForButtonClick") as Ref<boolean>;
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const displayUserMsg = inject<(message: string) => void>("displayUserMsg")!;
 const waitForUserInput = inject<() => Promise<string>>("waitForUserInput")!;
-
-type CategoryByAI = Category & {
-    feedback: string;
-};
 
 const displayAIMsg = (message: string, options: KeyValuePair[] | undefined = undefined) => {
     messages.value.push({
@@ -157,6 +163,24 @@ const handlePrioritization = async (option: KeyValuePair) => {
     switch (option.key) {
         case "yes":
             displayAIMsg("Happy to hear that! Your email categorization is optimized. You can close this window");
+            let payload: Guideline = { importantGuidelines: "", informativeGuidelines: "", uselessGuidelines: "" };
+            if (guidelines.value.importantGuidelines) {
+                payload.importantGuidelines = guidelines.value.importantGuidelines;
+            }
+            if (guidelines.value.informativeGuidelines) {
+                payload.informativeGuidelines = guidelines.value.informativeGuidelines;
+            }
+            if (guidelines.value.uselessGuidelines) {
+                payload.uselessGuidelines = guidelines.value.uselessGuidelines;
+            }
+
+            const result = await postData("user/preferences/prioritization/", payload);
+
+            if (result.success) {
+                displayAIMsg("Prioritization guidelines updated successfully!");
+            } else {
+                displayAIMsg(result.error as string);
+            }
             break;
         case "no":
             displayAIMsg("Got it! Let's improve your email prioritization together.");
@@ -176,29 +200,33 @@ async function prioritizationReview() {
     const result = await postData("user/generate_prioritization_scratch/", {
         userInput: userInput,
     });
+    guidelines.value.importantGuidelines = result.data.important;
+    guidelines.value.informativeGuidelines = result.data.informative;
+    guidelines.value.uselessGuidelines = result.data.useless;
+
     displayAIMsg(
         `<table class="rounded text-left border border-separate border-tools-table-outline border-black border-1">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">Priority</th>
-                        <th scope="col" class="px-6 py-3">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td class="px-6 py-4">Important</td>
-                        <td class="px-6 py-4">${result.data.important}</td>
-                    </tr>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td class="px-6 py-4">Informative</td>
-                        <td class="px-6 py-4">${result.data.informative}</td>
-                    </tr>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td class="px-6 py-4">Useless</td>
-                        <td class="px-6 py-4">${result.data.useless}</td>
-                    </tr>
-                </tbody>
-            </table>`
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Priority</th>
+                    <th scope="col" class="px-6 py-3">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4">Important</td>
+                    <td class="px-6 py-4">${result.data.important}</td>
+                </tr>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4">Informative</td>
+                    <td class="px-6 py-4">${result.data.informative}</td>
+                </tr>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4">Useless</td>
+                    <td class="px-6 py-4">${result.data.useless}</td>
+                </tr>
+            </tbody>
+        </table>`
     );
     displayAIMsg("Are you satisfied with my proposition of email prioritization?", [
         { key: "yes", value: "Yes" },
@@ -245,6 +273,10 @@ onMounted(async () => {
     await fetchEmailsLinked();
     await fetchCategories();
 
+    await customCategorizationWorkflow();
+});
+
+async function customCategorizationWorkflow() {
     // No categories have been created (only Others as default)
     if (categories.value.length === 1) {
         await userDescriptionWorkflow();
@@ -261,7 +293,7 @@ onMounted(async () => {
             { key: "soso", value: "Needs Improvement" },
         ]);
     }
-});
+}
 
 async function generateCategoriesScratch(
     userTopics: string,
@@ -286,25 +318,25 @@ async function generateCategoriesScratch(
 async function categoriesReview(aiGeneratedCategories: CategoryByAI[]) {
     displayAIMsg(
         `<table class="rounded text-left border border-separate border-tools-table-outline border-black border-1">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">Name</th>
-                        <th scope="col" class="px-6 py-3">Description</th>
-                        <th scope="col" class="px-6 py-3">Feedback</th>
-                    </tr>
-                </thead>
-                <tbody>${aiGeneratedCategories
-                    .map(
-                        (category) =>
-                            `<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                <td class="px-6 py-4">${category.name}</td>
-                                <td class="px-6 py-4">${category.description}</td>
-                                <td class="px-6 py-4">${category.feedback}</td>
-                            </tr>`
-                    )
-                    .join("")}
-                </tbody>
-            </table>`
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Name</th>
+                    <th scope="col" class="px-6 py-3">Description</th>
+                    <th scope="col" class="px-6 py-3">Feedback</th>
+                </tr>
+            </thead>
+            <tbody>${aiGeneratedCategories
+                .map(
+                    (category) =>
+                        `<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <td class="px-6 py-4">${category.name}</td>
+                            <td class="px-6 py-4">${category.description}</td>
+                            <td class="px-6 py-4">${category.feedback}</td>
+                        </tr>`
+                )
+                .join("")}
+            </tbody>
+        </table>`
     );
     waitForButtonClick.value = true;
     displayAIMsg("Please review the categories, do you want to keep them?", [

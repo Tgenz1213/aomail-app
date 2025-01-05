@@ -583,6 +583,51 @@ def generate_categories_scratch(
     return result_json
 
 
+def generate_prioritization_scratch(user_input: dict | str) -> dict:
+    """
+    Generates email prioritization guidelines based on user-provided input.
+
+    Args:
+        user_input (dict | str): The user's guidance for prioritizing emails.
+
+    Returns:
+        dict: A JSON object with descriptions for:
+              - important emails
+              - informative emails
+              - useless emails
+    """
+    prompt = f"""You are an assistant helping a user to create guidance for prioritizing emails.
+    The user has provided the following guidance: {user_input}
+    The guidance will be used by an AI system to automatically prioritize emails.    
+
+    Tasks:
+    - Review the guidance provided by the user for accuracy and completeness.
+    - Correct any obvious mistakes in the names or descriptions.
+    - Enhance the descriptions to make them clear, specific, and effective for email prioritization.
+    - Ensure that the descriptions are concise and user-friendly.
+
+    A good example of prioritization guidance is:
+    {{
+        "important": "Emails requiring immediate attention, such as meetings and deadlines.",
+        "informative": "General updates or communications that don't need urgent action.",
+        "useless": "Spam, marketing emails, and newsletters that are not useful."
+    }}
+
+    The response MUST be a JSON object in the following format:
+    {{
+        "important": "Description of what important emails are for the user.",
+        "informative": "Description of what informative emails are for the user.",
+        "useless": "Description of what useless emails are for the user."
+    }}
+    """
+    response = get_prompt_response(prompt)
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
+
+    return result_json
+
+
 ###########################################################
 ######################## TO DELETE ########################
 ###########################################################

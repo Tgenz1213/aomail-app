@@ -99,6 +99,7 @@ urlpatterns = [
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('user/social_api/review_user_description/', custom_categorization.review_user_description, name='review_user_description'),
     path('user/generate_categories_scratch/', custom_categorization.generate_categories_scratch, name='generate_categories_scratch'),
+    path('user/generate_prioritization_scratch/', custom_categorization.generate_prioritization_scratch, name='generate_prioritization_scratch'),
     path('search_emails_ai/', ai.search_emails_ai , name='search_emails_ai'),
     path('search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'),
     path('find_user_ai/', ai.find_user_view_ai, name='find_user_view_ai'),

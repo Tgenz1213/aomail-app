@@ -28,7 +28,7 @@ import { postData, getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { DEFAULT_CATEGORY } from "@/global/const";
 
-const currentStep = ref<"userDescription" | "categories" | "priorization">("userDescription");
+const currentStep = ref<"userDescription" | "categories" | "prioritization">("userDescription");
 const currentUserCategories = ref<Category[]>([]);
 const categories = ref<Category[]>([]);
 const emailsLinked = ref<EmailLinked[]>([]);
@@ -56,71 +56,155 @@ const handleButtonClick = async (option: KeyValuePair, index: number) => {
     displayUserMsg(option.value);
     // remove the button options after clicking
     messages.value[index].buttonOptions = undefined;
-    let aiGeneratedCategories;
 
-    if (currentStep.value === "userDescription") {
-        switch (option.key) {
-            case "yes":
-                displayAIMsg("Email prioritization workflow implementation coming soon!");
-                currentStep.value = "priorization";
-                break;
-            case "no":
-                await userDescriptionWorkflow();
-                displayAIMsg(
-                    "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-                );
-                const userInput = await waitForUserInput();
-                aiGeneratedCategories = await generateCategoriesScratch(userInput);
-                categoriesReview(aiGeneratedCategories);
-                break;
-            case "soso":
-                await userDescriptionWorkflow();
-                aiGeneratedCategories = await generateCategoriesScratch(
-                    JSON.stringify(categories.value.filter((category) => category.name != DEFAULT_CATEGORY))
-                );
-                categoriesReview(aiGeneratedCategories);
-        }
-    } else if (currentStep.value === "categories") {
-        switch (option.key) {
-            case "yes":
-                categories.value.map(async (category) => {
-                    if (
-                        currentUserCategories.value.filter(
-                            (currentUserCategory) => currentUserCategory.name === category.name
-                        ).length > 0
-                    ) {
-                        await putData(`update_category/`, {
-                            newCategoryName: category.name,
-                            description: category.description,
-                            categoryName: category.name,
-                        });
-                    } else {
-                        await postData(`create_category/`, {
-                            name: category.name,
-                            description: category.description,
-                        });
-                    }
-                });
-                displayAIMsg("Great! Categories have been updated.");
-                currentStep.value = "priorization";
-                break;
-            case "no":
-                displayAIMsg(
-                    "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-                );
-                const userInputTopics = await waitForUserInput();
-                aiGeneratedCategories = await generateCategoriesScratch(userInputTopics);
-                categoriesReview(aiGeneratedCategories);
-                break;
-            case "soso":
-                displayAIMsg("OK, let's improve them. Please improve them according to my feedback.");
-                const feedback = await waitForUserInput();
-                aiGeneratedCategories = await generateCategoriesScratch(feedback, messages.value);
-                categoriesReview(aiGeneratedCategories);
-                break;
-        }
+    switch (currentStep.value) {
+        case "userDescription":
+            await handleUserDescription(option);
+            break;
+        case "categories":
+            await handleCategories(option);
+            break;
+        case "prioritization":
+            await handlePrioritization(option);
+            break;
+        default:
+            console.error("Unexpected step in handleButtonClick:", currentStep.value);
     }
 };
+
+const handleUserDescription = async (option: KeyValuePair) => {
+    let aiGeneratedCategories;
+    switch (option.key) {
+        case "yes":
+            displayAIMsg(
+                "Are you satisfied with the way I prioritize your emails according to their importance? Do I often assign the wrong level of importance to your emails?",
+                [
+                    { key: "yes", value: "Yes" },
+                    { key: "no", value: "No" },
+                ]
+            );
+            currentStep.value = "prioritization";
+            break;
+        case "no":
+            await userDescriptionWorkflow();
+            displayAIMsg(
+                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+            );
+            const userInput = await waitForUserInput();
+            aiGeneratedCategories = await generateCategoriesScratch(userInput);
+            categoriesReview(aiGeneratedCategories);
+            break;
+        case "soso":
+            await userDescriptionWorkflow();
+            aiGeneratedCategories = await generateCategoriesScratch(
+                JSON.stringify(categories.value.filter((category) => category.name != DEFAULT_CATEGORY))
+            );
+            categoriesReview(aiGeneratedCategories);
+            break;
+    }
+};
+
+const handleCategories = async (option: KeyValuePair) => {
+    let aiGeneratedCategories;
+    switch (option.key) {
+        case "yes":
+            categories.value.map(async (category) => {
+                if (
+                    currentUserCategories.value.filter(
+                        (currentUserCategory) => currentUserCategory.name === category.name
+                    ).length > 0
+                ) {
+                    await putData(`update_category/`, {
+                        newCategoryName: category.name,
+                        description: category.description,
+                        categoryName: category.name,
+                    });
+                } else {
+                    await postData(`create_category/`, {
+                        name: category.name,
+                        description: category.description,
+                    });
+                }
+            });
+            displayAIMsg("Great! Categories have been updated.");
+            displayAIMsg(
+                "Are you satisfied with the way I prioritize your emails according to their importance? Do I often assign the wrong level of importance to your emails?",
+                [
+                    { key: "yes", value: "Yes" },
+                    { key: "no", value: "No" },
+                ]
+            );
+            currentStep.value = "prioritization";
+            break;
+        case "no":
+            displayAIMsg(
+                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
+            );
+            const userInputTopics = await waitForUserInput();
+            aiGeneratedCategories = await generateCategoriesScratch(userInputTopics);
+            categoriesReview(aiGeneratedCategories);
+            break;
+        case "soso":
+            displayAIMsg("OK, let's improve them. Please improve them according to my feedback.");
+            const feedback = await waitForUserInput();
+            aiGeneratedCategories = await generateCategoriesScratch(feedback, messages.value);
+            categoriesReview(aiGeneratedCategories);
+            break;
+    }
+};
+
+const handlePrioritization = async (option: KeyValuePair) => {
+    switch (option.key) {
+        case "yes":
+            displayAIMsg("Happy to hear that! Your email categorization is optimized. You can close this window");
+            break;
+        case "no":
+            displayAIMsg("Got it! Let's improve your email prioritization together.");
+            displayAIMsg(
+                "What types of emails annoy you? How would you describe important emails? Please describe your own preferences in your response."
+            );
+            displayAIMsg(
+                "For example: Meetings and project-related emails for the AlphaPen site redesign are <strong>important</strong>. Marketing or auto-acknowledgement emails are <strong>useless</strong>. The rest is <strong>informative</strong>."
+            );
+            prioritizationReview();
+            break;
+    }
+};
+
+async function prioritizationReview() {
+    const userInput = await waitForUserInput();
+    const result = await postData("user/generate_prioritization_scratch/", {
+        userInput: userInput,
+    });
+    displayAIMsg(
+        `<table class="rounded text-left border border-separate border-tools-table-outline border-black border-1">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Priority</th>
+                        <th scope="col" class="px-6 py-3">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <td class="px-6 py-4">Important</td>
+                        <td class="px-6 py-4">${result.data.important}</td>
+                    </tr>
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <td class="px-6 py-4">Informative</td>
+                        <td class="px-6 py-4">${result.data.informative}</td>
+                    </tr>
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <td class="px-6 py-4">Useless</td>
+                        <td class="px-6 py-4">${result.data.useless}</td>
+                    </tr>
+                </tbody>
+            </table>`
+    );
+    displayAIMsg("Are you satisfied with my proposition of email prioritization?", [
+        { key: "yes", value: "Yes" },
+        { key: "no", value: "No" },
+    ]);
+}
 
 async function userDescriptionWorkflow() {
     for (const emailLinked of emailsLinked.value) {

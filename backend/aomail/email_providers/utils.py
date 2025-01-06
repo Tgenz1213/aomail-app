@@ -174,6 +174,7 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
     search = Search(user.id)
 
     from_email = email_data["from_info"][1]
+    preference = Preference.objects.get(user=user)
 
     def get_summary():
         if email_data["is_reply"]:
@@ -192,6 +193,9 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
             category_dict,
             user_description,
             from_email,
+            preference.important_guidelines,
+            preference.informative_guidelines,
+            preference.useless_guidelines,
         )
 
     with ThreadPoolExecutor(max_workers=2) as executor:

@@ -173,6 +173,9 @@
     },
     "timezone": "Fuseau horaire"
   },
+  "agent": {
+    "chooseAiAssistant": "Veuillez choisir ou créer un assistant IA avant d'utiliser ce chat"
+  },
   "userLoginPage": {
     "loginError": "Erreur lors de la connexion",
     "maxUsernameLength": "Longueur max nom d'utilisateur : 150 caractères",

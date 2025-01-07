@@ -114,3 +114,13 @@ export interface AiRecipient {
     username: string;
     email: string[];
 }
+
+export interface Agent {
+    id: string;
+    agent_name: string;
+    ai_template: string;
+    email_example?: string;
+    picture: string;
+    length: string;
+    formality: string;
+  }

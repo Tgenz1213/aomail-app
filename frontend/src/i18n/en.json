@@ -173,6 +173,9 @@
     },
     "timezone": "Timezone"
   },
+  "agent": {
+    "chooseAiAssistant": "Please choose or create an AI assistant before using this chat"
+  },
   "userLoginPage": {
     "loginError": "Error during login",
     "maxUsernameLength": "Max username length: 150 characters",

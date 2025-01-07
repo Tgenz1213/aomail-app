@@ -18,6 +18,7 @@ from aomail.controllers import signatures
 from aomail.payment_providers import stripe
 from aomail.administration import dashboard
 from .controllers import views
+from .controllers import agents
 
 app_name = 'aomail'
 
@@ -140,4 +141,12 @@ urlpatterns = [
     path('user/signatures/create/', signatures.create_signature, name='create_signature'),
     path('user/signatures/update/', signatures.update_signature, name='update_signature'),
     path('user/signatures/<int:signature_id>/delete/', signatures.delete_signature, name='delete_signature'),
+    #----------------------- AGENTS -----------------------#
+    path('user/agents/', agents.list_agents, name='list_agents'),
+    path('user/agents/create/', agents.create_agent, name='create_agent'),
+    path('user/agents/<int:agent_id>/update/', agents.update_agent, name='update_agent'),
+    path('user/agents/<int:agent_id>/delete/', agents.delete_agent, name='delete_agent'),
+    path('user/agents/check_last_used/', agents.check_last_used_agent, name='check_last_used_agent'),
+    path('user/agents/<int:agent_id>/', agents.get_agent, name='get_agent'),
+    path('user/agents/all_info/', agents.get_all_agents_info, name='get_all_agents_info'),
 ]

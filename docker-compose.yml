@@ -35,6 +35,7 @@ services:
       - backend_network
     volumes:
       - ./backend:/app
+      - /home/prod/prod/backend/media/agent_icon:/app/media/agent_icon
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
       - /home/prod/prod/backend/media/labels:/app/media/labels
 
@@ -55,6 +56,7 @@ services:
     networks:
       - backend_network
     volumes:
+      - /home/prod/prod/backend/media/agent_icon:/app/media/agent_icon
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
       - /home/prod/prod/backend/media/labels:/app/media/labels
 

@@ -13,15 +13,15 @@
             </div>
             <div
                 id="firstMainColumn"
-                class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
-            >
-                <AiEmail />
-            </div>
-            <div
-                id="secondMainColumn"
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
             >
                 <ManualEmail />
+            </div>
+            <div
+                id="secondMainColumn"
+                class="flex flex-col bg-zinc-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
+            >
+                <AiEmail />
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@ import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
+import { Recipient, Agent, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userImage from "@/assets/user.png";
@@ -78,6 +78,8 @@ const fileObjects = ref<File[]>([]);
 const imageURL = ref<string>(userImage);
 const showSignatureModal = ref(false);
 const signatures = ref<any[]>([]);
+const agents = ref<Agent[]>([]);
+const isLoadingAgentSelection = ref(false);
 let quill: Quill | null = null;
 
 const scrollToBottom = async () => {
@@ -124,6 +126,7 @@ provide("loading", loading);
 provide("hideLoading", hideLoading);
 provide("getProfileImage", getProfileImage);
 provide("askContent", askContent);
+provide("agents", agents);
 
 onMounted(async () => {
     await fetchSignatures();
@@ -140,12 +143,13 @@ onMounted(async () => {
     localStorage.removeItem("uploadedFiles");
     window.addEventListener("resize", scrollToBottom);
     window.addEventListener("beforeunload", handleBeforeUnload);
-
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    await displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
+    
     fetchEmailLinked();
     fetchRecipients();
     fetchPrimaryEmail();
+    checkLastUsedAgent();
+    
+    fetchAgents();
 });
 
 onUnmounted(() => {
@@ -246,28 +250,23 @@ async function animateText(text: string, target: Element | null) {
                 clearInterval(interval);
                 resolve();
             }
-        }, 50);
+        }, 20);
     });
 }
-
 async function displayMessage(message: string, aiIcon: string) {
     if (!AIContainer.value) return;
 
     const messageHTML = `
-      <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <!--
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-              <img src="${aiIcon}" alt="aiIcon" class="max-w-full max-h-full rounded-full">
-            </span>-->
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+      <div class="flex pb-6">
+        <div class="mr-3 flex-shrink-0">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 ${aiIcon}
                 </svg>
             </span>
         </div>
-        <div>
-          <p ref="animatedText${counterDisplay.value}"></p>
+        <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
+          <p ref="animatedText${counterDisplay.value}" class="text-gray-800"></p>
         </div>
       </div>
     `;
@@ -324,6 +323,23 @@ async function fetchEmailLinked() {
     }
 
     emailsLinked.value = result.data;
+}
+
+async function fetchAgents() {
+    const response = await getData('user/agents/all_info/');
+    if (response.success) {
+        agents.value = response.data.map((agent: Agent) => ({
+            ...agent,
+            pictureUrl: agent.picture || '/assets/default-agent.png',
+        }));
+    } else {
+        // TO CCHANGE
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailLinkedFetchError"),
+            response.error as string
+        );
+    }
 }
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
@@ -635,6 +651,72 @@ async function writeBetter() {
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     await displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
 }
+
+const capitalize = (str: string) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+const displayAgentSelection = async () => {
+  try {
+    const response = await getData('user/agents/all_info/');
+    agents.value = response.data.map((agent: Agent) => ({
+      ...agent,
+      pictureUrl: agent.picture || '/assets/default-agent.png', 
+    }));
+
+    console.log(agents.value);
+
+    const agentButtons = agents.value.map(agent => `
+      <button 
+        class="flex items-start p-4 border rounded-lg hover:bg-gray-100 transition-colors duration-200 mb-4 w-full" 
+        onclick="window.selectAgent('${agent.id}')"
+      >
+        <img 
+          src="${agent.picture}" 
+          alt="Agent Icon" 
+          class="h-14 w-14 rounded-full mr-4 object-cover flex-shrink-0"
+        />
+        <div class="flex-1">
+          <h3 class="text-xl font-semibold text-left">${agent.agent_name}</h3>
+          <p class="text-gray-600 mt-1 text-left">${agent.ai_template}</p>
+          <div class="flex text-sm text-gray-500 mt-2">
+            <p class="mr-4"><span class="font-medium">Length:</span> ${capitalize(agent.length)}</p>
+            <p><span class="font-medium">Formality:</span> ${capitalize(agent.formality)}</p>
+          </div>
+        </div>
+      </button>
+    `).join('');
+
+    const messageHTML = `
+        <div class="mt-0">
+          ${agentButtons}
+        </div>
+    `;
+
+    if (AIContainer.value) {
+      AIContainer.value.innerHTML += messageHTML;
+    }
+  } catch (error) {
+    console.error('Error displaying agent selection:', error);
+  }
+};
+
+const checkLastUsedAgent = async () => {
+  try {
+    const response = await getData('user/agents/check_last_used/');
+
+    if (response.data.exists) {
+      console.log('A last used agent exists:', response.data.agent_id);
+    } else {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+        await displayMessage(i18n.global.t("agent.chooseAiAssistant"), aiIcon);
+        await displayAgentSelection();
+    }
+  } catch (error) {
+    console.error('Error checking last used agent:', error);
+  }
+};
 
 const fetchSignatures = async () => {
     const result = await getData("user/signatures/");

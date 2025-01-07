@@ -69,6 +69,7 @@ from aomail.models import (
     Preference,
     Statistics,
     Subscription,
+    Agent,
 )
 from aomail.payment_providers import stripe
 from aomail.email_providers.microsoft import (
@@ -228,6 +229,96 @@ def signup(request: HttpRequest) -> Response:
             'exp': timezone.now() + timezone.timedelta(minutes=30)
         }, settings.SECRET_KEY, algorithm='HS256')
         LOGGER.info(f"User {username} subscribed to listeners successfully")
+        
+        # ----------------------- CREATE DEFAULT AGENTS -----------------------#
+        default_agents_en = [
+            {
+                "agent_name": "Bob : to talk to friends",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Quick and informal as if talking to a friend.",
+                "email_example": " ",
+                "length": "short",
+                "formality": "informal",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png" 
+            },
+            {
+                "agent_name": "AO : to talk to colleagues", 
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Fast and formal as if talking to colleagues.",
+                "email_example": "",
+                "length": "short",
+                "formality": "formal",
+                "language": language,
+                "picture": "/app/media/agent_icon/aomail_agent_ao.png"
+            },
+            {
+                "agent_name": "Jhon : to talk to supervisors",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Medium-paced and highly formal as if talking to supervisors.",
+                "email_example": "",
+                "length": "medium",
+                "formality": "very formal",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png" 
+            },
+        ]
+
+        default_agents_fr = [
+            {
+                "agent_name": "Bob",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Rapide et informel comme si vous parliez à un ami.",
+                "email_example": " ",
+                "length": "court",
+                "formality": "informel",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png" 
+            },
+            {
+                "agent_name": "AO", 
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Rapide et formel comme si vous parliez à des collègues.",
+                "email_example": "",
+                "length": "court",
+                "formality": "formel",
+                "language": language,
+                "picture": "/app/media/agent_icon/aomail_agent_ao.png"
+            },
+            {
+                "agent_name": "Jhon",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Modéré et très formel comme si vous parliez à des décideurs.",
+                "email_example": "",
+                "length": "moyen",
+                "formality": "formel",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png" 
+            },
+        ]
+
+        if language.lower() == 'fr' or language.lower() == 'french':
+            agents_to_create = default_agents_fr
+            LOGGER.info(f"Creating default French agents for user {username}")
+        else:
+            agents_to_create = default_agents_en
+            LOGGER.info(f"Creating default English agents for user {username}")
+
+        for agent_data in agents_to_create:
+            Agent.objects.create(
+                agent_name=agent_data["agent_name"],
+                agent_ai_model=agent_data["agent_ai_model"],
+                ai_template=agent_data["ai_template"],
+                email_example=agent_data["email_example"],
+                user=user,
+                length=agent_data["length"],
+                formality=agent_data["formality"],
+                language=agent_data["language"],
+                last_used=False,
+                picture=agent_data["picture"],
+            )
+        LOGGER.info(f"Default agents created for user {username}")
+    
         return Response(
             {
                 "accessToken": django_access_token,

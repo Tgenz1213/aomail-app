@@ -199,7 +199,7 @@ def serve_image(request: HttpRequest, image_name: str) -> Response:
             raise Http404("Unsupported image format")
     else:
         raise Http404("Image not found")
-
+    
 
 ############################# CONTACT ##############################
 @api_view(["GET"])

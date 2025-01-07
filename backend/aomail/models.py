@@ -258,3 +258,27 @@ class Signature(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='signatures')
     social_api = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, related_name='signatures')
     signature_content = models.TextField()
+
+
+class Agent(models.Model):
+    """Model for storing agent information."""
+    
+    agent_name = models.CharField(max_length=255)
+    agent_ai_model = models.CharField(max_length=255)
+    ai_template = models.TextField(null=True, blank=True)
+    email_example = models.TextField(null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    length = models.CharField(max_length=50)
+    formality = models.CharField(max_length=50)
+    language = models.CharField(max_length=50)
+    last_used = models.BooleanField(default=False)
+    picture = models.ImageField(upload_to='agent_pictures/', null=True, blank=True)
+
+    def __str__(self):
+        return self.agent_name
+
+    def save(self, *args, **kwargs):
+        if self.last_used:
+            # Set all other agents' last_used to False
+            Agent.objects.filter(user=self.user, last_used=True).update(last_used=False)
+        super().save(*args, **kwargs)

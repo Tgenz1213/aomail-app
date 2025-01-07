@@ -15,6 +15,7 @@ from aomail.models import (
     Contact,
     Filter,
     Signature,
+    Agent,
 )
 
 
@@ -234,4 +235,25 @@ class SignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signature
         fields = ['id', 'user', 'social_api', 'signature_content']
+        read_only_fields = ['id', 'user']
+
+
+class AgentSerializer(serializers.ModelSerializer):
+    """Serializer for the Agent model."""
+
+    class Meta:
+        model = Agent
+        fields = [
+            'id',
+            'agent_name',
+            'agent_ai_model',
+            'ai_template',
+            'email_example',
+            'user',
+            'length',
+            'formality',
+            'language',
+            'last_used',
+            'picture',
+        ]
         read_only_fields = ['id', 'user']

@@ -45,20 +45,27 @@ def update_agent(request: HttpRequest, agent_id: int) -> Response:
     Returns:
         Response: JSON response with updated agent data or error messages.
     """
+    LOGGER.info(f"Received update request for agent_id: {agent_id} by user: {request.user.username}")
+    
     try:
         agent = Agent.objects.get(id=agent_id, user=request.user)
+        LOGGER.debug(f"Agent before update: {agent}")
     except Agent.DoesNotExist:
+        LOGGER.error(f"Agent with id {agent_id} not found for user {request.user.username}")
         return Response(
             {"error": "Agent not found."},
             status=status.HTTP_404_NOT_FOUND
         )
     
     serializer = AgentSerializer(agent, data=request.data, partial=True)
-    
+    LOGGER.debug(f"Serialized data: {serializer.initial_data}")
+
     if serializer.is_valid():
-        serializer.save()
+        updated_agent = serializer.save()
+        LOGGER.info(f"Agent updated successfully: {updated_agent}")
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
+        LOGGER.error(f"Serializer errors: {serializer.errors}")
         return Response(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST

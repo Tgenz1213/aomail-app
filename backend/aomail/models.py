@@ -272,7 +272,7 @@ class Agent(models.Model):
     formality = models.CharField(max_length=50)
     language = models.CharField(max_length=50)
     last_used = models.BooleanField(default=False)
-    picture = models.ImageField(upload_to='/home/prod/prod/backend/media/agent_icon/', null=True, blank=True)
+    picture = models.ImageField(upload_to='media/agent_icon/', null=True, blank=True) # To update
 
     def __str__(self):
         return self.agent_name

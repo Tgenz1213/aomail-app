@@ -249,11 +249,14 @@ class AgentSerializer(serializers.ModelSerializer):
             'agent_ai_model',
             'ai_template',
             'email_example',
-            'user',
             'length',
             'formality',
             'language',
             'last_used',
             'picture',
         ]
-        read_only_fields = ['id', 'user']
+        read_only_fields = ['id']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return Agent.objects.create(user=user, **validated_data)

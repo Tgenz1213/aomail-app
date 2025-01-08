@@ -21,10 +21,8 @@ def create_agent(request: HttpRequest) -> Response:
     Returns:
         Response: JSON response with agent data or error messages.
     """
-    data = request.data.copy()
-    data['user'] = request.user.id
-    serializer = AgentSerializer(data=data)
-    
+    serializer = AgentSerializer(data=request.data, context={'request': request})
+
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -34,7 +34,7 @@ def create_agent(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST
         )
 
-@api_view(['PUT', 'PATCH'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_agent(request: HttpRequest, agent_id: int) -> Response:
     """

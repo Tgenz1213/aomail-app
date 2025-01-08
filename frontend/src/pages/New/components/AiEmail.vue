@@ -137,6 +137,7 @@ const loading = inject<() => void>("loading");
 const hideLoading = inject<() => void>("hideLoading");
 const askContent = inject<() => void>("askContent");
 const getQuill = inject<() => Quill | null>("getQuill");
+const setAgentLastUsed = inject<(agent: Agent) => void>("setAgentLastUsed");
 
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
@@ -154,8 +155,7 @@ const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
 const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
 const emailBody = inject<Ref<string>>("emailBody") || ref("");
 const agents = inject<Ref<Agent[]>>("agents") || ref<Agent[]>([]);
-
-const selectedAgent = ref<Agent>({
+const selectedAgent = inject<Ref<Agent>>('selectedAgent') || ref({
     id: "",
     agent_name: "Default Agent",
     picture: "/assets/default-agent.png",
@@ -165,7 +165,6 @@ const selectedAgent = ref<Agent>({
 });
 
 const isDropdownOpen = ref(false);
-
 const isCreateAgentModalOpen = ref(false);
 const isUpdateAgentModalOpen = ref(false);
 const agentToUpdate = ref<Agent | null>(null);
@@ -450,6 +449,7 @@ function toggleDropdown() {
 
 function selectAgent(agent: Agent) {
     selectedAgent.value = agent;
+    setAgentLastUsed?.(agent);
     isDropdownOpen.value = false;
 }
 

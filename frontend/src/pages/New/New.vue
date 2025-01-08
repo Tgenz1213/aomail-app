@@ -39,7 +39,7 @@ import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { getData, postData } from "@/global/fetchData";
+import { getData, putData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Recipient, Agent, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
@@ -81,6 +81,14 @@ const signatures = ref<any[]>([]);
 const agents = ref<Agent[]>([]);
 const isLoadingAgentSelection = ref(false);
 let quill: Quill | null = null;
+const selectedAgent = ref<Agent>({
+    id: "",
+    agent_name: "Default Agent",
+    picture: "/assets/default-agent.png",
+    ai_template: "",
+    length: "",
+    formality: "",
+});
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -127,6 +135,8 @@ provide("hideLoading", hideLoading);
 provide("getProfileImage", getProfileImage);
 provide("askContent", askContent);
 provide("agents", agents);
+provide('selectedAgent', selectedAgent);
+provide("setAgentLastUsed", setAgentLastUsed);
 
 onMounted(async () => {
     await fetchSignatures();
@@ -144,12 +154,12 @@ onMounted(async () => {
     window.addEventListener("resize", scrollToBottom);
     window.addEventListener("beforeunload", handleBeforeUnload);
     
+    fetchAgents();
+    checkLastUsedAgent();
     fetchEmailLinked();
     fetchRecipients();
     fetchPrimaryEmail();
-    checkLastUsedAgent();
-    
-    fetchAgents();
+
 });
 
 onUnmounted(() => {
@@ -665,12 +675,10 @@ const displayAgentSelection = async () => {
       pictureUrl: agent.picture || '/assets/default-agent.png', 
     }));
 
-    console.log(agents.value);
-
     const agentButtons = agents.value.map(agent => `
       <button 
         class="flex items-start p-4 border rounded-lg hover:bg-gray-100 transition-colors duration-200 mb-4 w-full" 
-        onclick="window.selectAgent('${agent.id}')"
+        data-agent-id="${agent.id}"
       >
         <img 
           src="${agent.picture}" 
@@ -696,6 +704,18 @@ const displayAgentSelection = async () => {
 
     if (AIContainer.value) {
       AIContainer.value.innerHTML += messageHTML;
+      
+      const buttons = AIContainer.value.querySelectorAll('button[data-agent-id]');
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          const agentId = button.getAttribute('data-agent-id');
+          const selectedAgentData = agents.value.find(agent => agent.id.toString() === agentId);
+          if (selectedAgentData) {
+            selectedAgent.value = selectedAgentData;
+            setAgentLastUsed(selectedAgent.value);
+          }
+        });
+      });
     }
   } catch (error) {
     console.error('Error displaying agent selection:', error);
@@ -707,7 +727,11 @@ const checkLastUsedAgent = async () => {
     const response = await getData('user/agents/check_last_used/');
 
     if (response.data.exists) {
-      console.log('A last used agent exists:', response.data.agent_id);
+      const selectedAgentData = agents.value.find(agent => agent.id === response.data.agent_id);
+      console.log('Selected agent data:', selectedAgentData);
+      if (selectedAgentData) {
+        selectedAgent.value = selectedAgentData;
+      }
     } else {
         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
         await displayMessage(i18n.global.t("agent.chooseAiAssistant"), aiIcon);
@@ -744,4 +768,14 @@ const handleSignatureCreated = (newSignature: any) => {
         insertSignature(newSignature.signature_content);
     }
 };
+
+async function setAgentLastUsed(agent: Agent) {
+  const result = await putData(`user/agents/${agent.id}/update/`, {
+    last_used: true
+  });
+
+  if (!result.success) {
+    console.error('Failed to update agent last used status:', result.error);
+  }
+}
 </script>

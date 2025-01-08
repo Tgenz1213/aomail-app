@@ -168,7 +168,14 @@ const selectedAgent = inject<Ref<Agent>>('selectedAgent') || ref({
 const isDropdownOpen = ref(false);
 const isCreateAgentModalOpen = ref(false);
 const isUpdateAgentModalOpen = ref(false);
-const agentToUpdate = ref<Agent | null>(null);
+const agentToUpdate = ref<Agent>({
+    id: "",
+    agent_name: "",
+    picture: "",
+    ai_template: "",
+    length: "",
+    formality: "",
+});
 
 async function handleAIClick() {
     if (!AIContainer.value) return;

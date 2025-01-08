@@ -63,9 +63,10 @@
                                     <li
                                         v-for="agent in agents"
                                         :key="agent.id"
+                                        @click="selectAgent(agent)"
                                         class="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100"
                                     >
-                                        <div @click="selectAgent(agent)" class="flex items-center">
+                                        <div class="flex items-center">
                                             <img :src="agent.picture" alt="Agent Icon" class="w-5 h-5 rounded-full mr-2" />
                                             <span>{{ agent.agent_name }}</span>
                                         </div>

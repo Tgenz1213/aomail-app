@@ -80,6 +80,7 @@ const showSignatureModal = ref(false);
 const signatures = ref<any[]>([]);
 const agents = ref<Agent[]>([]);
 const isLoadingAgentSelection = ref(false);
+const isInitialized = ref(false);
 let quill: Quill | null = null;
 const selectedAgent = ref<Agent>({
     id: "",
@@ -106,6 +107,40 @@ const askContent = () => {
 function getQuill() {
   return quill;
 }
+
+const displayMessage = async (message: string, aiIcon: string) => {
+    if (!AIContainer.value) {
+        console.warn('AIContainer not initialized');
+        await nextTick();
+        if (!AIContainer.value) return;
+    }
+
+    const messageHTML = `
+      <div class="flex pb-6">
+        <div class="mr-3 flex-shrink-0">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                ${aiIcon}
+                </svg>
+            </span>
+        </div>
+        <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
+          <p ref="animatedText${counterDisplay.value}" class="text-gray-800"></p>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
+    counterDisplay.value += 1;
+    
+    if (animatedParagraph) {
+        await animateText(message, animatedParagraph);
+        await scrollToBottom();
+    } else {
+        console.error('Could not find animated paragraph element');
+    }
+};
 
 provide("imageURL", imageURL);
 provide("emailSelected", emailSelected);
@@ -138,28 +173,55 @@ provide("agents", agents);
 provide('selectedAgent', selectedAgent);
 provide("setAgentLastUsed", setAgentLastUsed);
 
+
+
 onMounted(async () => {
-    await fetchSignatures();
-    checkSignature();
-    getProfileImage();
-    await initializeQuill();
+    try {
+        isLoadingAgentSelection.value = true;
+        
+        // Initialize AIContainer first
+        AIContainer.value = document.getElementById("AIContainer");
+        if (!AIContainer.value) {
+            console.error('AIContainer element not found');
+            return;
+        }
 
-    if (signatures.value.length > 0) {
-        insertSignature(signatures.value[0].signature_content);
+        // Rest of the initialization...
+        await Promise.all([
+            fetchSignatures(),
+            fetchAgents(),
+        ]);
+
+        await Promise.all([
+            checkSignature(),
+            getProfileImage(),
+            initializeQuill(),
+            checkLastUsedAgent(),
+            fetchEmailLinked(),
+            fetchRecipients(),
+            fetchPrimaryEmail(),
+        ]);
+
+        if (signatures.value.length > 0) {
+            insertSignature(signatures.value[0].signature_content);
+        }
+
+        document.addEventListener("keydown", handleKeyDown);
+        localStorage.removeItem("uploadedFiles");
+        window.addEventListener("resize", scrollToBottom);
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        isInitialized.value = true;
+    } catch (error) {
+        console.error('Error during initialization:', error);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.initializationError"),
+            "Failed to initialize application"
+        );
+    } finally {
+        isLoadingAgentSelection.value = false;
     }
-
-    AIContainer.value = document.getElementById("AIContainer");
-    document.addEventListener("keydown", handleKeyDown);
-    localStorage.removeItem("uploadedFiles");
-    window.addEventListener("resize", scrollToBottom);
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    
-    fetchAgents();
-    checkLastUsedAgent();
-    fetchEmailLinked();
-    fetchRecipients();
-    fetchPrimaryEmail();
-
 });
 
 onUnmounted(() => {
@@ -263,30 +325,6 @@ async function animateText(text: string, target: Element | null) {
         }, 20);
     });
 }
-async function displayMessage(message: string, aiIcon: string) {
-    if (!AIContainer.value) return;
-
-    const messageHTML = `
-      <div class="flex pb-6">
-        <div class="mr-3 flex-shrink-0">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                ${aiIcon}
-                </svg>
-            </span>
-        </div>
-        <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
-          <p ref="animatedText${counterDisplay.value}" class="text-gray-800"></p>
-        </div>
-      </div>
-    `;
-
-    AIContainer.value.innerHTML += messageHTML;
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
-    counterDisplay.value += 1;
-    await animateText(message, animatedParagraph);
-    scrollToBottom();
-}
 
 async function fetchPrimaryEmail() {
     if (!emailSelected.value) {
@@ -336,19 +374,24 @@ async function fetchEmailLinked() {
 }
 
 async function fetchAgents() {
-    const response = await getData('user/agents/all_info/');
-    if (response.success) {
-        agents.value = response.data.map((agent: Agent) => ({
-            ...agent,
-            pictureUrl: agent.picture || '/assets/default-agent.png',
-        }));
-    } else {
-        // TO CCHANGE
+    try {
+        const response = await getData('user/agents/all_info/');
+        if (response.success) {
+            agents.value = response.data.map((agent: Agent) => ({
+                ...agent,
+                picture: agent.picture || '/assets/default-agent.png',
+            }));
+        } else {
+            throw new Error(response.error);
+        }
+    } catch (error) {
+        console.error('Error fetching agents:', error);
         displayPopup(
             "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.emailLinkedFetchError"),
-            response.error as string
+            i18n.global.t("constants.popUpConstants.errorMessages.agentsFetchError"),
+            error instanceof Error ? error.message : 'Unknown error'
         );
+        throw error; // Re-throw to be caught by the main try-catch
     }
 }
 
@@ -672,7 +715,7 @@ const displayAgentSelection = async () => {
     const response = await getData('user/agents/all_info/');
     agents.value = response.data.map((agent: Agent) => ({
       ...agent,
-      pictureUrl: agent.picture || '/assets/default-agent.png', 
+      picture: agent.picture || '/assets/default-agent.png', 
     }));
 
     const agentButtons = agents.value.map(agent => `
@@ -724,24 +767,34 @@ const displayAgentSelection = async () => {
 };
 
 const checkLastUsedAgent = async () => {
-  try {
-    const response = await getData('user/agents/check_last_used/');
+    try {
+        if (!agents.value.length) {
+            console.warn('No agents available when checking last used agent');
+            return;
+        }
 
-    if (response.data.exists) {
-      const selectedAgentData = agents.value.find(agent => agent.id === response.data.agent_id);
-      console.log('Selected agent data:', selectedAgentData);
-      if (selectedAgentData) {
-        selectedAgent.value = selectedAgentData;
-        await displayMessage(i18n.global.t("agent.AiGreeting"), selectedAgent.value.picture);
-      }
-    } else {
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-        await displayMessage(i18n.global.t("agent.chooseAiAssistant"), aiIcon);
-        await displayAgentSelection();
+        const response = await getData('user/agents/check_last_used/');
+        console.log('Last used agent response:', response); // Debug log
+
+        if (response.success && response.data.exists) {
+            const selectedAgentData = agents.value.find(agent => agent.id === response.data.agent_id);
+            if (selectedAgentData) {
+                selectedAgent.value = selectedAgentData;
+                await displayMessage(i18n.global.t("agent.AiGreeting"), selectedAgent.value.picture);
+            }
+        } else {
+            const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+            await displayMessage(i18n.global.t("agent.chooseAiAssistant"), aiIcon);
+            await displayAgentSelection();
+        }
+    } catch (error) {
+        console.error('Error checking last used agent:', error);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.lastUsedAgentError"),
+            "Failed to load last used agent"
+        );
     }
-  } catch (error) {
-    console.error('Error checking last used agent:', error);
-  }
 };
 
 const fetchSignatures = async () => {

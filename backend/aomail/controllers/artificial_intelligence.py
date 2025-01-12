@@ -24,7 +24,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import block_user, subscription
-from aomail.ai_providers import claude
+from aomail.ai_providers import gemini, claude
 from aomail.constants import (
     EMAIL_ADMIN,
     ALLOWED_PLANS,
@@ -49,6 +49,7 @@ from aomail.models import (
     Preference,
     Contact,
     Email,
+    Agent,
 )
 from aomail.utils.serializers import (
     NewEmailAISerializer,
@@ -65,6 +66,8 @@ from aomail.utils.ai_memory import (
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
 from aomail.ai_providers.utils import update_tokens_stats
+import re
+import difflib
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -123,6 +126,23 @@ def get_new_email_response(request: HttpRequest) -> Response:
     body: str = parameters["body"]
     history: dict = parameters["history"]
 
+    # Fetch the active agent
+    try:
+        agent = Agent.objects.get(user=user, last_used=True)
+    except Agent.DoesNotExist:
+        return Response(
+            {"error": "No active agent found for the user."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    agent_settings = {
+        "ai_template": agent.ai_template,
+        "email_example": agent.email_example,
+        "length": agent.length,
+        "formality": agent.formality,
+        "language": agent.language,
+    }
+
     chat_history = dict_to_chat_history(history)
     email_reply_conv = EmailReplyConversation(
         user, importance, subject, body, chat_history
@@ -130,7 +150,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
 
     for i in range(MAX_RETRIES):
         try:
-            result = email_reply_conv.improve_email_response(user_input)
+            result = email_reply_conv.improve_email_response(user_input, agent_settings)
             update_tokens_stats(user, result)
             return Response(
                 {
@@ -144,7 +164,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
                 f"[Attempt n°{i+1}] failed to generate a new body response: {str(e)}"
             )
             context = {
-                "attempt_number": i,
+                "attempt_number": i + 1,
                 "error": str(e),
                 "user": user,
                 "title": "Critical Alert: Failed to generate a new body response with AI.",
@@ -161,7 +181,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
 
     return Response(
         {
-            "error": "The generation of a new email response body failed 3 times in a row. Our team is on his way to fix it."
+            "error": "The generation of a new email response body failed 3 times in a row. Our team is on their way to fix it."
         },
         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
@@ -184,7 +204,8 @@ def improve_draft(request: HttpRequest) -> Response:
             history (dict): Dictionary representing the chat history.
 
     Returns:
-        Response: A response object containing the updated subject, email body, and chat history, or an error message if the draft generation fails.
+        Response: A response object containing the updated subject, email body, and chat history,
+                  or an error message if the draft generation fails.
     """
     user = request.user
     parameters: dict = json.loads(request.body)
@@ -195,6 +216,23 @@ def improve_draft(request: HttpRequest) -> Response:
     body: str = parameters["body"]
     history: dict = parameters["history"]
 
+    # Fetch the active agent
+    try:
+        agent = Agent.objects.get(user=user, last_used=True)
+    except Agent.DoesNotExist:
+        return Response(
+            {"error": "No active agent found for the user."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    agent_settings = {
+        "ai_template": agent.ai_template,
+        "email_example": agent.email_example,
+        "length": agent.length,
+        "formality": agent.formality,
+        "language": agent.language,
+    }
+
     chat_history = dict_to_chat_history(history)
     gen_email_conv = GenerateEmailConversation(
         user, length, formality, subject, body, chat_history
@@ -203,7 +241,7 @@ def improve_draft(request: HttpRequest) -> Response:
 
     for i in range(MAX_RETRIES):
         try:
-            result = gen_email_conv.improve_draft(user_input, language)
+            result = gen_email_conv.improve_draft(user_input, language, agent_settings)
             update_tokens_stats(user, result)
 
             return Response(
@@ -217,7 +255,7 @@ def improve_draft(request: HttpRequest) -> Response:
         except Exception as e:
             LOGGER.critical(f"[Attempt n°{i+1}] Failed to generate a draft: {str(e)}")
             context = {
-                "attempt_number": i,
+                "attempt_number": i + 1,
                 "error": str(e),
                 "user": user,
                 "title": "Critical Alert: Failed to generate a draft.",
@@ -234,7 +272,7 @@ def improve_draft(request: HttpRequest) -> Response:
 
     return Response(
         {
-            "error": "The generation of a draft failed 3 times in a row. Our team is on his way to fix it."
+            "error": "The generation of a draft failed 3 times in a row. Our team is on their way to fix it."
         },
         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
@@ -612,26 +650,41 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
     """
     Generates response keywords based on the provided email subject and content.
 
-    Args:
-        request (HttpRequest): HTTP request object containing data to generate response keywords.
-            Expects JSON body with:
-                email_subject (str): The subject of the email for which response keywords are to be generated.
-                email_content (str): The content/body of the email for which response keywords are to be generated.
+    Parameters:
+        request (HttpRequest): HTTP request containing the following parameters in the POST data:
+            subject (str): Subject of the email.
+            body (str): Body of the email.
 
     Returns:
-        Response: JSON response containing response keywords generated from the email subject and content.
-                      If there are validation errors in the serializer, returns a JSON response with the errors
-                      and status HTTP 400 Bad Request.
+        Response: JSON response containing response keywords generated from the email,
+                  or error messages if the generation fails.
     """
-    data: dict = json.loads(request.body)
-    serializer = EmailProposalAnswerSerializer(data=data)
+    parameters: dict = json.loads(request.body)
+    serializer = EmailProposalAnswerSerializer(data=parameters)
+    user = request.user
 
     if serializer.is_valid():
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = claude.generate_response_keywords(subject, body)
-        update_tokens_stats(request.user, result)
+        try:
+            agent = Agent.objects.get(user=user, last_used=True)
+        except Agent.DoesNotExist:
+            return Response(
+                {"error": "No active agent found for the user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        agent_settings = {
+            "ai_template": agent.ai_template,
+            "email_example": agent.email_example,
+            "length": agent.length,
+            "formality": agent.formality,
+            "language": agent.language,
+        }
+
+        result = gemini.generate_response_keywords(subject, body, agent_settings)
+        update_tokens_stats(user, result)
 
         return Response(
             {"responseKeywords": result["keywords_list"]},
@@ -650,31 +703,262 @@ def generate_email_answer(request: HttpRequest) -> Response:
     """
     Generates an automated response to an email based on its subject, content, and user instructions.
 
-    Args:
-        request (HttpRequest): HTTP request object containing data to generate an email response.
-            Expects JSON body with:
-                email_subject (str): The subject of the email for which the response is generated.
-                email_content (str): The content/body of the email for which the response is generated.
-                response_type (str): User instruction indicating how the response should be generated.
+    Parameters:
+        request (HttpRequest): HTTP request containing the following parameters in the POST data:
+            subject (str): Subject of the email.
+            body (str): Body of the email.
+            keyword (str): User instruction indicating how the response should be generated.
 
     Returns:
-        Response: JSON response containing the generated email response.
-                      If there are validation errors in the serializer, returns a JSON response with the errors
-                      and status HTTP 400 Bad Request.
+        Response: JSON response containing the generated email response,
+                  or error messages if the generation fails.
     """
-    data: dict = json.loads(request.body)
-    serializer = EmailGenerateAnswer(data=data)
+    parameters: dict = json.loads(request.body)
+    serializer = EmailGenerateAnswer(data=parameters)
+    user = request.user
 
     if serializer.is_valid():
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
         user_instruction = serializer.validated_data["keyword"]
 
-        result = claude.generate_email_response(subject, body, user_instruction)
-        update_tokens_stats(request.user, result)
+        # Fetch the active agent
+        try:
+            agent = Agent.objects.get(user=user, last_used=True)
+        except Agent.DoesNotExist:
+            return Response(
+                {"error": "No active agent found for the user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        return Response({"emailAnswer": result["body"]}, status=status.HTTP_200_OK)
+        agent_settings = {
+            "ai_template": agent.ai_template,
+            "email_example": agent.email_example,
+            "length": agent.length,
+            "formality": agent.formality,
+            "language": agent.language,
+        }
+
+        result = gemini.generate_email_response(subject, body, user_instruction, agent_settings)
+        update_tokens_stats(user, result)
+
+        return Response(
+            {"emailAnswer": result["body"]}, status=status.HTTP_200_OK
+        )
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(["POST"])
+@block_user
+@subscription(ALLOWED_PLANS)
+def handle_email_action(request: HttpRequest) -> Response:
+    """
+    Handles different email action scenarios based on user input.
+    
+    Args:
+        request (HttpRequest): HTTP request object containing:
+            user_input (str): The user's input/request
+            destinary (str): Recipient information, if manually selected
+            subject (str): The subject of the email
+            email_content (str): The content of the email
+            history (dict, optional): Chat history for AI conversation
+    
+    Returns:
+        Response: JSON response containing combinations of:
+            scenario (int): Scenario number
+            subject (str): Email subject
+            emailBody (str): Email body content
+            history (dict): AI conversation history
+            mainRecipients (list): Main email recipients
+            ccRecipients (list): CC recipients
+            bccRecipients (list): BCC recipients
+    """
+    try:
+        data: dict = json.loads(request.body)
+        user = request.user
+        user_input: str = data.get("user_input", "")
+        destinary: str = data.get("destinary", "")
+        subject: str = data.get("subject", "")
+        email_content: str = data.get("email_content", "")
+        history: dict = data.get("history", {})
+        signature: str = data.get("signature", "")
+
+        # To compare the signature with the email content
+        def strip_html_tags(text):
+            clean = re.compile('<.*?>')
+            return re.sub(clean, '', text)
+
+        def similarity_ratio(str1, str2):
+            return difflib.SequenceMatcher(None, str1, str2).ratio()
+
+        clean_signature = strip_html_tags(signature) if signature else ""
+        clean_email = strip_html_tags(email_content) if email_content else ""
+        
+        is_only_signature = similarity_ratio(clean_signature.strip(), clean_email.strip()) > 0.9
+
+        LOGGER.info(f"===================================> Signature: {signature}")
+        LOGGER.info(f"===================================> Email Content: {email_content}")
+        LOGGER.info(f"===================================> Is Only Signature: {is_only_signature}")
+
+        destinary_present = bool(destinary)
+        subject_present = bool(subject)
+        email_content_present = bool(email_content)
+
+        chat_history = dict_to_chat_history(history)
+
+        language = Preference.objects.get(user=user).language
+
+        try:
+            agent = Agent.objects.get(user=user, last_used=True)
+        except Agent.DoesNotExist:
+            return Response(
+                {"error": "No active agent found for the user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        agent_settings = {
+            "ai_template": agent.ai_template,
+            "email_example": agent.email_example,
+            "length": agent.length,
+            "formality": agent.formality,
+            "language": agent.language,
+        }
+
+        scenario = gemini.determine_action_scenario(
+            destinary=destinary_present,
+            subject=subject_present,
+            email_content=email_content_present,
+            is_only_signature=is_only_signature,
+            user_request=user_input
+        )
+
+        LOGGER.info(f"===================================> Scenario: {scenario}")
+
+        response_data = {
+            "scenario": scenario,
+            "subject": "",
+            "emailBody": "",
+            "history": chat_history.dict(),
+            "mainRecipients": [],
+            "ccRecipients": [],
+            "bccRecipients": []
+        }
+
+        def find_emails(input_str: str, contacts_dict: dict) -> list:
+            input_substrings = input_str.lower().split()
+            return [
+                {"username": name, "email": email}
+                for name, email in contacts_dict.items()
+                if name and all(sub_str in name.lower() for sub_str in input_substrings)
+            ]
+
+        def find_emails_for_recipients(recipient_list: list, contacts_dict: dict) -> list:
+            return [
+                {
+                    "username": recipient_name,
+                    "email": find_emails(recipient_name, contacts_dict),
+                }
+                for recipient_name in recipient_list
+                if find_emails(recipient_name, contacts_dict)
+            ]
+
+        if scenario == 1:
+            recipients = claude.extract_contacts_recipients(user_input)
+            update_tokens_stats(user, recipients)
+            
+            # Get user contacts
+            try:
+                user_contacts = Contact.objects.filter(user=user)
+                contacts_dict = {
+                    contact["username"]: contact["email"]
+                    for contact in ContactSerializer(user_contacts, many=True).data
+                }
+
+                response_data.update({
+                    "mainRecipients": find_emails_for_recipients(recipients.get("main_recipients", []), contacts_dict),
+                    "ccRecipients": find_emails_for_recipients(recipients.get("cc_recipients", []), contacts_dict),
+                    "bccRecipients": find_emails_for_recipients(recipients.get("bcc_recipients", []), contacts_dict)
+                })
+            except Contact.DoesNotExist:
+                LOGGER.warning("No contacts found for user")
+                response_data.update({
+                    "mainRecipients": [], "ccRecipients": [], "bccRecipients": []
+                })
+
+        elif scenario in [2, 3]:
+            result = gemini.generate_email(
+                user_input, 
+                agent_settings["length"], 
+                agent_settings["formality"], 
+                language,
+                agent_settings,
+                signature
+            )
+            update_tokens_stats(user, result)
+            
+            response_data.update({
+                "subject": result.get("subject_text", ""),
+                "emailBody": result.get("email_body", "")
+            })
+
+            if scenario == 2:
+                recipients = claude.extract_contacts_recipients(user_input)
+                update_tokens_stats(user, recipients)
+                
+                # Get user contacts
+                try:
+                    user_contacts = Contact.objects.filter(user=user)
+                    contacts_dict = {
+                        contact["username"]: contact["email"]
+                        for contact in ContactSerializer(user_contacts, many=True).data
+                    }
+
+                    response_data.update({
+                        "mainRecipients": find_emails_for_recipients(recipients.get("main_recipients", []), contacts_dict),
+                        "ccRecipients": find_emails_for_recipients(recipients.get("cc_recipients", []), contacts_dict),
+                        "bccRecipients": find_emails_for_recipients(recipients.get("bcc_recipients", []), contacts_dict)
+                    })
+                except Contact.DoesNotExist:
+                    LOGGER.warning("No contacts found for user")
+                    response_data.update({
+                        "mainRecipients": [],
+                        "ccRecipients": [],
+                        "bccRecipients": []
+                    })
+
+        elif scenario == 4:
+            gen_email_conv = GenerateEmailConversation(
+                user=user,
+                length=agent_settings["length"],
+                formality=agent_settings["formality"], 
+                subject=subject,
+                body=email_content,
+                history=chat_history
+            )
+            
+            result = gen_email_conv.improve_draft(user_input, language)
+            update_tokens_stats(user, result)
+
+            response_data.update({
+                "subject": result.get("new_subject", ""),
+                "emailBody": result.get("new_body", ""),
+                "history": gen_email_conv.history.dict()
+            })
+
+        else:
+            return Response(
+                {"error": "Could not determine appropriate action from input"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        LOGGER.error(f"Error handling email action: {str(e)}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

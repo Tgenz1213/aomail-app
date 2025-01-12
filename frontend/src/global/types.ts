@@ -106,14 +106,10 @@ export interface UploadedFile {
     size: number;
 }
 
-export interface EmailMapping {
-    [username: string]: string;
-}
-
 export interface AiRecipient {
     username: string;
-    email: string[];
-}
+    email: string | { username: string; email: string }[];
+  }  
 
 export interface Agent {
     id: string;

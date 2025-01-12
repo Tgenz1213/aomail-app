@@ -108,6 +108,7 @@ urlpatterns = [
     path('generate_email_answer/', ai.generate_email_answer, name='generate_email_answer'),
     path('get_new_email_response/', ai.get_new_email_response, name='get_new_email_response'),
     path('improve_draft/', ai.improve_draft, name='improve_draft'),
+    path('handle_email_action/', ai.handle_email_action, name='handle_email_action'),
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', auth_microsoft.generate_auth_url, name='microsoft_auth_url'),
     path('microsoft/auth_url_link_email/', auth_microsoft.auth_url_link_email, name='microsoft_auth_url_link_email'),

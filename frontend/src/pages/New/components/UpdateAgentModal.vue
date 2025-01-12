@@ -55,6 +55,35 @@
           ></textarea>
         </div>
 
+        <div class="mb-4">
+          <button
+            type="button"
+            @click="showEmailExample = !showEmailExample"
+            class="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+          >
+            <PlusIcon v-if="!showEmailExample" class="h-4 w-4 mr-1" />
+            <MinusIcon v-else class="h-4 w-4 mr-1" />
+            Add email example (Optional)
+          </button>
+          
+          <transition
+            enter-active-class="transition ease-out duration-200"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
+          >
+            <textarea
+              v-if="showEmailExample"
+              v-model="emailExample"
+              rows="6"
+              class="mt-2 block w-full border border-gray-300 rounded-md p-2 focus:border-gray-900 focus:ring-gray-900 focus:outline-none min-h-[150px]"
+              placeholder="Paste an example email that represents the style you want the agent to follow"
+            ></textarea>
+          </transition>
+        </div>
+
         <div class="flex space-x-4 mb-4">
           <div class="flex-1">
             <label class="block text-sm font-medium text-gray-700">Length</label>
@@ -155,7 +184,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue';
-import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/vue/20/solid';
+import { ChevronUpDownIcon, CheckIcon, XMarkIcon, PlusIcon, MinusIcon } from '@heroicons/vue/20/solid';
 import { putData, deleteData } from "@/global/fetchData";
 import { Agent } from "@/global/types";
 
@@ -174,6 +203,8 @@ const length = ref(props.agent.length);
 const formality = ref(props.agent.formality);
 const previewImage = ref(props.agent.picture || "");
 const selectedFile = ref<File | null>(null);
+const showEmailExample = ref(false);
+const emailExample = ref(props.agent.email_example || "");
 
 watch(
   () => props.agent,
@@ -182,6 +213,7 @@ watch(
     behaviorDescription.value = newAgent.ai_template || "";
     length.value = newAgent.length;
     formality.value = newAgent.formality;
+    emailExample.value = newAgent.email_example || "";
   }
 );
 
@@ -189,6 +221,7 @@ const updateAgent = async () => {
   const formData = new FormData();
   formData.append("agent_name", agentName.value);
   formData.append("ai_template", behaviorDescription.value);
+  formData.append("email_example", emailExample.value);
   formData.append("length", length.value);
   formData.append("formality", formality.value);
   if (selectedFile.value) {

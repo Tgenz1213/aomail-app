@@ -13,6 +13,7 @@ Features:
 - ✅ categorize_and_summarize_email: Categorizes and summarizes an email.
 """
 
+import re
 import ast
 import json
 import logging
@@ -209,8 +210,15 @@ def generate_email(input_data: str, length: str, formality: str, language: str, 
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    signature_instruction = f"\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}" if signature else "Add a standard greeting and sign-off without a signature (unless explicitly mentioned) if nothing is specified."
-    
+    has_content = bool(signature) and bool(re.sub(r'<[^>]+>', '', signature).strip())
+    if has_content:
+        signature_instruction = (
+            f"\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
+        )
+    else:
+        signature_instruction = (
+            "Add a standard greeting and sign-off without a signature (unless explicitly mentioned).\nSignature: <br>"
+        )    
     template = f"""As an email assistant, following these agent guidelines: {json.dumps(agent_settings)}, write a {length} and {formality} email in {language}.
 Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
 It must strictly contain only the information that is present in the input.

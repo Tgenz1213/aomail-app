@@ -167,6 +167,9 @@ const agentToUpdate = ref<Agent>({
 
 const askContent = inject<() => void>("askContent");
 
+const isAiWriting = inject('isAiWriting') as Ref<boolean>;
+const isFirstTimeEmail = inject('isFirstTimeEmail') as Ref<boolean>;
+
 // Provide any additional functions if necessary
 provide("handleAIClick", handleAIClick);
 provide("selectedLength", selectedLength);
@@ -216,6 +219,7 @@ async function handleAIClick() {
 
         const data = response.data;
         history.value = data.history;
+        isAiWriting.value = false;
 
         switch (data.scenario) {
             case 1:
@@ -254,6 +258,8 @@ async function handleAIClick() {
         displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), selectedAgent.value.picture);
     } finally {
         isWriting.value = false;
+        isFirstTimeEmail.value = true;
+        isAiWriting.value = true;
     }
 }
 

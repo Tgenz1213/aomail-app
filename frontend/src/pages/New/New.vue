@@ -81,6 +81,7 @@ const signatures = ref<any[]>([]);
 const agents = ref<Agent[]>([]);
 const isLoadingAgentSelection = ref(false);
 const isInitialized = ref(false);
+const isAiWriting = ref(false);
 let quill: Quill | null = null;
 const selectedAgent = ref<Agent>({
     id: "",
@@ -172,6 +173,8 @@ provide("agents", agents);
 provide('selectedAgent', selectedAgent);
 provide("setAgentLastUsed", setAgentLastUsed);
 provide("signatures", signatures);
+provide('isAiWriting', isAiWriting);
+provide('isFirstTimeEmail', isFirstTimeEmail);
 
 
 onMounted(async () => {
@@ -238,6 +241,35 @@ async function getProfileImage() {
     imageURL.value = result.data.profileImageUrl;
 }
 
+/**
+ * Normalizes and tokenizes a string.
+ * @param str - The string to process.
+ * @returns An array of tokens.
+ */
+function tokenize(str: string): string[] {
+    const withoutHtml = str.replace(/<[^>]*>/g, ' ');
+    const lowerCased = withoutHtml.toLowerCase();
+    return lowerCased.split(/\s+/).filter(word => word.length > 0);
+}
+
+/**
+ * Calculates the Jaccard Similarity between two strings.
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns Similarity score between 0 and 1.
+ */
+function jaccardSimilarity(a: string, b: string): number {
+    const tokensA = new Set(tokenize(a));
+    const tokensB = new Set(tokenize(b));
+
+    const intersection = new Set([...tokensA].filter(word => tokensB.has(word)));
+    const union = new Set([...tokensA, ...tokensB]);
+
+    if (union.size === 0) return 1; // Both strings are empty
+
+    return intersection.size / union.size;
+}
+
 async function initializeQuill() {
     const toolbarOptions = [
         [{ font: [] }],
@@ -259,12 +291,29 @@ async function initializeQuill() {
         quill.on("text-change", () => {
             quillContent.value = quill?.root.innerHTML ?? "";
             emailBody.value = quillContent.value;
-            
-            if (isFirstTimeEmail.value) {
-                if (quillContent.value.trim() !== "<p><br></p>") {
+
+            if (isFirstTimeEmail.value && !isAiWriting.value) {
+                const currentContent = quillContent.value.trim();
+                
+                const signatureContentRaw = signatures.value.length > 0 
+                    ? signatures.value[0].signature_content 
+                    : "";
+                
+                const plainTextContent = currentContent.replace(/<[^>]*>/g, '').trim();
+                const signaturePlainText = signatureContentRaw.replace(/<[^>]*>/g, '').trim();
+
+                const similarity = jaccardSimilarity(plainTextContent, signaturePlainText);
+
+                const SIMILARITY_THRESHOLD = 0.9;
+
+                if (
+                    plainTextContent.length >= 8 && // Minimum meaningful characters
+                    similarity < SIMILARITY_THRESHOLD // Less than 90% similarity
+                ) {
                     handleInputUpdateMailContent(quillContent.value);
-                    isFirstTimeEmail.value = false;
                 }
+            } else {
+                isAiWriting.value = false;
             }
         });
     }
@@ -287,10 +336,9 @@ function insertSignature(signatureContent: string) {
 
 function handleInputUpdateMailContent(newMessage: string) {
     if (newMessage !== "") {
-        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedBCC.value.length > 0) {
-            askContentAdvice();
-            scrollToBottom();
-        }
+        askContentAdvice();
+        scrollToBottom();
+        isFirstTimeEmail.value = false;
     }
 }
 
@@ -475,12 +523,10 @@ function loading() {
       <div id="dynamicLoadingIndicator" class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-                    <span class="text-lg font-medium leading-none text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-                      </svg>
-                    </span>
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    ${selectedAgent.value.picture}
+                    </svg>
                 </span>
             </div>
             <div>
@@ -509,17 +555,13 @@ function askContentAdvice() {
       <div class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <!--
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-                    <img src="${selectedAgent.value.picture}" class="max-w-full max-h-full rounded-full">
-                </span>-->
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                  </svg>
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    ${selectedAgent.value.picture}
+                    </svg>
                 </span>
             </div>
-            <div>
+            <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                 <div class="flex flex-col">
                   <p ref="animatedText${counterDisplay.value}"></p>
                   <div class="flex mt-4">
@@ -594,12 +636,14 @@ async function checkSpelling() {
               <div class="flex pb-12">
                   <div class="mr-4 flex">
                       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                        </svg>
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            ${selectedAgent.value.picture}
+                            </svg>
+                        </span>
                       </span>
                   </div>
-                  <div>
+                  <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                       <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.correctedSubject}</p>
                       <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedBody}</p>
                   </div>
@@ -635,13 +679,13 @@ async function checkCopyWriting() {
     const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                        </svg>
-                      </span>
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            ${selectedAgent.value.picture}
+                            </svg>
+                        </span>
                   </div>
-                  <div>
+                  <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                       <p>${formattedCopWritingOutput}</p>
                   </div>
               </div>
@@ -678,13 +722,13 @@ async function writeBetter() {
     const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                      </svg>
+                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        ${selectedAgent.value.picture}
+                        </svg>
                     </span>
                 </div>
-                <div>
+                <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                     <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
                     <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${result.data.emailBody}</p>
                 </div>

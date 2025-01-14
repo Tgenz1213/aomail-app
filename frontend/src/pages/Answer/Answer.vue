@@ -13,15 +13,15 @@
             </div>
             <div
                 id="firstMainColumn"
-                class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
+                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
             >
-                <AiEmail />
+                <ManualEmail />  
             </div>
             <div
                 id="secondMainColumn"
-                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
+                class="flex flex-col bg-zinc-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
             >
-                <ManualEmail />
+                <AiEmail />
             </div>
         </div>
     </div>

@@ -632,8 +632,8 @@
         "message": "Signature created successfully."
       }
     },
-    "createAgent": {
-      "title": "Create New Agent",
+    "updateAgent": {
+      "title": "Update Agent",
       "upload": "Upload",
       "agentName": "Agent Name",
       "agentNameError": "Please enter an agent name",
@@ -645,7 +645,8 @@
       "length": "Length",
       "formality": "Formality",
       "cancel": "Cancel",
-      "create": "Create"
+      "update": "Update",
+      "delete": "Delete"
     }
   },
   "answerPage": {

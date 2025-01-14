@@ -112,8 +112,8 @@
 import { inject, provide, Ref, ref } from "vue";
 import { postData } from "@/global/fetchData";
 import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
-import CreateAgentModal from "./CreateAgentModal.vue";
-import UpdateAgentModal from "./UpdateAgentModal.vue";
+import CreateAgentModal from "@/global/components/CreateAgentModal.vue";
+import UpdateAgentModal from "@/global/components/UpdateAgentModal.vue";
 import { Agent, Recipient, AiRecipient } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import Quill from "quill";

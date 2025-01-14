@@ -2,7 +2,7 @@
   <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Create New Agent</h2>
+        <h2 class="text-xl font-semibold">{{ $t('newPage.createAgent.title') }}</h2>
         <button
           type="button"
           @click="$emit('close')"
@@ -28,29 +28,33 @@
                     class="hidden"
                     @change="handleImageUpload"
                   />
-                  <span class="text-white text-xs">Upload</span>
+                  <span class="text-white text-xs">{{ $t('newPage.createAgent.upload') }}</span>
                 </label>
               </div>
             </div>
             <div class="flex-grow">
-              <label class="block text-sm font-medium text-gray-700">Agent Name</label>
+              <label class="block text-sm font-medium text-gray-700">{{ $t('newPage.createAgent.agentName') }}</label>
+              <p v-if="showNameError" class="text-red-500 text-xs mt-1">
+                {{ $t('newPage.createAgent.agentNameError') }}
+              </p>
               <input
                 type="text"
                 v-model="agentName"
                 required
+                @input="showNameError = false"
                 class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-gray-900 focus:ring-gray-900 focus:outline-none"
-                placeholder="Enter agent name"
+                :placeholder="$t('newPage.createAgent.agentNamePlaceholder')"
               />
             </div>
           </div>
         </div>
 
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Behavior Description (Optional)</label>
+          <label class="block text-sm font-medium text-gray-700">{{ $t('newPage.createAgent.behaviorDescription') }}</label>
           <textarea
             v-model="behaviorDescription"
             class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-gray-900 focus:ring-gray-900 focus:outline-none"
-            placeholder="Describe agent behavior"
+            :placeholder="$t('newPage.createAgent.behaviorPlaceholder')"
           ></textarea>
         </div>
 
@@ -62,7 +66,7 @@
           >
             <PlusIcon v-if="!showEmailExample" class="h-4 w-4 mr-1" />
             <MinusIcon v-else class="h-4 w-4 mr-1" />
-            Add email example (Optional)
+            {{ $t('newPage.createAgent.emailExample') }}
           </button>
           
           <transition
@@ -78,14 +82,14 @@
               v-model="emailExample"
               rows="6"
               class="mt-2 block w-full border border-gray-300 rounded-md p-2 focus:border-gray-900 focus:ring-gray-900 focus:outline-none min-h-[150px]"
-              placeholder="Paste an example email that represents the style you want the agent to follow"
+              :placeholder="$t('newPage.createAgent.emailExamplePlaceholder')"
             ></textarea>
           </transition>
         </div>
 
         <div class="flex space-x-4 mb-4">
           <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700">Length</label>
+            <label class="block text-sm font-medium text-gray-700">{{ $t('newPage.createAgent.length') }}</label>
             <Listbox v-model="length">
               <div class="relative mt-1">
                 <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
@@ -118,7 +122,7 @@
           </div>
 
           <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700">Formality</label>
+            <label class="block text-sm font-medium text-gray-700">{{ $t('newPage.createAgent.formality') }}</label>
             <Listbox v-model="formality">
               <div class="relative mt-1">
                 <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
@@ -157,13 +161,13 @@
             @click="$emit('close')"
             class="inline-flex w-full rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-400 sm:w-auto"
           >
-            Cancel
+            {{ $t('newPage.createAgent.cancel') }}
           </button>
           <button
             type="submit"
             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
           >
-            Create
+            {{ $t('newPage.createAgent.create') }}
           </button>
         </div>
       </form>
@@ -190,6 +194,7 @@ const showEmailExample = ref(false);
 const emailExample = ref("");
 const previewImage = ref("");
 const selectedFile = ref<File | null>(null);
+const showNameError = ref(false);
 
 const handleImageUpload = (event: Event) => {
   const input = event.target as HTMLInputElement;
@@ -200,6 +205,11 @@ const handleImageUpload = (event: Event) => {
 };
 
 const createAgent = async () => {
+  if (!agentName.value.trim()) {
+    showNameError.value = true;
+    return;
+  }
+  
   const formData = new FormData();
   formData.append("agent_name", agentName.value);
   formData.append("agent_ai_model", "gemini");

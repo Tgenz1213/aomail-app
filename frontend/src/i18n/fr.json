@@ -630,6 +630,21 @@
         "title": "Succès",
         "message": "Signature créée avec succès."
       }
+    },
+    "createAgent": {
+      "title": "Créer un nouvel agent",
+      "upload": "Télécharger",
+      "agentName": "Nom de l'agent",
+      "agentNameError": "Veuillez entrer un nom d'agent",
+      "agentNamePlaceholder": "Entrez le nom de l'agent",
+      "behaviorDescription": "Description du comportement (Optionnel)",
+      "behaviorPlaceholder": "Décrivez le comportement de l'agent",
+      "emailExample": "Ajouter un exemple d'email (Optionnel)",
+      "emailExamplePlaceholder": "Collez un exemple d'email qui représente le style que vous souhaitez que l'agent suive",
+      "length": "Longueur",
+      "formality": "Formalité",
+      "cancel": "Annuler",
+      "create": "Créer"
     }
   },
   "answerPage": {

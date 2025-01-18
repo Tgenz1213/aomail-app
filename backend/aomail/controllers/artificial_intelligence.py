@@ -667,23 +667,7 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        try:
-            agent = Agent.objects.get(user=user, last_used=True)
-        except Agent.DoesNotExist:
-            return Response(
-                {"error": "No active agent found for the user."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        agent_settings = {
-            "ai_template": agent.ai_template,
-            "email_example": agent.email_example,
-            "length": agent.length,
-            "formality": agent.formality,
-            "language": agent.language,
-        }
-
-        result = gemini.generate_response_keywords(subject, body, agent_settings)
+        result = gemini.generate_response_keywords(subject, body)
         update_tokens_stats(user, result)
 
         return Response(

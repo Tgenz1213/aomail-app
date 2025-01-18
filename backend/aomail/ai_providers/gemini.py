@@ -155,33 +155,37 @@ def extract_contacts_recipients(query: str) -> dict[str, list]:
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email: str, input_subject: str, agent_settings: dict) -> dict:
+def generate_response_keywords(input_email: str, input_subject: str) -> dict:
     """
-    Generates a list of keywords for responding to a given email using agent guidelines.
+    Generates a list of quick response sentences for responding to a given email.
 
     Args:
         input_email (str): The body of the email.
         input_subject (str): The subject of the email.
-        agent_settings (dict): The agent's guidelines and settings to guide AI responses.
 
     Returns:
         dict: A dictionary containing:
-            keywords_list (list): A list of keywords suggesting ways to respond to the email.
+            keywords_list (list): A list of quick response sentences for the email.
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    formatted_prompt = f"""As an email assistant, following these agent guidelines: {json.dumps(agent_settings)}, and given the email with subject: '{input_subject}' and body: '{input_email}'.
+    formatted_prompt = f"""As an email assistant and given the email with subject: '{input_subject}' and body: '{input_email}'.
 
-IDENTIFY up to 4 different ways to respond to this email. Only identify relevant ways to respond if you can't find 4 different ways; only give 2 or 3 ways to respond.
-USE few words in the primary language used in the email while keeping a relevant meaning ONLY if you are sure that the keyword is relevant. If you hesitate, do not add it.
-KEYWORDS must look like ACTIONS buttons the user WILL click to reply to the email.
+IDENTIFY up to 5 different ways to respond to this email. Only identify relevant ways to respond if you can't find 5 different ways; only give 2, 3 or 4 ways to respond.
+CREATE short, natural sentences (5-8 words) in the primary language used in the email. Each sentence should be a complete response that the user could send.
+The sentences must be DIRECT and PROFESSIONAL, ready to be sent as a quick reply.
 
 ---
 As an answer ONLY give a Python List format: ["...", "..."]. Don't use any other characters; otherwise, it will create errors. Do not give ANY explanations, RETURN only the list.
 """
-    response = get_prompt_response(formatted_prompt)
-    keywords = extract_json_from_response(response.text)
-    keywords_list = ast.literal_eval(keywords)
+    response = get_prompt_response_exp(formatted_prompt)
+    keywords_text = response.text.strip()
+    
+    try:
+        keywords_list = ast.literal_eval(keywords_text)
+    except (ValueError, SyntaxError):
+        cleaned_text = keywords_text.replace("```", "").replace("python", "").strip()
+        keywords_list = ast.literal_eval(cleaned_text)
 
     return {
         "keywords_list": keywords_list,

@@ -376,7 +376,7 @@ onMounted(async () => {
             <p class="my-0 font-bold text-md">${i18n.global.t("answerPage.chatSummarize")}</p>
             <p class="my-0 text-sm">${shortSummary}</p>
             <div class="mr-4 pt-2">
-              <button type="button" class="text-md show-email-btn px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+              <button type="button" class="text-md show-email-btn px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-zinc-800 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
                 ${i18n.global.t("answerPage.seeMail")}
               </button>
             </div>
@@ -547,7 +547,7 @@ function askContentAdvice() {
 
         buttonsHTML += `
             <div class="mr-4">
-                <button type="button" id="responseKeywordButton${index}" data-value="${keyword}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                <button type="button" id="responseKeywordButton${index}" data-value="${keyword}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-zinc-800 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
                     ${keyword}
                 </button>
             </div>
@@ -565,9 +565,9 @@ function askContentAdvice() {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 ${selectedAgent.value.picture}
                 </svg>
-            </span>zz
+            </span>
           </div>
-          <div class="flex flex-col">
+          <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
             <p ref="animatedText${counterDisplay.value}" class="mt-0"></p>
             <div class="flex flex-col mt-2">
               ${buttonsHTML}

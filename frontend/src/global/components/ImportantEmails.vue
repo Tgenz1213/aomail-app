@@ -5,7 +5,15 @@
                 <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
                     {{ $t("constants.ruleModalConstants.important") }}
                 </p>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center space-x-2">
+                    <button
+                        @click="markAllAsRead"
+                        class="text-xs text-orange-700 bg-orange-200 hover:bg-orange-300 px-3 py-1 rounded-md flex items-center gap-1"
+                        :disabled="isMarking?.important"
+                    >
+                        <CheckIcon class="h-4 w-4 text-orange-700" v-if="!isMarking?.important"/>
+                        {{ isMarking?.important ? $t("loading") : $t("markAllAsRead") }}
+                    </button>
                     <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
                 </div>
             </div>
@@ -58,11 +66,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { ExclamationTriangleIcon } from "@heroicons/vue/24/outline";
+import { ref, inject, computed, watch } from "vue";
+import { ExclamationTriangleIcon, CheckIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "../formatters";
+
+const markCategoryAsRead = inject<(category: 'important' | 'informative' | 'useless') => void>("markCategoryAsRead");
+const isMarking = inject<{
+    important: boolean;
+    informative: boolean;
+    useless: boolean;
+}>("isMarking");
+//const readCount = inject("readCount") as Ref<number>;
 
 const props = defineProps<{
     emails: Email[];
@@ -103,4 +119,18 @@ const groupedEmails = computed(() => {
 const hasEmails = computed(() => {
     return Object.keys(groupedEmails.value).length > 0;
 });
+
+const markAllAsRead = () => {
+    markCategoryAsRead && markCategoryAsRead('important');
+    /* Problem => not sufficient because it doesn't allow the user to read the emails mark as read if the counter is updated
+    const importantEmails = localEmails.value.filter(email => email.priority === 'important' && !email.read);
+    const ids = importantEmails.map(email => email.id);
+    readCount.value += ids.length;
+    localEmails.value = localEmails.value.map(email => {
+        if (ids.includes(email.id)) {
+            return { ...email, read: true };
+        }
+        return email;
+    });*/
+};
 </script>

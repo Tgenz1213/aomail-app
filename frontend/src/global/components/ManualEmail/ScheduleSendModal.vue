@@ -56,7 +56,6 @@ import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
-const quill = inject<Ref<Quill | null>>("quill");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const fileObjects = inject<Ref<File[]>>("fileObjects") || ref([]);
@@ -69,6 +68,7 @@ const AIContainer =
 const uploadedFiles = inject<Ref<UploadedFile[]>>("uploadedFiles") || ref([]);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
+const getQuill = inject<() => Quill | null>("getQuill");
 
 const props = defineProps<{
     isOpen: boolean;
@@ -100,7 +100,8 @@ onUnmounted(() => {
 });
 
 async function scheduleSend() {
-    if (!AIContainer.value || !quill?.value) return;
+    const quillInstance = getQuill?.();
+    if (!AIContainer.value || !quillInstance) return;
 
     if (!selectedDate.value) {
         errorMessage.value = i18n.global.t("constants.sendEmailConstants.selectTimeAndDate");
@@ -110,7 +111,7 @@ async function scheduleSend() {
 
     const result = await postData(`user/social_api/send_schedule_email/`, {
         subject: subjectInput.value,
-        message: quill.value.root.innerHTML,
+        message: quillInstance.root.innerHTML,
         attachments: fileObjects.value,
         to: selectedPeople.value.map((person) => person.email),
         cc: selectedCC.value.map((person) => person.email),
@@ -133,7 +134,7 @@ async function scheduleSend() {
         );
 
         subjectInput.value = "";
-        quill.value.root.innerHTML = "";
+        quillInstance.root.innerHTML = "";
         selectedPeople.value = [];
         selectedCC.value = [];
         selectedBCC.value = [];
@@ -149,4 +150,11 @@ async function scheduleSend() {
     }
     closeModal();
 }
+
+/*
+function validateScheduledSend(): boolean {
+    if (!quill) return false;
+    // ... validation logic
+}
+*/
 </script>

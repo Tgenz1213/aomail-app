@@ -70,6 +70,10 @@
     },
     "popUpConstants": {
       "errorMessages": {
+        "noEmailsToArchive": "No emails to archive",
+        "failedToArchive": "Failed to archive emails",
+        "failedToMarkAsRead": "Failed to mark emails as read",
+        "noEmailsToMark": "No emails to mark",
         "emailSendError": "Email send error",
         "contactFetchError": "Contact fetch error",
         "pleaseEnterAnEmail": "Pls enter an email",
@@ -118,7 +122,11 @@
         "updateFilterSuccess": "Filter has been updated",
         "filterAddedSuccess": "Filter has been added",
         "deleteFilterSuccess": "Your filter has been deleted",
-        "emailScheduledSuccessfully": "Your email has been scheduled and will be sent on time"
+        "emailScheduledSuccessfully": "Your email has been scheduled and will be sent on time",
+        "emailsMarkedAsRead": "Emails Marked as Read",
+        "emailsMarkedAsReadDescription": "All selected emails have been marked as read.",
+        "emailsArchived": "Emails Archived",
+        "emailsArchivedDescription": "All selected emails have been archived."
       }
     },
     "freeTrialExpired": "Free trial expired",
@@ -340,7 +348,18 @@
           "themeUpdatedSuccessfully": "Theme updated successfully",
           "timezoneUpdatedSuccessfully": "Timezone updated successfully"
         }
-      }
+      },
+      "signatureManagement": "Signature Management",
+      "selectSignature": "Select a signature",
+      "editSignature": "Edit Signature",
+      "updateSignature": "Update Signature",
+      "signaturePlaceholder": "Type your signature here...",
+      "createSignature": "Create Signature",
+      "cancel": "Cancel",
+      "updateSuccess": "Signature updated successfully.",
+      "updateError": "Failed to update signature.",
+      "creationSuccess": "Signature created successfully.",
+      "creationError": "Failed to create signature."
     },
     "subscriptionPage": {
       "subscriptionTitle": "Subscription",
@@ -582,7 +601,30 @@
     "mainRecipient": "Main Recipient",
     "ccRecipient": "Copy",
     "bccRecipient": "Blind Copy",
-    "moveToNextStep": "Move to next step"
+    "moveToNextStep": "Move to next step",
+    "signatureModal": {
+      "title": "Create Email Signature",
+      "signatureContentLabel": "Signature Content:",
+      "signaturePlaceholder": "Type your signature or paste/drop an image here",
+      "editLaterInfo": "You will be able to create/edit your signature later in the settings (preferences)",
+      "cancel": "Cancel",
+      "create": "Create",
+      "error": {
+        "noEmailSelected": "Error",
+        "noEmailSelectedMessage": "No email selected.",
+        "creationFailed": "Error",
+        "creationFailedMessage": "Failed to create signature.",
+        "unexpected": "Error",
+        "unexpectedMessage": "An unexpected error occurred.",
+        "emptyCreationFailed": "Error",
+        "fetchFailed": "Error",
+        "fetchFailedMessage": "Failed to fetch signatures."
+      },
+      "success": {
+        "title": "Success",
+        "message": "Signature created successfully."
+      }
+    }
   },
   "answerPage": {
     "responseSentTitle": "Response sent!",
@@ -614,5 +656,8 @@
     "noEmailsToReplyLater": "No emails to reply later",
     "removeFromReplyLater": "Remove from Reply Later",
     "markEmailNotReplyLaterFailure": "Failed to mark email as not reply later"
-  }
+  },
+  "markAllAsRead": "Mark All as Read",
+  "markAllAsArchive": "Archive All",
+  "loading": "Loading"
 }

@@ -57,7 +57,6 @@ const selectedFormality = ref("formal");
 const timerId = ref<number | null>(null);
 const AIContainer = ref<HTMLElement | null>(null);
 const scrollableDiv = ref<HTMLDivElement | null>(null);
-const quill: Ref<Quill | null> = ref(null);
 const counterDisplay = ref(0);
 const history = ref({});
 const emailsLinked = ref<EmailLinked[]>([]);
@@ -71,6 +70,7 @@ const fileObjects = ref<File[]>([]);
 const emailContent = ref("");
 const responseKeywords = ref([]);
 const imageURL = ref<string>(userImage);
+let quill: Quill | null = null;
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -79,13 +79,17 @@ const scrollToBottom = async () => {
     element.scrollTop = element.scrollHeight;
 };
 
+function getQuill() {
+  return quill;
+}
+
 provide("imageURL", imageURL);
 provide("importance", importance);
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
 provide("selectedCC", selectedCC);
 provide("selectedBCC", selectedBCC);
-provide("quill", quill);
+provide("getQuill", getQuill);
 provide("stepContainer", stepContainer);
 provide("AIContainer", AIContainer);
 provide("counterDisplay", counterDisplay);
@@ -249,7 +253,7 @@ async function initializeQuill() {
 
     const editorElement = document.getElementById("editor");
     if (editorElement) {
-        quill.value = new Quill(editorElement, {
+        quill = new Quill(editorElement, {
             theme: "snow",
             modules: { toolbar: toolbarOptions },
         });
@@ -395,7 +399,8 @@ function askContentAdvice() {
 }
 
 async function handleButtonClick(keyword: string | null) {
-    if (isWriting.value || !AIContainer.value || !quill?.value) {
+    const quillInstance = getQuill?.();
+    if (isWriting.value || !AIContainer.value || !quillInstance) {
         return;
     }
     isWriting.value = true;
@@ -417,7 +422,7 @@ async function handleButtonClick(keyword: string | null) {
         return;
     }
 
-    const quillEditorContainer = quill.value.root;
+    const quillEditorContainer = quillInstance.root;
     quillEditorContainer.innerHTML = result.data.emailAnswer;
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     await displayMessage(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), aiIcon);

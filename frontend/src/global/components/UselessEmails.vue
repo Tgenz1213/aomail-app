@@ -1,11 +1,19 @@
 <template>
     <div v-if="hasEmails" class="px-6 py-6">
         <div class="bg-gray-100 bg-opacity-90 rounded-md">
-            <div class="flex px-2 py-2">
+            <div class="flex px-3 py-2">
                 <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
                     {{ $t("constants.ruleModalConstants.useless") }}
                 </p>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center space-x-2">
+                    <button
+                        @click="markAllAsRead"
+                        class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md flex items-center gap-1"
+                        :disabled="isMarking?.useless"
+                    >
+                        <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless"/>
+                        {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
+                    </button>
                     <trash-icon class="w-6 h-6 text-gray-500" />
                 </div>
             </div>
@@ -115,7 +123,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch, onMounted, inject } from "vue";
-import { TrashIcon } from "@heroicons/vue/24/outline";
+import { TrashIcon, CheckIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "../formatters";
@@ -167,6 +175,17 @@ function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
     localStorage.setItem("showUseless", JSON.stringify(showEmailDescriptions.value));
 }
+
+const markCategoryAsRead = inject<(category: 'important' | 'informative' | 'useless') => void>("markCategoryAsRead");
+const isMarking = inject<{
+    important: boolean;
+    informative: boolean;
+    useless: boolean;
+}>("isMarking");
+
+const markAllAsRead = () => {
+    markCategoryAsRead && markCategoryAsRead('useless');
+};
 
 onMounted(() => {
     const storedShowUseless = localStorage.getItem("showUseless");

@@ -1,11 +1,19 @@
 <template>
     <div v-if="hasEmails" class="px-6 py-6">
         <div class="bg-blue-100 bg-opacity-90 rounded-md">
-            <div class="flex px-2 py-2">
+            <div class="flex px-3 py-2">
                 <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
                     {{ $t("constants.ruleModalConstants.informative") }}
                 </p>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center space-x-2">
+                    <button
+                        @click="markAllAsRead"
+                        class="text-xs text-blue-700 bg-blue-200 hover:bg-blue-300 px-3 py-1 rounded-md flex items-center gap-1"
+                        :disabled="isMarking?.informative"
+                    >
+                        <CheckIcon class="h-4 w-4 text-blue-700" v-if="!isMarking?.informative"/>
+                        {{ isMarking?.informative ? $t("loading") : $t("markAllAsRead") }}
+                    </button>
                     <information-circle-icon class="w-6 h-6 text-blue-500" />
                 </div>
             </div>
@@ -60,11 +68,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { InformationCircleIcon } from "@heroicons/vue/24/outline";
+import { ref, inject, computed, watch } from "vue";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "../formatters";
+import { InformationCircleIcon, CheckIcon } from "@heroicons/vue/24/outline";
+
+const markCategoryAsRead = inject<(category: 'important' | 'informative' | 'useless') => void>("markCategoryAsRead");
+const isMarking = inject<{
+    important: boolean;
+    informative: boolean;
+    useless: boolean;
+}>("isMarking");
 
 const props = defineProps<{
     emails: Email[];
@@ -105,4 +120,11 @@ const groupedEmails = computed(() => {
 const hasEmails = computed(() => {
     return Object.keys(groupedEmails.value).length > 0;
 });
+
+/**
+ * Handler for the "Mark All as Read" button
+ */
+const markAllAsRead = () => {
+    markCategoryAsRead && markCategoryAsRead('informative');
+};
 </script>

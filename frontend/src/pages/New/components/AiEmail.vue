@@ -51,7 +51,6 @@ import { inject, provide, Ref, ref } from "vue";
 import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
 
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
-const quill = inject<Ref<Quill | null>>("quill");
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
 const history = inject<Ref<Record<string, any>>>("history") || ref({});
 const AIContainer =
@@ -72,6 +71,8 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const loading = inject<() => void>("loading");
 const hideLoading = inject<() => void>("hideLoading");
 const askContent = inject<() => void>("askContent");
+
+const getQuill = inject<() => Quill | null>("getQuill");
 
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);
@@ -222,85 +223,62 @@ function displayNoRecipientsFoundMessage() {
 }
 
 async function newEmailAi() {
-    if (!AIContainer.value || !quill?.value) return;
-    if (textareaValueSave.value == "") {
+    const quillInstance = getQuill?.();
+    if (!AIContainer.value || !quillInstance) return;
+    
+    if (textareaValueSave.value === "") {
         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
         displayMessage?.(i18n.global.t("constants.sendEmailConstants.noDraftsEnteredPleaseTryAgain"), aiIcon);
-    } else {
-        loading?.();
-        scrollToBottom?.();
-        const result = await postData("new_email_ai/", {
-            inputData: textareaValueSave.value,
-            length: selectedLength.value,
-            formality: selectedFormality.value,
-        });
-        hideLoading?.();
-        if (!result.success) {
-            const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-            displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
-            return;
-        }
-        subjectInput.value = result.data.subject;
-        emailBody.value = result.data.mail;
-        stepContainer.value = 2;
-
-        subjectInput.value = result.data.subject;
-        const quillEditorContainer = quill.value.root;
-        quillEditorContainer.innerHTML = result.data.mail.replace(/<\/p>/g, "</p><p></p>");
+        return;
     }
+
+    loading?.();
+    scrollToBottom?.();
+    
+    const result = await postData("new_email_ai/", {
+        inputData: textareaValueSave.value,
+        length: selectedLength.value,
+        formality: selectedFormality.value,
+    });
+
+    if (!result.success) {
+        hideLoading?.();
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+        return;
+    }
+
+    quillInstance.root.innerHTML = result.data.mail.replace(/<\/p>/g, "</p><p></p>");
+
+    subjectInput.value = result.data.subject;
+    emailBody.value = result.data.mail;
+    stepContainer.value = 2;
+    hideLoading?.();
 }
 
 async function improveDraft() {
-    if (textareaValueSave.value == "") {
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain"), aiIcon);
-    } else {
-        if (!AIContainer.value || !quill?.value) return;
+    const quillInstance = getQuill?.();     
+    if (!quillInstance || !AIContainer.value) return;
 
-        loading?.();
-        scrollToBottom?.();
-        const result = await postData("improve_draft/", {
-            userInput: textareaValueSave.value,
-            length: selectedLength.value,
-            formality: selectedFormality.value,
-            subject: subjectInput.value,
-            body: emailBody.value,
-            history: history.value,
-        });
-        hideLoading?.();
+    loading?.();
+    scrollToBottom?.();
+    
+    const result = await postData("improve_draft/", {
+        userInput: textareaValueSave.value,
+        length: selectedLength.value,
+        formality: selectedFormality.value,
+        subject: subjectInput.value,
+        body: quillInstance.root.innerHTML, // Use reactive content
+        history: history.value,
+    });
 
-        if (!result.success) {
-            const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-            displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
-            return;
-        }
-        subjectInput.value = result.data.subject;
-        emailBody.value = result.data.emailBody;
-        history.value = result.data.history;
-        const formattedMail = result.data.emailBody.replace(/\n/g, "<br>");
-        const messageHTML = `
-            <div class="flex pb-12">
-                <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                    </svg>
-                    </span>
-                </div>
-                <div>
-                    <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
-                    <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedMail}</p>
-                </div>
-            </div>
-        `;
-        AIContainer.value.innerHTML += messageHTML;
-        const quillEditorContainer = quill.value.root;
-        quillEditorContainer.innerHTML = result.data.emailBody;
-        quillEditorContainer.style.cssText = "p { margin-bottom: 20px; }";
-
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
+    if (!result.success) {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+        return;
     }
+
+    quillInstance.root.innerHTML = result.data.emailBody;
 }
 
 async function handleAIClick() {

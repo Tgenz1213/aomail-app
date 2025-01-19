@@ -25,10 +25,16 @@
             </div>
         </div>
     </div>
+    <SignatureModal
+        :visible="showSignatureModal"
+        :selectedEmail="emailSelected"
+        @close="showSignatureModal = false"
+        @created="handleSignatureCreated"
+    />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch, computed } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -39,6 +45,7 @@ import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userImage from "@/assets/user.png";
+import SignatureModal from "@/global/components/SignatureModal.vue";
 
 const showNotification = ref(false);
 const isWriting = ref(false);
@@ -57,7 +64,7 @@ const selectedFormality = ref("formal");
 const timerId = ref<number | null>(null);
 const AIContainer = ref<HTMLElement | null>(null);
 const scrollableDiv = ref<HTMLDivElement | null>(null);
-const quill: Ref<Quill | null> = ref(null);
+const quillContent = ref("");
 const counterDisplay = ref(0);
 const history = ref({});
 const emailsLinked = ref<EmailLinked[]>([]);
@@ -69,6 +76,9 @@ const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
 const imageURL = ref<string>(userImage);
+const showSignatureModal = ref(false);
+const signatures = ref<any[]>([]);
+let quill: Quill | null = null;
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -79,20 +89,21 @@ const scrollToBottom = async () => {
 
 const askContent = () => {
     if (!AIContainer.value) return;
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0
-        1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45
-        1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18
-        0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     displayMessage?.(i18n.global.t("constants.sendEmailConstants.draftEmailRequest"), aiIcon);
 };
+
+function getQuill() {
+  return quill;
+}
 
 provide("imageURL", imageURL);
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
 provide("selectedCC", selectedCC);
 provide("selectedBCC", selectedBCC);
-provide("quill", quill);
 provide("stepContainer", stepContainer);
+provide("getQuill", getQuill);
 provide("AIContainer", AIContainer);
 provide("counterDisplay", counterDisplay);
 provide("isWriting", isWriting);
@@ -115,8 +126,14 @@ provide("getProfileImage", getProfileImage);
 provide("askContent", askContent);
 
 onMounted(async () => {
+    await fetchSignatures();
+    checkSignature();
     getProfileImage();
     await initializeQuill();
+
+    if (signatures.value.length > 0) {
+        insertSignature(signatures.value[0].signature_content);
+    }
 
     AIContainer.value = document.getElementById("AIContainer");
     document.addEventListener("keydown", handleKeyDown);
@@ -137,6 +154,7 @@ onUnmounted(() => {
 
 watch(emailSelected, () => {
     getProfileImage();
+    checkSignature();
 });
 
 async function getProfileImage() {
@@ -158,24 +176,37 @@ async function initializeQuill() {
 
     const editorElement = document.getElementById("editor");
     if (editorElement) {
-        quill.value = new Quill(editorElement, {
+        quill = new Quill(editorElement, {
             theme: "snow",
             modules: { toolbar: toolbarOptions },
         });
-    }
 
-    if (quill.value) {
-        quill.value.on("text-change", function () {
-            emailBody.value = quill.value?.root.innerHTML ?? "";
+        quill.on("text-change", () => {
+            quillContent.value = quill?.root.innerHTML ?? "";
+            emailBody.value = quillContent.value;
+            
             if (isFirstTimeEmail.value) {
-                const quillContent = quill.value?.root.innerHTML ?? "";
-                if (quillContent.trim() !== "<p><br></p>") {
-                    emailBody.value = quillContent;
-                    handleInputUpdateMailContent(quillContent);
+                if (quillContent.value.trim() !== "<p><br></p>") {
+                    handleInputUpdateMailContent(quillContent.value);
                     isFirstTimeEmail.value = false;
                 }
             }
         });
+    }
+}
+
+function insertSignature(signatureContent: string) {
+    const quillInstance = quill;
+    if (!quillInstance || !signatureContent) return;
+
+    try {
+        quillInstance.clipboard.dangerouslyPasteHTML(quillInstance.getLength(), `<p>${signatureContent}</p>`);
+        
+        nextTick(() => {
+            quillInstance.setSelection(quillInstance.getLength(), 0);
+        });
+    } catch (error) {
+        console.error("Error inserting signature:", error);
     }
 }
 
@@ -213,10 +244,9 @@ async function animateText(text: string, target: Element | null) {
                 currentIndex++;
             } else {
                 clearInterval(interval);
-                isWriting.value = false;
                 resolve();
             }
-        }, 30);
+        }, 50);
     });
 }
 
@@ -480,7 +510,7 @@ function askContentAdvice() {
 }
 
 async function checkSpelling() {
-    if (!AIContainer.value || !quill.value) return;
+    if (!AIContainer.value || !quill) return;
     loading();
 
     const result = await postData("correct_email_language/", {
@@ -512,7 +542,7 @@ async function checkSpelling() {
           `;
     AIContainer.value.innerHTML += messageHTML;
     subjectInput.value = result.data.correctedSubject;
-    const quillEditorContainer = quill.value.root;
+    const quillEditorContainer = quill.root;
     quillEditorContainer.innerHTML = result.data.correctedBody;
 
     const message = i18n.global.t("constants.sendEmailConstants.spellingCorrectionRequest");
@@ -560,7 +590,7 @@ async function checkCopyWriting() {
 }
 
 async function writeBetter() {
-    if (!AIContainer.value || !quill.value) return;
+    if (!AIContainer.value || !quill) return;
     loading();
 
     const result = await postData("improve_draft/", {
@@ -599,10 +629,37 @@ async function writeBetter() {
         `;
     AIContainer.value.innerHTML += messageHTML;
     subjectInput.value = result.data.subject;
-    const quillEditorContainer = quill.value.root;
+    const quillEditorContainer = quill.root;
     quillEditorContainer.innerHTML = result.data.emailBody;
 
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     await displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
 }
+
+const fetchSignatures = async () => {
+    const result = await getData("user/signatures/");
+    if (result.success) {
+        signatures.value = result.data;
+    } else {
+        displayPopup(
+            "error",
+            "Error",
+            "Failed to fetch signatures"
+        );
+    }
+};
+
+const checkSignature = () => {
+    const hasSignature = signatures.value.length > 0;
+    if (!hasSignature) {
+        showSignatureModal.value = true;
+    }
+};
+
+const handleSignatureCreated = (newSignature: any) => {
+    signatures.value.push(newSignature);
+    if (quill) {
+        insertSignature(newSignature.signature_content);
+    }
+};
 </script>

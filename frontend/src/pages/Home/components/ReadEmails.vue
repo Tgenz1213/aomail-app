@@ -5,7 +5,15 @@
                 <p class="flex-1 text-sm font-semibold leading-6 text-stone-600">
                     {{ $t("constants.ruleModalConstants.read") }}
                 </p>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center space-x-2">
+                    <button
+                        @click="markAllAsArchive"
+                        class="text-xs text-stone-700 bg-stone-300 hover:bg-stone-400 px-3 py-1 rounded-md flex items-center gap-1"
+                        :disabled="isMarking.read"
+                    >
+                        <ArchiveBoxIcon class="h-4 w-4 text-stone-700" v-if="!isMarking?.read"/>
+                        {{ isMarking?.read ? $t("loading") : $t("markAllAsArchive") }}
+                    </button>
                     <CheckIcon class="w-6 h-6 text-stone-500" />
                 </div>
             </div>
@@ -116,7 +124,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch, onMounted, inject } from "vue";
-import { CheckIcon } from "@heroicons/vue/24/outline";
+import { CheckIcon, ArchiveBoxIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "@/global/formatters";
@@ -126,6 +134,10 @@ const props = defineProps<{
 }>();
 
 const readCount = inject("readCount") as Ref<number>;
+const isMarking = inject("isMarking") as {
+    [key: string]: boolean;
+};
+const archiveReadEmails = inject<() => Promise<void>>("archiveReadEmails");
 
 let showEmailDescriptions = ref(false);
 const localEmails = ref<Email[]>([]);
@@ -163,6 +175,10 @@ const nbrEmailsRead = computed(() => {
 function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
     localStorage.setItem("showRead", JSON.stringify(showEmailDescriptions.value));
+}
+
+const markAllAsArchive = () => {
+    archiveReadEmails && archiveReadEmails();
 }
 
 onMounted(() => {

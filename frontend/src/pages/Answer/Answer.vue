@@ -165,6 +165,8 @@ provide("hideLoading", hideLoading);
 provide("agents", agents);
 provide('selectedAgent', selectedAgent);
 provide("setAgentLastUsed", setAgentLastUsed);
+provide("signatures", signatures);
+provide("emailContent", emailContent);
 
 async function fetchSelectedEmailData() {
     const result = await getData(`user/emails_linked/`);
@@ -356,9 +358,7 @@ onMounted(async () => {
         importance.value = JSON.parse(sessionStorage.getItem("importance") || "");
         const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");
         const htmlContent = sessionStorage.getItem("htmlContent") || "";
-        console.log("DEBUG =================>", htmlContent);
         const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
-        console.log("DEBUG 2 =================>", shortSummary);
 
         await fetchSelectedEmailData();
 
@@ -608,20 +608,19 @@ async function handleButtonClick(keyword: string | null) {
         subject: subjectInput.value,
         body: emailContent.value,
         keyword: keyword,
+        signature: signatures.value[0].signature_content,
     });
 
     hideLoading();
 
     if (!result.success) {
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        await displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+        await displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), selectedAgent.value.picture);
         return;
     }
 
     const quillEditorContainer = quillInstance.root;
     quillEditorContainer.innerHTML = result.data.emailAnswer;
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    await displayMessage(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), aiIcon);
+    await displayMessage(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), selectedAgent.value.picture);
 }
 
 async function fetchResponseKeywords() {

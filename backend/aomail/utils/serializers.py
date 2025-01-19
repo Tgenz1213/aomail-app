@@ -86,7 +86,7 @@ class EmailGenerateAnswer(serializers.Serializer):
     subject = serializers.CharField()
     body = serializers.CharField()
     keyword = serializers.CharField()
-
+    signature = serializers.CharField()
 
 class UserLoginSerializer(serializers.ModelSerializer):
     """Serializer for retrieving user login data through a GET request."""

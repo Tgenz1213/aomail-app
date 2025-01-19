@@ -124,9 +124,10 @@ def get_new_email_response(request: HttpRequest) -> Response:
     importance: str = parameters["importance"]
     subject: str = parameters["subject"]
     body: str = parameters["body"]
+    emailBody: str = parameters.get("emailBody", "")
+    signature: str = parameters["signature"]
     history: dict = parameters["history"]
 
-    # Fetch the active agent
     try:
         agent = Agent.objects.get(user=user, last_used=True)
     except Agent.DoesNotExist:
@@ -142,6 +143,49 @@ def get_new_email_response(request: HttpRequest) -> Response:
         "formality": agent.formality,
         "language": agent.language,
     }
+
+    def strip_html_tags(text):
+        clean = re.compile('<.*?>')
+        return re.sub(clean, '', text)
+
+    def similarity_ratio(str1, str2):
+        return difflib.SequenceMatcher(None, str1, str2).ratio()
+
+    clean_signature = strip_html_tags(signature) if signature else ""
+    clean_body = strip_html_tags(body) if body else ""
+    
+    is_only_signature = False
+    is_nearly_empty = False
+
+    if signature:
+        is_only_signature = similarity_ratio(clean_signature.strip(), clean_body.strip()) > 0.9
+    else:
+        clean_content = clean_body.strip()
+        is_nearly_empty = len(clean_content) < 10
+
+    if is_only_signature or is_nearly_empty:
+        try:
+            result = gemini.generate_email_response(
+                subject,
+                emailBody,
+                user_input,
+                agent_settings,
+                signature
+            )
+            update_tokens_stats(user, result)
+            return Response(
+                {
+                    "emailBody": result["body"],
+                    "history": history,
+                },
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            LOGGER.error(f"Error generating email response: {str(e)}")
+            return Response(
+                {"error": "Failed to generate email response"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     chat_history = dict_to_chat_history(history)
     email_reply_conv = EmailReplyConversation(
@@ -705,8 +749,8 @@ def generate_email_answer(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
         user_instruction = serializer.validated_data["keyword"]
-
-        # Fetch the active agent
+        signature = serializer.validated_data["signature"]
+    
         try:
             agent = Agent.objects.get(user=user, last_used=True)
         except Agent.DoesNotExist:
@@ -723,7 +767,7 @@ def generate_email_answer(request: HttpRequest) -> Response:
             "language": agent.language,
         }
 
-        result = gemini.generate_email_response(subject, body, user_instruction, agent_settings)
+        result = gemini.generate_email_response(subject, body, user_instruction, agent_settings, signature)
         update_tokens_stats(user, result)
 
         return Response(

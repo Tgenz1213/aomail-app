@@ -157,7 +157,7 @@ def extract_contacts_recipients(query: str) -> dict[str, list]:
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
 def generate_response_keywords(input_email: str, input_subject: str) -> dict:
     """
-    Generates a list of quick response sentences for responding to a given email.
+    Generates a list of detailed draft response sentences for responding to a given email.
 
     Args:
         input_email (str): The body of the email.
@@ -165,19 +165,20 @@ def generate_response_keywords(input_email: str, input_subject: str) -> dict:
 
     Returns:
         dict: A dictionary containing:
-            keywords_list (list): A list of quick response sentences for the email.
+            keywords_list (list): A list of detailed draft response sentences for the email.
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    formatted_prompt = f"""As an email assistant and given the email with subject: '{input_subject}' and body: '{input_email}'.
+    formatted_prompt = f"""
+    As an email assistant, analyze the email with the subject: '{input_subject}' and body: '{input_email}'.
 
-IDENTIFY up to 5 different ways to respond to this email. Only identify relevant ways to respond if you can't find 5 different ways; only give 2, 3 or 4 ways to respond.
-CREATE short, natural sentences (5-8 words) in the primary language used in the email. Each sentence should be a complete response that the user could send.
-The sentences must be DIRECT and PROFESSIONAL, ready to be sent as a quick reply.
+    IDENTIFY exactly 5 distinct ways to respond. For each scenario:
+    **Provide "keywords":** a list of short phrases (fragments) describing the approach. These should **not form complete sentences** but should contain multiple words to effectively convey the strategy. Ensure that the keywords are **in the same language** as the original email. For example:
+    - "can't attend 5pm, need new schedule, request confirmation"
+    - "appreciate feedback, will implement changes, thank you"
 
----
-As an answer ONLY give a Python List format: ["...", "..."]. Don't use any other characters; otherwise, it will create errors. Do not give ANY explanations, RETURN only the list.
-"""
+    As an answer ONLY give a Python List format: ["...", "..."]. Do not use any other characters or explanations; RETURN only the list.
+    """
     response = get_prompt_response_exp(formatted_prompt)
     keywords_text = response.text.strip()
     
@@ -352,24 +353,30 @@ def generate_email_response(input_subject: str, input_body: str, user_instructio
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    signature_instruction = f"\n3. DO NOT modify, remove or create a new signature. Keep this exact signature at the end of the email:\n{signature}" if signature else ""
-    signature_template = signature if signature else ""
+    has_content = bool(signature) and bool(re.sub(r'<[^>]+>', '', signature).strip())
+    if has_content:
+        signature_instruction = (
+            f"\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
+        )
+    else:
+        signature_instruction = (
+            "Add a standard greeting and sign-off without a signature (unless explicitly mentioned).\nSignature: <br>"
+        )  
     
     template = f"""As a smart email assistant, following these agent guidelines: {json.dumps(agent_settings)}, and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
 Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
 0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
 1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
-2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.{signature_instruction}
-
-Here is a template to follow, with placeholders for the dynamic content:
-<p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>{signature_template}
+2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
+{signature_instruction}
 
 ---
-Answer must be above HTML without spaces
+Answer must ONLY be in JSON format with one key: body in HTML.
 """
     response = get_prompt_response_exp(template)
-    body = extract_json_from_response(response.text)
-
+    result_json = extract_json_from_response(response.text)
+    body = result_json.get("body", "")
+    
     if signature and signature not in body:
         body = f"{body}\n{signature}"
 
@@ -378,7 +385,6 @@ Answer must be above HTML without spaces
         "tokens_input": response.usage_metadata.prompt_token_count,
         "tokens_output": response.usage_metadata.candidates_token_count,
     }
-
 
 def categorize_and_summarize_email(
     subject: str,

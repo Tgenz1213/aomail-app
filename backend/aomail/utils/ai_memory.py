@@ -6,6 +6,7 @@ import json
 from django.contrib.auth.models import User
 from langchain_community.chat_message_histories import ChatMessageHistory
 from aomail.ai_providers import gemini
+from aomail.ai_providers.utils import extract_json_from_response
 
 
 class EmailReplyConversation:
@@ -46,12 +47,13 @@ class EmailReplyConversation:
         self.history.add_user_message(user_input)
         self.body = new_body
 
-    def improve_email_response(self, user_input: str) -> dict:
+    def improve_email_response(self, user_input: str, agent_settings: dict) -> dict:
         """
         Improves the email response according to the conversation history.
 
         Args:
             user_input (str): The user's input for improving the email response.
+            agent_settings (dict): Settings for the AI agent to guide the response.
 
         Returns:
             dict: A dictionary containing:
@@ -59,7 +61,7 @@ class EmailReplyConversation:
                 tokens_input (int): The number of tokens used for the input.
                 tokens_output (int): The number of tokens used for the output.
         """
-        template = f"""You are Ao, an email assistant, who helps a user reply to an {self.importance} email they received.
+        template = f"""You are Ao, an email assistant, following these agent guidelines: {json.dumps(agent_settings)}, who helps a user reply to an {self.importance} email they received.
         The user has already entered the recipients and the subject: '{self.subject}' of the email.    
         Improve the email response following the user's guidelines.
 
@@ -72,20 +74,20 @@ class EmailReplyConversation:
 
         The response must retain the core information and incorporate the required user changes.
         If you hesitate or there is contradictory information, always prioritize the last user input.
-        Keep the same email body length AND level of speech unless a change is explicitly mentioned by the user.
 
         ---
-        The answer must include all new changes and match the same HTML format.
+        Answer must ONLY be in JSON format with one key: body in HTML.
         """
-        response = gemini.get_prompt_response(template)
-        body = response.content[0].text.strip()
+        response = gemini.get_prompt_response_exp(template)
+        result_json = extract_json_from_response(response.text)
+        body = result_json.get("body", "")
 
         self.update_history(user_input, body)
 
         return {
             "body": body,
-            "tokens_input": response.usage.input_tokens,
-            "tokens_output": response.usage.output_tokens,
+            "tokens_input": response.usage_metadata.prompt_token_count,
+            "tokens_output": response.usage_metadata.candidates_token_count,
         }
 
 

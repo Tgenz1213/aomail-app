@@ -135,7 +135,8 @@ const hideLoading = inject<() => void>("hideLoading");
 const loading = inject<() => void>("loading");
 
 const getQuill = inject<() => Quill | null>("getQuill");
-
+const signatures = inject<Ref<any[]>>("signatures") || ref([]);
+const emailContent = inject<Ref<string>>("emailContent") || ref("");
 const agents = inject<Ref<Agent[]>>("agents") || ref<Agent[]>([]);
 const selectedAgent = inject<Ref<Agent>>("selectedAgent") || ref<Agent>({
     id: "",
@@ -170,14 +171,16 @@ function displayUserMessage() {
     if (!AIContainer.value) return;
 
     const messageHTML = `
-        <div class="flex pb-12">
-            <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                <img src="${imageURL.value}" alt="Profile Image" class="h-14 w-14 rounded-full">
-            </span>
-            </div>
-            <div>
-            <p class="font-serif">${textareaValue.value}</p>
+        <div class="flex pb-6 justify-end">
+            <div class="max-w-md">
+                <div class="flex items-start gap-x-3 justify-end">
+                    <div class="bg-blue-100 border border-blue-200 p-4 rounded-lg">
+                        <p class="text-gray-800">${textareaValue.value}</p>
+                    </div>
+                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0">
+                        <img src="${imageURL.value}" alt="Profile Image" class="h-12 w-12 rounded-full object-cover">
+                    </span>
+                </div>
             </div>
         </div>
     `;
@@ -195,8 +198,7 @@ function handleAIClick() {
     displayUserMessage();
 
     if (textareaValueSave.value == "") {
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain"), aiIcon);
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain"), selectedAgent.value.picture);
         return;
     }
 
@@ -212,17 +214,18 @@ const generateNewEmailResponse = async () => {
 
     const result = await postData("get_new_email_response/", {
         body: quillInstance.root.innerHTML,
+        emailBody: emailContent.value,
         userInput: textareaValueSave.value,
         subject: subjectInput.value,
         importance: importance.value,
         history: history.value,
+        signature: signatures.value[0].signature_content,
     });
 
     hideLoading?.();
 
     if (!result.success) {
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), selectedAgent.value.picture);
         return;
     }
 
@@ -233,8 +236,7 @@ const generateNewEmailResponse = async () => {
         "$1$2"
     );
 
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage?.(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), aiIcon);
+    displayMessage?.(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), selectedAgent.value.picture);
 };
 
 const setWriting = () => {

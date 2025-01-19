@@ -81,7 +81,7 @@ const handleButtonClick = async (option: KeyValuePair, index: number) => {
 const handleUserDescription = async (option: KeyValuePair) => {
     let aiGeneratedCategories;
     switch (option.key) {
-        case "yes":
+        case "yes": {
             displayAIMsg(
                 "Are you satisfied with the way I prioritize your emails according to their importance? Do I often assign the wrong level of importance to your emails?",
                 [
@@ -91,7 +91,8 @@ const handleUserDescription = async (option: KeyValuePair) => {
             );
             currentStep.value = "prioritization";
             break;
-        case "no":
+        }
+        case "no": {
             await userDescriptionWorkflow();
             displayAIMsg(
                 "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
@@ -100,20 +101,22 @@ const handleUserDescription = async (option: KeyValuePair) => {
             aiGeneratedCategories = await generateCategoriesScratch(userInput);
             categoriesReview(aiGeneratedCategories);
             break;
-        case "soso":
+        }
+        case "soso": {
             await userDescriptionWorkflow();
             aiGeneratedCategories = await generateCategoriesScratch(
                 JSON.stringify(categories.value.filter((category) => category.name != DEFAULT_CATEGORY))
             );
             categoriesReview(aiGeneratedCategories);
             break;
+        }
     }
 };
 
 const handleCategories = async (option: KeyValuePair) => {
     let aiGeneratedCategories;
     switch (option.key) {
-        case "yes":
+        case "yes": {
             categories.value.map(async (category) => {
                 if (
                     currentUserCategories.value.filter(
@@ -142,7 +145,8 @@ const handleCategories = async (option: KeyValuePair) => {
             );
             currentStep.value = "prioritization";
             break;
-        case "no":
+        }
+        case "no": {
             displayAIMsg(
                 "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
             );
@@ -150,18 +154,20 @@ const handleCategories = async (option: KeyValuePair) => {
             aiGeneratedCategories = await generateCategoriesScratch(userInputTopics);
             categoriesReview(aiGeneratedCategories);
             break;
-        case "soso":
+        }
+        case "soso": {
             displayAIMsg("OK, let's improve them. Please improve them according to my feedback.");
             const feedback = await waitForUserInput();
             aiGeneratedCategories = await generateCategoriesScratch(feedback, messages.value);
             categoriesReview(aiGeneratedCategories);
             break;
+        }
     }
 };
 
 const handlePrioritization = async (option: KeyValuePair) => {
     switch (option.key) {
-        case "yes":
+        case "yes": {
             displayAIMsg("Happy to hear that! Your email categorization is optimized. You can close this window");
             let payload: Guideline = { importantGuidelines: "", informativeGuidelines: "", uselessGuidelines: "" };
             if (guidelines.value.importantGuidelines) {
@@ -182,7 +188,8 @@ const handlePrioritization = async (option: KeyValuePair) => {
                 displayAIMsg(result.error as string);
             }
             break;
-        case "no":
+        }
+        case "no": {
             displayAIMsg("Got it! Let's improve your email prioritization together.");
             displayAIMsg(
                 "What types of emails annoy you? How would you describe important emails? Please describe your own preferences in your response."
@@ -192,6 +199,7 @@ const handlePrioritization = async (option: KeyValuePair) => {
             );
             prioritizationReview();
             break;
+        }
     }
 };
 

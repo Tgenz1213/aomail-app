@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, inject, ref } from "vue";
+import { inject, ref } from "vue";
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 

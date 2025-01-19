@@ -1,6 +1,7 @@
 import Login from "@/pages/Login/Login.vue";
 import SignUp from "@/pages/Signup/SignUp.vue";
 import SignupLink from "@/pages/Signup/SignUpLink.vue";
+import AiAssistant from "@/pages/AiAssistant/AiAssistant.vue";
 import Home from "@/pages/Home/Home.vue";
 import New from "@/pages/New/New.vue";
 import Answer from "@/pages/Answer/Answer.vue";
@@ -53,6 +54,13 @@ const signUpLink: RouteConfig = {
     path: "/signup-link",
     name: "signupLink",
     component: SignupLink,
+};
+
+const aiAssistant: RouteConfig = {
+    path: "/ai-assistant",
+    name: "aiAssistant",
+    meta: { requiresAuth: true },
+    component: AiAssistant,
 };
 
 const home: RouteConfig = {
@@ -168,6 +176,7 @@ const routes: RouteConfig[] = [
     logout,
     signUp,
     signUpLink,
+    aiAssistant,
     home,
     newRoute,
     answer,

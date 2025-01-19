@@ -119,6 +119,7 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
 import {
+    SparklesIcon,
     EnvelopeIcon,
     PencilSquareIcon,
     XMarkIcon,
@@ -136,6 +137,7 @@ import { VERSION } from "@/global/const";
 const sidebarOpen = ref(false);
 
 const navigation: NavigationPage[] = [
+    { name: i18n.global.t("constants.AiNavbar"), href: "/ai-assistant", icon: SparklesIcon },
     { name: i18n.global.t("constants.homeNavbar"), href: "/home", icon: EnvelopeIcon },
     { name: i18n.global.t("constants.newEmailNavbar"), href: "/new", icon: PencilSquareIcon },
     { name: i18n.global.t("constants.searchEmailNavbar"), href: "/search", icon: MagnifyingGlassIcon },

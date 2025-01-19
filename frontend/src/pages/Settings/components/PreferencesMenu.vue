@@ -167,24 +167,6 @@
                     </a>
                 </div>
             </div>
-            <div class="flex gap-x-10 w-full">
-                <div class="flex-1 flex flex-col">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                            <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center">
-                            <span class="bg-white px-2 text-sm text-gray-500">Custom Categorization</span>
-                        </div>
-                    </div>
-                    <a
-                        href="/custom-categorization"
-                        class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-                    >
-                        Customize my automatic email categorization
-                    </a>
-                </div>
-            </div>
             <div
                 class="flex-1 w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
             >
@@ -213,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, onMounted, watch, nextTick } from "vue";
+import { ref, inject, onMounted, nextTick } from "vue";
 import { getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import TimeZoneSelection from "@/pages/Settings/components/TimeZoneSelection.vue";

@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref } from "vue";
-import ChatBubble from "./ChatBubble.vue";
+import ChatBubble from "@/global/components/Conversation/ChatBubble.vue";
 import { Category, EmailLinked, KeyValuePair, Message } from "@/global/types";
 import { postData, getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";

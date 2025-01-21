@@ -7,19 +7,26 @@
         @dismissPopup="dismissPopup"
     />
     <div class="flex flex-col justify-center items-center h-screen">
-        <div class="flex h-full w-full">
-            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
-                <NavBarSmall />
+        <div class="flex h-full w-full relative">
+            <div class="w-60 ring-1 shadow-sm ring-black ring-opacity-5">
+                <Navbar />
             </div>
             <div
-                id="firstMainColumn"
-                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
+                :style="{ width: manualEmailWidth + '%' }"
+                class="bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
             >
                 <ManualEmail />
             </div>
+            
+            <!-- Enhanced Draggable Divider with Hidden Area -->
+            <div class="drag-wrapper">
+                <div class="separator"></div>
+                <div class="drag-overlay" @mousedown="initDrag"></div>
+            </div>
+            
             <div
-                id="secondMainColumn"
-                class="flex flex-col bg-zinc-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
+                :style="{ width: aiEmailWidth + '%' }"
+                class="flex flex-col bg-zinc-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
             >
                 <AiEmail />
             </div>
@@ -34,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch, computed } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch, computed, onBeforeUnmount } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -42,7 +49,7 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData, putData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Recipient, Agent, EmailLinked, UploadedFile } from "@/global/types";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userImage from "@/assets/user.png";
 import SignatureModal from "@/global/components/SignatureModal.vue";
@@ -82,6 +89,9 @@ const agents = ref<Agent[]>([]);
 const isLoadingAgentSelection = ref(false);
 const isInitialized = ref(false);
 const isAiWriting = ref(false);
+const manualEmailWidth = ref(55);
+const aiEmailWidth = ref(45);
+const initialContainerWidth = ref(0);
 let quill: Quill | null = null;
 const selectedAgent = ref<Agent>({
     id: "",
@@ -186,6 +196,13 @@ onMounted(async () => {
         if (!AIContainer.value) {
             console.error('AIContainer element not found');
             return;
+        }
+
+        const storedManualWidth = localStorage.getItem("manualEmailWidth");
+        const storedAiWidth = localStorage.getItem("aiEmailWidth");
+        if (storedManualWidth && storedAiWidth) {
+            manualEmailWidth.value = parseInt(storedManualWidth, 10);
+            aiEmailWidth.value = parseInt(storedAiWidth, 10);
         }
 
         // Rest of the initialization...
@@ -869,4 +886,115 @@ async function setAgentLastUsed(agent: Agent) {
     console.error('Failed to update agent last used status:', result.error);
   }
 }
+
+const isDragging = ref(false);
+const startX = ref(0);
+const startManualWidth = ref(0);
+const startAiWidth = ref(0);
+
+const initDrag = (event: MouseEvent) => {
+    isDragging.value = true;
+    startX.value = event.clientX;
+    startManualWidth.value = manualEmailWidth.value;
+    startAiWidth.value = aiEmailWidth.value;
+
+    // Store the container width at the start
+    const container = (event.target as HTMLElement).closest('.flex');
+    initialContainerWidth.value = container ? container.clientWidth : 0;
+
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", stopDrag);
+};
+
+const onDrag = (event: MouseEvent) => {
+    if (!isDragging.value) return;
+
+    const deltaX = event.clientX - startX.value;
+
+    // Prevent division by zero
+    if (initialContainerWidth.value === 0) return;
+
+    const deltaPercent = (deltaX / initialContainerWidth.value) * 100;
+
+    let newManualWidth = startManualWidth.value + deltaPercent;
+    let newAiWidth = startAiWidth.value - deltaPercent;
+
+    // Set boundaries to prevent widths from becoming too small or too large
+    const MIN_WIDTH = 20;
+    const MAX_WIDTH = 80;
+
+    if (newManualWidth < MIN_WIDTH) {
+        newManualWidth = MIN_WIDTH;
+        newAiWidth = 100 - MIN_WIDTH;
+    } else if (newAiWidth < MIN_WIDTH) {
+        newAiWidth = MIN_WIDTH;
+        newManualWidth = 100 - MIN_WIDTH;
+    }
+
+    manualEmailWidth.value = newManualWidth;
+    aiEmailWidth.value = newAiWidth;
+};
+
+const stopDrag = () => {
+    if (isDragging.value) {
+        isDragging.value = false;
+        saveWidths();
+        window.removeEventListener("mousemove", onDrag);
+        window.removeEventListener("mouseup", stopDrag);
+    }
+};
+
+onBeforeUnmount(() => {
+    window.removeEventListener("mousemove", onDrag);
+    window.removeEventListener("mouseup", stopDrag);
+});
+
+const saveWidths = () => {
+    localStorage.setItem("manualEmailWidth", manualEmailWidth.value.toString());
+    localStorage.setItem("aiEmailWidth", aiEmailWidth.value.toString());
+};
 </script>
+
+<style scoped>
+/* Remove transition effects */
+div:nth-child(2),
+div:nth-child(4) {
+    transition: none !important;
+}
+
+/* Draggable Divider Wrapper */
+.drag-wrapper {
+    position: relative;
+    width: 1px; /* Same as the visible separator */
+    height: 100%;
+    cursor: col-resize;
+}
+
+/* Visible Separator */
+.separator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 0.5px;
+    height: 100%;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+/* Transparent Drag Overlay */
+.drag-overlay {
+    position: absolute;
+    left: -3.5px; /* (8px - 1px) / 2 */
+    top: 0;
+    width: 8px; /* Hidden draggable area width */
+    height: 100%;
+    background: transparent;
+    z-index: 2;
+}
+
+/* Optional: Hover effect for better UX */
+.drag-wrapper:hover .separator {
+    background-color: #aaa; /* Slight color change on hover for subtle feedback */
+}
+</style>

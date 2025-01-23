@@ -12,14 +12,20 @@
                 <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div
-                id="firstMainColumn"
-                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
+                :style="{ width: manualEmailWidth + '%' }"
+                class="bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
             >
                 <ManualEmail />  
             </div>
+            
+            <div class="drag-wrapper">
+                <div class="separator"></div>
+                <div class="drag-overlay" @mousedown="initDrag"></div>
+            </div>
+
             <div
-                id="secondMainColumn"
-                class="flex flex-col bg-zinc-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
+                :style="{ width: aiEmailWidth + '%' }"
+                class="flex flex-col bg-zinc-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
             >
                 <AiEmail />
             </div>
@@ -34,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted, onBeforeUnmount } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -91,6 +97,13 @@ const selectedAgent = ref<Agent>({
     formality: "",
 });
 const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const manualEmailWidth = ref(55);
+const aiEmailWidth = ref(45);
+const isDragging = ref(false);
+const startX = ref(0);
+const startManualWidth = ref(0);
+const startAiWidth = ref(0);
+const initialContainerWidth = ref(0);
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -168,6 +181,8 @@ provide('selectedAgent', selectedAgent);
 provide("setAgentLastUsed", setAgentLastUsed);
 provide("signatures", signatures);
 provide("emailContent", emailContent);
+provide('manualEmailWidth', manualEmailWidth);
+provide('aiEmailWidth', aiEmailWidth);
 
 async function fetchSelectedEmailData() {
     const result = await getData(`user/emails_linked/`);
@@ -317,6 +332,13 @@ function dismissPopup() {
 }
 
 onMounted(async () => {
+    const storedManualWidth = localStorage.getItem("manualEmailWidth");
+    const storedAiWidth = localStorage.getItem("aiEmailWidth");
+    if (storedManualWidth && storedAiWidth) {
+        manualEmailWidth.value = parseInt(storedManualWidth, 10);
+        aiEmailWidth.value = parseInt(storedAiWidth, 10);
+    }
+    
     try {
         isLoadingAgentSelection.value = true;
         
@@ -419,8 +441,10 @@ onMounted(async () => {
     }
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
+    window.removeEventListener("mousemove", onDrag);
+    window.removeEventListener("mouseup", stopDrag);
 });
 
 async function getProfileImage() {
@@ -714,4 +738,101 @@ async function setAgentLastUsed(agent: Agent) {
     console.error('Failed to update agent last used status:', result.error);
   }
 }
+
+// Ajout des fonctions de glissement
+const initDrag = (event: MouseEvent) => {
+    isDragging.value = true;
+    startX.value = event.clientX;
+    startManualWidth.value = manualEmailWidth.value;
+    startAiWidth.value = aiEmailWidth.value;
+
+    const container = (event.target as HTMLElement).closest('.flex');
+    initialContainerWidth.value = container ? container.clientWidth : 0;
+
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", stopDrag);
+};
+
+const onDrag = (event: MouseEvent) => {
+    if (!isDragging.value) return;
+
+    const deltaX = event.clientX - startX.value;
+    if (initialContainerWidth.value === 0) return;
+
+    const deltaPercent = (deltaX / initialContainerWidth.value) * 100;
+    let newManualWidth = startManualWidth.value + deltaPercent;
+    let newAiWidth = startAiWidth.value - deltaPercent;
+
+    const MIN_WIDTH = 20;
+    const MAX_WIDTH = 80;
+
+    if (newManualWidth < MIN_WIDTH) {
+        newManualWidth = MIN_WIDTH;
+        newAiWidth = 100 - MIN_WIDTH;
+    } else if (newAiWidth < MIN_WIDTH) {
+        newAiWidth = MIN_WIDTH;
+        newManualWidth = 100 - MIN_WIDTH;
+    }
+
+    manualEmailWidth.value = newManualWidth;
+    aiEmailWidth.value = newAiWidth;
+};
+
+const stopDrag = () => {
+    if (isDragging.value) {
+        isDragging.value = false;
+        saveWidths();
+        window.removeEventListener("mousemove", onDrag);
+        window.removeEventListener("mouseup", stopDrag);
+    }
+};
+
+const saveWidths = () => {
+    localStorage.setItem("manualEmailWidth", manualEmailWidth.value.toString());
+    localStorage.setItem("aiEmailWidth", aiEmailWidth.value.toString());
+};
 </script>
+
+<style scoped>
+/* Remove transition effects */
+div:nth-child(2),
+div:nth-child(4) {
+    transition: none !important;
+}
+
+/* Draggable Divider Wrapper */
+.drag-wrapper {
+    position: relative;
+    width: 1px;
+    height: 100%;
+    cursor: col-resize;
+}
+
+/* Visible Separator */
+.separator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 0.5px;
+    height: 100%;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+/* Transparent Drag Overlay */
+.drag-overlay {
+    position: absolute;
+    left: -3.5px;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background: transparent;
+    z-index: 2;
+}
+
+/* Optional: Hover effect */
+.drag-wrapper:hover .separator {
+    background-color: #aaa;
+}
+</style>

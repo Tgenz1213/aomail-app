@@ -75,6 +75,7 @@ urlpatterns = [
     path('user/emails_ids/', search_emails.get_user_emails_ids, name='get_user_emails'),
     path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'),
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'),
+    path('user/emails/<int:email_id>/data/', emails.get_email_data, name='get_email_data'),    
     path('user/get_first_email/', emails.get_first_email, name='get_first_email'),    
     path('user/emails/update/', emails.update_emails, name='update_emails'),
     path('user/emails/<str:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 

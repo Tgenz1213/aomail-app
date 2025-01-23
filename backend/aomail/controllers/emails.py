@@ -15,12 +15,13 @@ import logging
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Exists, OuterRef, Subquery
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.utils.security import subscription
-from aomail.constants import ALLOW_ALL, GOOGLE, MICROSOFT
-from aomail.models import SocialAPI, Email
+from aomail.utils.security import decrypt_text, subscription
+from aomail.constants import ALLOW_ALL, ENCRYPTION_KEYS, GOOGLE, MICROSOFT
+from aomail.models import Rule, SocialAPI, Email
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.email_providers.microsoft import (
@@ -109,6 +110,93 @@ def get_mail_by_id(request: HttpRequest) -> Response:
     else:
         return Response(
             {"error": "No email ID provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(["GET"])
+@subscription(ALLOW_ALL)
+def get_email_data(request: HttpRequest, email_id: int) -> Response:
+    """
+    Retrieves detailed information of an email by its ID for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object, which contains the email_id as a parameter.
+        email_id (int): The ID of the email to retrieve.
+
+    Returns:
+        Response:
+            - Success (HTTP 200 OK): JSON object containing email details.
+            - Failure (HTTP 500 INTERNAL SERVER ERROR): If an unexpected error occurs, returns an error message.
+    """
+    try:
+        user = request.user
+        email = Email.objects.get(id=email_id, user=user)
+
+        return Response(
+            {
+                "id": email.id,
+                "subject": email.subject,
+                "sender": {
+                    "email": email.sender.email,
+                    "name": email.sender.name,
+                },
+                "providerId": email.provider_id,
+                "shortSummary": decrypt_text(
+                    ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary
+                ),
+                "oneLineSummary": decrypt_text(
+                    ENCRYPTION_KEYS["Email"]["one_line_summary"], email.one_line_summary
+                ),
+                "cc": [
+                    {"email": cc.email, "name": cc.name}
+                    for cc in email.cc_senders.all()
+                ],
+                "bcc": [
+                    {"email": bcc.email, "name": bcc.name}
+                    for bcc in email.bcc_senders.all()
+                ],
+                "read": email.read,
+                "answerLater": email.answer_later,
+                "rule": {
+                    "hasRule": (
+                        True
+                        if Rule.objects.filter(sender=email.sender, user=user).exists()
+                        else False
+                    ),
+                    "ruleId": (
+                        Rule.objects.get(sender=email.sender, user=user).id
+                        if Rule.objects.filter(sender=email.sender, user=user).exists()
+                        else None
+                    ),
+                },
+                "hasAttachments": email.has_attachments,
+                "attachments": [
+                    {
+                        "attachmentName": attachment.name,
+                        "attachmentId": attachment.id_api,
+                    }
+                    for attachment in email.attachments.all()
+                ],
+                "sentDate": email.date.date() if email.date else None,
+                "sentTime": email.date.strftime("%H:%M") if email.date else None,
+                "answer": email.answer,
+                "relevance": email.relevance,
+                "priority": email.priority,
+                "flags": {
+                    "spam": email.spam,
+                    "scam": email.scam,
+                    "newsletter": email.newsletter,
+                    "notification": email.notification,
+                    "meeting": email.meeting,
+                },
+                "archive": email.archive,
+            }
+        )
+    except Exception as e:
+        LOGGER.error(f"Error retrieving email data for email ID {email_id}: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 

@@ -368,6 +368,8 @@
       "creationError": "Échec de la création de la signature."
     },
     "subscriptionPage": {
+      "freeTrialTitle": "Essai gratuit",
+      "freeTrialMessage": "Vous utilisez un essai gratuit et avez accès à toutes les fonctionnalités premium pendant la période de bêta qui expire le {expiryDate} ({daysLeft} jours restants).",
       "subscriptionTitle": "Abonnement",
       "selectPlan": "Sélectionner",
       "perMonth": "/mois",

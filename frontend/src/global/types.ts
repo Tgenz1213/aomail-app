@@ -121,3 +121,9 @@ export interface Agent {
     length: string;
     formality: string;
   }
+
+export interface Frequency {
+    key: string;
+    label: string;
+    priceSuffix?: string;
+}

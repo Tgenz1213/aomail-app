@@ -369,6 +369,8 @@
       "creationError": "Failed to create signature."
     },
     "subscriptionPage": {
+      "freeTrialTitle": "Free Trial",
+      "freeTrialMessage": "You're using a free trial and have access to all premium features during the beta period that expires on {expiryDate} ({daysLeft} days left).",
       "subscriptionTitle": "Subscription",
       "selectPlan": "Select",
       "perMonth": "/month",

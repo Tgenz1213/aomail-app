@@ -73,31 +73,6 @@
                                                     'flex space-x-2 items-center rounded-md py-2',
                                                     {
                                                         'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12':
-                                                            activeSection === 'subscription',
-                                                        'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8':
-                                                            activeSection !== 'subscription',
-                                                    },
-                                                ]"
-                                                @click="setActiveSection('subscription')"
-                                            >
-                                                <credit-card-icon class="w-4 h-4" />
-                                                <a
-                                                    :class="{
-                                                        'text-gray-800': activeSection === 'subscription',
-                                                        'text-gray-600': activeSection !== 'subscription',
-                                                    }"
-                                                    class="text-sm font-medium"
-                                                >
-                                                    {{ $t("settingsPage.subscriptionPage.subscriptionTitle") }}
-                                                </a>
-                                            </div>
-
-                                            <div
-                                                class="text-sm font-medium cursor-pointer"
-                                                :class="[
-                                                    'flex space-x-2 items-center rounded-md py-2',
-                                                    {
-                                                        'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12':
                                                             activeSection === 'data',
                                                         'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8':
                                                             activeSection !== 'data',

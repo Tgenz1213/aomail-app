@@ -18,6 +18,7 @@ import ResetPasswordForm from "@/pages/ResetPassword/ResetPasswordForm.vue";
 import { Component } from "vue";
 import Labels from "@/pages/Labels/Labels.vue";
 import Logout from "@/pages/Logout/Logout.vue";
+import Subscription from '@/pages/Subscription/Subscription.vue';
 
 export interface RouteConfig {
     path: string;
@@ -154,6 +155,12 @@ const notFound: RouteConfig = {
     component: NotFound,
 };
 
+const subscription: RouteConfig = {
+    path: "/subscription",
+    name: "subscription",
+    component: Subscription,
+};
+
 const routes: RouteConfig[] = [
     login,
     logout,
@@ -174,6 +181,7 @@ const routes: RouteConfig[] = [
     labels,
     notAuthorized,
     notFound,
+    subscription,
 ];
 
 export default routes;

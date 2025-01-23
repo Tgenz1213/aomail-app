@@ -66,6 +66,7 @@ import Navbar from "@/global/components/Navbar.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import AiSearchMenu from "./components/AiSearchMenu.vue";
 import EmailList from "./components/EmailList.vue";
+import userImage from "@/assets/user.png";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -96,6 +97,8 @@ const startX = ref(0);
 const startManualWidth = ref(0);
 const startAiWidth = ref(0);
 const initialContainerWidth = ref(0);
+const imageURL = ref<string>(userImage);
+const emailSelected = ref(localStorage.getItem("email") || "");
 
 onMounted(() => {
     const storedManualWidth = localStorage.getItem("searchManualWidth");
@@ -110,6 +113,12 @@ onMounted(() => {
     fetchRecipients();
 });
 
+async function getProfileImage() {
+    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+    if (!result.success) return;
+    imageURL.value = result.data.profileImageUrl;
+}
+
 const filteredPeople = computed(() => {
     if (!contacts || queryGetRecipients.value === "") {
         return contacts || [];
@@ -120,6 +129,8 @@ const filteredPeople = computed(() => {
     });
 });
 
+provide("imageURL", imageURL);
+provide("emailSelected", emailSelected);
 provide("displayPopup", displayPopup);
 provide("filteredPeople", filteredPeople);
 provide("people", people);

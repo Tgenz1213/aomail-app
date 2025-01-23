@@ -653,7 +653,7 @@ async function checkSpelling() {
     const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
                         <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                             ${selectedAgent.value.picture}
@@ -781,7 +781,7 @@ const displayAgentSelection = async () => {
         <img 
           src="${agent.picture}" 
           alt="Agent Icon" 
-          class="h-14 w-14 rounded-full mr-4 object-cover flex-shrink-0"
+          class="h-12 h-12 rounded-full mr-4 object-cover flex-shrink-0"
         />
         <div class="flex-1">
           <h3 class="text-xl font-semibold text-left">${agent.agent_name}</h3>

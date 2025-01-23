@@ -16,6 +16,7 @@ services:
       - backend_network
     ports:
       - "${DB_PORT}:5432"
+    restart: unless-stopped
 
   backend_dev:
     build:
@@ -37,6 +38,7 @@ services:
       - ./backend:/app
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
       - /home/prod/prod/backend/media/labels:/app/media/labels
+    restart: unless-stopped
 
   backend_prod:
     build:
@@ -57,6 +59,7 @@ services:
     volumes:
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
       - /home/prod/prod/backend/media/labels:/app/media/labels
+    restart: unless-stopped
 
   frontend_dev:
     build:
@@ -75,6 +78,7 @@ services:
       - frontend_network
     volumes:
       - ./frontend:/app
+    restart: unless-stopped
 
   frontend_prod:
     build:
@@ -91,6 +95,7 @@ services:
       - backend_prod
     networks:
       - frontend_network
+    restart: unless-stopped
 
 volumes:
   app_prod_postgres_data:

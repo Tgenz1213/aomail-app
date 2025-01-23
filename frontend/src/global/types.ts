@@ -21,6 +21,7 @@ export interface NavigationPage {
     href: string;
     icon: VueComponent;
     current?: boolean;
+    target?: string;
 }
 
 interface Sender {

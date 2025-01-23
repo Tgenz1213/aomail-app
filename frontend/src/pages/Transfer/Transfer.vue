@@ -8,8 +8,8 @@
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
-                <NavBarSmall />
+            <div :class="['bg-white ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div
                 id="firstMainColumn"
@@ -37,7 +37,7 @@ import { getData, getDataRawResponse } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { formatSentDateAndTime } from "@/global/formatters";
 import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userImage from "@/assets/user.png";
 
@@ -68,6 +68,7 @@ const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
 const imageURL = ref<string>(userImage);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 
 const scrollToBottom = async () => {
     await nextTick();

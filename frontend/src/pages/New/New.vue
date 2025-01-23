@@ -8,8 +8,8 @@
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full relative">
-            <div class="w-60 ring-1 shadow-sm ring-black ring-opacity-5">
-                <Navbar />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div
                 :style="{ width: manualEmailWidth + '%' }"
@@ -92,6 +92,7 @@ const isAiWriting = ref(false);
 const manualEmailWidth = ref(55);
 const aiEmailWidth = ref(45);
 const initialContainerWidth = ref(0);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 let quill: Quill | null = null;
 const selectedAgent = ref<Agent>({
     id: "",

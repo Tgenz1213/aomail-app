@@ -8,8 +8,8 @@
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div
                 id="firstMainColumn"
@@ -58,7 +58,7 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { AttachmentType, Recipient, Email, EmailLinked } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { getData } from "@/global/fetchData";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import AiSearchMenu from "./components/AiSearchMenu.vue";
 import EmailList from "./components/EmailList.vue";
@@ -84,6 +84,7 @@ const contacts: Recipient[] = [];
 const queryGetRecipients = ref("");
 const emailIds = ref<number[]>([]);
 const emailList = ref<Email[]>([]);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 
 onMounted(() => {
     checkLoginStatus();

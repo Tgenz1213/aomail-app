@@ -21,8 +21,8 @@
     <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-60 ring-1 shadow-sm ring-black ring-opacity-5">
-                <Navbar />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative">
@@ -149,6 +149,7 @@ const timerId = ref<number | null>(null);
 const toSearch = ref(false);
 const showFeedbackForm = ref(false);
 const isFreeTrialExpired = ref(false);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 
 const emails = ref<Record<string, Record<string, Email[]>>>({});
 const selectedCategory = ref<string>("");

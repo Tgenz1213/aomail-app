@@ -1,7 +1,7 @@
 import Login from "@/pages/Login/Login.vue";
 import SignUp from "@/pages/Signup/SignUp.vue";
 import SignupLink from "@/pages/Signup/SignUpLink.vue";
-import Home from "@/pages/Home/Home.vue";
+import Inbox from "@/pages/Inbox/Inbox.vue";
 import New from "@/pages/New/New.vue";
 import Answer from "@/pages/Answer/Answer.vue";
 import Transfer from "@/pages/Transfer/Transfer.vue";
@@ -54,13 +54,12 @@ const signUpLink: RouteConfig = {
     component: SignupLink,
 };
 
-const home: RouteConfig = {
-    path: "/home",
-    name: "home",
+const inbox: RouteConfig = {
+    path: "/inbox",
+    name: "inbox", 
     meta: { requiresAuth: true },
-    component: Home,
+    component: Inbox,
 };
-
 const newRoute: RouteConfig = {
     path: "/new",
     name: "new",
@@ -160,7 +159,7 @@ const routes: RouteConfig[] = [
     logout,
     signUp,
     signUpLink,
-    home,
+    inbox,
     newRoute,
     answer,
     transfer,

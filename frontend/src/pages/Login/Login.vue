@@ -134,7 +134,7 @@ onMounted(async () => {
     const response = await fetchWithToken(`${API_BASE_URL}is_authenticated/`);
     const data = await response?.json();
     if (data?.isAuthenticated) {
-        router.push({ name: "home" });
+        router.push({ name: "inbox" });
     }
     document.addEventListener("keydown", handleKeyDown);
 });
@@ -201,7 +201,7 @@ async function login() {
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem("accessToken", data.accessToken);
-            router.push({ name: "home" });
+            router.push({ name: "inbox" });
         } else {
             displayPopup(
                 "error",

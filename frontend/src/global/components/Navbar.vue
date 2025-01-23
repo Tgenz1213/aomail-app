@@ -143,7 +143,7 @@ onMounted(() => {
 
 // Main navigation items (excluding 'New Email')
 const mainNavigation: NavigationPage[] = [
-    { name: i18n.global.t("constants.inboxNavbar"), href: "/home", icon: InboxIcon },
+    { name: i18n.global.t("constants.inboxNavbar"), href: "/inbox", icon: InboxIcon },
     { name: i18n.global.t("constants.searchEmailNavbar"), href: "/search", icon: MagnifyingGlassIcon },
     { name: i18n.global.t("constants.rulesNavbar"), href: "/rules", icon: BeakerIcon },
     { name: i18n.global.t("constants.replyLaterNavbar"), href: "/reply-later", icon: ArrowUturnLeftIcon },
@@ -163,8 +163,8 @@ const route = useRoute();
 const getGithubLink = computed(() => {
     const basePath = 'https://info.aomail.ai/article';
     switch (route.path) {
-        case '/home':
-            return `${basePath}/4/🧐-how-to-use-the-home-page-of-aomail-`;
+        case '/inbox':
+            return `${basePath}/4/🧐-how-to-use-the-inbox-page-of-aomail-`;
         case '/new':
             return `${basePath}/5/🧐-how-to-use-the-new-page-of-aomail-`;
         case '/search':

@@ -46,16 +46,7 @@ import { i18n } from "@/global/preferences";
 import router from "@/router/router";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 
-interface Reminder {
-    id: number;
-    receivedDate: string;
-    receivedTime: string;
-    subject: string;
-    sender: string;
-    importance: string;
-}
-
-const currentStep = ref("requiringAnswer");
+const currentStep = ref("");
 
 const messages = inject("messages") as Ref<Message[]>;
 const waitForButtonClick = inject("waitForButtonClick") as Ref<boolean>;
@@ -63,9 +54,9 @@ const isSeeMailOpen = ref(false);
 const selectedEmail = ref<Email | undefined>(undefined);
 const emailList = ref<Email[]>([]);
 
-const emailsRequiringAnswer = ref<Reminder[]>([]);
-const emailsMightRequireAnswer = ref<Reminder[]>([]);
-const importantEmails = ref<Reminder[]>([]);
+const answerRequiredEmails = ref<Email[]>([]);
+const mightRequireAnswerEmails = ref<Email[]>([]);
+const missedImportantEmails = ref<Email[]>([]);
 
 async function openSeeMailModal(id: number) {
     const emailFetched = await fetchEmailData(id);
@@ -273,11 +264,11 @@ const handleButtonClick = async (option: KeyValuePair, index: number) => {
     switch (option.key) {
         case "mightRequireAnswer":
             currentStep.value = "mightRequireAnswer";
-            displayNextEmails("emailsMightRequireAnswer");
+            displayNextEmails("mightRequireAnswerEmails");
             break;
-        case "importantEmailsNotRead":
-            currentStep.value = "importantEmailsNotRead";
-            displayNextEmails("importantEmails");
+        case "missedImportantEmailsNotRead":
+            currentStep.value = "missedImportantEmailsNotRead";
+            displayNextEmails("missedImportantEmails");
             break;
         case "finishReview":
             displayAIMsg("Great! You've reviewed all emails. Enjoy your clean inbox");
@@ -291,9 +282,9 @@ const handleButtonClick = async (option: KeyValuePair, index: number) => {
 };
 
 function displayNextEmails(category: string) {
-    const categoryMap: Record<string, Ref<Reminder[]>> = {
-        emailsMightRequireAnswer: emailsMightRequireAnswer,
-        importantEmails: importantEmails,
+    const categoryMap: Record<string, Ref<Email[]>> = {
+        mightRequireAnswerEmails: mightRequireAnswerEmails,
+        missedImportantEmails: missedImportantEmails,
     };
 
     const emailsToDisplay = categoryMap[category]?.value || [];
@@ -304,9 +295,9 @@ function displayNextEmails(category: string) {
         .map(
             (email) => `
             <li>
-                <strong>${email.subject}</strong> from <em>${email.sender}</em> on ${formatSentDate(
-                email.receivedDate
-            )} ${formatSentTime(email.receivedDate, email.receivedTime)}
+                <strong>${email.subject}</strong> from <em>${
+                email.sender.name || email.sender.name
+            }</em> on ${formatSentDate(email.sentDate)} ${formatSentTime(email.sentDate, email.sentTime)}
             </li>
         `
         )
@@ -321,7 +312,7 @@ function displayNextEmails(category: string) {
     `,
         [
             {
-                key: "importantEmailsNotRead",
+                key: "missedImportantEmailsNotRead",
                 value: "Show missed important emails",
             },
             {
@@ -333,99 +324,40 @@ function displayNextEmails(category: string) {
 }
 
 onMounted(async () => {
-    await fetchAiReminders();
+    await fetchAiEmails();
 });
 
-async function fetchAiReminders() {
-    // Simulating the fetching of email reminders
-    const fakeEmailsRequiringAnswer: Reminder[] = [
-        {
-            id: 188,
-            receivedDate: "2025-01-10",
-            receivedTime: "19:03",
-            subject: "Follow-up on project status",
-            sender: "manager@company.com",
-            importance: "Important",
-        },
-        {
-            id: 189,
-            receivedDate: "2025-01-12",
-            receivedTime: "19:03",
-            subject: "Request for documents",
-            sender: "client@business.com",
-            importance: "Important",
-        },
-    ];
+async function fetchAiEmails() {
+    let result;
+    result = await getData("user/answer_email_suggestion_ids/");
 
-    const fakeEmailsMightRequireAnswer: Reminder[] = [
-        {
-            id: 188,
-            receivedDate: "2025-01-14",
-            receivedTime: "19:03",
-            subject: "Question about the meeting agenda",
-            sender: "colleague@work.com",
-            importance: "Informative",
-        },
-        {
-            id: 189,
-            receivedDate: "2025-01-15",
-            receivedTime: "19:03",
-            subject: "Details about the event",
-            sender: "events@org.com",
-            importance: "Informative",
-        },
-        {
-            id: 187,
-            receivedDate: "2025-01-13",
-            receivedTime: "19:03",
-            subject: "Team dinner planning",
-            sender: "team@company.com",
-            importance: "Informative",
-        },
-    ];
+    answerRequiredEmails.value =
+        (await postData("user/get_simple_email_data/", { ids: result.data.answerRequiredEmailIds })).data.emailsData ||
+        [];
 
-    const fakeImportantUnreadEmails: Reminder[] = [
-        {
-            id: 187,
-            receivedDate: "2025-01-05",
-            receivedTime: "19:03",
-            subject: "Updated contract terms",
-            sender: "legal@company.com",
-            importance: "Important",
-        },
-        {
-            id: 189,
-            receivedDate: "2025-01-03",
-            receivedTime: "19:03",
-            subject: "Annual performance review schedule",
-            sender: "hr@company.com",
-            importance: "Important",
-        },
-        {
-            id: 188,
-            receivedDate: "2025-01-01",
-            receivedTime: "19:03",
-            subject: "New company policies",
-            sender: "policy@company.com",
-            importance: "Important",
-        },
-    ];
+    mightRequireAnswerEmails.value =
+        (await postData("user/get_simple_email_data/", { ids: result.data.mightRequireAnswerEmailIds })).data
+            .emailsData || [];
+
+    missedImportantEmails.value =
+        (await postData("user/get_simple_email_data/", { ids: result.data.missedImportantEmailIds })).data.emailsData ||
+        [];
 
     // Determine the highest-priority category to display
-    let emailsToDisplay: Reminder[] = [];
+    let emailsToDisplay: Email[] = [];
     let messageIntro: string = "";
     let addButtons: boolean = false;
 
-    if (fakeEmailsRequiringAnswer.length > 0) {
-        emailsToDisplay = fakeEmailsRequiringAnswer;
+    if (answerRequiredEmails.value.length > 0) {
+        emailsToDisplay = answerRequiredEmails.value;
         messageIntro = "Hey, you might have forgotten to answer these emails:";
         addButtons = true; // Add buttons for "requiring an answer" emails
-    } else if (fakeEmailsMightRequireAnswer.length > 0) {
-        emailsToDisplay = fakeEmailsMightRequireAnswer;
+    } else if (mightRequireAnswerEmails.value.length > 0) {
+        emailsToDisplay = mightRequireAnswerEmails.value;
         messageIntro = "Hey, you have these emails that might require an answer:";
-    } else if (fakeImportantUnreadEmails.length > 0) {
-        emailsToDisplay = fakeImportantUnreadEmails;
-        messageIntro = "Hey, you have these important emails that you have not read and received more than 7 days ago:";
+    } else if (missedImportantEmails.value.length > 0) {
+        emailsToDisplay = missedImportantEmails.value;
+        messageIntro = "Hey, you have these important emails that you have not read and received more than 3 days ago:";
     } else {
         messageIntro = "You have no pending emails at the moment!";
     }
@@ -435,9 +367,9 @@ async function fetchAiReminders() {
         .map(
             (email) => `
         <li>
-            <strong>${email.subject}</strong> from <em>${email.sender}</em> on ${formatSentDate(
-                email.receivedDate
-            )} ${formatSentTime(email.receivedDate, email.receivedTime)}
+            <strong>${email.subject}</strong> from <em>${
+                email.sender.name || email.sender.name
+            }</em> on ${formatSentDate(email.sentDate)} ${formatSentTime(email.sentDate, email.sentTime)}
             ${
                 addButtons
                     ? `<button type="button" id="responseKeywordButton${email.id}"
@@ -461,7 +393,7 @@ async function fetchAiReminders() {
     `,
         [
             { key: "mightRequireAnswer", value: "Show emails that might require an answer" },
-            { key: "importantEmailsNotRead", value: "Show missed important emails" },
+            { key: "missedImportantEmailsNotRead", value: "Show missed important emails" },
         ]
     );
 
@@ -481,12 +413,12 @@ async function fetchAiReminders() {
 }
 
 async function fetchEmailData(id: number): Promise<Email | undefined> {
-    const result = await getData(`user/emails/${id}/data/`);
+    const result = await postData("user/get_simple_email_data/", { ids: [id] });
 
     if (!result.success) {
         displayPopup?.("error", "Failed to fetch email data", result.error as string);
         return;
     }
-    return result.data;
+    return result.data.emailsData[0];
 }
 </script>

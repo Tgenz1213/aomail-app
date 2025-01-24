@@ -8,10 +8,13 @@ Endpoints:
 - ✅ get_mail_by_id: Retrieve email details by ID.
 - ✅ retrieve_attachment_data: Get attachment data by email and attachment ID.
 - ✅ update_emails: Update the state of multiple emails (e.g., mark as read, unread, or for later reply).
+- ✅ get_answer_email_suggestion_ids: Returns email answer suggestions based on specific criteria.
+- ✅ get_simple_email_data: Retrieves detailed information for multiple emails based on provided email IDs.
 """
 
 import json
 import logging
+from datetime import timedelta
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -20,7 +23,16 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import decrypt_text, subscription
-from aomail.constants import ALLOW_ALL, ENCRYPTION_KEYS, GOOGLE, MICROSOFT
+from aomail.constants import (
+    ALLOW_ALL,
+    ANSWER_REQUIRED,
+    ENCRYPTION_KEYS,
+    GOOGLE,
+    IMPORTANT,
+    INFORMATIVE,
+    MICROSOFT,
+    MIGHT_REQUIRE_ANSWER,
+)
 from aomail.models import Rule, SocialAPI, Email
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
@@ -113,87 +125,113 @@ def get_mail_by_id(request: HttpRequest) -> Response:
         )
 
 
-@api_view(["GET"])
+# TODO: update header
+@api_view(["POST"])
 @subscription(ALLOW_ALL)
-def get_email_data(request: HttpRequest, email_id: int) -> Response:
+def get_simple_email_data(request: HttpRequest) -> Response:
     """
-    Retrieves detailed information of an email by its ID for the authenticated user.
+    Retrieves detailed informations for multiple emails based on provided email IDs.
 
     Args:
-        request (HttpRequest): The HTTP request object, which contains the email_id as a parameter.
-        email_id (int): The ID of the email to retrieve.
+        request (HttpRequest): The HTTP request object
+        Expects JSON body with:
+            ids (list[int]): A list of email IDs to retrieve. Must contain between 0 and 100 IDs.
 
     Returns:
         Response:
-            - Success (HTTP 200 OK): JSON object containing email details.
+            - Success (HTTP 200 OK): JSON object containing emails details.
             - Failure (HTTP 500 INTERNAL SERVER ERROR): If an unexpected error occurs, returns an error message.
     """
     try:
         user = request.user
-        email = Email.objects.get(id=email_id, user=user)
+        parameters: dict = json.loads(request.body)
+        email_ids = parameters.get("ids")
 
-        return Response(
-            {
-                "id": email.id,
-                "subject": email.subject,
-                "sender": {
-                    "email": email.sender.email,
-                    "name": email.sender.name,
-                },
-                "providerId": email.provider_id,
-                "shortSummary": decrypt_text(
-                    ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary
-                ),
-                "oneLineSummary": decrypt_text(
-                    ENCRYPTION_KEYS["Email"]["one_line_summary"], email.one_line_summary
-                ),
-                "cc": [
-                    {"email": cc.email, "name": cc.name}
-                    for cc in email.cc_senders.all()
-                ],
-                "bcc": [
-                    {"email": bcc.email, "name": bcc.name}
-                    for bcc in email.bcc_senders.all()
-                ],
-                "read": email.read,
-                "answerLater": email.answer_later,
-                "rule": {
-                    "hasRule": (
-                        True
-                        if Rule.objects.filter(sender=email.sender, user=user).exists()
-                        else False
-                    ),
-                    "ruleId": (
-                        Rule.objects.get(sender=email.sender, user=user).id
-                        if Rule.objects.filter(sender=email.sender, user=user).exists()
-                        else None
-                    ),
-                },
-                "hasAttachments": email.has_attachments,
-                "attachments": [
-                    {
-                        "attachmentName": attachment.name,
-                        "attachmentId": attachment.id_api,
-                    }
-                    for attachment in email.attachments.all()
-                ],
-                "sentDate": email.date.date() if email.date else None,
-                "sentTime": email.date.strftime("%H:%M") if email.date else None,
-                "answer": email.answer,
-                "relevance": email.relevance,
-                "priority": email.priority,
-                "flags": {
-                    "spam": email.spam,
-                    "scam": email.scam,
-                    "newsletter": email.newsletter,
-                    "notification": email.notification,
-                    "meeting": email.meeting,
-                },
-                "archive": email.archive,
-            }
+        if not (0 <= len(email_ids) <= 100):
+            return Response(
+                {"error": "IDs must be provided as a list with 0 to 100 elements"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        queryset = Email.objects.filter(id__in=email_ids, user=user)
+        rule_id_subquery = Rule.objects.filter(
+            sender=OuterRef("sender"), user=user
+        ).values("id")[:1]
+        queryset = queryset.annotate(
+            has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
         )
+
+        emails_data = []
+        for email in queryset:
+            emails_data.append(
+                {
+                    "id": email.id,
+                    "subject": email.subject,
+                    "sender": {
+                        "email": email.sender.email,
+                        "name": email.sender.name,
+                    },
+                    "providerId": email.provider_id,
+                    "shortSummary": decrypt_text(
+                        ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary
+                    ),
+                    "oneLineSummary": decrypt_text(
+                        ENCRYPTION_KEYS["Email"]["one_line_summary"],
+                        email.one_line_summary,
+                    ),
+                    "cc": [
+                        {"email": cc.email, "name": cc.name}
+                        for cc in email.cc_senders.all()
+                    ],
+                    "bcc": [
+                        {"email": bcc.email, "name": bcc.name}
+                        for bcc in email.bcc_senders.all()
+                    ],
+                    "read": email.read,
+                    "answerLater": email.answer_later,
+                    "rule": {
+                        "hasRule": (
+                            True
+                            if Rule.objects.filter(
+                                sender=email.sender, user=user
+                            ).exists()
+                            else False
+                        ),
+                        "ruleId": (
+                            Rule.objects.get(sender=email.sender, user=user).id
+                            if Rule.objects.filter(
+                                sender=email.sender, user=user
+                            ).exists()
+                            else None
+                        ),
+                    },
+                    "hasAttachments": email.has_attachments,
+                    "attachments": [
+                        {
+                            "attachmentName": attachment.name,
+                            "attachmentId": attachment.id_api,
+                        }
+                        for attachment in email.attachments.all()
+                    ],
+                    "sentDate": email.date.date() if email.date else None,
+                    "sentTime": email.date.strftime("%H:%M") if email.date else None,
+                    "answer": email.answer,
+                    "relevance": email.relevance,
+                    "priority": email.priority,
+                    "flags": {
+                        "spam": email.spam,
+                        "scam": email.scam,
+                        "newsletter": email.newsletter,
+                        "notification": email.notification,
+                        "meeting": email.meeting,
+                    },
+                    "archive": email.archive,
+                }
+            )
+
+        return Response({"emailsData": emails_data}, status=status.HTTP_200_OK)
     except Exception as e:
-        LOGGER.error(f"Error retrieving email data for email ID {email_id}: {str(e)}")
+        LOGGER.error(f"Error retrieving email data: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -434,3 +472,59 @@ def retrieve_attachment_data(
         return Response(
             {"error": "Attachment not found"}, status=status.HTTP_404_NOT_FOUND
         )
+
+
+@api_view(["GET"])
+@subscription(ALLOW_ALL)
+def get_answer_email_suggestion_ids(request: HttpRequest):
+    """
+    Returns email answer suggestions based on specific criteria.
+
+    Args:
+        request (HttpRequest): The HTTP request object. The user is inferred from the request.
+
+    Returns:
+        Response: JSON response containing lists of email IDs for each category:
+            - "answerRequiredEmailIds": List of email IDs requiring an answer.
+            - "mightRequireAnswerEmailIds": List of email IDs that might require an answer.
+            - "missedImportantEmailIds": List of important email IDs that might have been missed.
+    """
+    today = timezone.now()
+    remind_date = today - timedelta(
+        days=3
+    )  # date before which the email needs to be reminded
+
+    answer_required_emails = Email.objects.filter(
+        user=request.user,
+        read=False,
+        answer=ANSWER_REQUIRED,
+        priority__in=[IMPORTANT, INFORMATIVE],
+        date__lte=remind_date,
+    )
+
+    might_require_answer_emails = Email.objects.filter(
+        user=request.user,
+        read=False,
+        answer=MIGHT_REQUIRE_ANSWER,
+        priority__in=[IMPORTANT, INFORMATIVE],
+        date__lte=remind_date,
+    )
+
+    missed_important_emails = Email.objects.filter(
+        user=request.user,
+        read=False,
+        answer=MIGHT_REQUIRE_ANSWER,
+        priority=IMPORTANT,
+        date__lte=remind_date,
+    )
+
+    return Response(
+        {
+            "answerRequiredEmailIds": [email.id for email in answer_required_emails],
+            "mightRequireAnswerEmailIds": [
+                email.id for email in might_require_answer_emails
+            ],
+            "missedImportantEmailIds": [email.id for email in missed_important_emails],
+        },
+        status=status.HTTP_200_OK,
+    )

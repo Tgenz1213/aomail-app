@@ -75,13 +75,14 @@ urlpatterns = [
     path('user/emails_ids/', search_emails.get_user_emails_ids, name='get_user_emails'),
     path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'),
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'),
-    path('user/emails/<int:email_id>/data/', emails.get_email_data, name='get_email_data'),    
+    path('user/get_simple_email_data/', emails.get_simple_email_data, name='get_simple_email_data'),    
     path('user/get_first_email/', emails.get_first_email, name='get_first_email'),    
     path('user/emails/update/', emails.update_emails, name='update_emails'),
     path('user/emails/<str:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 
     path('get_mail_by_id', emails.get_mail_by_id, name='get_mail_by_id'),
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'),
     path('user/emails_counts/', search_emails.get_email_counts, name='get_email_counts'),
+    path('user/answer_email_suggestion_ids/', emails.get_answer_email_suggestion_ids , name='get_answer_email_suggestion_ids'),
     #----------------------- VIEWS -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
 

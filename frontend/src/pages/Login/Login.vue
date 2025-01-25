@@ -133,22 +133,20 @@ onMounted(async () => {
     const accessToken = localStorage.getItem("accessToken");
 
     if (accessToken) {
-        try {
-            const requestOptions = {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            };
+        const requestOptions = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
 
-            const response = await fetch(`${API_BASE_URL}is_authenticated/`, requestOptions);
+        const response = await fetch(`${API_BASE_URL}is_authenticated/`, requestOptions);
 
-            const data = await response?.json();
-            if (data?.isAuthenticated) {
-                router.push({ name: "inbox" });
-            }
-        } catch {}
+        const data = await response?.json();
+        if (data?.isAuthenticated) {
+            router.push({ name: "inbox" });
+        }
     }
 
     document.addEventListener("keydown", handleKeyDown);

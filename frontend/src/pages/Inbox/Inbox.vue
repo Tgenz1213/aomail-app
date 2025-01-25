@@ -22,7 +22,7 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative">
@@ -125,14 +125,13 @@
                     </div>
                 </div>
             </div>
-            <!-- NOT FOR v1 
-            <AssistantChat v-if="!isHidden" @toggle-visibility="toggleVisibility" />-->
+            <AssistantChat class="flex overflow-y-auto custom-scrollbar" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, onMounted, onUnmounted, watch, reactive } from "vue";
+import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
 import { getData, postData, putData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult } from "@/global/types";
 import { DEFAULT_CATEGORY } from "@/global/const";
@@ -148,7 +147,7 @@ import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
 import ReadEmail from "./components/ReadEmails.vue";
-//import AssistantChat from "./components/AssistantChat.vue"; DESACTIVATED FOR NOW DO NOT DELETE
+import AssistantChat from "./components/AssistantChat.vue";
 import Categories from "./components/Categories.vue";
 import SearchBar from "./components/SearchBar.vue";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
@@ -162,7 +161,7 @@ const timerId = ref<number | null>(null);
 const toSearch = ref(false);
 const showFeedbackForm = ref(false);
 const isFreeTrialExpired = ref(false);
-const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 const emails = ref<Record<string, Record<string, Email[]>>>({});
 const selectedCategory = ref<string>("");
@@ -174,7 +173,6 @@ const isModalNewCategoryOpen = ref(false);
 const isModalUpdateCategoryOpen = ref(false);
 const isModalNewFilterOpen = ref(false);
 const isModalUpdateFilterOpen = ref(false);
-//const isHidden = ref(false); DESACTIVATED FOR NOW DO NOT DELETE
 const categories = ref<Category[]>([]);
 const filters = ref<{ [categoryName: string]: Filter[] }>({});
 const categoryTotals = ref<{ [key: string]: number }>({});
@@ -194,11 +192,11 @@ const isMarking = ref({
     important: false,
     informative: false,
     useless: false,
-    archiveRead: false
+    archiveRead: false,
 });
 
 let totalPages = computed(() => {
-  return Math.ceil(allEmailIds.value.length / emailsPerPage);
+    return Math.ceil(allEmailIds.value.length / emailsPerPage);
 });
 
 watch(
@@ -338,86 +336,84 @@ const fetchEmailsData = async (categoryName: string) => {
 };
 
 async function loadPage(pageNumber: number) {
-  const startIndex = (pageNumber - 1) * emailsPerPage;
-  const endIndex = startIndex + emailsPerPage;
-  const idsToFetch = allEmailIds.value.slice(startIndex, endIndex);
+    const startIndex = (pageNumber - 1) * emailsPerPage;
+    const endIndex = startIndex + emailsPerPage;
+    const idsToFetch = allEmailIds.value.slice(startIndex, endIndex);
 
-  if (!idsToFetch.length) return;
+    if (!idsToFetch.length) return;
 
-  const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
-  const newEmails = emails_details.data.data;
+    const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
+    const newEmails = emails_details.data.data;
 
-  for (const category in newEmails) {
-    if (!emails.value[category]) {
-      emails.value[category] = {};
+    for (const category in newEmails) {
+        if (!emails.value[category]) {
+            emails.value[category] = {};
+        }
+        for (const type in newEmails[category]) {
+            if (!emails.value[category][type]) {
+                emails.value[category][type] = [];
+            }
+            emails.value[category][type].push(...newEmails[category][type]);
+        }
     }
-    for (const type in newEmails[category]) {
-      if (!emails.value[category][type]) {
-        emails.value[category][type] = [];
-      }
-      emails.value[category][type].push(...newEmails[category][type]);
-    }
-  }
 }
 
 const loadMoreEmails = async (pagesToLoad = 1) => {
-  if (isLoading.value) return;
-  isLoading.value = true;
+    if (isLoading.value) return;
+    isLoading.value = true;
 
-  for (let i = 0; i < pagesToLoad; i++) {
-    if (currentPage.value <= totalPages.value) {
-      await loadPage(currentPage.value);
-      currentPage.value++;
-    } else {
-      break;
+    for (let i = 0; i < pagesToLoad; i++) {
+        if (currentPage.value <= totalPages.value) {
+            await loadPage(currentPage.value);
+            currentPage.value++;
+        } else {
+            break;
+        }
     }
-  }
 
-  if (currentPage.value <= totalPages.value) {
-    loadPage(currentPage.value).catch(err => {
-      console.error("Prefetch error:", err);
-    });
-    currentPage.value++;
-  }
+    if (currentPage.value <= totalPages.value) {
+        loadPage(currentPage.value).catch((err) => {
+            console.error("Prefetch error:", err);
+        });
+        currentPage.value++;
+    }
 
-  isLoading.value = false;
+    isLoading.value = false;
 };
 
 function debounce(func: (...args: any[]) => void, wait: number) {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-  return (...args: any[]) => {
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      func(...args);
-      timeout = null;
-    }, wait);
-  };
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    return (...args: any[]) => {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func(...args);
+            timeout = null;
+        }, wait);
+    };
 }
 
 const handleScroll = debounce(() => {
-  const container = document.querySelector(".custom-scrollbar");
-  if (!container) return;
+    const container = document.querySelector(".custom-scrollbar");
+    if (!container) return;
 
-  const { scrollTop, scrollHeight, clientHeight } = container;
-  const now = performance.now(); 
-  const distance = Math.abs(scrollTop - previousScrollTop.value);
-  const elapsedTime = now - previousTime.value; 
-  const speed = distance / elapsedTime || 0;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const now = performance.now();
+    const distance = Math.abs(scrollTop - previousScrollTop.value);
+    const elapsedTime = now - previousTime.value;
+    const speed = distance / elapsedTime || 0;
 
-  previousScrollTop.value = scrollTop;
-  previousTime.value = now;
+    previousScrollTop.value = scrollTop;
+    previousTime.value = now;
 
-  const threshold = 800; 
-  if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
-    if (speed > 1.5) {
-      loadMoreEmails(2); 
-    } else {
-      loadMoreEmails(1);
+    const threshold = 800;
+    if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
+        if (speed > 1.5) {
+            loadMoreEmails(2);
+        } else {
+            loadMoreEmails(1);
+        }
     }
-  }
 }, 100);
-
-
 
 const scroll = () => {
     const container = document.querySelector(".custom-scrollbar");
@@ -460,25 +456,25 @@ const openUpdateFilterModal = (filter: Filter) => {
     isModalUpdateFilterOpen.value = true;
 };
 
-const markCategoryAsRead = async (category: 'important' | 'informative' | 'useless') => {
+const markCategoryAsRead = async (category: "important" | "informative" | "useless") => {
     isMarking.value[category] = true;
     try {
         let emailsToMark: Email[] = [];
-        switch(category) {
-            case 'important':
+        switch (category) {
+            case "important":
                 emailsToMark = importantEmails.value;
                 break;
-            case 'informative':
+            case "informative":
                 emailsToMark = informativeEmails.value;
                 break;
-            case 'useless':
+            case "useless":
                 emailsToMark = uselessEmails.value;
                 break;
             default:
                 emailsToMark = [];
         }
 
-        const ids = emailsToMark.map(email => email.id);
+        const ids = emailsToMark.map((email) => email.id);
 
         if (ids.length === 0) {
             displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noEmailsToMark"), "");
@@ -491,7 +487,7 @@ const markCategoryAsRead = async (category: 'important' | 'informative' | 'usele
             await fetchEmailsData(selectedCategory.value);
             await fetchFiltersData(selectedCategory.value);
             await fetchEmailCounts(selectedCategory.value);
-            emailsToMark.forEach(email => {
+            emailsToMark.forEach((email) => {
                 email.read = true;
             });
             displayPopup?.(
@@ -501,7 +497,7 @@ const markCategoryAsRead = async (category: 'important' | 'informative' | 'usele
             );
         } else {
             displayPopup?.(
-                "error", 
+                "error",
                 i18n.global.t("constants.popUpConstants.errorMessages.failedToMarkAsRead"),
                 result.error as string
             );
@@ -520,26 +516,18 @@ const markCategoryAsRead = async (category: 'important' | 'informative' | 'usele
 const archiveReadEmails = async () => {
     const category = selectedCategory.value;
     if (!category) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.noCategorySelected"),
-            ""
-        );
+        displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noCategorySelected"), "");
         return;
     }
 
-    isMarking.value['archiveRead'] = true;
+    isMarking.value["archiveRead"] = true;
 
     try {
         const readEmailsInCategory = readEmails.value;
-        const ids = readEmailsInCategory.map(email => email.id);
+        const ids = readEmailsInCategory.map((email) => email.id);
 
         if (ids.length === 0) {
-            displayPopup?.(
-                "error", 
-                i18n.global.t("constants.popUpConstants.errorMessages.noEmailsToArchive"), 
-                ""
-            );
+            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noEmailsToArchive"), "");
             return;
         }
 
@@ -550,7 +538,7 @@ const archiveReadEmails = async () => {
             await fetchFiltersData(category);
             await fetchEmailCounts(category);
 
-            readEmailsInCategory.forEach(email => {
+            readEmailsInCategory.forEach((email) => {
                 email.archive = true;
             });
 
@@ -561,7 +549,7 @@ const archiveReadEmails = async () => {
             );
         } else {
             displayPopup?.(
-                "error", 
+                "error",
                 i18n.global.t("constants.popUpConstants.errorMessages.failedToArchive"),
                 result.error as string
             );
@@ -573,7 +561,7 @@ const archiveReadEmails = async () => {
             (error as Error).message
         );
     } finally {
-        isMarking.value['archiveRead'] = false;
+        isMarking.value["archiveRead"] = false;
     }
 };
 

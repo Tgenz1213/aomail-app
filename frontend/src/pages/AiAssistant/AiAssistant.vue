@@ -46,10 +46,6 @@
                         </button>
                     </div>
                 </div>
-
-                <div class="flex-1 overflow-y-auto p-6 bg-white">
-                    <Conversation />
-                </div>
             </div>
         </div>
     </div>
@@ -59,10 +55,8 @@
 import { provide, ref } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
-import Conversation from "./components/Conversation.vue";
 import { BeakerIcon, CogIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { Message } from "@/global/types";
 
 const showNotification = ref(false);
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
@@ -71,33 +65,7 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
-const userInputResolver = ref<((value: string) => void) | null>(null);
-const waitForButtonClick = ref(false);
-const messages = ref<Message[]>([]);
-
-const displayUserMsg = (message: string) => {
-    messages.value.push({ textHtml: message, isUser: true });
-};
-
-const handleUserResponse = (response: string) => {
-    displayUserMsg(response);
-    if (userInputResolver.value) {
-        userInputResolver.value(response);
-        userInputResolver.value = null;
-    }
-};
-
-async function waitForUserInput(): Promise<string> {
-    return new Promise((resolve) => {
-        userInputResolver.value = resolve;
-    });
-}
-
-provide("waitForButtonClick", waitForButtonClick);
-provide("messages", messages);
 provide("displayPopup", displayPopup);
-provide("displayUserMsg", displayUserMsg);
-provide("waitForUserInput", waitForUserInput);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

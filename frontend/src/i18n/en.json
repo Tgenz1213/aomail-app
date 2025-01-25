@@ -140,6 +140,7 @@
     "emails": "emails",
     "redirectionInProgress": "Redirection in progress...",
     "inboxNavbar": "Inbox",
+    "AiNavbar": "AI Assistant",
     "homeNavbar": "Home",
     "newEmailNavbar": "New Email",
     "searchEmailNavbar": "Search Email (beta)",

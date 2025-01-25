@@ -8,8 +8,8 @@
     />
     <div class="h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative">
@@ -35,10 +35,11 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { provide, ref } from "vue";
 import Conversation from "./components/Conversation.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import ChatInput from "./components/ChatInput.vue";
 import { Message } from "@/global/types";
 
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");

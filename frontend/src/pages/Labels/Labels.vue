@@ -8,8 +8,8 @@
     />
     <div class="h-screen flex flex-col">
         <div class="flex h-full w-full">
-            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-grow p-4 border border-gray-200 flex flex-col">
                 <SearchMenu />
@@ -42,8 +42,9 @@ import Label from "./components/Label.vue";
 import ActionButtons from "./components/ActionButtons.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import { LabelData } from "./utils/types";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");
 const notificationMessage = ref<string>("");

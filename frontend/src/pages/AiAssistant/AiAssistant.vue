@@ -8,8 +8,8 @@
     />
     <div class="h-screen flex flex-col">
         <div class="flex h-full">
-            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
 
             <div class="flex flex-1 flex-col">
@@ -58,13 +58,14 @@
 <script setup lang="ts">
 import { provide, ref } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import Conversation from "./components/Conversation.vue";
 import { BeakerIcon, CogIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { Message } from "@/global/types";
 
 const showNotification = ref(false);
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");

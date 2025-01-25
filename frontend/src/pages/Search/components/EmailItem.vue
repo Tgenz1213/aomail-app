@@ -29,25 +29,28 @@
                 <p class="text-xs">{{ localEmail.shortSummary }}</p>
             </div>
             <div class="mt-1 flex space-x-2">
+                <div v-if="localEmail.priority">
+                    <span
+                        v-if="localEmail.priority === IMPORTANT"
+                        class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
+                    >
+                        {{ $t("constants.ruleModalConstants.important") }}
+                    </span>
+                    <span
+                        v-else-if="localEmail.priority === INFORMATIVE"
+                        class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                    >
+                        {{ $t("constants.ruleModalConstants.informative") }}
+                    </span>
+                    <span
+                        v-else
+                        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+                    >
+                        {{ $t("constants.ruleModalConstants.useless") }}
+                    </span>
+                </div>
                 <span
-                    v-if="localEmail.priority === 'important'"
-                    class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
-                >
-                    {{ $t("constants.ruleModalConstants.important") }}
-                </span>
-                <span
-                    v-else-if="localEmail.priority === 'informative'"
-                    class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
-                >
-                    {{ $t("constants.ruleModalConstants.informative") }}
-                </span>
-                <span
-                    v-else
-                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
-                >
-                    {{ $t("constants.ruleModalConstants.useless") }}
-                </span>
-                <span
+                    v-if="localEmail.category"
                     class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                 >
                     {{ localEmail.category }}
@@ -69,11 +72,12 @@
                     {{ $t("searchPage.searchIn.read") }}
                 </span>
                 <span
+                    v-if="localEmail.shortSummary"
                     v-bind:class="{
                         'hidden group-hover:block px-1.5 text-white shadow rounded-xl inline-flex': true,
-                        'bg-orange-300': localEmail.priority === 'important',
-                        'bg-blue-300': localEmail.priority === 'informative',
-                        'bg-gray-300': localEmail.priority !== 'important' && localEmail.priority !== 'informative',
+                        'bg-orange-300': localEmail.priority === IMPORTANT,
+                        'bg-blue-300': localEmail.priority === INFORMATIVE,
+                        'bg-gray-300': localEmail.priority !== IMPORTANT && localEmail.priority !== INFORMATIVE,
                     }"
                 >
                     <div class="flex gap-x-1 items-center justify-center h-full">
@@ -121,6 +125,7 @@ import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import router from "@/router/router";
 import { i18n } from "@/global/preferences";
 import { formatSentDateAndTime } from "@/global/formatters";
+import { INFORMATIVE, IMPORTANT } from "@/global/const";
 
 const props = defineProps<{
     email: Email;
@@ -159,7 +164,7 @@ async function openSeeMailModal() {
 }
 
 function openRule() {
-    if (localEmail.value.rule.hasRule) {
+    if (localEmail?.value?.rule?.hasRule) {
         openRuleEditor();
     } else {
         openNewRule();
@@ -167,7 +172,7 @@ function openRule() {
 }
 
 function openRuleEditor() {
-    router.push({ name: "rules", query: { idRule: localEmail.value.rule.ruleId, editRule: "true" } });
+    router.push({ name: "rules", query: { idRule: localEmail?.value?.rule?.ruleId, editRule: "true" } });
 }
 
 function openNewRule() {

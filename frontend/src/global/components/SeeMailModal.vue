@@ -40,13 +40,13 @@
                                     </div>
                                     <div class="flex gap-x-1 justify-center">
                                         <span
-                                            v-if="email?.priority === 'important'"
+                                            v-if="email?.priority === IMPORTANT"
                                             class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
                                         >
                                             Important
                                         </span>
                                         <span
-                                            v-else-if="email?.priority === 'informative'"
+                                            v-else-if="email?.priority === INFORMATIVE"
                                             class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
                                         >
                                             Informative
@@ -502,6 +502,7 @@ import {
     BeakerIcon,
 } from "@heroicons/vue/24/outline";
 import { Email } from "../types";
+import { INFORMATIVE, IMPORTANT } from "../const";
 
 const isMenuOpen = ref(false);
 

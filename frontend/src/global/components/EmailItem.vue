@@ -56,31 +56,31 @@
                 </div>
                 <div class="flex gap-x-2 pt-1.5">
                     <span
-                        v-if="email.flags.meeting"
+                        v-if="email?.flags?.meeting"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
                         {{ $t("homePage.flag.meeting") }}
                     </span>
                     <span
-                        v-if="email.flags.newsletter"
+                        v-if="email?.flags?.newsletter"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
                         {{ $t("homePage.flag.newsletter") }}
                     </span>
                     <span
-                        v-if="email.flags.notification"
+                        v-if="email?.flags?.notification"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
                         {{ $t("homePage.flag.notification") }}
                     </span>
                     <span
-                        v-if="email.flags.scam"
+                        v-if="email?.flags?.scam"
                         class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
                     >
                         {{ $t("homePage.flag.scam") }}
                     </span>
                     <span
-                        v-if="email.flags.spam"
+                        v-if="email?.flags?.spam"
                         class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
                     >
                         {{ $t("homePage.flag.spam") }}
@@ -95,7 +95,7 @@
                     v-for="attachment in email.attachments"
                     :key="attachment.attachmentId"
                     class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
-                    @click.prevent="downloadAttachment(email.id, attachment.attachmentName)"
+                    @click.prevent="downloadAttachment(email.id as number, attachment.attachmentName)"
                 >
                     <component
                         :is="getIconComponent(attachment.attachmentName)"
@@ -255,7 +255,7 @@
                                         class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer"
                                     >
                                         <div class="py-1">
-                                            <div v-if="email.rule.hasRule">
+                                            <div v-if="email?.rule?.hasRule">
                                                 <MenuItem v-slot="{ active }">
                                                     <a
                                                         @click.prevent="openRuleEditor"
@@ -543,7 +543,7 @@ const closeSeeMailModal = () => {
 };
 
 function openRule() {
-    if (localEmail.value.rule.hasRule) {
+    if (localEmail?.value?.rule?.hasRule) {
         openRuleEditor();
     } else {
         openNewRule();
@@ -551,7 +551,7 @@ function openRule() {
 }
 
 function openRuleEditor() {
-    router.push({ name: "rules", query: { idRule: localEmail.value.rule.ruleId, editRule: "true" } });
+    router.push({ name: "rules", query: { idRule: localEmail?.value?.rule?.ruleId, editRule: "true" } });
 }
 
 function openNewRule() {

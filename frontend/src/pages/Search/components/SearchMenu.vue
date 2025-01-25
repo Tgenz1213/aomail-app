@@ -105,14 +105,20 @@
             </Listbox>
         </div>
     </div>
+    <AomailFilters :isOpen="isAomailFiltersOpen" />
+    <ApiFilters :isOpen="isApiFiltersOpen" />
 </template>
 
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
-import { Email, EmailDetails, KeyValuePair } from "@/global/types";
+import { AomailSearchFilter, ApiSearchFilter, Email, EmailDetails, EmailProvider, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { inject, onMounted, onUnmounted, ref, Ref } from "vue";
+import { inject, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
+import AomailFilters from "./AomailFilters.vue";
+import ApiFilters from "./ApiFilters.vue";
+import { AOMAIL_SEARCH_KEY, API_SEARCH_KEY } from "@/global/const";
+import { EmailApiIds, EmailApiListType } from "../utils/types";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -120,21 +126,35 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const hideLoading = inject<() => void>("hideLoading");
 
 const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
+const emailApiIds = inject<Ref<EmailApiIds>>("emailApiIds") || ref<EmailApiIds>({});
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
+const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailApiListType>({});
 const inputValue = ref("");
 const isFocused = ref(false);
+const isAomailFiltersOpen = ref(false);
+const isApiFiltersOpen = ref(false);
+const aomailSearchFilters = ref<AomailSearchFilter>({});
+const apiSearchFilters = ref<ApiSearchFilter>({});
+
+provide("aomailSearchFilters", aomailSearchFilters);
+provide("apiSearchFilters", apiSearchFilters);
 
 const searchModes: KeyValuePair[] = [
-    { key: "aomail", value: "Aomail" },
-    { key: "api", value: "API" },
+    { key: AOMAIL_SEARCH_KEY, value: "Aomail" },
+    { key: API_SEARCH_KEY, value: "API" },
 ];
 const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
 
-async function toggleFilters() {
-    if (selectedSearchMode.value.key === "aomail") {
-        // todo: show aomail filters
+const closeFilters = () => {
+    isApiFiltersOpen.value = false;
+    isAomailFiltersOpen.value = false;
+};
+
+function toggleFilters() {
+    if (selectedSearchMode.value.key === AOMAIL_SEARCH_KEY) {
+        isAomailFiltersOpen.value = !isAomailFiltersOpen.value;
     } else {
-        // todo: show api filters
+        isApiFiltersOpen.value = !isApiFiltersOpen.value;
     }
 }
 
@@ -149,6 +169,10 @@ const handleKeyDown = (event: KeyboardEvent) => {
     }
 };
 
+watch(selectedSearchMode, () => {
+    closeFilters();
+});
+
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
 });
@@ -157,13 +181,111 @@ onUnmounted(() => {
     document.removeEventListener("keydown", handleKeyDown);
 });
 
-async function searchEmails() {
+function searchEmails() {
+    if (selectedSearchMode.value.key === AOMAIL_SEARCH_KEY) {
+        searchAomailEmails();
+    } else {
+        searchApiEmails();
+    }
+}
+
+async function searchApiEmails() {
     loading?.();
     scrollToBottom?.();
+    closeFilters?.();
+    emailList.value = [];
 
-    const result = await postData(`user/emails_ids/`, {
-        search: inputValue.value,
+    let result;
+    if (
+        apiSearchFilters.value.emailProvider ||
+        apiSearchFilters.value.subject ||
+        apiSearchFilters.value.body ||
+        apiSearchFilters.value.dateFrom ||
+        apiSearchFilters.value.fileExtensions ||
+        apiSearchFilters.value.filenames ||
+        apiSearchFilters.value.fromAddresses ||
+        apiSearchFilters.value.fromAddresses ||
+        apiSearchFilters.value.searchIn ||
+        apiSearchFilters.value.toAddresses
+    ) {
+        apiSearchFilters.value.advanced = true;
+        result = await postData(`user/get_api_emails_ids/`, apiSearchFilters.value);
+    } else {
+        result = await postData(`user/get_api_emails_ids/`, inputValue.value ? { query: inputValue.value } : {});
+    }
+
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch emails", result.error as string);
+        hideLoading?.();
+        return;
+    }
+
+    emailApiIds.value = result.data;
+    let nbLimitedApiIds = 0;
+    let limitedApiIds: EmailApiIds = {};
+
+    Object.entries(emailApiIds.value).forEach(([provider, dictEmails]) => {
+        const typedProvider = provider as EmailProvider;
+
+        Object.entries(dictEmails).forEach(([email, listIds]) => {
+            if (nbLimitedApiIds < 50) {
+                if (!limitedApiIds[typedProvider]) {
+                    limitedApiIds[typedProvider] = {};
+                }
+                limitedApiIds[typedProvider][email] = listIds.slice(0, 50 - nbLimitedApiIds);
+                nbLimitedApiIds += limitedApiIds[typedProvider][email].length;
+            }
+        });
     });
+
+    result = await postData(`user/get_api_emails_data/`, {
+        limitedApiIds,
+    });
+
+    hideLoading?.();
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch email details", result.error as string);
+        return;
+    }
+
+    emailApiList.value = result.data.data;
+}
+
+async function searchAomailEmails() {
+    loading?.();
+    scrollToBottom?.();
+    closeFilters?.();
+
+    let result;
+    if (
+        aomailSearchFilters.value.emailProvider ||
+        aomailSearchFilters.value.subject ||
+        aomailSearchFilters.value.senderEmail ||
+        aomailSearchFilters.value.senderName ||
+        aomailSearchFilters.value.CCEmails ||
+        aomailSearchFilters.value.CCNames ||
+        aomailSearchFilters.value.category ||
+        aomailSearchFilters.value.emailAddresses ||
+        aomailSearchFilters.value.archive ||
+        aomailSearchFilters.value.replyLater ||
+        aomailSearchFilters.value.read ||
+        aomailSearchFilters.value.sentDate ||
+        aomailSearchFilters.value.readDate ||
+        aomailSearchFilters.value.answer ||
+        aomailSearchFilters.value.relevance ||
+        aomailSearchFilters.value.priority ||
+        aomailSearchFilters.value.hasAttachments ||
+        aomailSearchFilters.value.spam ||
+        aomailSearchFilters.value.scam ||
+        aomailSearchFilters.value.newsletter ||
+        aomailSearchFilters.value.notification ||
+        aomailSearchFilters.value.meeting
+    ) {
+        aomailSearchFilters.value.advanced = true;
+        result = await postData(`user/emails_ids/`, aomailSearchFilters.value);
+    } else {
+        result = await postData(`user/emails_ids/`, inputValue.value ? { search: inputValue.value } : {});
+    }
 
     if (!result.success) {
         displayPopup?.("error", "Failed to fetch emails", result.error as string);
@@ -177,12 +299,11 @@ async function searchEmails() {
         ids: limitedEmails,
     });
 
+    hideLoading?.();
     if (!resultEmailsData.success) {
         displayPopup?.("error", "Failed to fetch email details", resultEmailsData.error as string);
-        hideLoading?.();
         return;
     }
-    hideLoading?.();
 
     const emailDetails: EmailDetails = resultEmailsData.data;
 

@@ -67,6 +67,7 @@ import SearchMenu from "./components/SearchMenu.vue";
 import AiSearchMenu from "./components/AiSearchMenu.vue";
 import EmailList from "./components/EmailList.vue";
 import userImage from "@/assets/user.png";
+import { EmailApiListType } from "./utils/types";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -99,6 +100,7 @@ const startAiWidth = ref(0);
 const initialContainerWidth = ref(0);
 const imageURL = ref<string>(userImage);
 const emailSelected = ref(localStorage.getItem("email") || "");
+const emailApiList = ref<EmailApiListType>({});
 
 onMounted(() => {
     const storedManualWidth = localStorage.getItem("searchManualWidth");
@@ -144,6 +146,7 @@ provide("selectedPerson", selectedPerson);
 provide("selectedSearchIn", selectedSearchIn);
 provide("emailIds", emailIds);
 provide("emailList", emailList);
+provide("emailApiList", emailApiList);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

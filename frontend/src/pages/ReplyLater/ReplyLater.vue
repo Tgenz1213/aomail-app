@@ -101,8 +101,8 @@ const loadMoreEmails = async () => {
     const idsToFetch = allEmailIds.value.slice(startIndex, endIndex);
 
     if (idsToFetch.length > 0) {
-        const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
-        const newEmails = emails_details.data.data;
+        const emailsDetails = await postData("user/get_emails_data/", { ids: idsToFetch });
+        const newEmails = emailsDetails.data.data;
 
         for (const category in newEmails) {
             if (!emails.value[category]) {

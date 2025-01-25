@@ -1,8 +1,28 @@
 import { Component as VueComponent } from "vue";
+import {
+    ANSWER_REQUIRED,
+    GOOGLE,
+    HIGHLY_RELEVANT,
+    IMPORTANT,
+    INFORMATIVE,
+    MICROSOFT,
+    MIGHT_REQUIRE_ANSWER,
+    NO_ANSWER_REQUIRED,
+    NOT_RELEVANT,
+    POSSIBLY_RELEVANT,
+    USELESS,
+} from "./const";
+
+export type EmailProvider = typeof GOOGLE | typeof MICROSOFT;
 
 export interface KeyValuePair {
     key: string;
     value: string;
+}
+
+export interface AttachmentType {
+    extension: string;
+    name: string;
 }
 
 export interface EmailSender {
@@ -60,26 +80,26 @@ export interface Recipient {
 }
 
 export interface Email {
-    id: number;
+    id?: number;
     subject: string;
     sender: Sender;
     providerId: string;
-    shortSummary: string;
-    oneLineSummary: string;
+    shortSummary?: string;
+    oneLineSummary?: string;
     cc: Sender[];
     bcc: Sender[];
-    read: boolean;
-    answerLater: boolean;
-    rule: EmailRule;
+    read?: boolean;
+    answerLater?: boolean;
+    rule?: EmailRule;
     hasAttachments: boolean;
     attachments: EmailAttachment[];
     sentDate: string;
     sentTime: string;
-    answer: boolean;
-    archive: boolean;
-    relevance: string;
-    priority: string;
-    flags: EmailFlags;
+    answer?: boolean;
+    archive?: boolean;
+    relevance?: string;
+    priority?: string;
+    flags?: EmailFlags;
     category?: string;
     htmlContent?: string;
 }
@@ -90,11 +110,6 @@ export interface EmailDetails {
             [priority: string]: Email[];
         };
     };
-}
-
-export interface AttachmentType {
-    extension: string;
-    name: string;
 }
 
 export interface EmailLinked {
@@ -126,4 +141,43 @@ export interface Frequency {
     key: string;
     label: string;
     priceSuffix?: string;
+}
+
+export interface AomailSearchFilter {
+    advanced?: boolean;
+    emailProvider?: string[];
+    subject?: string;
+    senderEmail?: string;
+    senderName?: string;
+    CCEmails?: string[];
+    CCNames?: string[];
+    category?: string;
+    emailAddresses?: string[];
+    archive?: boolean;
+    replyLater?: boolean;
+    read?: boolean;
+    sentDate?: Date;
+    readDate?: Date;
+    answer?: (typeof ANSWER_REQUIRED | typeof MIGHT_REQUIRE_ANSWER | typeof NO_ANSWER_REQUIRED)[];
+    relevance?: (typeof HIGHLY_RELEVANT | typeof POSSIBLY_RELEVANT | typeof NOT_RELEVANT)[];
+    priority?: (typeof IMPORTANT | typeof INFORMATIVE | typeof USELESS)[];
+    hasAttachments?: boolean;
+    spam?: boolean;
+    scam?: boolean;
+    newsletter?: boolean;
+    notification?: boolean;
+    meeting?: boolean;
+}
+
+export interface ApiSearchFilter {
+    advanced?: boolean;
+    emailProvider?: string[];
+    fileExtensions?: string[];
+    filenames?: string[];
+    searchIn?: Record<string, boolean>;
+    fromAddresses?: string[];
+    toAddresses?: string[];
+    subject?: string;
+    body?: string;
+    dateFrom?: string; // Format allowed: YYYY-MM-DD
 }

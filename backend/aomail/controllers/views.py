@@ -8,7 +8,6 @@ Endpoints:
 - ✅ get_profile_image: Retrieves the profile image URL of the social API selected.
 - ✅ get_user_contacts: Retrieve contacts associated with the authenticated user.
 - ✅ get_user_description: Retrieves user description of the given email.
-- ✅ search_emails: Searches emails based on user-specified parameters.
 - ✅ send_email: Sends an email using the social API selected.
 - ✅ update_user_description: Updates the user description of the given email.
 """
@@ -17,8 +16,6 @@ import importlib
 import json
 import logging
 import os
-import threading
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest, FileResponse, Http404
 from rest_framework import status
@@ -26,21 +23,9 @@ from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 from aomail.utils.security import subscription
-from aomail.email_providers.microsoft import (
-    email_operations as email_operations_microsoft,
-)
-from aomail.email_providers.google import (
-    email_operations as email_operations_google,
-)
-from aomail.email_providers.google import authentication as auth_google
-from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.constants import (
     ALLOW_ALL,
     ALLOWED_PLANS,
-    GOOGLE,
-    GOOGLE,
-    MICROSOFT,
-    MICROSOFT,
     MEDIA_ROOT,
 )
 from aomail.models import (
@@ -109,6 +94,7 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
         content_type = request.content_type
 
         if content_type.startswith("application/json"):
+        if content_type.startswith("application/json"):
             try:
                 parameters = json.loads(request.body)
                 email = parameters.get("email") or request.headers.get("email")
@@ -118,8 +104,10 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         elif content_type.startswith("multipart/form-data"):
+        elif content_type.startswith("multipart/form-data"):
             email = request.POST.get("email") or request.headers.get("email")
             parameters = request.POST.dict()
+            parameters.update({"attachments": request.FILES.getlist("attachments")})
             parameters.update({"attachments": request.FILES.getlist("attachments")})
         else:
             return Response(

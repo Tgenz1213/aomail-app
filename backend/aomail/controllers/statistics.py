@@ -174,7 +174,7 @@ def compute_stat(
         stat_result[stat_name]["periods"] = {}
         for period, stats in stat_config["periods"].items():
             stat_result[stat_name]["periods"][period] = {}
-            start_date = time_ranges[period]
+            start_date = user.date_joined
             email_queryset = get_filtered_queryset(
                 Email.objects.filter(user=user, date__gte=start_date, date__lte=now),
                 stat_name,

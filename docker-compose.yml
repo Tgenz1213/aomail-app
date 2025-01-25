@@ -101,7 +101,7 @@ services:
 
 volumes:
   app_prod_postgres_data:
-    external: true
+    driver: local
 
 networks:
   frontend_network:

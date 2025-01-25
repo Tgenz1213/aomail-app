@@ -40,7 +40,7 @@
             ></textarea>
             <div class="flex justify-between items-center mt-2 space-x-2">
                 <div class="flex space-x-2 mx-3 2xl:mx-5">
-                    <div class="flex">    
+                    <div class="flex">
                         <div class="flex my-3 2xl:my-5 relative">
                             <button
                                 @click="toggleDropdown"
@@ -53,12 +53,26 @@
                                     alt="Agent Icon"
                                     class="w-6 h-6 rounded-full"
                                 />
-                                <span>{{ selectedAgent.id ? selectedAgent.agent_name : 'Select Agent' }}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <span>{{ selectedAgent.id ? selectedAgent.agent_name : "Select Agent" }}</span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M19 9l-7 7-7-7"
+                                    />
                                 </svg>
                             </button>
-                            <div v-if="isDropdownOpen" class="absolute bottom-full left-0 mb-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                            <div
+                                v-if="isDropdownOpen"
+                                class="absolute bottom-full left-0 mb-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+                            >
                                 <ul>
                                     <li
                                         v-for="agent in agents"
@@ -67,10 +81,17 @@
                                         class="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100"
                                     >
                                         <div class="flex items-center">
-                                            <img :src="agent.picture" alt="Agent Icon" class="w-5 h-5 rounded-full mr-2" />
+                                            <img
+                                                :src="agent.picture"
+                                                alt="Agent Icon"
+                                                class="w-5 h-5 rounded-full mr-2"
+                                            />
                                             <span>{{ agent.agent_name }}</span>
                                         </div>
-                                        <button @click.stop="openUpdateAgentModal(agent)" class="text-blue-500 hover:text-blue-700">
+                                        <button
+                                            @click.stop="openUpdateAgentModal(agent)"
+                                            class="text-blue-500 hover:text-blue-700"
+                                        >
                                             Edit
                                         </button>
                                     </li>
@@ -78,13 +99,24 @@
                                         @click="openCreateAgentModal"
                                         class="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-5 h-5 mr-2 text-gray-500"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M12 4v16m8-8H4"
+                                            />
                                         </svg>
                                         <span>Create New Agent</span>
                                     </li>
                                 </ul>
-                            </div>  
+                            </div>
                         </div>
                     </div>
                     <SendAiInstructionButton />
@@ -93,11 +125,7 @@
         </div>
     </div>
 
-    <CreateAgentModal
-        v-if="isCreateAgentModalOpen"
-        @created="addAgent"
-        @close="isCreateAgentModalOpen = false"
-    />
+    <CreateAgentModal v-if="isCreateAgentModalOpen" @created="addAgent" @close="isCreateAgentModalOpen = false" />
 
     <UpdateAgentModal
         v-if="isUpdateAgentModalOpen"
@@ -144,14 +172,16 @@ const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
 const emailBody = inject<Ref<string>>("emailBody") || ref("");
 const contacts = inject<Ref<Recipient[]>>("contacts", ref([]));
 const agents = inject<Ref<Agent[]>>("agents") || ref<Agent[]>([]);
-const selectedAgent = inject<Ref<Agent>>('selectedAgent') || ref({
-    id: "",
-    agent_name: "Default Agent",
-    picture: "/assets/default-agent.png",
-    ai_template: "",
-    length: "",
-    formality: "",
-});
+const selectedAgent =
+    inject<Ref<Agent>>("selectedAgent") ||
+    ref({
+        id: "",
+        agent_name: "Default Agent",
+        picture: "/assets/default-agent.png",
+        ai_template: "",
+        length: "",
+        formality: "",
+    });
 
 const isDropdownOpen = ref(false);
 const isCreateAgentModalOpen = ref(false);
@@ -167,8 +197,8 @@ const agentToUpdate = ref<Agent>({
 
 const askContent = inject<() => void>("askContent");
 
-const isAiWriting = inject('isAiWriting') as Ref<boolean>;
-const isFirstTimeEmail = inject('isFirstTimeEmail') as Ref<boolean>;
+const isAiWriting = inject("isAiWriting") as Ref<boolean>;
+const isFirstTimeEmail = inject("isFirstTimeEmail") as Ref<boolean>;
 
 // Provide any additional functions if necessary
 provide("handleAIClick", handleAIClick);
@@ -187,8 +217,8 @@ const setWriting = () => {
 
 function adjustHeight(event: Event) {
     const textarea = event.target as HTMLTextAreaElement;
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
 }
 
 async function handleAIClick() {
@@ -205,15 +235,18 @@ async function handleAIClick() {
             subject: subjectInput.value,
             email_content: emailBody.value,
             history: history.value,
-            destinary: selectedPeople.value.map(person => ({ 
-                username: person.username, 
-                email: person.email 
+            destinary: selectedPeople.value.map((person) => ({
+                username: person.username,
+                email: person.email,
             })),
-            signature: signatures.value.find(sig => sig.id)?.signature_content,
+            signature: signatures.value.find((sig) => sig.id)?.signature_content,
         });
 
         if (!response.success) {
-            displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), selectedAgent.value.picture);
+            displayMessage?.(
+                i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"),
+                selectedAgent.value.picture
+            );
             return;
         }
 
@@ -222,40 +255,57 @@ async function handleAIClick() {
         isAiWriting.value = false;
 
         switch (data.scenario) {
-            case 1:
+            case 1: {
                 // Scenario 1: Extract Contacts
                 const noUsersAdded = handleScenarioExtractContacts(data);
                 if (noUsersAdded) {
-                    displayMessage?.(i18n.global.t("constants.sendEmailConstants.draftEmailRequest"), selectedAgent.value.picture);
+                    displayMessage?.(
+                        i18n.global.t("constants.sendEmailConstants.draftEmailRequest"),
+                        selectedAgent.value.picture
+                    );
                 } else {
-                    displayMessage?.(i18n.global.t("newPage.noRecipientsFoundPleaseTryAgainOrEnterManually"), selectedAgent.value.picture);
+                    displayMessage?.(
+                        i18n.global.t("newPage.noRecipientsFoundPleaseTryAgainOrEnterManually"),
+                        selectedAgent.value.picture
+                    );
                 }
                 break;
-            case 2:
+            }
+            case 2: {
                 // Scenario 2: Extract Contacts and Generate Email
                 const recipientsAdded = handleScenarioExtractContacts(data);
-                if(!recipientsAdded) {
-                    displayMessage?.(i18n.global.t("newPage.noRecipientsFoundPleaseTryAgainOrEnterManually"), selectedAgent.value.picture);
+                if (!recipientsAdded) {
+                    displayMessage?.(
+                        i18n.global.t("newPage.noRecipientsFoundPleaseTryAgainOrEnterManually"),
+                        selectedAgent.value.picture
+                    );
                 }
                 handleScenarioGenerateEmail(data);
                 displayMessage?.(i18n.global.t("newPage.emailGenerated"), selectedAgent.value.picture);
                 break;
-            case 3:
+            }
+            case 3: {
                 // 3: Generate Email
                 handleScenarioGenerateEmail(data);
                 displayMessage?.(i18n.global.t("newPage.emailGenerated"), selectedAgent.value.picture);
                 break;
-            case 4:
+            }
+            case 4: {
                 // Scenario 4: Improve Draft
                 handleScenarioImproveDraft(data);
                 break;
-            default:
+            }
+            default: {
                 const defaultIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
                 displayMessage?.(i18n.global.t("constants.sendEmailConstants.unrecognizedScenario"), defaultIcon);
+            }
         }
     } catch (error) {
         console.error("Error handling AI click:", error);
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), selectedAgent.value.picture);
+        displayMessage?.(
+            i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"),
+            selectedAgent.value.picture
+        );
     } finally {
         isWriting.value = false;
         isFirstTimeEmail.value = true;
@@ -278,7 +328,6 @@ function handleScenarioExtractContacts(data: any): boolean {
     noUsersAdded = processSingleEmailRecipients(bccRecipients, selectedBCC.value) && noUsersAdded;
 
     if (mainRecipients.length > 0 || ccRecipients.length > 0 || bccRecipients.length > 0) {
-
         waitforUserChoice = processMultipleEmailRecipients(mainRecipients, "main") || waitforUserChoice;
         waitforUserChoice = processMultipleEmailRecipients(ccRecipients, "cc") || waitforUserChoice;
         waitforUserChoice = processMultipleEmailRecipients(bccRecipients, "bcc") || waitforUserChoice;
@@ -298,7 +347,7 @@ function processSingleEmailRecipients(recipients: AiRecipient[], selectedGroup: 
         const user = recipients[i];
         const emails = user.email;
         if (emails.length === 1) {
-            const emailValue = typeof emails[0] === 'string' ? emails[0] : emails[0].email;
+            const emailValue = typeof emails[0] === "string" ? emails[0] : emails[0].email;
             selectedGroup.push({ username: user.username, email: emailValue });
             recipients.splice(i, 1);
             noUsersAdded = false;
@@ -308,31 +357,27 @@ function processSingleEmailRecipients(recipients: AiRecipient[], selectedGroup: 
     return noUsersAdded;
 }
 
-function processMultipleEmailRecipients(
-  recipients: AiRecipient[],
-  type: string
-): boolean {
-  if (recipients.length === 0) return false;
+function processMultipleEmailRecipients(recipients: AiRecipient[], type: string): boolean {
+    if (recipients.length === 0) return false;
 
-  console.log("emailList", recipients);
-  askChoiceRecipier(recipients, type);
-  return true;
+    console.log("emailList", recipients);
+    askChoiceRecipier(recipients, type);
+    return true;
 }
 
-
 function askChoiceRecipier(recipients: AiRecipient[], type: string) {
-  if (!recipients.length) return;
+    if (!recipients.length) return;
 
-  const userLabel =
-    type === "main"
-      ? i18n.global.t("newPage.mainRecipient")
-      : type === "cc"
-      ? i18n.global.t("newPage.ccRecipient")
-      : i18n.global.t("newPage.bccRecipient");
+    const userLabel =
+        type === "main"
+            ? i18n.global.t("newPage.mainRecipient")
+            : type === "cc"
+            ? i18n.global.t("newPage.ccRecipient")
+            : i18n.global.t("newPage.bccRecipient");
 
-  console.log("recipients", recipients);
+    console.log("recipients", recipients);
 
-  const messageHTML = `
+    const messageHTML = `
       <div class="flex pb-6">
         <div class="mr-3 flex-shrink-0">
           <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -346,15 +391,14 @@ function askChoiceRecipier(recipients: AiRecipient[], type: string) {
             ${i18n.global.t("newPage.severalUser")} 
           </div>
           ${
-            Array.isArray(recipients[0].email)
-              ? recipients[0].email
-                  .map((emailItem, index) => {
-                    console.log("recipient", emailItem.email);
-                    const buttonLabel =
-                      type === "main" ? "main" : type === "cc" ? "cc" : "bcc";
-                    const buttonId = `button-${buttonLabel}-0-${index}`;
+              Array.isArray(recipients[0].email)
+                  ? recipients[0].email
+                        .map((emailItem, index) => {
+                            console.log("recipient", emailItem.email);
+                            const buttonLabel = type === "main" ? "main" : type === "cc" ? "cc" : "bcc";
+                            const buttonId = `button-${buttonLabel}-0-${index}`;
 
-                    return `
+                            return `
                       <div class="mb-4 last:mb-0">
                         <div class="space-y-2">
                           <button 
@@ -372,9 +416,9 @@ function askChoiceRecipier(recipients: AiRecipient[], type: string) {
                         </div>
                       </div>
                     `;
-                  })
-                  .join("")
-              : `
+                        })
+                        .join("")
+                  : `
                 <div class="mb-6 last:mb-0">
                   <div class="space-y-2">
                     <button 
@@ -394,56 +438,48 @@ function askChoiceRecipier(recipients: AiRecipient[], type: string) {
       </div>
     `;
 
-  if (!AIContainer.value) return;
-  AIContainer.value.innerHTML += messageHTML;
+    if (!AIContainer.value) return;
+    AIContainer.value.innerHTML += messageHTML;
 
-  recipients.forEach((recipient, recipientIndex) => {
-    const buttonLabel =
-      type === "main" ? "main" : type === "cc" ? "cc" : "bcc";
+    recipients.forEach((recipient, recipientIndex) => {
+        const buttonLabel = type === "main" ? "main" : type === "cc" ? "cc" : "bcc";
 
-    if (Array.isArray(recipient.email)) {
-      recipient.email.forEach((emailItem, emailIndex) => {
-        const buttonId = `button-${buttonLabel}-${recipientIndex}-${emailIndex}`;
+        if (Array.isArray(recipient.email)) {
+            recipient.email.forEach((emailItem, emailIndex) => {
+                const buttonId = `button-${buttonLabel}-${recipientIndex}-${emailIndex}`;
 
-        setTimeout(() => {
-          const button = document.getElementById(buttonId);
-          if (!button) return;
+                setTimeout(() => {
+                    const button = document.getElementById(buttonId);
+                    if (!button) return;
 
-          button.addEventListener("click", () => {
-            const person: Recipient = {
-              username: emailItem.username,
-              email: emailItem.email,
-            };
+                    button.addEventListener("click", () => {
+                        const person: Recipient = {
+                            username: emailItem.username,
+                            email: emailItem.email,
+                        };
 
-            if (type === "main") {
-              const isPersonAlreadySelected = selectedPeople.value.some(
-                (p) => p.email === person.email
-              );
-              if (!isPersonAlreadySelected) {
-                selectedPeople.value.push(person);
-              }
-            } else if (type === "cc") {
-              const isPersonAlreadySelected = selectedCC.value.some(
-                (p) => p.email === person.email
-              );
-              if (!isPersonAlreadySelected) {
-                selectedCC.value.push(person);
-              }
-            } else {
-              const isPersonAlreadySelected = selectedBCC.value.some(
-                (p) => p.email === person.email
-              );
-              if (!isPersonAlreadySelected) {
-                selectedBCC.value.push(person);
-              }
-            }
-          });
-        }, 0);
-      });
-    }
-  });
+                        if (type === "main") {
+                            const isPersonAlreadySelected = selectedPeople.value.some((p) => p.email === person.email);
+                            if (!isPersonAlreadySelected) {
+                                selectedPeople.value.push(person);
+                            }
+                        } else if (type === "cc") {
+                            const isPersonAlreadySelected = selectedCC.value.some((p) => p.email === person.email);
+                            if (!isPersonAlreadySelected) {
+                                selectedCC.value.push(person);
+                            }
+                        } else {
+                            const isPersonAlreadySelected = selectedBCC.value.some((p) => p.email === person.email);
+                            if (!isPersonAlreadySelected) {
+                                selectedBCC.value.push(person);
+                            }
+                        }
+                    });
+                }, 0);
+            });
+        }
+    });
 }
-
 
 function handleScenarioGenerateEmail(data: any) {
     const quillInstance = getQuill?.();
@@ -521,10 +557,7 @@ function displayMultipleEmailsMessage() {
 }
 
 function displayImprovedDraft(emailBody: string, subject: string) {
-    displayMessage?.(
-        i18n.global.t("newPage.draftImproved"),
-        selectedAgent.value.picture
-    );
+    displayMessage?.(i18n.global.t("newPage.draftImproved"), selectedAgent.value.picture);
 }
 
 function toggleDropdown() {
@@ -553,7 +586,7 @@ function addAgent(newAgent: Agent) {
 }
 
 function updateAgent(updatedAgent: Agent) {
-    const index = agents.value.findIndex(agent => agent.id === updatedAgent.id);
+    const index = agents.value.findIndex((agent) => agent.id === updatedAgent.id);
     if (index !== -1) {
         agents.value[index] = updatedAgent;
         selectedAgent.value = updatedAgent;
@@ -561,7 +594,7 @@ function updateAgent(updatedAgent: Agent) {
 }
 
 function deleteAgent(agentId: string) {
-    agents.value = agents.value.filter(agent => agent.id !== agentId);
+    agents.value = agents.value.filter((agent) => agent.id !== agentId);
     if (selectedAgent.value.id === agentId) {
         selectedAgent.value = {
             id: "",

@@ -20,7 +20,7 @@ import { Component } from "vue";
 import Labels from "@/pages/Labels/Labels.vue";
 import Logout from "@/pages/Logout/Logout.vue";
 import CustomCategorization from "@/pages/CustomCategorization/CustomCategorization.vue";
-import Subscription from '@/pages/Subscription/Subscription.vue';
+import Subscription from "@/pages/Subscription/Subscription.vue";
 
 export interface RouteConfig {
     path: string;
@@ -63,14 +63,14 @@ const aiAssistant: RouteConfig = {
     meta: { requiresAuth: true },
     component: AiAssistant,
 };
- 
 
 const inbox: RouteConfig = {
     path: "/inbox",
-    name: "inbox", 
+    name: "inbox",
     meta: { requiresAuth: true },
     component: Inbox,
 };
+
 const newRoute: RouteConfig = {
     path: "/new",
     name: "new",

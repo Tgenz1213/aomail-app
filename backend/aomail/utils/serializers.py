@@ -15,6 +15,7 @@ from aomail.models import (
     Contact,
     Filter,
     Signature,
+    Agent,
 )
 
 
@@ -85,7 +86,7 @@ class EmailGenerateAnswer(serializers.Serializer):
     subject = serializers.CharField()
     body = serializers.CharField()
     keyword = serializers.CharField()
-
+    signature = serializers.CharField()
 
 class UserLoginSerializer(serializers.ModelSerializer):
     """Serializer for retrieving user login data through a GET request."""
@@ -235,3 +236,33 @@ class SignatureSerializer(serializers.ModelSerializer):
         model = Signature
         fields = ['id', 'user', 'social_api', 'signature_content']
         read_only_fields = ['id', 'user']
+
+
+class AgentSerializer(serializers.ModelSerializer):
+    """Serializer for the Agent model."""
+
+    class Meta:
+        model = Agent
+        fields = [
+            'id',
+            'agent_name',
+            'agent_ai_model',
+            'ai_template',
+            'email_example',
+            'length',
+            'formality',
+            'language',
+            'last_used',
+            'picture',
+        ]
+        read_only_fields = ['id']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return Agent.objects.create(user=user, **validated_data)
+    
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance

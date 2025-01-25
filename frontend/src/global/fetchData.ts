@@ -191,13 +191,15 @@ export async function deleteData(path: string, body?: any): Promise<FetchDataRes
     }
 }
 
-export async function putData(path: string, body: Record<string, any>): Promise<FetchDataResult> {
-    const requestOptions = {
+export async function putData(path: string, body: Record<string, any> | FormData, isFormData = false): Promise<FetchDataResult> {
+    const requestOptions: RequestInit = {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+        headers: !isFormData
+            ? {
+                "Content-Type": "application/json",
+            }
+            : {},
+        body: isFormData ? body as FormData : JSON.stringify(body),
     };
 
     const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);

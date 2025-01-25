@@ -38,14 +38,16 @@
                 class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
                 placeholder="Instruction"
             ></textarea>
-            <div class="flex justify-end m-3 2xl:m-5">
-                <button
-                    type="button"
-                    @click="handleAIClick"
-                    class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                >
-                    {{ $t("constants.userActions.send") }}
-                </button>
+            <div class="flex justify-between items-center mt-2 space-x-2 pb-3 2xl:pb-5">
+                <div class="flex space-x-2 mx-3 2xl:mx-5">
+                    <button
+                        @click="handleAIClick"
+                        type="button"
+                        class="2xl:w-[100px] w-[80px] rounded-md bg-zinc-800 px-3 py-2 2xl:px-4 2xl:py-2.5 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                        {{ $t("constants.userActions.send") }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -56,8 +58,10 @@ import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Email, EmailDetails } from "@/global/types";
 import { inject, nextTick, onMounted, Ref, ref } from "vue";
+import userImage from "@/assets/user.png";
 
 const textareaValue = ref("");
+const textareaValueSave = ref("");
 const isWriting = ref(false);
 const isFocus = ref(false);
 const AIContainer = ref<HTMLElement | null>(null);
@@ -70,6 +74,8 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 
 const aiIcon =
     '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /> ';
+
+const imageURL = inject<Ref<string>>("imageURL") || ref("");
 
 onMounted(async () => {
     AIContainer.value = document.getElementById("AIContainer");
@@ -88,6 +94,29 @@ onMounted(async () => {
     await askQueryUser();
 });
 
+function displayUserMessage() {
+    if (!AIContainer.value) return;
+
+    const messageHTML = `
+        <div class="flex pb-6 justify-end">
+            <div class="max-w-md">
+                <div class="flex items-start gap-x-3 justify-end">
+                    <div class="bg-blue-100 border border-blue-200 p-4 rounded-lg">
+                        <p class="text-gray-800">${textareaValue.value}</p>
+                    </div>
+                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0">
+                        <img src="${imageURL.value}" alt="Profile Image" class="h-12 w-12 rounded-full object-cover">
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+    textareaValueSave.value = textareaValue.value;
+    textareaValue.value = "";
+    scrollToBottom?.();
+}
+
 const handleFocus = () => {
     isFocus.value = true;
 };
@@ -103,17 +132,14 @@ async function handleAIClick() {
     isWriting.value = true;
 
     if (!textareaValue.value.trim()) return;
-
-    const userMessage = textareaValue.value;
-    textareaValue.value = "";
-
-    await displayMessage(userMessage, aiIcon);
+    
+    displayUserMessage();
+    loading();
 
     const result = await postData(`search_tree_knowledge/`, {
-        question: userMessage,
+        question: textareaValue.value,
     });
 
-    loading();
     scrollToBottom();
 
     let message = "";
@@ -196,7 +222,7 @@ function loading() {
         <div id="dynamicLoadingIndicator" class="pb-12">
           <div class="flex">
               <div class="mr-4">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                  <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900">
                       <span class="text-lg font-medium leading-none text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
@@ -228,13 +254,13 @@ async function displayMessage(message: string, aiIcon: string) {
     const messageHTML = `
         <div class="flex pb-12">
           <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 ${aiIcon}
               </svg>
             </span>   
           </div>
-          <div>
+          <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
             <p ref="animatedText${counterDisplay}"></p>
           </div>
         </div>

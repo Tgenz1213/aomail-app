@@ -8,8 +8,8 @@
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative divide-y divide-gray-200">
@@ -62,7 +62,7 @@ import { postData } from "@/global/fetchData";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import { Email, FetchDataResult } from "@/global/types";
 
 const showNotification = ref(false);
@@ -75,6 +75,7 @@ const currentPage = ref(1);
 const allEmailIds = ref<string[]>([]);
 const isLoading = ref(false);
 const emailsPerPage = 10;
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 
 provide("emails", emails);
 

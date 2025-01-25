@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - app_prod_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
@@ -16,6 +16,7 @@ services:
       - backend_network
     ports:
       - "${DB_PORT}:5432"
+    restart: unless-stopped
 
   backend_dev:
     build:
@@ -35,8 +36,10 @@ services:
       - backend_network
     volumes:
       - ./backend:/app
+      - /home/prod/prod/backend/media/agent_icon:/app/media/agent_icon
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
       - /home/prod/prod/backend/media/labels:/app/media/labels
+    restart: unless-stopped
 
   backend_prod:
     build:
@@ -55,8 +58,10 @@ services:
     networks:
       - backend_network
     volumes:
+      - /home/prod/prod/backend/media/agent_icon:/app/media/agent_icon
       - /home/prod/prod/backend/media/pictures:/app/media/pictures
       - /home/prod/prod/backend/media/labels:/app/media/labels
+    restart: unless-stopped
 
   frontend_dev:
     build:
@@ -75,6 +80,7 @@ services:
       - frontend_network
     volumes:
       - ./frontend:/app
+    restart: unless-stopped
 
   frontend_prod:
     build:
@@ -91,10 +97,11 @@ services:
       - backend_prod
     networks:
       - frontend_network
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-
+  app_prod_postgres_data:
+    external: true
 
 networks:
   frontend_network:

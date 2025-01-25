@@ -8,18 +8,12 @@
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div
-                id="firstMainColumn"
-                class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
-            >
-                <AiSearchMenu />
-            </div>
-            <div
-                id="secondMainColumn"
-                class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-y-auto"
+                :style="{ width: manualEmailWidth + '%' }"
+                class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full overflow-y-auto"
             >
                 <div class="sticky top-0 bg-white z-10">
                     <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
@@ -47,6 +41,16 @@
                 </div>
                 <EmailList class="flex-1 flex flex-col w-full px-6 pt-2 mb-4" />
             </div>
+            <div class="drag-wrapper">
+                <div class="separator"></div>
+                <div class="drag-overlay" @mousedown="initDrag"></div>
+            </div>
+            <div
+                :style="{ width: aiEmailWidth + '%' }"
+                class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
+            >
+                <AiSearchMenu />
+            </div>
         </div>
     </div>
 </template>
@@ -58,10 +62,11 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { AttachmentType, Recipient, Email, EmailLinked } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { getData } from "@/global/fetchData";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import AiSearchMenu from "./components/AiSearchMenu.vue";
 import EmailList from "./components/EmailList.vue";
+import userImage from "@/assets/user.png";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -84,12 +89,35 @@ const contacts: Recipient[] = [];
 const queryGetRecipients = ref("");
 const emailIds = ref<number[]>([]);
 const emailList = ref<Email[]>([]);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const manualEmailWidth = ref(65);
+const aiEmailWidth = ref(35);
+const isDragging = ref(false);
+const startX = ref(0);
+const startManualWidth = ref(0);
+const startAiWidth = ref(0);
+const initialContainerWidth = ref(0);
+const imageURL = ref<string>(userImage);
+const emailSelected = ref(localStorage.getItem("email") || "");
 
 onMounted(() => {
+    const storedManualWidth = localStorage.getItem("searchManualWidth");
+    const storedAiWidth = localStorage.getItem("searchAiWidth");
+    if (storedManualWidth && storedAiWidth) {
+        manualEmailWidth.value = parseInt(storedManualWidth, 10);
+        aiEmailWidth.value = parseInt(storedAiWidth, 10);
+    }
+    
     checkLoginStatus();
     fetchEmailLinked();
     fetchRecipients();
 });
+
+async function getProfileImage() {
+    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+    if (!result.success) return;
+    imageURL.value = result.data.profileImageUrl;
+}
 
 const filteredPeople = computed(() => {
     if (!contacts || queryGetRecipients.value === "") {
@@ -101,6 +129,8 @@ const filteredPeople = computed(() => {
     });
 });
 
+provide("imageURL", imageURL);
+provide("emailSelected", emailSelected);
 provide("displayPopup", displayPopup);
 provide("filteredPeople", filteredPeople);
 provide("people", people);
@@ -169,4 +199,95 @@ async function fetchEmailLinked() {
 
     emailsLinked.value = result.data;
 }
+
+const initDrag = (event: MouseEvent) => {
+    isDragging.value = true;
+    startX.value = event.clientX;
+    startManualWidth.value = manualEmailWidth.value;
+    startAiWidth.value = aiEmailWidth.value;
+
+    const container = (event.target as HTMLElement).closest('.flex');
+    initialContainerWidth.value = container ? container.clientWidth : 0;
+
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", stopDrag);
+};
+
+const onDrag = (event: MouseEvent) => {
+    if (!isDragging.value) return;
+
+    const deltaX = event.clientX - startX.value;
+    if (initialContainerWidth.value === 0) return;
+
+    const deltaPercent = (deltaX / initialContainerWidth.value) * 100;
+    let newManualWidth = startManualWidth.value + deltaPercent;
+    let newAiWidth = startAiWidth.value - deltaPercent;
+
+    const MIN_WIDTH = 20;
+    const MAX_WIDTH = 80;
+
+    if (newManualWidth < MIN_WIDTH) {
+        newManualWidth = MIN_WIDTH;
+        newAiWidth = 100 - MIN_WIDTH;
+    } else if (newAiWidth < MIN_WIDTH) {
+        newAiWidth = MIN_WIDTH;
+        newManualWidth = 100 - MIN_WIDTH;
+    }
+
+    manualEmailWidth.value = newManualWidth;
+    aiEmailWidth.value = newAiWidth;
+};
+
+const stopDrag = () => {
+    if (isDragging.value) {
+        isDragging.value = false;
+        saveWidths();
+        window.removeEventListener("mousemove", onDrag);
+        window.removeEventListener("mouseup", stopDrag);
+    }
+};
+
+const saveWidths = () => {
+    localStorage.setItem("searchManualWidth", manualEmailWidth.value.toString());
+    localStorage.setItem("searchAiWidth", aiEmailWidth.value.toString());
+};
 </script>
+
+<style scoped>
+div:nth-child(2),
+div:nth-child(4) {
+    transition: none !important;
+}
+
+.drag-wrapper {
+    position: relative;
+    width: 1px;
+    height: 100%;
+    cursor: col-resize;
+}
+
+.separator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 0.5px;
+    height: 100%;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.drag-overlay {
+    position: absolute;
+    left: -3.5px;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background: transparent;
+    z-index: 2;
+}
+
+.drag-wrapper:hover .separator {
+    background-color: #aaa;
+}
+</style>

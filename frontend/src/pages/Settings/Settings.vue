@@ -8,8 +8,8 @@
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div class="flex-1 bg-white ring-1 ring-black ring-opacity-5">
                 <div class="flex flex-col h-full">
@@ -67,31 +67,6 @@
                                                     {{ $t("settingsPage.preferencesPage.preferencesTitle") }}
                                                 </a>
                                             </div>
-                                            <div
-                                                class="text-sm font-medium cursor-pointer"
-                                                :class="[
-                                                    'flex space-x-2 items-center rounded-md py-2',
-                                                    {
-                                                        'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12':
-                                                            activeSection === 'subscription',
-                                                        'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8':
-                                                            activeSection !== 'subscription',
-                                                    },
-                                                ]"
-                                                @click="setActiveSection('subscription')"
-                                            >
-                                                <credit-card-icon class="w-4 h-4" />
-                                                <a
-                                                    :class="{
-                                                        'text-gray-800': activeSection === 'subscription',
-                                                        'text-gray-600': activeSection !== 'subscription',
-                                                    }"
-                                                    class="text-sm font-medium"
-                                                >
-                                                    {{ $t("settingsPage.subscriptionPage.subscriptionTitle") }}
-                                                </a>
-                                            </div>
-
                                             <div
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
@@ -159,7 +134,7 @@ import PreferencesMenu from "@/pages/Settings/components/PreferencesMenu.vue";
 import MyDataMenu from "@/pages/Settings/components/MyDataMenu.vue";
 import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import { i18n } from "@/global/preferences";
 import { getData, postData } from "@/global/fetchData";
 import { EmailLinked } from "@/global/types";
@@ -182,6 +157,7 @@ const isDeleteRadioButtonChecked = ref(false);
 const emailSelected = ref("");
 const userDescription = ref("");
 const emailsLinked = ref<EmailLinked[]>([]);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 
 provide("displayPopup", displayPopup);
 provide("openAddUserDescriptionModal", openAddUserDescriptionModal);

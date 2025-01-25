@@ -8,8 +8,8 @@
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <NavBarSmall />
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative">
@@ -124,7 +124,7 @@
 import { getData, postData } from "@/global/fetchData";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { ref, onMounted, provide, watch, onUnmounted } from "vue";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import Navbar from "@/global/components/Navbar.vue";
 import NewRuleModal from "./components/NewRuleModal.vue";
 import UpdateRuleModal from "./components/UpdateRuleModal.vue";
 import Rule from "./components/Rule.vue";
@@ -161,6 +161,7 @@ const senderEmail = ref("");
 const searchInput = ref("");
 
 const debounceTimer = ref<number | undefined>(undefined);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 
 onMounted(async () => {
     await fetchRules();

@@ -139,13 +139,15 @@
     "emailUppercase": "Email",
     "emails": "emails",
     "redirectionInProgress": "Redirection in progress...",
-    "AiNavbar": "AI Assistant",
+    "inboxNavbar": "Inbox",
     "homeNavbar": "Home",
     "newEmailNavbar": "New Email",
-    "searchEmailNavbar": "Search Email",
+    "searchEmailNavbar": "Search Email (beta)",
     "rulesNavbar": "Rules",
     "replyLaterNavbar": "Reply Later",
     "settingsNavbar": "Settings",
+    "subscriptionNavbar": "Premium",
+    "discordNavbar": "Our Discord",
     "instruction": "Instruction",
     "additionalActions": "Additional actions",
     "manualSearch": "Manual search",
@@ -173,6 +175,10 @@
       "lightTheme": "Light theme"
     },
     "timezone": "Timezone"
+  },
+  "agent": {
+    "AiGreeting": "Hello, how can I assist you?",
+    "chooseAiAssistant": "Please choose or create an AI assistant before using this chat"
   },
   "userLoginPage": {
     "loginError": "Error during login",
@@ -363,6 +369,8 @@
       "creationError": "Failed to create signature."
     },
     "subscriptionPage": {
+      "freeTrialTitle": "Free Trial",
+      "freeTrialMessage": "You're using a free trial and have access to all premium features during the beta period that expires on {expiryDate} ({daysLeft} days left).",
       "subscriptionTitle": "Subscription",
       "selectPlan": "Select",
       "perMonth": "/month",
@@ -599,6 +607,9 @@
     "checkCopywriting": "Check the copywriting",
     "improveWriting": "Improve the writing",
     "forUser": "For user : ",
+    "severalUser": "I found several users with this name, which one do you want to send the email to?",
+    "emailGenerated": "Here is the email, are you satisfied?",
+    "noRecipientsFoundPleaseTryAgainOrEnterManually": "No recipients found, please try again or enter manually",
     "mainRecipient": "Main Recipient",
     "ccRecipient": "Copy",
     "bccRecipient": "Blind Copy",
@@ -625,6 +636,22 @@
         "title": "Success",
         "message": "Signature created successfully."
       }
+    },
+    "updateAgent": {
+      "title": "Update Agent",
+      "upload": "Upload",
+      "agentName": "Agent Name",
+      "agentNameError": "Please enter an agent name",
+      "agentNamePlaceholder": "Enter agent name",
+      "behaviorDescription": "Behavior Description (Optional)",
+      "behaviorPlaceholder": "Describe agent behavior",
+      "emailExample": "Add email example (Optional)",
+      "emailExamplePlaceholder": "Paste an example email that represents the style you want the agent to follow",
+      "length": "Length",
+      "formality": "Formality",
+      "cancel": "Cancel",
+      "update": "Update",
+      "delete": "Delete"
     }
   },
   "answerPage": {

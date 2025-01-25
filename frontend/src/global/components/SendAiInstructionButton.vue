@@ -1,5 +1,5 @@
 <template>
-    <div v-if="stepContainer == 1" class="flex justify-end m-3 2xl:m-5">
+    <!--<div v-if="stepContainer == 1" class="flex justify-end m-3 2xl:m-5">
         <div class="flex mt-4 space-x-4 items-center">
             <div>
                 <select
@@ -33,12 +33,12 @@
                 </button>
             </div>
         </div>
-    </div>
-    <div v-else class="flex justify-end m-3 2xl:m-5">
+    </div>-->
+    <div class="flex justify-end m-3 2xl:m-5">
         <button
             @click="handleAIClick"
             type="button"
-            class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            class="2xl:w-[100px] w-[80px] rounded-md bg-zinc-800 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
             {{ $t("constants.userActions.ask") }}
         </button>

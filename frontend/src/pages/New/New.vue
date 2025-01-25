@@ -7,21 +7,28 @@
         @dismissPopup="dismissPopup"
     />
     <div class="flex flex-col justify-center items-center h-screen">
-        <div class="flex h-full w-full">
-            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
-                <NavBarSmall />
+        <div class="flex h-full w-full relative">
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
             <div
-                id="firstMainColumn"
-                class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
-            >
-                <AiEmail />
-            </div>
-            <div
-                id="secondMainColumn"
-                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
+                :style="{ width: manualEmailWidth + '%' }"
+                class="bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
             >
                 <ManualEmail />
+            </div>
+            
+            <!-- Enhanced Draggable Divider with Hidden Area -->
+            <div class="drag-wrapper">
+                <div class="separator"></div>
+                <div class="drag-overlay" @mousedown="initDrag"></div>
+            </div>
+            
+            <div
+                :style="{ width: aiEmailWidth + '%' }"
+                class="flex flex-col bg-zinc-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
+            >
+                <AiEmail />
             </div>
         </div>
     </div>
@@ -34,15 +41,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch, computed } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch, computed, onBeforeUnmount } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { getData, postData } from "@/global/fetchData";
+import { getData, putData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import { Recipient, Agent, EmailLinked, UploadedFile } from "@/global/types";
+import Navbar from "@/global/components/Navbar.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userImage from "@/assets/user.png";
 import SignatureModal from "@/global/components/SignatureModal.vue";
@@ -78,7 +85,23 @@ const fileObjects = ref<File[]>([]);
 const imageURL = ref<string>(userImage);
 const showSignatureModal = ref(false);
 const signatures = ref<any[]>([]);
+const agents = ref<Agent[]>([]);
+const isLoadingAgentSelection = ref(false);
+const isInitialized = ref(false);
+const isAiWriting = ref(false);
+const manualEmailWidth = ref(55);
+const aiEmailWidth = ref(45);
+const initialContainerWidth = ref(0);
+const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
 let quill: Quill | null = null;
+const selectedAgent = ref<Agent>({
+    id: "",
+    agent_name: "Default Agent",
+    picture: "/assets/default-agent.png",
+    ai_template: "",
+    length: "",
+    formality: "",
+});
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -89,13 +112,46 @@ const scrollToBottom = async () => {
 
 const askContent = () => {
     if (!AIContainer.value) return;
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage?.(i18n.global.t("constants.sendEmailConstants.draftEmailRequest"), aiIcon);
+    displayMessage?.(i18n.global.t("constants.sendEmailConstants.draftEmailRequest"), selectedAgent.value.picture);
 };
 
 function getQuill() {
   return quill;
 }
+
+const displayMessage = async (message: string, aiIcon: string) => {
+    if (!AIContainer.value) {
+        console.warn('AIContainer not initialized');
+        await nextTick();
+        if (!AIContainer.value) return;
+    }
+
+    const messageHTML = `
+      <div class="flex pb-6">
+        <div class="mr-3 flex-shrink-0">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                ${aiIcon}
+                </svg>
+            </span>
+        </div>
+        <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
+          <p ref="animatedText${counterDisplay.value}" class="text-gray-800"></p>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
+    counterDisplay.value += 1;
+    
+    if (animatedParagraph) {
+        await animateText(message, animatedParagraph);
+        await scrollToBottom();
+    } else {
+        console.error('Could not find animated paragraph element');
+    }
+};
 
 provide("imageURL", imageURL);
 provide("emailSelected", emailSelected);
@@ -124,28 +180,68 @@ provide("loading", loading);
 provide("hideLoading", hideLoading);
 provide("getProfileImage", getProfileImage);
 provide("askContent", askContent);
+provide("agents", agents);
+provide('selectedAgent', selectedAgent);
+provide("setAgentLastUsed", setAgentLastUsed);
+provide("signatures", signatures);
+provide('isAiWriting', isAiWriting);
+provide('isFirstTimeEmail', isFirstTimeEmail);
+
 
 onMounted(async () => {
-    await fetchSignatures();
-    checkSignature();
-    getProfileImage();
-    await initializeQuill();
+    try {
+        isLoadingAgentSelection.value = true;
+        
+        // Initialize AIContainer first
+        AIContainer.value = document.getElementById("AIContainer");
+        if (!AIContainer.value) {
+            console.error('AIContainer element not found');
+            return;
+        }
 
-    if (signatures.value.length > 0) {
-        insertSignature(signatures.value[0].signature_content);
+        const storedManualWidth = localStorage.getItem("manualEmailWidth");
+        const storedAiWidth = localStorage.getItem("aiEmailWidth");
+        if (storedManualWidth && storedAiWidth) {
+            manualEmailWidth.value = parseInt(storedManualWidth, 10);
+            aiEmailWidth.value = parseInt(storedAiWidth, 10);
+        }
+
+        // Rest of the initialization...
+        await Promise.all([
+            fetchSignatures(),
+            fetchAgents(),
+        ]);
+
+        await Promise.all([
+            checkSignature(),
+            getProfileImage(),
+            initializeQuill(),
+            checkLastUsedAgent(),
+            fetchEmailLinked(),
+            fetchRecipients(),
+            fetchPrimaryEmail(),
+        ]);
+
+        if (signatures.value.length > 0) {
+            insertSignature(signatures.value[0].signature_content);
+        }
+
+        document.addEventListener("keydown", handleKeyDown);
+        localStorage.removeItem("uploadedFiles");
+        window.addEventListener("resize", scrollToBottom);
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        isInitialized.value = true;
+    } catch (error) {
+        console.error('Error during initialization:', error);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.initializationError"),
+            "Failed to initialize application"
+        );
+    } finally {
+        isLoadingAgentSelection.value = false;
     }
-
-    AIContainer.value = document.getElementById("AIContainer");
-    document.addEventListener("keydown", handleKeyDown);
-    localStorage.removeItem("uploadedFiles");
-    window.addEventListener("resize", scrollToBottom);
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    await displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
-    fetchEmailLinked();
-    fetchRecipients();
-    fetchPrimaryEmail();
 });
 
 onUnmounted(() => {
@@ -161,6 +257,35 @@ async function getProfileImage() {
     const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
     if (!result.success) return;
     imageURL.value = result.data.profileImageUrl;
+}
+
+/**
+ * Normalizes and tokenizes a string.
+ * @param str - The string to process.
+ * @returns An array of tokens.
+ */
+function tokenize(str: string): string[] {
+    const withoutHtml = str.replace(/<[^>]*>/g, ' ');
+    const lowerCased = withoutHtml.toLowerCase();
+    return lowerCased.split(/\s+/).filter(word => word.length > 0);
+}
+
+/**
+ * Calculates the Jaccard Similarity between two strings.
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns Similarity score between 0 and 1.
+ */
+function jaccardSimilarity(a: string, b: string): number {
+    const tokensA = new Set(tokenize(a));
+    const tokensB = new Set(tokenize(b));
+
+    const intersection = new Set([...tokensA].filter(word => tokensB.has(word)));
+    const union = new Set([...tokensA, ...tokensB]);
+
+    if (union.size === 0) return 1; // Both strings are empty
+
+    return intersection.size / union.size;
 }
 
 async function initializeQuill() {
@@ -184,12 +309,29 @@ async function initializeQuill() {
         quill.on("text-change", () => {
             quillContent.value = quill?.root.innerHTML ?? "";
             emailBody.value = quillContent.value;
-            
-            if (isFirstTimeEmail.value) {
-                if (quillContent.value.trim() !== "<p><br></p>") {
+
+            if (isFirstTimeEmail.value && !isAiWriting.value) {
+                const currentContent = quillContent.value.trim();
+                
+                const signatureContentRaw = signatures.value.length > 0 
+                    ? signatures.value[0].signature_content 
+                    : "";
+                
+                const plainTextContent = currentContent.replace(/<[^>]*>/g, '').trim();
+                const signaturePlainText = signatureContentRaw.replace(/<[^>]*>/g, '').trim();
+
+                const similarity = jaccardSimilarity(plainTextContent, signaturePlainText);
+
+                const SIMILARITY_THRESHOLD = 0.9;
+
+                if (
+                    plainTextContent.length >= 8 && // Minimum meaningful characters
+                    similarity < SIMILARITY_THRESHOLD // Less than 90% similarity
+                ) {
                     handleInputUpdateMailContent(quillContent.value);
-                    isFirstTimeEmail.value = false;
                 }
+            } else {
+                isAiWriting.value = false;
             }
         });
     }
@@ -212,11 +354,9 @@ function insertSignature(signatureContent: string) {
 
 function handleInputUpdateMailContent(newMessage: string) {
     if (newMessage !== "") {
-        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedBCC.value.length > 0) {
-            askContentAdvice();
-            stepContainer.value = 2;
-            scrollToBottom();
-        }
+        askContentAdvice();
+        scrollToBottom();
+        isFirstTimeEmail.value = false;
     }
 }
 
@@ -246,37 +386,8 @@ async function animateText(text: string, target: Element | null) {
                 clearInterval(interval);
                 resolve();
             }
-        }, 50);
+        }, 20);
     });
-}
-
-async function displayMessage(message: string, aiIcon: string) {
-    if (!AIContainer.value) return;
-
-    const messageHTML = `
-      <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <!--
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-              <img src="${aiIcon}" alt="aiIcon" class="max-w-full max-h-full rounded-full">
-            </span>-->
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                ${aiIcon}
-                </svg>
-            </span>
-        </div>
-        <div>
-          <p ref="animatedText${counterDisplay.value}"></p>
-        </div>
-      </div>
-    `;
-
-    AIContainer.value.innerHTML += messageHTML;
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
-    counterDisplay.value += 1;
-    await animateText(message, animatedParagraph);
-    scrollToBottom();
 }
 
 async function fetchPrimaryEmail() {
@@ -324,6 +435,28 @@ async function fetchEmailLinked() {
     }
 
     emailsLinked.value = result.data;
+}
+
+async function fetchAgents() {
+    try {
+        const response = await getData('user/agents/all_info/');
+        if (response.success) {
+            agents.value = response.data.map((agent: Agent) => ({
+                ...agent,
+                picture: agent.picture || '/assets/default-agent.png',
+            }));
+        } else {
+            throw new Error(response.error);
+        }
+    } catch (error) {
+        console.error('Error fetching agents:', error);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.agentsFetchError"),
+            error instanceof Error ? error.message : 'Unknown error'
+        );
+        throw error;
+    }
 }
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
@@ -397,8 +530,7 @@ async function handleKeyDown(event: KeyboardEvent) {
 
 async function displayErrorProcessingMessage() {
     const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    await displayMessage(message, aiIcon);
+    await displayMessage(message, selectedAgent.value.picture);
 }
 
 function loading() {
@@ -409,12 +541,10 @@ function loading() {
       <div id="dynamicLoadingIndicator" class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-                    <span class="text-lg font-medium leading-none text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-                      </svg>
-                    </span>
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    ${selectedAgent.value.picture}
+                    </svg>
                 </span>
             </div>
             <div>
@@ -438,23 +568,18 @@ function askContentAdvice() {
     if (!AIContainer.value) return;
 
     const message = i18n.global.t("constants.sendEmailConstants.emailCompositionAssistance");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
 
     const messageHTML = `
       <div class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <!--
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-                    <img src="${aiIcon}" alt="aiIcon" class="max-w-full max-h-full rounded-full">
-                </span>-->
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                  </svg>
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    ${selectedAgent.value.picture}
+                    </svg>
                 </span>
             </div>
-            <div>
+            <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                 <div class="flex flex-col">
                   <p ref="animatedText${counterDisplay.value}"></p>
                   <div class="flex mt-4">
@@ -528,13 +653,15 @@ async function checkSpelling() {
     const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                        </svg>
+                      <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            ${selectedAgent.value.picture}
+                            </svg>
+                        </span>
                       </span>
                   </div>
-                  <div>
+                  <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                       <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.correctedSubject}</p>
                       <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedBody}</p>
                   </div>
@@ -546,9 +673,8 @@ async function checkSpelling() {
     quillEditorContainer.innerHTML = result.data.correctedBody;
 
     const message = i18n.global.t("constants.sendEmailConstants.spellingCorrectionRequest");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
 
-    await displayMessage(message, aiIcon);
+    await displayMessage(message, selectedAgent.value.picture);
 }
 
 async function checkCopyWriting() {
@@ -571,13 +697,13 @@ async function checkCopyWriting() {
     const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                        </svg>
-                      </span>
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            ${selectedAgent.value.picture}
+                            </svg>
+                        </span>
                   </div>
-                  <div>
+                  <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                       <p>${formattedCopWritingOutput}</p>
                   </div>
               </div>
@@ -585,8 +711,7 @@ async function checkCopyWriting() {
     AIContainer.value.innerHTML += messageHTML;
 
     const message = i18n.global.t("constants.sendEmailConstants.copywritingCheckRequest");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    await displayMessage(message, aiIcon);
+    await displayMessage(message, selectedAgent.value.picture);
 }
 
 async function writeBetter() {
@@ -615,13 +740,13 @@ async function writeBetter() {
     const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                      </svg>
+                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        ${selectedAgent.value.picture}
+                        </svg>
                     </span>
                 </div>
-                <div>
+                <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
                     <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
                     <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${result.data.emailBody}</p>
                 </div>
@@ -632,9 +757,99 @@ async function writeBetter() {
     const quillEditorContainer = quill.root;
     quillEditorContainer.innerHTML = result.data.emailBody;
 
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    await displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
+    await displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), selectedAgent.value.picture);
 }
+
+const capitalize = (str: string) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+const displayAgentSelection = async () => {
+  try {
+    const response = await getData('user/agents/all_info/');
+    agents.value = response.data.map((agent: Agent) => ({
+      ...agent,
+      picture: agent.picture || '/assets/default-agent.png', 
+    }));
+
+    const agentButtons = agents.value.map(agent => `
+      <button 
+        class="flex items-start p-4 border rounded-lg hover:bg-gray-100 transition-colors duration-200 mb-4 w-full" 
+        data-agent-id="${agent.id}"
+      >
+        <img 
+          src="${agent.picture}" 
+          alt="Agent Icon" 
+          class="h-12 h-12 rounded-full mr-4 object-cover flex-shrink-0"
+        />
+        <div class="flex-1">
+          <h3 class="text-xl font-semibold text-left">${agent.agent_name}</h3>
+          <p class="text-gray-600 mt-1 text-left">${agent.ai_template}</p>
+          <div class="flex text-sm text-gray-500 mt-2">
+            <p class="mr-4"><span class="font-medium">Length:</span> ${capitalize(agent.length)}</p>
+            <p><span class="font-medium">Formality:</span> ${capitalize(agent.formality)}</p>
+          </div>
+        </div>
+      </button>
+    `).join('');
+
+    const messageHTML = `
+        <div class="mt-0">
+          ${agentButtons}
+        </div>
+    `;
+
+    if (AIContainer.value) {
+      AIContainer.value.innerHTML += messageHTML;
+      
+      const buttons = AIContainer.value.querySelectorAll('button[data-agent-id]');
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          const agentId = button.getAttribute('data-agent-id');
+          const selectedAgentData = agents.value.find(agent => agent.id.toString() === agentId);
+          if (selectedAgentData) {
+            selectedAgent.value = selectedAgentData;
+            displayMessage(i18n.global.t("agent.AiGreeting"), selectedAgent.value.picture);
+            setAgentLastUsed(selectedAgent.value);
+          }
+        });
+      });
+    }
+  } catch (error) {
+    console.error('Error displaying agent selection:', error);
+  }
+};
+
+const checkLastUsedAgent = async () => {
+    try {
+        if (!agents.value.length) {
+            console.warn('No agents available when checking last used agent');
+            return;
+        }
+
+        const response = await getData('user/agents/check_last_used/');
+        console.log('Last used agent response:', response); // Debug log
+
+        if (response.success && response.data.exists) {
+            const selectedAgentData = agents.value.find(agent => agent.id === response.data.agent_id);
+            if (selectedAgentData) {
+                selectedAgent.value = selectedAgentData;
+                await displayMessage(i18n.global.t("agent.AiGreeting"), selectedAgent.value.picture);
+            }
+        } else {
+            await displayMessage(i18n.global.t("agent.chooseAiAssistant"), selectedAgent.value.picture);
+            await displayAgentSelection();
+        }
+    } catch (error) {
+        console.error('Error checking last used agent:', error);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.lastUsedAgentError"),
+            "Failed to load last used agent"
+        );
+    }
+};
 
 const fetchSignatures = async () => {
     const result = await getData("user/signatures/");
@@ -662,4 +877,125 @@ const handleSignatureCreated = (newSignature: any) => {
         insertSignature(newSignature.signature_content);
     }
 };
+
+async function setAgentLastUsed(agent: Agent) {
+  const result = await putData(`user/agents/${agent.id}/update/`, {
+    last_used: true
+  });
+
+  if (!result.success) {
+    console.error('Failed to update agent last used status:', result.error);
+  }
+}
+
+const isDragging = ref(false);
+const startX = ref(0);
+const startManualWidth = ref(0);
+const startAiWidth = ref(0);
+
+const initDrag = (event: MouseEvent) => {
+    isDragging.value = true;
+    startX.value = event.clientX;
+    startManualWidth.value = manualEmailWidth.value;
+    startAiWidth.value = aiEmailWidth.value;
+
+    // Store the container width at the start
+    const container = (event.target as HTMLElement).closest('.flex');
+    initialContainerWidth.value = container ? container.clientWidth : 0;
+
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", stopDrag);
+};
+
+const onDrag = (event: MouseEvent) => {
+    if (!isDragging.value) return;
+
+    const deltaX = event.clientX - startX.value;
+
+    // Prevent division by zero
+    if (initialContainerWidth.value === 0) return;
+
+    const deltaPercent = (deltaX / initialContainerWidth.value) * 100;
+
+    let newManualWidth = startManualWidth.value + deltaPercent;
+    let newAiWidth = startAiWidth.value - deltaPercent;
+
+    // Set boundaries to prevent widths from becoming too small or too large
+    const MIN_WIDTH = 20;
+    const MAX_WIDTH = 80;
+
+    if (newManualWidth < MIN_WIDTH) {
+        newManualWidth = MIN_WIDTH;
+        newAiWidth = 100 - MIN_WIDTH;
+    } else if (newAiWidth < MIN_WIDTH) {
+        newAiWidth = MIN_WIDTH;
+        newManualWidth = 100 - MIN_WIDTH;
+    }
+
+    manualEmailWidth.value = newManualWidth;
+    aiEmailWidth.value = newAiWidth;
+};
+
+const stopDrag = () => {
+    if (isDragging.value) {
+        isDragging.value = false;
+        saveWidths();
+        window.removeEventListener("mousemove", onDrag);
+        window.removeEventListener("mouseup", stopDrag);
+    }
+};
+
+onBeforeUnmount(() => {
+    window.removeEventListener("mousemove", onDrag);
+    window.removeEventListener("mouseup", stopDrag);
+});
+
+const saveWidths = () => {
+    localStorage.setItem("manualEmailWidth", manualEmailWidth.value.toString());
+    localStorage.setItem("aiEmailWidth", aiEmailWidth.value.toString());
+};
 </script>
+
+<style scoped>
+/* Remove transition effects */
+div:nth-child(2),
+div:nth-child(4) {
+    transition: none !important;
+}
+
+/* Draggable Divider Wrapper */
+.drag-wrapper {
+    position: relative;
+    width: 1px; /* Same as the visible separator */
+    height: 100%;
+    cursor: col-resize;
+}
+
+/* Visible Separator */
+.separator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 0.5px;
+    height: 100%;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+/* Transparent Drag Overlay */
+.drag-overlay {
+    position: absolute;
+    left: -3.5px; /* (8px - 1px) / 2 */
+    top: 0;
+    width: 8px; /* Hidden draggable area width */
+    height: 100%;
+    background: transparent;
+    z-index: 2;
+}
+
+/* Optional: Hover effect for better UX */
+.drag-wrapper:hover .separator {
+    background-color: #aaa; /* Slight color change on hover for subtle feedback */
+}
+</style>

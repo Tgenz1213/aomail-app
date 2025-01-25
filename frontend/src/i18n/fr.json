@@ -139,13 +139,16 @@
     "emailUppercase": "Email",
     "emails": " e-mails.",
     "redirectionInProgress": "Redirection en cours...",
+    "inboxNavbar": "Boîte de réception",
     "AiNavbar": "Assistant IA",
     "homeNavbar": "Accueil",
     "newEmailNavbar": "Nouveau Email",
-    "searchEmailNavbar": "Recherche Email",
+    "searchEmailNavbar": "Recherche Email (beta)",
     "rulesNavbar": "Règles",
     "replyLaterNavbar": "Répondre Plus Tard",
     "settingsNavbar": "Paramètres",
+    "subscriptionNavbar": "Premium",
+    "discordNavbar": "Notre Discord",
     "instruction": "Instruction",
     "additionalActions": "Actions supplémentaires",
     "manualSearch": "Recherche manuelle",
@@ -173,6 +176,10 @@
       "lightTheme": "Thème clair"
     },
     "timezone": "Fuseau horaire"
+  },
+  "agent": {
+    "AiGreeting": "Bonjour, en quoi puis-je vous aider ?",
+    "chooseAiAssistant": "Veuillez choisir ou créer un assistant IA avant d'utiliser ce chat"
   },
   "userLoginPage": {
     "loginError": "Erreur lors de la connexion",
@@ -362,6 +369,8 @@
       "creationError": "Échec de la création de la signature."
     },
     "subscriptionPage": {
+      "freeTrialTitle": "Essai gratuit",
+      "freeTrialMessage": "Vous utilisez un essai gratuit et avez accès à toutes les fonctionnalités premium pendant la période de bêta qui expire le {expiryDate} ({daysLeft} jours restants).",
       "subscriptionTitle": "Abonnement",
       "selectPlan": "Sélectionner",
       "perMonth": "/mois",
@@ -598,6 +607,9 @@
     "checkCopywriting": "Vérifie le copywriting",
     "improveWriting": "Améliore l'écriture",
     "forUser": "Pour l'utilisateur : ",
+    "severalUser": "J'ai trouvé plusieurs utilisateurs avec ce nom, à qui souhaitez-vous envoyer l'email ?",
+    "emailGenerated": "Voici le mail, êtes-vous satisfait ?",
+    "noRecipientsFoundPleaseTryAgainOrEnterManually": "Aucun destinataire trouvé, veuillez réessayer ou entrer manuellement",
     "mainRecipient": "Principal",
     "ccRecipient": "Copie",
     "bccRecipient": "Copie cachée",
@@ -624,6 +636,37 @@
         "title": "Succès",
         "message": "Signature créée avec succès."
       }
+    },
+    "createAgent": {
+      "title": "Créer un nouvel agent",
+      "upload": "Télécharger",
+      "agentName": "Nom de l'agent",
+      "agentNameError": "Veuillez entrer un nom d'agent",
+      "agentNamePlaceholder": "Entrez le nom de l'agent",
+      "behaviorDescription": "Description du comportement (Optionnel)",
+      "behaviorPlaceholder": "Décrivez le comportement de l'agent",
+      "emailExample": "Ajouter un exemple d'email (Optionnel)",
+      "emailExamplePlaceholder": "Collez un exemple d'email qui représente le style que vous souhaitez que l'agent suive",
+      "length": "Longueur",
+      "formality": "Formalité",
+      "cancel": "Annuler",
+      "create": "Créer"
+    },
+    "updateAgent": {
+      "title": "Modifier l'agent",
+      "upload": "Télécharger",
+      "agentName": "Nom de l'agent",
+      "agentNameError": "Veuillez entrer un nom d'agent",
+      "agentNamePlaceholder": "Entrez le nom de l'agent",
+      "behaviorDescription": "Description du comportement (Optionnel)",
+      "behaviorPlaceholder": "Décrivez le comportement de l'agent",
+      "emailExample": "Ajouter un exemple d'email (Optionnel)",
+      "emailExamplePlaceholder": "Collez un exemple d'email qui représente le style que vous souhaitez que l'agent suive",
+      "length": "Longueur",
+      "formality": "Formalité",
+      "cancel": "Annuler",
+      "update": "Mettre à jour",
+      "delete": "Supprimer"
     }
   },
   "answerPage": {

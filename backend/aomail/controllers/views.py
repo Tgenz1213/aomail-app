@@ -94,7 +94,6 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
         content_type = request.content_type
 
         if content_type.startswith("application/json"):
-        if content_type.startswith("application/json"):
             try:
                 parameters = json.loads(request.body)
                 email = parameters.get("email") or request.headers.get("email")
@@ -104,10 +103,8 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         elif content_type.startswith("multipart/form-data"):
-        elif content_type.startswith("multipart/form-data"):
             email = request.POST.get("email") or request.headers.get("email")
             parameters = request.POST.dict()
-            parameters.update({"attachments": request.FILES.getlist("attachments")})
             parameters.update({"attachments": request.FILES.getlist("attachments")})
         else:
             return Response(

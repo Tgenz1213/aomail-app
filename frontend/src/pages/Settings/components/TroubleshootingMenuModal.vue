@@ -45,12 +45,14 @@
                         <li
                             v-for="email in emailsLinked"
                             :key="email?.email"
-                            class="border border-gray-300 rounded-md bg-gray-100 flex items-center justify-between p-2 shadow hover:shadow-md"
+                            class="border border-gray-300 rounded-md bg-gray-100 flex items-center p-2 shadow hover:shadow-md"
                         >
-                            <label class="flex items-center">
-                                <input type="radio" v-model="selectedEmail" :value="email" class="mr-2" />
-                                <UserEmailLinked :email="email" :isRegrant="true" />
-                            </label>
+                            <input type="radio" v-model="selectedEmail" :value="email" class="mr-2" />
+                            <UserEmailLinked
+                                :email="email"
+                                :isRegrant="true"
+                                class="flex-grow flex items-center justify-between"
+                            />
                         </li>
                     </ul>
                 </div>
@@ -123,7 +125,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div v-if="!isLoading" class="pt-6 flex flex-col items-center space-y-4">
+                <div v-if="!isLoading" class="p-6 flex flex-col items-center space-y-4">
                     <button
                         v-if="errorMessage"
                         :disabled="!selectedEmail"

@@ -135,8 +135,10 @@ const setActiveFilter = async (filterName: string) => {
 
         if (filter) {
             activeFilters.value[selectedCategory.value] = filter;
+            selectedFilter.value = filter;
+            
             await fetchEmailsData(selectedCategory.value);
-
+            
             const container = document.querySelector(".custom-scrollbar");
             if (container) {
                 container.scrollTop = 0;
@@ -149,10 +151,12 @@ const setActiveFilter = async (filterName: string) => {
         } else {
             console.error(`Filter with name "${filterName}" not found in category "${selectedCategory.value}".`);
             activeFilters.value[selectedCategory.value] = undefined;
+            selectedFilter.value = undefined;
         }
     } else {
         console.error(`No filters found for category "${selectedCategory.value}".`);
         activeFilters.value[selectedCategory.value] = undefined;
+        selectedFilter.value = undefined;
     }
 };
 

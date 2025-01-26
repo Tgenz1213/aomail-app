@@ -486,7 +486,7 @@ const markCategoryAsRead = async (category: 'important' | 'informative' | 'usele
             await fetchEmailsData(selectedCategory.value);
             await fetchFiltersData(selectedCategory.value);
             await fetchEmailCounts(selectedCategory.value);
-
+            
             displayPopup?.(
                 "success",
                 i18n.global.t("constants.popUpConstants.successMessages.emailsMarkedAsRead"),
@@ -593,6 +593,7 @@ provide("uselessCount", uselessCount);
 provide("importantCount", importantCount);
 provide("informativeCount", informativeCount);
 provide("readCount", readCount);
+provide("loadMoreEmails", loadMoreEmails);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({

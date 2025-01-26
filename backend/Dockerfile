@@ -10,10 +10,10 @@ COPY . .
 
 # Development mode
 FROM base AS development
-ENTRYPOINT ["sh", "/app/entrypoint.sh"]
+ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 8000
 
 # Production mode
 FROM base AS production
-ENTRYPOINT ["sh", "/app/entrypoint.sh"]
+ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 8000

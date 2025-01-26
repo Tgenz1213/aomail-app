@@ -125,7 +125,7 @@ export interface UploadedFile {
 export interface AiRecipient {
     username: string;
     email: string | { username: string; email: string }[];
-  }  
+}
 
 export interface Agent {
     id: string;
@@ -135,7 +135,8 @@ export interface Agent {
     picture: string;
     length: string;
     formality: string;
-  }
+    icon_name: string;
+}
 
 export interface Frequency {
     key: string;

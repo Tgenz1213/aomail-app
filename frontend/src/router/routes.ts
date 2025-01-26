@@ -7,8 +7,6 @@ import Answer from "@/pages/Answer/Answer.vue";
 import Transfer from "@/pages/Transfer/Transfer.vue";
 import Rules from "@/pages/Rules/Rules.vue";
 import Settings from "@/pages/Settings/Settings.vue";
-import StripePaymentFailed from "@/pages/Stripe/PaymentFailed.vue";
-import StripePaymentSuccess from "@/pages/Stripe/PaymentSuccess.vue";
 import Search from "@/pages/Search/Search.vue";
 import ReplyLater from "@/pages/ReplyLater/ReplyLater.vue";
 import NotFound from "@/pages/Errors/404NotFound.vue";
@@ -18,7 +16,7 @@ import ResetPasswordForm from "@/pages/ResetPassword/ResetPasswordForm.vue";
 import { Component } from "vue";
 import Labels from "@/pages/Labels/Labels.vue";
 import Logout from "@/pages/Logout/Logout.vue";
-import Subscription from '@/pages/Subscription/Subscription.vue';
+import Subscription from "@/pages/Subscription/Subscription.vue";
 
 export interface RouteConfig {
     path: string;
@@ -57,7 +55,7 @@ const signUpLink: RouteConfig = {
 
 const inbox: RouteConfig = {
     path: "/inbox",
-    name: "inbox", 
+    name: "inbox",
     meta: { requiresAuth: true },
     component: Inbox,
 };
@@ -110,20 +108,6 @@ const settings: RouteConfig = {
     component: Settings,
 };
 
-const stripePaymentFailed: RouteConfig = {
-    path: "/stripe/payment-failed/",
-    name: "stripe-payment-failed",
-    meta: { requiresAuth: true },
-    component: StripePaymentFailed,
-};
-
-const stripePaymentSuccess: RouteConfig = {
-    path: "/stripe/payment-successful/",
-    name: "stripe-payment-successful",
-    meta: { requiresAuth: true },
-    component: StripePaymentSuccess,
-};
-
 const passwordResetLink: RouteConfig = {
     path: "/password-reset-link",
     name: "password-reset-link",
@@ -174,8 +158,6 @@ const routes: RouteConfig[] = [
     replyLater,
     rules,
     settings,
-    stripePaymentFailed,
-    stripePaymentSuccess,
     passwordResetLink,
     resetPasswordForm,
     labels,

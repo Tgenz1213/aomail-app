@@ -16,17 +16,29 @@ import importlib
 import json
 import logging
 import os
+import threading
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest, FileResponse, Http404
+from aomail.email_providers.google import authentication as auth_google
+from aomail.email_providers.microsoft import authentication as auth_microsoft
+from aomail.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
+from aomail.email_providers.google import (
+    email_operations as email_operations_google,
+)
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import (
     ALLOW_ALL,
     ALLOWED_PLANS,
+    GOOGLE,
     MEDIA_ROOT,
+    MICROSOFT,
 )
 from aomail.models import (
     SocialAPI,
@@ -184,7 +196,37 @@ def serve_image(request: HttpRequest, image_name: str) -> Response:
             raise Http404("Unsupported image format")
     else:
         raise Http404("Image not found")
-    
+
+
+def serve_agent_icon(request: HttpRequest, image_name: str) -> Response:
+    """
+    Serve an image file from the server's media directory.
+
+    Args:
+        request (HttpRequest): The HTTP request object that represents the client request.
+        image_name (str): The name of the image file to be served.
+
+    Returns:
+        FileResponse: A file response containing the image if found and valid.
+
+    Raises:
+        Http404: If the image is not found or the image format is unsupported.
+    """
+    image_path = os.path.join(MEDIA_ROOT, "agent_icon", image_name)
+    if os.path.exists(image_path):
+        _, ext = os.path.splitext(image_path)
+        content_type = (
+            "image/jpeg"
+            if ext.lower() == ".jpg"
+            else "image/png" if ext.lower() == ".png" else None
+        )
+        if content_type:
+            return FileResponse(open(image_path, "rb"), content_type=content_type)
+        else:
+            raise Http404("Unsupported image format")
+    else:
+        raise Http404("Image not found")
+
 
 ############################# CONTACT ##############################
 @api_view(["GET"])

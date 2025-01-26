@@ -89,8 +89,8 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'),
     path('user/emails_counts/', search_emails.get_email_counts, name='get_email_counts'),
     #----------------------- VIEWS -----------------------#
-    path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
-
+    path('pictures/<path:image_name>', views.serve_image, name='serve_image'),
+    path('agent_icon/<path:image_name>', views.serve_agent_icon, name='serve_agent_icon'),
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'),
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'),
     path('user/get_api_emails_ids/', search_api_emails.get_api_emails_ids , name='get_api_emails_ids'),

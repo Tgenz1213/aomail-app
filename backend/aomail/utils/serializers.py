@@ -254,6 +254,7 @@ class AgentSerializer(serializers.ModelSerializer):
             'language',
             'last_used',
             'picture',
+            'icon_name'
         ]
         read_only_fields = ['id']
 

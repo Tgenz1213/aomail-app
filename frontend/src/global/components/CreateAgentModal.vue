@@ -220,6 +220,8 @@ const createAgent = async () => {
   formData.append("language", i18n.global.locale);
   if (selectedFile.value) {
     formData.append("picture", selectedFile.value);
+    console.log("selectedFile.value?.name.toString()", selectedFile.value?.name.toString())
+    formData.append("icon_name", selectedFile.value?.name.toString())
   }
 
   const result = await postData("user/agents/create/", formData, true);

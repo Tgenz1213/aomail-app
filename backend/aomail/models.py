@@ -273,6 +273,7 @@ class Agent(models.Model):
     language = models.CharField(max_length=50)
     last_used = models.BooleanField(default=False)
     picture = models.ImageField(upload_to='media/agent_icon/', null=True, blank=True) # To update
+    icon_name = models.TextField(default="") # img name + file ext
 
     def __str__(self):
         return self.agent_name

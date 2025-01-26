@@ -637,6 +637,21 @@
         "message": "Signature created successfully."
       }
     },
+    "createAgent": {
+      "title": "Create Agent",
+      "upload": "Upload",
+      "agentName": "Agent Name",
+      "agentNameError": "Please enter an agent name",
+      "agentNamePlaceholder": "Enter agent name",
+      "behaviorDescription": "Behavior Description (Optional)",
+      "behaviorPlaceholder": "Describe agent behavior",
+      "emailExample": "Add email example (Optional)",
+      "emailExamplePlaceholder": "Paste an example email that represents the style you want the agent to follow",
+      "length": "Length",
+      "formality": "Formalité",
+      "cancel": "Cancel",
+      "create": "Créer"
+    },
     "updateAgent": {
       "title": "Update Agent",
       "upload": "Upload",

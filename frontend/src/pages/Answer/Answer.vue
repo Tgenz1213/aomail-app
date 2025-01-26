@@ -9,15 +9,15 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['bg-white ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div
                 :style="{ width: manualEmailWidth + '%' }"
                 class="bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full"
             >
-                <ManualEmail />  
+                <ManualEmail />
             </div>
-            
+
             <div class="drag-wrapper">
                 <div class="separator"></div>
                 <div class="drag-overlay" @mousedown="initDrag"></div>
@@ -50,7 +50,7 @@ import { i18n } from "@/global/preferences";
 import { Recipient, Agent, EmailLinked, UploadedFile } from "@/global/types";
 import Navbar from "@/global/components/Navbar.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { INFORMATIVE } from "@/global/const";
+import { API_BASE_URL, INFORMATIVE } from "@/global/const";
 import userImage from "@/assets/user.png";
 import SignatureModal from "@/global/components/SignatureModal.vue";
 
@@ -95,8 +95,9 @@ const selectedAgent = ref<Agent>({
     ai_template: "",
     length: "",
     formality: "",
+    icon_name: "default-agent.png",
 });
-const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const manualEmailWidth = ref(55);
 const aiEmailWidth = ref(45);
 const isDragging = ref(false);
@@ -113,13 +114,12 @@ const scrollToBottom = async () => {
 };
 
 function getQuill() {
-  return quill;
+    return quill;
 }
-
 
 const displayMessage = async (message: string, aiIcon: string) => {
     if (!AIContainer.value) {
-        console.warn('AIContainer not initialized');
+        console.warn("AIContainer not initialized");
         await nextTick();
         if (!AIContainer.value) return;
     }
@@ -128,9 +128,7 @@ const displayMessage = async (message: string, aiIcon: string) => {
       <div class="flex pb-6">
         <div class="mr-3 flex-shrink-0">
             <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                ${aiIcon}
-                </svg>
+                <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
         </div>
         <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
@@ -142,12 +140,12 @@ const displayMessage = async (message: string, aiIcon: string) => {
     AIContainer.value.innerHTML += messageHTML;
     const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
     counterDisplay.value += 1;
-    
+
     if (animatedParagraph) {
         await animateText(message, animatedParagraph);
         await scrollToBottom();
     } else {
-        console.error('Could not find animated paragraph element');
+        console.error("Could not find animated paragraph element");
     }
 };
 
@@ -177,12 +175,12 @@ provide("scrollToBottom", scrollToBottom);
 provide("loading", loading);
 provide("hideLoading", hideLoading);
 provide("agents", agents);
-provide('selectedAgent', selectedAgent);
+provide("selectedAgent", selectedAgent);
 provide("setAgentLastUsed", setAgentLastUsed);
 provide("signatures", signatures);
 provide("emailContent", emailContent);
-provide('manualEmailWidth', manualEmailWidth);
-provide('aiEmailWidth', aiEmailWidth);
+provide("manualEmailWidth", manualEmailWidth);
+provide("aiEmailWidth", aiEmailWidth);
 
 async function fetchSelectedEmailData() {
     const result = await getData(`user/emails_linked/`);
@@ -205,19 +203,21 @@ async function fetchSelectedEmailData() {
 }
 
 const capitalize = (str: string) => {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
 const displayAgentSelection = async () => {
-  try {
-    const response = await getData('user/agents/all_info/');
-    agents.value = response.data.map((agent: Agent) => ({
-      ...agent,
-      picture: agent.picture || '/assets/default-agent.png', 
-    }));
+    try {
+        const response = await getData("user/agents/all_info/");
+        agents.value = response.data.map((agent: Agent) => ({
+            ...agent,
+            picture: agent.picture || "/assets/default-agent.png",
+        }));
 
-    const agentButtons = agents.value.map(agent => `
+        const agentButtons = agents.value
+            .map(
+                (agent) => `
       <button 
         class="flex items-start p-4 border rounded-lg hover:bg-gray-100 transition-colors duration-200 mb-4 w-full" 
         data-agent-id="${agent.id}"
@@ -236,46 +236,48 @@ const displayAgentSelection = async () => {
           </div>
         </div>
       </button>
-    `).join('');
+    `
+            )
+            .join("");
 
-    const messageHTML = `
+        const messageHTML = `
         <div class="mt-0">
           ${agentButtons}
         </div>
     `;
 
-    if (AIContainer.value) {
-      AIContainer.value.innerHTML += messageHTML;
-      
-      const buttons = AIContainer.value.querySelectorAll('button[data-agent-id]');
-      buttons.forEach(button => {
-        button.addEventListener('click', () => {
-          const agentId = button.getAttribute('data-agent-id');
-          const selectedAgentData = agents.value.find(agent => agent.id.toString() === agentId);
-          if (selectedAgentData) {
-            selectedAgent.value = selectedAgentData;
-            setAgentLastUsed(selectedAgent.value);
-          }
-        });
-      });
+        if (AIContainer.value) {
+            AIContainer.value.innerHTML += messageHTML;
+
+            const buttons = AIContainer.value.querySelectorAll("button[data-agent-id]");
+            buttons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const agentId = button.getAttribute("data-agent-id");
+                    const selectedAgentData = agents.value.find((agent) => agent.id.toString() === agentId);
+                    if (selectedAgentData) {
+                        selectedAgent.value = selectedAgentData;
+                        setAgentLastUsed(selectedAgent.value);
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        console.error("Error displaying agent selection:", error);
     }
-  } catch (error) {
-    console.error('Error displaying agent selection:', error);
-  }
 };
 
 const checkLastUsedAgent = async () => {
     try {
         if (!agents.value.length) {
-            console.warn('No agents available when checking last used agent');
+            console.warn("No agents available when checking last used agent");
             return;
         }
 
-        const response = await getData('user/agents/check_last_used/');
-        console.log('Last used agent response:', response); // Debug log
+        const response = await getData("user/agents/check_last_used/");
+        console.log("Last used agent response:", response); // Debug log
 
         if (response.success && response.data.exists) {
-            const selectedAgentData = agents.value.find(agent => agent.id === response.data.agent_id);
+            const selectedAgentData = agents.value.find((agent) => agent.id === response.data.agent_id);
             if (selectedAgentData) {
                 selectedAgent.value = selectedAgentData;
             }
@@ -284,7 +286,7 @@ const checkLastUsedAgent = async () => {
             await displayAgentSelection();
         }
     } catch (error) {
-        console.error('Error checking last used agent:', error);
+        console.error("Error checking last used agent:", error);
         displayPopup(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.lastUsedAgentError"),
@@ -295,21 +297,21 @@ const checkLastUsedAgent = async () => {
 
 async function fetchAgents() {
     try {
-        const response = await getData('user/agents/all_info/');
+        const response = await getData("user/agents/all_info/");
         if (response.success) {
             agents.value = response.data.map((agent: Agent) => ({
                 ...agent,
-                picture: agent.picture || '/assets/default-agent.png',
+                picture: agent.picture || "/assets/default-agent.png",
             }));
         } else {
             throw new Error(response.error);
         }
     } catch (error) {
-        console.error('Error fetching agents:', error);
+        console.error("Error fetching agents:", error);
         displayPopup(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.agentsFetchError"),
-            error instanceof Error ? error.message : 'Unknown error'
+            error instanceof Error ? error.message : "Unknown error"
         );
         throw error;
     }
@@ -338,22 +340,19 @@ onMounted(async () => {
         manualEmailWidth.value = parseInt(storedManualWidth, 10);
         aiEmailWidth.value = parseInt(storedAiWidth, 10);
     }
-    
+
     try {
         isLoadingAgentSelection.value = true;
-        
+
         // Initialize AIContainer first
         AIContainer.value = document.getElementById("AIContainer");
         if (!AIContainer.value) {
-            console.error('AIContainer element not found');
+            console.error("AIContainer element not found");
             return;
         }
 
         // Rest of the initialization...
-        await Promise.all([
-            fetchSignatures(),
-            fetchAgents(),
-        ]);
+        await Promise.all([fetchSignatures(), fetchAgents()]);
 
         await Promise.all([
             initializeQuill(),
@@ -389,9 +388,7 @@ onMounted(async () => {
         <div class="flex pb-12">
           <div class="mr-4 flex flex-shrink-0">
             <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                ${selectedAgent.value.picture}
-                </svg>
+                <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
           </div>
           <div class="flex flex-col space-y-1 bg-white rounded-lg p-4 border border-gray-200">
@@ -430,9 +427,9 @@ onMounted(async () => {
 
         fetchResponseKeywords();
     } catch (error) {
-        console.error('Error during initialization:', error);
+        console.error("Error during initialization:", error);
         displayPopup(
-            "error", 
+            "error",
             i18n.global.t("constants.popUpConstants.errorMessages.initializationError"),
             "Failed to initialize application"
         );
@@ -532,9 +529,7 @@ function loading() {
         <div class="flex">
             <div class="mr-4">
                 <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    ${selectedAgent.value.picture}
-                    </svg>
+                    <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
                 </span>
             </div>
             <div>
@@ -587,9 +582,7 @@ function askContentAdvice() {
         <div class="flex pb-12">
           <div class="mr-4 flex-shrink-0">
             <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                ${selectedAgent.value.picture}
-                </svg>
+                <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
           </div>
           <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
@@ -639,13 +632,19 @@ async function handleButtonClick(keyword: string | null) {
     hideLoading();
 
     if (!result.success) {
-        await displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), selectedAgent.value.picture);
+        await displayMessage?.(
+            i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"),
+            selectedAgent.value.picture
+        );
         return;
     }
 
     const quillEditorContainer = quillInstance.root;
     quillEditorContainer.innerHTML = result.data.emailAnswer;
-    await displayMessage(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), selectedAgent.value.picture);
+    await displayMessage(
+        i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"),
+        selectedAgent.value.picture
+    );
 }
 
 async function fetchResponseKeywords() {
@@ -693,7 +692,7 @@ function insertSignature(signatureContent: string) {
 
     try {
         quillInstance.clipboard.dangerouslyPasteHTML(quillInstance.getLength(), `<p>${signatureContent}</p>`);
-        
+
         nextTick(() => {
             quillInstance.setSelection(quillInstance.getLength(), 0);
         });
@@ -707,11 +706,7 @@ const fetchSignatures = async () => {
     if (result.success) {
         signatures.value = result.data;
     } else {
-        displayPopup(
-            "error",
-            "Error",
-            "Failed to fetch signatures"
-        );
+        displayPopup("error", "Error", "Failed to fetch signatures");
     }
 };
 
@@ -730,13 +725,13 @@ const handleSignatureCreated = (newSignature: any) => {
 };
 
 async function setAgentLastUsed(agent: Agent) {
-  const result = await putData(`user/agents/${agent.id}/update/`, {
-    last_used: true
-  });
+    const result = await putData(`user/agents/${agent.id}/update/`, {
+        last_used: true,
+    });
 
-  if (!result.success) {
-    console.error('Failed to update agent last used status:', result.error);
-  }
+    if (!result.success) {
+        console.error("Failed to update agent last used status:", result.error);
+    }
 }
 
 // Ajout des fonctions de glissement
@@ -746,7 +741,7 @@ const initDrag = (event: MouseEvent) => {
     startManualWidth.value = manualEmailWidth.value;
     startAiWidth.value = aiEmailWidth.value;
 
-    const container = (event.target as HTMLElement).closest('.flex');
+    const container = (event.target as HTMLElement).closest(".flex");
     initialContainerWidth.value = container ? container.clientWidth : 0;
 
     window.addEventListener("mousemove", onDrag);

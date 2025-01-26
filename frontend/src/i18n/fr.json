@@ -685,16 +685,6 @@
       "pageDoesNotExist": "La page que vous recherchez n'existe pas"
     }
   },
-  "stripePaymentSuccessPage": {
-    "paymentSuccessful": "Paiement réussi",
-    "product": "Produit",
-    "thankYou": "Votre paiement a été effectué avec succès. Merci pour votre achat !"
-  },
-  "stripePaymentFailedPage": {
-    "paymentNotSuccessful": "Le paiement n'a pas réussi",
-    "product": "Produit",
-    "paymentNotSuccessfulTryAgain": "Votre paiement n'a pas été effectué. Veuillez réessayer !"
-  },
   "replyLaterPage": {
     "noEmailsToReplyLater": "Pas d'e-mails à répondre plus tard",
     "removeFromReplyLater": "Retirer de Répondre plus tard",

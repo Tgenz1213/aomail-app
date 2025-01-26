@@ -302,7 +302,7 @@ def search_emails_ai(
 
 def search_emails_manually(
     services: dict[str, build],
-    search_query: str,
+    search_query: str = "",
     max_results: int = 100,
     file_extensions: list[str] = None,
     filenames: list[str] = None,
@@ -320,7 +320,7 @@ def search_emails_manually(
     Args:
         services (dict[str, build]): A dictionary containing authenticated service instances for various email providers,
                                      including the Gmail service instance under the key "gmail".
-        search_query (str): The basic search query string to use for simple searches.
+        search_query (str, optional): The basic search query string to use for simple searches.
         max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
         file_extensions (list[str], optional): A list of file extensions to search for in the attachments.
         filenames (list[str], optional): A list of filenames to search for in the attachments.

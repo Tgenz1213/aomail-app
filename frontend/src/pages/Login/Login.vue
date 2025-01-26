@@ -119,7 +119,6 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
 import { API_BASE_URL } from "@/global/const";
 import { i18n } from "@/global/preferences";
-import { fetchWithToken } from "@/global/security";
 
 const username = ref<string>("");
 const password = ref<string>("");
@@ -131,11 +130,25 @@ const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
 
 onMounted(async () => {
-    const response = await fetchWithToken(`${API_BASE_URL}is_authenticated/`);
-    const data = await response?.json();
-    if (data?.isAuthenticated) {
-        router.push({ name: "inbox" });
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (accessToken) {
+        const requestOptions = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+
+        const response = await fetch(`${API_BASE_URL}is_authenticated/`, requestOptions);
+
+        const data = await response?.json();
+        if (data?.isAuthenticated) {
+            router.push({ name: "inbox" });
+        }
     }
+
     document.addEventListener("keydown", handleKeyDown);
 });
 
@@ -149,6 +162,7 @@ function handleKeyDown(event: KeyboardEvent) {
             (document.getElementById("username") as HTMLElement).focus();
         }
     } else if (event.key === "Enter") {
+        console.log("Enter pressed!!!");
         event.preventDefault();
         login();
     }

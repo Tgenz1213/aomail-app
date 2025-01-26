@@ -60,15 +60,16 @@ def receive_mail_notifications(request: HttpRequest) -> Response:
         Response: A JSON response indicating the status of the notification processing.
     """
     try:
-        LOGGER.info(
-            "Email notification received from Google API. Starting email processing."
-        )
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
 
         decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
         decoded_json: dict = json.loads(decoded_data)
         email = decoded_json.get("emailAddress")
+
+        LOGGER.info(
+            f"Email notification received from Google API. Starting email processing for: {email}"
+        )
 
         try:
             social_api = SocialAPI.objects.get(email=email)

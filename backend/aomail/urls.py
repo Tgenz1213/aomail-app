@@ -10,13 +10,21 @@ from aomail.email_providers.microsoft import webhook as webhook_microsoft
 from aomail.controllers import artificial_intelligence as ai
 from aomail.controllers import authentication as auth
 from aomail.controllers import preferences as prefs
-from aomail.controllers import categories, filters, rules, emails, search_emails, search_rules
+from aomail.controllers import (
+    categories,
+    filters,
+    rules,
+    emails,
+    search_emails,
+    search_api_emails,
+    search_rules,
+)
 from aomail.controllers import statistics
 from aomail.controllers import search_labels
 from aomail.controllers import labels
 from aomail.controllers import signatures
 from aomail.payment_providers import stripe
-from aomail.administration import dashboard
+from aomail.administration import dashboard 
 from aomail.controllers import custom_categorization
 from .controllers import views
 from .controllers import agents
@@ -85,11 +93,12 @@ urlpatterns = [
     path('user/emails_counts/', search_emails.get_email_counts, name='get_email_counts'),
     path('user/answer_email_suggestion_ids/', emails.get_answer_email_suggestion_ids , name='get_answer_email_suggestion_ids'),
     #----------------------- VIEWS -----------------------#
-    path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
-
+    path('pictures/<path:image_name>', views.serve_image, name='serve_image'),
+    path('agent_icon/<path:image_name>', views.serve_agent_icon, name='serve_agent_icon'),
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'),
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'),
-    path('user/search_emails/', views.search_emails , name='search_emails'),
+    path('user/get_api_emails_ids/', search_api_emails.get_api_emails_ids , name='get_api_emails_ids'),
+    path('user/get_api_emails_data/', search_api_emails.get_api_emails_data , name='get_api_emails_data'),
     path('user/social_api/check_connectivity/', views.check_connectivity, name='check_connectivity'),
     path('user/social_api/synchronize/', views.synchronize, name='synchronize'),    
     path('user/social_api/send_email/', views.send_email, name='send_email'),

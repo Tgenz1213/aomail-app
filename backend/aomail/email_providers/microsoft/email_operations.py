@@ -469,7 +469,7 @@ def search_emails_ai(
             else params["body"] + " OR " + keyword_query
         )
     if date_from:
-        params["receivedDateTime"] = "gt" + date_from + "T00:00:00Z"
+        params["receivedDateTime"] = f"gt{date_from}T00:00:00Z"
 
     def run_request(graph_endpoint: str):
         """Function to run the email search request"""
@@ -535,8 +535,8 @@ def search_emails_ai(
 
 def search_emails_manually(
     access_token: str,
-    search_query: str,
-    max_results: int,
+    search_query: str = "",
+    max_results: int = 100,
     file_extensions: list[str] = None,
     filenames: list[str] = None,
     advanced: bool = False,
@@ -552,8 +552,8 @@ def search_emails_manually(
 
     Args:
         access_token (str): Access token for authenticating with Microsoft Graph API.
-        search_query (str): General search string to look for in emails.
-        max_results (int): Max number of results to retrieve.
+        search_query (str, optional): General search string to look for in emails.
+        max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
         file_extensions (list, optional): List of file extensions to filter attachments.
         filenames (list, optional): List of filenames to filter attachments.
         advanced (bool, optional): If True, applies advanced search parameters. Defaults to False.

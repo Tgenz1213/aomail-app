@@ -84,6 +84,7 @@ from aomail.email_providers.utils import email_to_db
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signup(request: HttpRequest) -> Response:
@@ -223,13 +224,17 @@ def signup(request: HttpRequest) -> Response:
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
-        signup_token = jwt.encode({
-            'user_id': user.id,
-            'type': 'signup',
-            'exp': timezone.now() + timezone.timedelta(minutes=30)
-        }, settings.SECRET_KEY, algorithm='HS256')
+        signup_token = jwt.encode(
+            {
+                "user_id": user.id,
+                "type": "signup",
+                "exp": timezone.now() + timezone.timedelta(minutes=30),
+            },
+            settings.SECRET_KEY,
+            algorithm="HS256",
+        )
         LOGGER.info(f"User {username} subscribed to listeners successfully")
-        
+
         # ----------------------- CREATE DEFAULT AGENTS -----------------------#
         default_agents_en = [
             {
@@ -240,17 +245,19 @@ def signup(request: HttpRequest) -> Response:
                 "length": "short",
                 "formality": "informal",
                 "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png" 
+                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png",
+                "icon_name": "default_aomail_agent_bob.png",
             },
             {
-                "agent_name": "AO : to talk to colleagues", 
+                "agent_name": "AO : to talk to colleagues",
                 "agent_ai_model": "gpt-3.5-turbo",
                 "ai_template": "Fast and formal as if talking to colleagues.",
                 "email_example": "",
                 "length": "short",
                 "formality": "formal",
                 "language": language,
-                "picture": "/app/media/agent_icon/aomail_agent_ao.png"
+                "picture": "/app/media/agent_icon/aomail_agent_ao.png",
+                "icon_name": "aomail_agent_ao.png",
             },
             {
                 "agent_name": "Jhon : to talk to supervisors",
@@ -260,7 +267,8 @@ def signup(request: HttpRequest) -> Response:
                 "length": "medium",
                 "formality": "very formal",
                 "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png" 
+                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png",
+                "icon_name": "default_aomail_agent_jhon.png",
             },
         ]
 
@@ -273,17 +281,19 @@ def signup(request: HttpRequest) -> Response:
                 "length": "court",
                 "formality": "informel",
                 "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png" 
+                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png",
+                "icon_name": "default_aomail_agent_bob.png",
             },
             {
-                "agent_name": "AO", 
+                "agent_name": "AO",
                 "agent_ai_model": "gpt-3.5-turbo",
                 "ai_template": "Rapide et formel comme si vous parliez à des collègues.",
                 "email_example": "",
                 "length": "court",
                 "formality": "formel",
                 "language": language,
-                "picture": "/app/media/agent_icon/aomail_agent_ao.png"
+                "picture": "/app/media/agent_icon/aomail_agent_ao.png",
+                "icon_name": "aomail_agent_ao.png",
             },
             {
                 "agent_name": "Jhon",
@@ -293,11 +303,12 @@ def signup(request: HttpRequest) -> Response:
                 "length": "moyen",
                 "formality": "formel",
                 "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png" 
+                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png",
+                "icon_name": "default_aomail_agent_jhon.png",
             },
         ]
 
-        if language.lower() == 'fr' or language.lower() == 'french':
+        if language.lower() == "fr" or language.lower() == "french":
             agents_to_create = default_agents_fr
             LOGGER.info(f"Creating default French agents for user {username}")
         else:
@@ -316,9 +327,10 @@ def signup(request: HttpRequest) -> Response:
                 language=agent_data["language"],
                 last_used=False,
                 picture=agent_data["picture"],
+                icon_name=agent_data["icon_name"],
             )
         LOGGER.info(f"Default agents created for user {username}")
-    
+
         return Response(
             {
                 "accessToken": django_access_token,
@@ -335,6 +347,7 @@ def signup(request: HttpRequest) -> Response:
             {"error": "Could not subscribe to listener"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
 
 def process_demo_emails(type_api: str, user: User, email: str):
     """
@@ -662,9 +675,7 @@ def save_user_data(
             access_token=access_token,
             refresh_token=refresh_token_encrypted,
         )
-        Preference.objects.create(
-            language=language, timezone=timezone, user=user
-        )
+        Preference.objects.create(language=language, timezone=timezone, user=user)
 
         Statistics.objects.create(user=user)
 
@@ -1154,12 +1165,12 @@ def process_demo_data(request: HttpRequest) -> Response:
     """
     Process the 10 most recent emails for a newly signed up user.
     This endpoint should only be accessible during the signup process.
-    
+
     Args:
         request (HttpRequest): HTTP request containing:
             email (str): User's email address
             signup_token (str): Temporary token from signup process
-            
+
     Returns:
         Response: Success or error message
     """
@@ -1172,45 +1183,43 @@ def process_demo_data(request: HttpRequest) -> Response:
         if not email or not signup_token:
             return Response(
                 {"error": "Missing required parameters"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
             decoded_token = jwt.decode(
-                signup_token,
-                settings.SECRET_KEY,
-                algorithms=["HS256"]
+                signup_token, settings.SECRET_KEY, algorithms=["HS256"]
             )
-            
-            if (decoded_token.get("type") != "signup" or
-                decoded_token.get("exp") < timezone.now().timestamp()):
+
+            if (
+                decoded_token.get("type") != "signup"
+                or decoded_token.get("exp") < timezone.now().timestamp()
+            ):
                 return Response(
                     {"error": "Invalid or expired signup token"},
-                    status=status.HTTP_401_UNAUTHORIZED
+                    status=status.HTTP_401_UNAUTHORIZED,
                 )
-                
+
             user_id = decoded_token.get("user_id")
             user = User.objects.get(id=user_id)
-            
+
         except (jwt.InvalidTokenError, User.DoesNotExist):
             return Response(
-                {"error": "Invalid signup token"},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"error": "Invalid signup token"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
         threading.Thread(
-            target=process_demo_emails,
-            args=(type_api, user, email)
+            target=process_demo_emails, args=(type_api, user, email)
         ).start()
 
         return Response(
             {"message": "Demo email processing started"},
-            status=status.HTTP_202_ACCEPTED
+            status=status.HTTP_202_ACCEPTED,
         )
 
     except Exception as e:
         LOGGER.error(f"Error processing demo emails: {str(e)}")
         return Response(
             {"error": "Internal server error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

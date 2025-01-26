@@ -40,7 +40,7 @@
             ></textarea>
             <div class="flex justify-between items-center mt-2 space-x-2">
                 <div class="flex space-x-2 mx-3 2xl:mx-5">
-                    <div class="flex">    
+                    <div class="flex">
                         <div class="flex my-3 2xl:my-5 relative">
                             <button
                                 @click="toggleDropdown"
@@ -53,12 +53,26 @@
                                     alt="Agent Icon"
                                     class="w-6 h-6 rounded-full"
                                 />
-                                <span>{{ selectedAgent.id ? selectedAgent.agent_name : 'Select Agent' }}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <span>{{ selectedAgent.id ? selectedAgent.agent_name : "Select Agent" }}</span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M19 9l-7 7-7-7"
+                                    />
                                 </svg>
                             </button>
-                            <div v-if="isDropdownOpen" class="absolute bottom-full left-0 mb-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                            <div
+                                v-if="isDropdownOpen"
+                                class="absolute bottom-full left-0 mb-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+                            >
                                 <ul>
                                     <li
                                         v-for="agent in agents"
@@ -67,10 +81,17 @@
                                         class="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100"
                                     >
                                         <div class="flex items-center">
-                                            <img :src="agent.picture" alt="Agent Icon" class="w-5 h-5 rounded-full mr-2" />
+                                            <img
+                                                :src="agent.picture"
+                                                alt="Agent Icon"
+                                                class="w-5 h-5 rounded-full mr-2"
+                                            />
                                             <span>{{ agent.agent_name }}</span>
                                         </div>
-                                        <button @click.stop="openUpdateAgentModal(agent)" class="text-blue-500 hover:text-blue-700">
+                                        <button
+                                            @click.stop="openUpdateAgentModal(agent)"
+                                            class="text-blue-500 hover:text-blue-700"
+                                        >
                                             Edit
                                         </button>
                                     </li>
@@ -78,13 +99,24 @@
                                         @click="openCreateAgentModal"
                                         class="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-5 h-5 mr-2 text-gray-500"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M12 4v16m8-8H4"
+                                            />
                                         </svg>
                                         <span>Create New Agent</span>
                                     </li>
                                 </ul>
-                            </div>  
+                            </div>
                         </div>
                     </div>
                     <SendAiInstructionButton />
@@ -93,11 +125,7 @@
         </div>
     </div>
 
-    <CreateAgentModal
-        v-if="isCreateAgentModalOpen"
-        @created="addAgent"
-        @close="isCreateAgentModalOpen = false"
-    />
+    <CreateAgentModal v-if="isCreateAgentModalOpen" @created="addAgent" @close="isCreateAgentModalOpen = false" />
 
     <UpdateAgentModal
         v-if="isUpdateAgentModalOpen"
@@ -138,14 +166,17 @@ const getQuill = inject<() => Quill | null>("getQuill");
 const signatures = inject<Ref<any[]>>("signatures") || ref([]);
 const emailContent = inject<Ref<string>>("emailContent") || ref("");
 const agents = inject<Ref<Agent[]>>("agents") || ref<Agent[]>([]);
-const selectedAgent = inject<Ref<Agent>>("selectedAgent") || ref<Agent>({
-    id: "",
-    agent_name: "Default Agent",
-    picture: "/assets/default-agent.png",
-    ai_template: "",
-    length: "",
-    formality: "",
-});
+const selectedAgent =
+    inject<Ref<Agent>>("selectedAgent") ||
+    ref<Agent>({
+        id: "",
+        agent_name: "Default Agent",
+        picture: "/assets/default-agent.png",
+        ai_template: "",
+        length: "",
+        formality: "",
+        icon_name: "default-agent.png",
+    });
 const isDropdownOpen = ref(false);
 const isCreateAgentModalOpen = ref(false);
 const isUpdateAgentModalOpen = ref(false);
@@ -156,6 +187,7 @@ const agentToUpdate = ref<Agent>({
     ai_template: "",
     length: "",
     formality: "",
+    icon_name: "",
 });
 
 function handleEnterKey(event: KeyboardEvent) {
@@ -198,7 +230,10 @@ function handleAIClick() {
     displayUserMessage();
 
     if (textareaValueSave.value == "") {
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain"), selectedAgent.value.picture);
+        displayMessage?.(
+            i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain"),
+            selectedAgent.value.picture
+        );
         return;
     }
 
@@ -225,7 +260,10 @@ const generateNewEmailResponse = async () => {
     hideLoading?.();
 
     if (!result.success) {
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), selectedAgent.value.picture);
+        displayMessage?.(
+            i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"),
+            selectedAgent.value.picture
+        );
         return;
     }
 
@@ -236,7 +274,10 @@ const generateNewEmailResponse = async () => {
         "$1$2"
     );
 
-    displayMessage?.(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), selectedAgent.value.picture);
+    displayMessage?.(
+        i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"),
+        selectedAgent.value.picture
+    );
 };
 
 const setWriting = () => {
@@ -278,7 +319,7 @@ function addAgent(newAgent: Agent) {
 }
 
 function updateAgent(updatedAgent: Agent) {
-    const index = agents.value.findIndex(agent => agent.id === updatedAgent.id);
+    const index = agents.value.findIndex((agent) => agent.id === updatedAgent.id);
     if (index !== -1) {
         agents.value[index] = updatedAgent;
         selectedAgent.value = updatedAgent;
@@ -286,7 +327,7 @@ function updateAgent(updatedAgent: Agent) {
 }
 
 function deleteAgent(agentId: string) {
-    agents.value = agents.value.filter(agent => agent.id !== agentId);
+    agents.value = agents.value.filter((agent) => agent.id !== agentId);
     if (selectedAgent.value.id === agentId) {
         selectedAgent.value = {
             id: "",
@@ -295,6 +336,7 @@ function deleteAgent(agentId: string) {
             ai_template: "",
             length: "",
             formality: "",
+            icon_name: "",
         };
     }
 }

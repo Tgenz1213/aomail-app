@@ -132,7 +132,7 @@ async function handleAIClick() {
     isWriting.value = true;
 
     if (!textareaValue.value.trim()) return;
-    
+
     displayUserMessage();
     loading();
 

@@ -94,14 +94,22 @@ def get_api_emails_data(request: HttpRequest) -> Response:
                             "email": email_data["from_info"][1],
                         },
                         "hasAttachments": email_data["has_attachments"],
-                        "cc": [
-                            {"name": cc[0], "email": cc[1]}
-                            for cc in email_data["cc_info"]
-                        ],
-                        "bcc": [
-                            {"name": cc[0], "email": cc[1]}
-                            for cc in email_data["bcc_info"]
-                        ],
+                        "cc": (
+                            [
+                                {"name": cc[0], "email": cc[1]}
+                                for cc in email_data["cc_info"]
+                            ]
+                            if email_data.get("cc_info")
+                            else []
+                        ),
+                        "bcc": (
+                            [
+                                {"name": cc[0], "email": cc[1]}
+                                for cc in email_data["bcc_info"]
+                            ]
+                            if email_data.get("bcc_info")
+                            else []
+                        ),
                         "attachments": email_data["attachments"],
                         "sentDate": email_data["sent_date"].strftime("%Y-%m-%d"),
                         "sentTime": email_data["sent_date"].strftime("%H:%M"),

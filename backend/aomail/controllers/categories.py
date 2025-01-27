@@ -6,9 +6,8 @@ Endpoints:
 - ✅ update_category: Update an existing category.
 - ✅ delete_category: Delete a category.
 - ✅ get_dependencies: Retrieve the number of rules and emails linked to a specified category.
-- ✅ create_category: Create a new category.
-- ✅ get_category_id: Retrieve the ID of a category based on its name.
 - ✅ create_categories: Create multiple categories for the authenticated user from a dictionary or list.
+- ✅ get_category_id: Retrieve the ID of a category based on its name.
 """
 
 import json
@@ -201,71 +200,6 @@ def get_dependencies(request: HttpRequest) -> Response:
     return Response(
         {"nbRules": rules_count, "nbEmails": emails_count}, status=status.HTTP_200_OK
     )
-
-
-@api_view(["POST"])
-@subscription(ALLOW_ALL)
-def create_category(request: HttpRequest) -> Response:
-    """
-    Create a new category for the authenticated user.
-
-    Args:
-        request (HttpRequest): The HTTP request object containing the following JSON data:
-            name (str): The name of the category to create.
-            description (str): The description of the category (up to 300 characters).
-
-    Returns:
-        Response: JSON response with the created category data on success,
-                      or error messages on failure (e.g., invalid input, existing category).
-    """
-    data: dict = json.loads(request.body)
-    data["user"] = request.user.id
-    name = data.get("name")
-    description = data.get("description")
-
-    if not name:
-        return Response(
-            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
-        )
-    if not description:
-        return Response(
-            {"error": "No category description provided"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    if name == DEFAULT_CATEGORY:
-        return Response(
-            {"error": f"Cannot create category with name: {DEFAULT_CATEGORY}"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    if len(name) > 50:
-        return Response(
-            {"error": "Category name length must be 50 characters or fewer"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    if len(description) > 300:
-        return Response(
-            {"error": "Description length must be 300 characters or fewer"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    existing_category = Category.objects.filter(user=request.user, name=name).exists()
-
-    if existing_category:
-        return Response(
-            {"error": "Category with this name already exists"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    serializer = NewCategorySerializer(data=data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(
-            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-        )
 
 
 @api_view(["POST"])

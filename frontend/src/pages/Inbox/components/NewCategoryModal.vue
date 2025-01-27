@@ -159,9 +159,11 @@ const addCategory = async () => {
         return;
     }
 
-    const result = await postData(`create_category/`, {
-        name: categoryName.value,
-        description: categoryDescription.value,
+    const result = await postData(`create_categories/`, {
+        categories: [{
+            name: categoryName.value,
+            description: categoryDescription.value
+        }]
     });
     if (result.success) {
         emit("selectCategory", {

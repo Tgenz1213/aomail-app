@@ -129,9 +129,11 @@ const handleCategories = async (option: KeyValuePair) => {
                         categoryName: category.name,
                     });
                 } else {
-                    await postData(`create_category/`, {
-                        name: category.name,
-                        description: category.description,
+                    await postData(`create_categories/`, {
+                        categories: [{
+                            name: category.name,
+                            description: category.description
+                        }]
                     });
                 }
             });

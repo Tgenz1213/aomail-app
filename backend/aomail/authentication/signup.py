@@ -252,10 +252,14 @@ def signup(request: HttpRequest) -> Response:
 
 
 def create_default_agents(user: User, language: str):
-    # TODO: update doc like the other one
-    # ----------------------- CREATE DEFAULT AGENTS -----------------------#
-    try:
+    """
+    Creates default agents for the user based on the preferred language (English or French).
 
+    Args:
+        user (User): The user for whom agents will be created.
+        language (str): The preferred language ('en' or 'fr').
+    """
+    try:
         default_agents_en = [
             {
                 "agent_name": "Bob : to talk to friends",
@@ -351,9 +355,10 @@ def create_default_agents(user: User, language: str):
             )
         LOGGER.info(f"Default agents created for user {user.username}")
     except Exception as e:
-        # TODO: rework Logger message
-        # LOGGER.error(f"An unexpected error occurred during validation: {str(e)}")
-        return {"error": "An unexpected error occurred during validation"}
+        LOGGER.error(
+            f"Failed to create default agents for user {user.username}: {str(e)}"
+        )
+        return {"error": "An error occurred during agent creation."}
 
 
 @api_view(["POST"])

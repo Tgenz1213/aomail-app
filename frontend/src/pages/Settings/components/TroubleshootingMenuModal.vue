@@ -1,8 +1,3 @@
-<!-- TODO: 
-Clean translations for all text I wrote
- (try to optimize while thinking not all languages have the same logic as French and English => better duplicate some data sometimes) 
--->
-
 <template>
     <transition name="modal-fade">
         <div
@@ -71,31 +66,29 @@ Clean translations for all text I wrote
 
                 <div v-if="errorMessage" class="p-4">
                     <button @click="toggleAdvancedInfo" class="text-blue-600 hover:underline">
-                        Advanced Explanations
+                        {{ $t("settingsPage.accountPage.troubleshootingModal.advancedExplanations") }}
                     </button>
                     <transition name="fade">
                         <div v-if="showAdvancedInfo" class="mt-2 p-2 border rounded-md bg-gray-100">
                             <p class="text-sm">
                                 <span v-if="selectedEmail?.typeApi === GOOGLE">
-                                    You have changed your Google account password or revoked consent for Aomail. A list
-                                    of all possible reasons can be found at:
+                                    {{ $t("settingsPage.accountPage.troubleshootingModal.googleRefreshTokenInfo") }}
                                     <a
                                         target="_blank"
                                         href="https://developers.google.com/identity/protocols/oauth2#expiration"
                                         class="text-blue-500 hover:underline"
                                     >
-                                        Google Refresh Token Expiration Conditions
+                                        {{ $t("settingsPage.accountPage.troubleshootingModal.googleRefreshTokenLink") }}
                                     </a>
                                 </span>
                                 <span v-if="selectedEmail?.typeApi === MICROSOFT">
-                                    You have not used your Microsoft account for 90 days (neither sent nor received
-                                    emails). More information about expiration conditions can be found at:
+                                    {{ $t("settingsPage.accountPage.troubleshootingModal.microsoftRefreshTokenInfo") }}
                                     <a
                                         target="_blank"
                                         href="https://learn.microsoft.com/en-us/entra/identity-platform/refresh-tokens"
                                         class="text-blue-500 hover:underline"
                                     >
-                                        Microsoft Refresh Token Expiration Conditions
+                                        {{ $t("settingsPage.accountPage.troubleshootingModal.microsoftRefreshTokenLink") }}
                                     </a>
                                 </span>
                             </p>
@@ -105,32 +98,34 @@ Clean translations for all text I wrote
 
                 <!-- Ungrant Consent Section -->
                 <div class="p-4">
-                    <button @click="toggleConsentInfo" class="text-blue-600 hover:underline">Did you know?</button>
+                    <button @click="toggleConsentInfo" class="text-blue-600 hover:underline">
+                        {{ $t("settingsPage.accountPage.troubleshootingModal.didYouKnow") }}
+                    </button>
                     <transition name="fade">
                         <div v-if="showConsentInfo" class="mt-2 p-2 border rounded-md bg-gray-100">
                             <p class="text-sm">
-                                You can revoke your consent at any time for apps that you've authorized:
+                                {{ $t("settingsPage.accountPage.troubleshootingModal.revokeConsentInfo") }}
                             </p>
                             <p class="text-sm">
-                                For Google:
+                                {{ $t("settingsPage.accountPage.troubleshootingModal.forGoogle") }}
                                 <a
                                     target="_blank"
                                     href="https://myaccount.google.com/u/1/connections"
                                     class="text-blue-500 hover:underline"
                                 >
-                                    Manage Google App Permissions
+                                    {{ $t("settingsPage.accountPage.troubleshootingModal.manageGooglePermissions") }}
                                 </a>
                             </p>
                             <p class="text-sm">
-                                For Outlook:
+                                {{ $t("settingsPage.accountPage.troubleshootingModal.forOutlook") }}
                                 <a
                                     target="_blank"
                                     href="https://myapps.microsoft.com/"
                                     class="text-blue-500 hover:underline"
                                 >
-                                    Manage Outlook App Permissions
+                                    {{ $t("settingsPage.accountPage.troubleshootingModal.manageOutlookPermissions") }}
                                 </a>
-                                or contact your administrator if you are using a school or work account.
+                                {{ $t("settingsPage.accountPage.troubleshootingModal.outlookWorkAccountNote") }}
                             </p>
                         </div>
                     </transition>
@@ -144,7 +139,7 @@ Clean translations for all text I wrote
                         @click="regrantConsent"
                         class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
                     >
-                        Regrant consent
+                        {{ $t("settingsPage.accountPage.troubleshootingModal.regrantConsent") }}
                     </button>
                     <button
                         v-else-if="warningMessage"
@@ -152,16 +147,16 @@ Clean translations for all text I wrote
                         @click="synchronize"
                         class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
                     >
-                        Synchronize
+                        {{ $t("settingsPage.accountPage.troubleshootingModal.synchronize") }}
                     </button>
                     <button
                         v-else
                         :disabled="!selectedEmail"
                         @click="checkConnectivity"
                         class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
-                        :title="'This checks if Aomail is connected with ' + providerName + ' servers'"
+                        :title="$t('settingsPage.accountPage.troubleshootingModal.connectivityCheckTitle', { provider: providerName })"
                     >
-                        Check connectivity
+                        {{ $t("settingsPage.accountPage.troubleshootingModal.checkConnectivity") }}
                     </button>
                 </div>
             </div>
@@ -240,15 +235,13 @@ const resetMessages = () => {
     warningMessage.value = null;
 };
 
-function capitalizeFirstLetter(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
+ 
 
 const synchronize = async () => {
     if (!selectedEmail.value) return;
 
     isLoading.value = true;
-    loadingMessage.value = "Synchronizing your data...";
+    loadingMessage.value = i18n.global.t("settingsPage.accountPage.troubleshootingModal.synchronize");
 
     const result = await postData("user/social_api/synchronize/", {
         email: selectedEmail.value.email,
@@ -279,7 +272,7 @@ const synchronize = async () => {
             nbProcessedEmails === 1
                 ? "settingsPage.accountPage.singleMissedEmailProcessed"
                 : "settingsPage.accountPage.allMissedEmailsProcessed";
-        successMessage.value = i18n.global.t(successMessageKey) + " " + "You can close this modal.";
+        successMessage.value = i18n.global.t(successMessageKey) + " " + i18n.global.t("settingsPage.accountPage.troubleshootingModal.closeModal");
     }
 };
 
@@ -297,7 +290,7 @@ const checkConnectivity = async () => {
     if (!selectedEmail.value) return;
 
     isLoading.value = true;
-    loadingMessage.value = "Checking connectivity...";
+    loadingMessage.value = i18n.global.t("settingsPage.accountPage.troubleshootingModal.checkingConnectivity");
 
     const result = await postData("user/social_api/check_connectivity/", { email: selectedEmail.value.email });
     isLoading.value = false;
@@ -312,18 +305,24 @@ const checkConnectivity = async () => {
 
     if (data.isTokenValid) {
         if (data.nbMissedEmails === 0) {
-            successMessage.value = `Aomail is connected to your ${providerName} account and no emails have been missed. No action is required. You can close this modal.`;
+            successMessage.value = i18n.global.t("settingsPage.accountPage.troubleshootingModal.connectivityCheckSuccess", {
+                provider: providerName
+            });
         } else if (data.nbMissedEmails && data.nbMissedEmails > 0) {
             nbMissedEmails.value = data.nbMissedEmails;
 
-            warningMessage.value = `Aomail is connected to your ${providerName} account, but ${
-                data.nbMissedEmails
-            } email${
-                data.nbMissedEmails > 1 ? "s have" : " has"
-            } been missed. Please synchronize with ${capitalizeFirstLetter(selectedEmail.value.typeApi)} servers.`;
+            warningMessage.value = i18n.global.t(
+                `settingsPage.accountPage.troubleshootingModal.connectivityCheckMissedEmails.${data.nbMissedEmails > 1 ? 'plural' : 'singular'}`,
+                {
+                    provider: providerName,
+                    count: data.nbMissedEmails
+                }
+            );
         }
     } else {
-        errorMessage.value = `Aomail is not connected to your ${providerName} account. Please regrant access and then synchronize emails received with Aomail.`;
+        errorMessage.value = i18n.global.t("settingsPage.accountPage.troubleshootingModal.connectivityCheckFailed", {
+            provider: providerName
+        });
     }
 };
 

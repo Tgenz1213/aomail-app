@@ -125,7 +125,6 @@ def get_mail_by_id(request: HttpRequest) -> Response:
         )
 
 
-# TODO: update header
 @api_view(["POST"])
 @subscription(ALLOW_ALL)
 def get_simple_email_data(request: HttpRequest) -> Response:

@@ -467,8 +467,34 @@
       "notAllMissedEmailsProcessed": "Tous les emails manqués n'ont pas été traités avec succès.",
       "processedOutOf": "traités sur",
       "expected": "attendus.",
-      "allMissedEmailsProcessed": "Tous vos emails manqués ont été traités.",
-      "singleMissedEmailProcessed": "Votre email manqué a été traité."
+      "allMissedEmailsProcessed": "Vos emails manqués ont tous été traités.",
+      "singleMissedEmailProcessed": "Votre email manqué a été traité.",
+      "troubleshootingModal": {
+        "checkConnectivity": "Vérifier la connectivité",
+        "regrantConsent": "Redonner le consentement",
+        "synchronize": "Synchroniser",
+        "didYouKnow": "Le saviez-vous ?",
+        "advancedExplanations": "Explications avancées",
+        "googleRefreshTokenInfo": "Vous avez changé votre mot de passe Google ou révoqué le consentement pour Aomail. Une liste de toutes les raisons possibles peut être trouvée sur :",
+        "microsoftRefreshTokenInfo": "Vous n'avez pas utilisé votre compte Microsoft depuis 90 jours (ni envoyé ni reçu d'e-mails). Plus d'informations sur les conditions d'expiration peuvent être trouvées sur :",
+        "revokeConsentInfo": "Vous pouvez révoquer votre consentement à tout moment pour les applications que vous avez autorisées :",
+        "manageGooglePermissions": "Gérer les autorisations des applications Google",
+        "manageOutlookPermissions": "Gérer les autorisations des applications Outlook",
+        "outlookWorkAccountNote": "ou contactez votre administrateur si vous utilisez un compte professionnel ou scolaire.",
+        "connectivityCheckSuccess": "Aomail est connecté à votre compte {provider} et aucun e-mail n'a été manqué. Aucune action n'est requise. Vous pouvez fermer cette fenêtre.",
+        "connectivityCheckMissedEmails": {
+          "singular": "Aomail est connecté à votre compte {provider}, mais {count} e-mail a été manqué. Veuillez synchroniser avec les serveurs {provider}.",
+          "plural": "Aomail est connecté à votre compte {provider}, mais {count} e-mails ont été manqués. Veuillez synchroniser avec les serveurs {provider}."
+        },
+        "connectivityCheckFailed": "Aomail n'est pas connecté à votre compte {provider}. Veuillez redonner l'accès puis synchroniser les e-mails reçus avec Aomail.",
+        "checkingConnectivity": "Vérification de la connectivité...",
+        "connectivityCheckTitle": "Ceci vérifie si Aomail est connecté aux serveurs {provider}",
+        "googleRefreshTokenLink": "Conditions d'expiration du jeton d'actualisation Google",
+        "microsoftRefreshTokenLink": "Conditions d'expiration du jeton d'actualisation Microsoft",
+        "forGoogle": "Pour Google :",
+        "forOutlook": "Pour Outlook :",
+        "closeModal": "Vous pouvez fermer cette fenêtre."
+      }
     },
     "dataPage": {
       "myData": "Mes données"

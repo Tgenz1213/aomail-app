@@ -469,7 +469,33 @@
       "processedOutOf": "processed out of",
       "expected": "expected.",
       "allMissedEmailsProcessed": "Your missed emails have all been processed.",
-      "singleMissedEmailProcessed": "Your missed email has been processed."
+      "singleMissedEmailProcessed": "Your missed email has been processed.",
+      "troubleshootingModal": {
+        "checkConnectivity": "Check connectivity",
+        "regrantConsent": "Regrant consent",
+        "synchronize": "Synchronize",
+        "didYouKnow": "Did you know?",
+        "advancedExplanations": "Advanced Explanations",
+        "googleRefreshTokenInfo": "You have changed your Google account password or revoked consent for Aomail. A list of all possible reasons can be found at:",
+        "microsoftRefreshTokenInfo": "You have not used your Microsoft account for 90 days (neither sent nor received emails). More information about expiration conditions can be found at:",
+        "revokeConsentInfo": "You can revoke your consent at any time for apps that you've authorized:",
+        "manageGooglePermissions": "Manage Google App Permissions",
+        "manageOutlookPermissions": "Manage Outlook App Permissions",
+        "outlookWorkAccountNote": "or contact your administrator if you are using a school or work account.",
+        "connectivityCheckSuccess": "Aomail is connected to your {provider} account and no emails have been missed. No action is required. You can close this modal.",
+        "connectivityCheckMissedEmails": {
+          "singular": "Aomail is connected to your {provider} account, but {count} email has been missed. Please synchronize with {provider} servers.",
+          "plural": "Aomail is connected to your {provider} account, but {count} emails have been missed. Please synchronize with {provider} servers."
+        },
+        "connectivityCheckFailed": "Aomail is not connected to your {provider} account. Please regrant access and then synchronize emails received with Aomail.",
+        "checkingConnectivity": "Checking connectivity...",
+        "connectivityCheckTitle": "This checks if Aomail is connected with {provider} servers",
+        "googleRefreshTokenLink": "Google Refresh Token Expiration Conditions",
+        "microsoftRefreshTokenLink": "Microsoft Refresh Token Expiration Conditions",
+        "forGoogle": "For Google:",
+        "forOutlook": "For Outlook:",
+        "closeModal": "You can close this modal."
+      }
     },
     "dataPage": {
       "myData": "My data"

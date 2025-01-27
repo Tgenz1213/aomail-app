@@ -94,7 +94,7 @@
 </template>
 <script setup lang="ts">
 import { Ref, computed, ref, inject, watch } from "vue";
-import { Filter } from "../utils/types";
+import { Filter } from "@/global/types";
 
 const openNewFilterModal = inject("openNewFilterModal") as () => void;
 const scroll = inject<() => void>("scroll");
@@ -128,13 +128,15 @@ const toggleMoreFilters = () => {
 
 const setActiveFilter = async (filterName: string) => {
     showAllFiltersModal.value = false;
-
     const filterArray = filters.value[selectedCategory.value];
+
     if (filterArray) {
         const filter = filterArray.find((f) => f.name === filterName);
 
         if (filter) {
+            selectedFilter.value = filter;
             activeFilters.value[selectedCategory.value] = filter;
+
             await fetchEmailsData(selectedCategory.value);
 
             const container = document.querySelector(".custom-scrollbar");

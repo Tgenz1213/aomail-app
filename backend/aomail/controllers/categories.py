@@ -233,6 +233,7 @@ def get_category_id(request: HttpRequest) -> Response:
             {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
+
 @api_view(["POST"])
 @subscription(ALLOW_ALL)
 def create_categories(request: HttpRequest) -> Response:
@@ -253,7 +254,7 @@ def create_categories(request: HttpRequest) -> Response:
     """
     data: dict = json.loads(request.body)
     categories_data = data.get("categories", {})
-    
+
     created_categories = []
     errors = []
 
@@ -271,7 +272,7 @@ def create_categories(request: HttpRequest) -> Response:
     if categories_data:
         if isinstance(categories_data, list):
             categories_dict = {
-                item.get('name', ''): item.get('description', '')
+                item.get("name", ""): item.get("description", "")
                 for item in categories_data
             }
         else:
@@ -281,15 +282,15 @@ def create_categories(request: HttpRequest) -> Response:
             if not name or not description:
                 errors.append(f"Missing name or description for category")
                 continue
-                
+
             if name == DEFAULT_CATEGORY:
                 errors.append(f"Cannot create category with name: {DEFAULT_CATEGORY}")
                 continue
-                
+
             if len(name) > 50:
                 errors.append(f"Category name '{name}' exceeds 50 characters")
                 continue
-                
+
             if len(description) > 300:
                 errors.append(f"Description for '{name}' exceeds 300 characters")
                 continue
@@ -302,30 +303,28 @@ def create_categories(request: HttpRequest) -> Response:
                 category_data = {
                     "name": name,
                     "description": description,
-                    "user": request.user.id
+                    "user": request.user.id,
                 }
-                
+
                 serializer = NewCategorySerializer(data=category_data)
                 if serializer.is_valid():
                     serializer.save()
                     created_categories.append(serializer.data)
                 else:
-                    errors.append(f"Invalid data for category '{name}': {serializer.errors}")
-                    
+                    errors.append(
+                        f"Invalid data for category '{name}': {serializer.errors}"
+                    )
+
             except Exception as e:
                 LOGGER.error(f"Error creating category '{name}': {str(e)}")
                 errors.append(f"Error creating category '{name}'")
 
-    response_data = {
-        "created_categories": created_categories,
-        "errors": errors
-    }
-    
+    response_data = {"created_categories": created_categories, "errors": errors}
+
     if errors:
         return Response(
             {"error": "No categories were created", "details": errors},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
     else:
         return Response(response_data, status=status.HTTP_201_CREATED)
-

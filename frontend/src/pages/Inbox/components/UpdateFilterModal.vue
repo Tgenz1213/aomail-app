@@ -244,7 +244,7 @@ import { Ref, ref, watch, inject, onMounted, onUnmounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from "@heroicons/vue/20/solid";
 import { putData, deleteData } from "@/global/fetchData";
-import { Filter } from "../utils/types";
+import { Filter } from "@/global/types";
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter") {

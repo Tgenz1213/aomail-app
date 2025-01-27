@@ -133,9 +133,8 @@
 <script setup lang="ts">
 import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
 import { getData, postData, putData } from "@/global/fetchData";
-import { Email, Category, FetchDataResult } from "@/global/types";
+import { Email, Category, FetchDataResult, Filter } from "@/global/types";
 import { DEFAULT_CATEGORY } from "@/global/const";
-import { Filter } from "./utils/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
@@ -281,7 +280,10 @@ const fetchEmailsData = async (categoryName: string) => {
     allEmailIds.value = [];
     let response: FetchDataResult;
 
-    if (selectedFilter.value) {
+    if (selectedFilter.value?.id === 0) {
+        // case when using All emails filter
+        response = await postData("user/emails_ids/", { category: categoryName });
+    } else if (selectedFilter.value) {
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");
@@ -444,6 +446,9 @@ async function fetchCategoriesAndTotals() {
 
 const fetchFiltersData = async (categoryName: string) => {
     const response = await postData("user/filters/", { category: categoryName });
+    if (response.data.length > 0) {
+        response.data = [{ name: "All emails", id: 0 }, ...response.data];
+    }
     filters.value[categoryName] = response.data;
 };
 

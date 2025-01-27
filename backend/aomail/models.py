@@ -197,8 +197,8 @@ class Filter(models.Model):
     newsletter = models.BooleanField(default=False)
     notification = models.BooleanField(default=False)
     meeting = models.BooleanField(default=False)
-    relevance = models.CharField(max_length=50, null=True)
-    answer = models.CharField(max_length=50, null=True)
+    relevance = models.CharField(max_length=50, null=True, default=True)
+    answer = models.CharField(max_length=50, null=True, default=True)
 
 
 class Label(models.Model):

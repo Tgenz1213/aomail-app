@@ -187,6 +187,10 @@ const informativeCount = ref(0);
 const readCount = ref(0);
 const previousScrollTop = ref(0);
 const previousTime = ref(0);
+const importantIds = ref<number[]>([]);
+const informativeIds = ref<number[]>([]);
+const uselessIds = ref<number[]>([]);
+const readIds = ref<number[]>([]);
 const isMarking = ref({
     important: false,
     informative: false,
@@ -278,6 +282,10 @@ const fetchEmailCounts = async (categoryName: string) => {
     importantCount.value = data.important_count;
     informativeCount.value = data.informative_count;
     readCount.value = data.read_count;
+    uselessIds.value = data.useless_ids;
+    importantIds.value = data.important_ids;
+    informativeIds.value = data.informative_ids;
+    readIds.value = data.read_ids;
 };
 
 const fetchEmailsData = async (categoryName: string) => {
@@ -339,6 +347,7 @@ const fetchEmailsData = async (categoryName: string) => {
     }
 
     allEmailIds.value = response.data.ids;
+    console.log("allEmailIds", response.data.ids);
 
     await loadMoreEmails();
 };
@@ -469,23 +478,22 @@ const openUpdateFilterModal = (filter: Filter) => {
 
 const markCategoryAsRead = async (category: "important" | "informative" | "useless") => {
     isMarking.value[category] = true;
+
     try {
-        let emailsToMark: Email[] = [];
-        switch (category) {
-            case "important":
-                emailsToMark = importantEmails.value;
+        let ids: number[] = [];
+        switch(category) {
+            case 'important':
+                ids = importantIds.value;
                 break;
-            case "informative":
-                emailsToMark = informativeEmails.value;
+            case 'informative':
+                ids = informativeIds.value;
                 break;
-            case "useless":
-                emailsToMark = uselessEmails.value;
+            case 'useless':
+                ids = uselessIds.value;
                 break;
             default:
-                emailsToMark = [];
+                ids = [];
         }
-
-        const ids = emailsToMark.map((email) => email.id);
 
         if (ids.length === 0) {
             displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noEmailsToMark"), "");
@@ -498,9 +506,7 @@ const markCategoryAsRead = async (category: "important" | "informative" | "usele
             await fetchEmailsData(selectedCategory.value);
             await fetchFiltersData(selectedCategory.value);
             await fetchEmailCounts(selectedCategory.value);
-            emailsToMark.forEach((email) => {
-                email.read = true;
-            });
+            
             displayPopup?.(
                 "success",
                 i18n.global.t("constants.popUpConstants.successMessages.emailsMarkedAsRead"),
@@ -599,6 +605,7 @@ provide("uselessCount", uselessCount);
 provide("importantCount", importantCount);
 provide("informativeCount", informativeCount);
 provide("readCount", readCount);
+provide("loadMoreEmails", loadMoreEmails);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({

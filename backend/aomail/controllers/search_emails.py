@@ -480,12 +480,16 @@ def get_email_counts(request: HttpRequest) -> Response:
             meeting (bool): Filter by meeting status.
 
     Returns:
-        Response: JSON response containing the counts.
+        Response: JSON response containing the counts and lists of email IDs.
             {
                 "useless_count": int,
+                "useless_ids": list[int],
                 "important_count": int,
+                "important_ids": list[int],
                 "informative_count": int,
-                "read_count": int
+                "informative_ids": list[int],
+                "read_count": int,
+                "read_ids": list[int],
             }
     """
     try:
@@ -504,16 +508,21 @@ def get_email_counts(request: HttpRequest) -> Response:
         if or_filters_search:
             queryset = queryset.filter(or_filters_search)
 
-        useless_count = queryset.filter(priority="useless", read=False).count()
-        important_count = queryset.filter(priority="important", read=False).count()
-        informative_count = queryset.filter(priority="informative", read=False).count()
-        read_count = queryset.filter(read=True, archive=False).count()
+        # Fetch email querysets for each category
+        useless_emails = queryset.filter(priority="useless", read=False)
+        important_emails = queryset.filter(priority="important", read=False)
+        informative_emails = queryset.filter(priority="informative", read=False)
+        read_emails = queryset.filter(read=True, archive=False)
 
         counts = {
-            "useless_count": useless_count,
-            "important_count": important_count,
-            "informative_count": informative_count,
-            "read_count": read_count,
+            "useless_count": useless_emails.count(),
+            "useless_ids": list(useless_emails.values_list('id', flat=True)),
+            "important_count": important_emails.count(),
+            "important_ids": list(important_emails.values_list('id', flat=True)),
+            "informative_count": informative_emails.count(),
+            "informative_ids": list(informative_emails.values_list('id', flat=True)),
+            "read_count": read_emails.count(),
+            "read_ids": list(read_emails.values_list('id', flat=True)),
         }
 
         return Response(counts, status=status.HTTP_200_OK)

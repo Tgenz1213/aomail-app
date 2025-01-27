@@ -507,6 +507,7 @@ const updatedEmail = ref<Email | undefined>(undefined);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
 const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Promise<void>;
+const loadMoreEmails = inject("loadMoreEmails") as () => Promise<void>;
 const emails = inject("emails") as Ref<{ [key: string]: { [key: string]: Email[] } }>;
 const readCount = inject("readCount") as Ref<number>;
 const uselessCount = inject("uselessCount") as Ref<number>;
@@ -576,6 +577,7 @@ async function markEmailAsRead() {
     }
     const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "read" });
     fetchCategoriesAndTotals();
+    loadMoreEmails();
     readCount.value++;
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
@@ -597,6 +599,7 @@ async function markEmailAsUnread() {
     }
     const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unread" });
     fetchCategoriesAndTotals();
+    loadMoreEmails();
     readCount.value--;
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);

@@ -481,14 +481,14 @@ const markCategoryAsRead = async (category: "important" | "informative" | "usele
 
     try {
         let ids: number[] = [];
-        switch(category) {
-            case 'important':
+        switch (category) {
+            case "important":
                 ids = importantIds.value;
                 break;
-            case 'informative':
+            case "informative":
                 ids = informativeIds.value;
                 break;
-            case 'useless':
+            case "useless":
                 ids = uselessIds.value;
                 break;
             default:
@@ -506,7 +506,7 @@ const markCategoryAsRead = async (category: "important" | "informative" | "usele
             await fetchEmailsData(selectedCategory.value);
             await fetchFiltersData(selectedCategory.value);
             await fetchEmailCounts(selectedCategory.value);
-            
+
             displayPopup?.(
                 "success",
                 i18n.global.t("constants.popUpConstants.successMessages.emailsMarkedAsRead"),

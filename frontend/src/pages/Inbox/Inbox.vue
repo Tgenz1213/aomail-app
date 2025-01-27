@@ -86,7 +86,7 @@
                                 ></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                             </svg>
-                            <p class="mt-4 text-lg font-semibold">{{ $t("loadingEmails") }}</p>
+                            <p class="mt-4 text-lg font-semibold">{{ $t("constants.loadingEmails") }}</p>
                         </div>
                         <div v-else class="flex flex-col w-full h-full rounded-xl">
                             <div v-if="toSearch || selectedFilter"><SearchBar /></div>

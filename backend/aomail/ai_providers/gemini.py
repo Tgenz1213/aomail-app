@@ -2,7 +2,6 @@
 Handles prompt engineering requests for Gemini 1.5 Flash API.
 
 Features:
-- ✅ get_language: Detects email's primary language.
 - ✅ extract_contacts_recipients: Categorizes email recipients.
 - ✅ generate_response_keywords: Suggests keywords for email responses.
 - ✅ generate_email: Creates emails per user guidelines.
@@ -41,8 +40,9 @@ def get_prompt_response(formatted_prompt: str):
     )
     return response
 
+
 def get_prompt_response_exp(formatted_prompt: str):
-    """Returns the prompt response using Gemini 1.5 Flash model"""
+    """Returns the prompt response using Gemini 2.0 Flash exp model"""
     genai.configure(api_key=GEMINI_CREDS["api_key"])
     model = genai.GenerativeModel("gemini-2.0-flash-exp")
     response = model.generate_content(
@@ -52,31 +52,6 @@ def get_prompt_response_exp(formatted_prompt: str):
         ),
     )
     return response
-
-def get_language(input_body: str, input_subject: str) -> dict:
-    """
-    Returns the primary language used in the email.
-
-    Args:
-        input_body (str): The body of the email.
-        input_subject (str): The subject of the email.
-
-    Returns:
-        dict: Contains 'language' (str), 'tokens_input' (int), and 'tokens_output' (int).
-    """
-    formatted_prompt = f"""Given an email with subject: '{input_subject}' and body: '{input_body}',
-    IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
-    
-    Provide ONLY the answer in JSON format with the key 'language' (STRING).    
-    """
-    response = get_prompt_response(formatted_prompt)
-    language = extract_json_from_response(response.text)["language"]
-
-    return {
-        "language": language,
-        "tokens_input": response.usage.input_tokens,
-        "tokens_output": response.usage.output_tokens,
-    }
 
 
 def count_corrections(
@@ -183,7 +158,7 @@ def generate_response_keywords(input_email: str, input_subject: str) -> dict:
     """
     response = get_prompt_response_exp(formatted_prompt)
     keywords_text = response.text.strip()
-    
+
     try:
         keywords_list = ast.literal_eval(keywords_text)
     except (ValueError, SyntaxError):
@@ -198,7 +173,14 @@ def generate_response_keywords(input_email: str, input_subject: str) -> dict:
 
 
 ######################## WRITING ########################
-def generate_email(input_data: str, length: str, formality: str, language: str, agent_settings: dict, signature: str = "") -> dict:
+def generate_email(
+    input_data: str,
+    length: str,
+    formality: str,
+    language: str,
+    agent_settings: dict,
+    signature: str = "",
+) -> dict:
     """
     Generates an email, enhancing both quantity and quality according to user guidelines and agent settings.
 
@@ -217,23 +199,20 @@ def generate_email(input_data: str, length: str, formality: str, language: str, 
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    has_content = bool(signature) and bool(re.sub(r'<[^>]+>', '', signature).strip())
+    has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
-        signature_instruction = (
-            f"\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
-        )
+        signature_instruction = f"\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
     else:
-        signature_instruction = (
-            "Add a standard greeting and sign-off without a signature (unless explicitly mentioned).\nSignature: <br>"
-        )    
-    template = f"""As an email assistant, following these agent guidelines: {json.dumps(agent_settings)}, write a {length} and {formality} email in {language}.
-Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
-It must strictly contain only the information that is present in the input.
-{signature_instruction}
+        signature_instruction = "Add a standard greeting and sign-off without a signature (unless explicitly mentioned).\nSignature: <br>"
 
----
-Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
-"""
+    template = f"""As an email assistant, following these agent guidelines: {json.dumps(agent_settings)}, write a {length} and {formality} email in {language}.
+    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
+    It must strictly contain only the information that is present in the input.
+    {signature_instruction}
+
+    ---
+    Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
+    """
 
     response = get_prompt_response_exp(template)
     result_json: dict = extract_json_from_response(response.text)
@@ -338,7 +317,13 @@ def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
     }
 
 
-def generate_email_response(input_subject: str, input_body: str, user_instruction: str, agent_settings: dict, signature: str = "") -> dict:
+def generate_email_response(
+    input_subject: str,
+    input_body: str,
+    user_instruction: str,
+    agent_settings: dict,
+    signature: str = "",
+) -> dict:
     """
     Generates an email response based on the given response type and agent settings.
 
@@ -355,30 +340,26 @@ def generate_email_response(input_subject: str, input_body: str, user_instructio
             tokens_input (int): The number of tokens used for the input.
             tokens_output (int): The number of tokens used for the output.
     """
-    has_content = bool(signature) and bool(re.sub(r'<[^>]+>', '', signature).strip())
+    has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
-        signature_instruction = (
-            f"\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
-        )
+        signature_instruction = f"\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
     else:
-        signature_instruction = (
-            "Add a standard greeting and sign-off without a signature (unless explicitly mentioned).\nSignature: <br>"
-        )  
-    
-    template = f"""As a smart email assistant, following these agent guidelines: {json.dumps(agent_settings)}, and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
-Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
-0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
-1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
-2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
-{signature_instruction}
+        signature_instruction = "Add a standard greeting and sign-off without a signature (unless explicitly mentioned).\nSignature: <br>"
 
----
-Answer must ONLY be in JSON format with one key: body in HTML.
-"""
+    template = f"""As a smart email assistant, following these agent guidelines: {json.dumps(agent_settings)}, and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
+    Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
+    0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
+    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
+    2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
+    {signature_instruction}
+
+    ---
+    Answer must ONLY be in JSON format with one key: body in HTML.
+    """
     response = get_prompt_response_exp(template)
     result_json = extract_json_from_response(response.text)
     body = result_json.get("body", "")
-    
+
     if signature and signature not in body:
         body = f"{body}\n{signature}"
 
@@ -387,6 +368,7 @@ Answer must ONLY be in JSON format with one key: body in HTML.
         "tokens_input": response.usage_metadata.prompt_token_count,
         "tokens_output": response.usage_metadata.candidates_token_count,
     }
+
 
 def categorize_and_summarize_email(
     subject: str,
@@ -676,52 +658,12 @@ def generate_prioritization_scratch(user_input: dict | str) -> dict:
     return result_json
 
 
-###########################################################
-######################## TO DELETE ########################
-###########################################################
-
-''' IN DEV => DO NOT DELETE OR IMPLEMENT => Reserved for Theo => Ask Theo if you want to delete
-def generate_email(input_data, length, formality, language="FRENCH"):
-    """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
-
-    input_word_count = len(input_data.split())
-
-    if length == "very short":
-        word_count_factor = 1.0
-    elif length == "short":
-        word_count_factor = 1.5
-    else:  # "long"
-        word_count_factor = 3.0
-
-    word_count = int(input_word_count * word_count_factor)
-    word_count_range = f"{word_count - 20}-{word_count + 20} words"
-
-    template = f"""As an email assistant, write a {formality} email in {language} with a length of {word_count_range}.
-    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
-
-    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
-    """
-    response = get_prompt_response(template)
-    clear_text = extract_json_from_response(response.text)
-
-    result_json = json.loads(clear_text)
-
-    subject_text = result_json.get("subject")
-    email_body = result_json.get("body")
-
-    print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
-    print(f"{Fore.GREEN}Subject: {subject_text}")
-    print(f"{Fore.CYAN}Email Body: {email_body}")
-
-    return subject_text, email_body'''
-
-
 def determine_action_scenario(
     destinary: bool,
     subject: bool,
     email_content: bool,
     user_request: str,
-    is_only_signature: bool
+    is_only_signature: bool,
 ) -> int:
     """
     Determines the scenario based on input flags and user request.

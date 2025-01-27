@@ -53,6 +53,7 @@ from aomail.email_providers.google import (
 from aomail.ai_providers.utils import update_tokens_stats
 from aomail.controllers.labels import is_shipping_label, process_label
 from aomail.utils.security import encrypt_text
+from aomail.email_providers.google import labels as google_labels
 
 
 LOGGER = logging.getLogger(__name__)
@@ -90,6 +91,15 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             return True
 
         processed_email = process_email(email_data, user, social_api)
+
+        # Replicate labels on email provider
+        ai_output: dict = processed_email["email_processed"].copy()
+        ai_output.pop("summary")
+        if social_api.type_api == GOOGLE:
+            google_labels.replicate_labels(
+                social_api, ai_output, email_data["email_id"]
+            )
+
         email_entry = save_email_to_db(processed_email, user, social_api)
 
         if is_shipping_label(email_data["subject"]):

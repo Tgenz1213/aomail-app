@@ -75,6 +75,7 @@ import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
 import { Category } from "@/global/types";
+import { createDefaultFilters } from "@/global/filters";
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -160,10 +161,12 @@ const addCategory = async () => {
     }
 
     const result = await postData(`create_categories/`, {
-        categories: [{
-            name: categoryName.value,
-            description: categoryDescription.value
-        }]
+        categories: [
+            {
+                name: categoryName.value,
+                description: categoryDescription.value,
+            },
+        ],
     });
     if (result.success) {
         emit("selectCategory", {
@@ -175,6 +178,9 @@ const addCategory = async () => {
             name: categoryName.value,
             description: categoryDescription.value,
         });
+
+        await createDefaultFilters(categoryName.value);
+
         closeModal();
         displayPopup?.(
             "success",

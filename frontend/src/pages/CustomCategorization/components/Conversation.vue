@@ -5,9 +5,12 @@
                 <ChatBubble :message="message.textHtml" :isUser="message.isUser" />
                 <div v-if="message.buttonOptions" class="flex flex-col items-center">
                     <div class="flex-row space-x-5">
-                        <button v-for="(option, idx) in message.buttonOptions" :key="idx"
+                        <button
+                            v-for="(option, idx) in message.buttonOptions"
+                            :key="idx"
                             @click="handleButtonClick(option, index)"
-                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                        >
                             {{ option.value }}
                         </button>
                     </div>
@@ -20,10 +23,11 @@
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref } from "vue";
 import ChatBubble from "@/global/components/Conversation/ChatBubble.vue";
-import { Category, EmailLinked, Filter, KeyValuePair, Message } from "@/global/types";
+import { Category, EmailLinked, KeyValuePair, Message } from "@/global/types";
 import { postData, getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { DEFAULT_CATEGORY } from "@/global/const";
+import { createDefaultFilters } from "@/global/filters";
 
 type CategoryByAI = Category & {
     feedback: string;
@@ -127,56 +131,15 @@ const handleCategories = async (option: KeyValuePair) => {
                     });
                 } else {
                     await postData(`create_categories/`, {
-                        categories: [{
-                            name: category.name,
-                            description: category.description
-                        }]
+                        categories: [
+                            {
+                                name: category.name,
+                                description: category.description,
+                            },
+                        ],
                     });
 
-                    // const allEmailsFilter: Filter = {
-                    //     name: "All emails",
-                    //     important: true,
-                    //     informative: true,
-                    //     category: category.name,
-                    //     useless: true,
-                    //     read: true,
-                    //     notification: true,
-                    //     newsletter: true,
-                    //     spam: true,
-                    //     scam: true,
-                    //     meeting: true,
-                    // };
-
-                    const ImportantEmailsFilter: Filter = {
-                        name: "Important",
-                        important: true,
-                        informative: false,
-                        category: category.name,
-                        useless: false,
-                        read: false,
-                        notification: true,
-                        newsletter: false,
-                        spam: false,
-                        scam: false,
-                        meeting: true,
-                    }
-
-                    const InformativeEmailsFilter: Filter = {
-                        name: "Informative",
-                        important: false,
-                        informative: true,
-                        category: category.name,
-                        useless: false,
-                        read: false,
-                        notification: true,
-                        newsletter: true,
-                        spam: false,
-                        scam: false,
-                        meeting: true,
-                    }
-
-                    const response = await postData("create_filter/", ImportantEmailsFilter);
-                    const b = await postData("create_filter/", InformativeEmailsFilter);
+                    await createDefaultFilters(category.name);
                 }
             });
             displayAIMsg("Great! Categories have been updated.");
@@ -378,15 +341,15 @@ async function categoriesReview(aiGeneratedCategories: CategoryByAI[]) {
                 </tr>
             </thead>
             <tbody>${aiGeneratedCategories
-            .map(
-                (category) =>
-                    `<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                .map(
+                    (category) =>
+                        `<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                             <td class="px-6 py-4">${category.name}</td>
                             <td class="px-6 py-4">${category.description}</td>
                             <td class="px-6 py-4">${category.feedback}</td>
                         </tr>`
-            )
-            .join("")}
+                )
+                .join("")}
             </tbody>
         </table>`
     );

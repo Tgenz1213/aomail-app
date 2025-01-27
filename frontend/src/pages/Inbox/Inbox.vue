@@ -217,7 +217,13 @@ const goToSubscriptionSection = () => {
 
 const fetchEmailCounts = async (categoryName: string) => {
     let response: FetchDataResult;
-    if (selectedFilter.value) {
+
+    if (selectedFilter.value?.id === 0) {
+        // case when using All emails filter
+        response = await postData("user/emails_counts/", {
+            category: categoryName,
+        });
+    } else if (selectedFilter.value) {
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");

@@ -88,7 +88,9 @@ function openRule() {
 }
 
 function openRuleEditor() {
-    router.push({ name: "rules", query: { idRule: selectedEmail?.value?.rule.ruleId, editRule: "true" } });
+    if (selectedEmail?.value?.rule) {
+        router.push({ name: "rules", query: { idRule: selectedEmail?.value?.rule.ruleId, editRule: "true" } });
+    }
 }
 
 function openNewRule() {
@@ -245,8 +247,8 @@ async function transferEmail() {
 }
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-const displayUserMsg = inject<(message: string) => void>("displayUserMsg")!;
-const waitForUserInput = inject<() => Promise<string>>("waitForUserInput")!;
+const displayUserMsg = inject<(message: string) => void>("displayUserMsg");
+const waitForUserInput = inject<() => Promise<string>>("waitForUserInput");
 
 const displayAIMsg = (message: string, options: KeyValuePair[] | undefined = undefined) => {
     messages.value.push({
@@ -258,7 +260,7 @@ const displayAIMsg = (message: string, options: KeyValuePair[] | undefined = und
 
 const handleButtonClick = async (option: KeyValuePair, index: number) => {
     waitForButtonClick.value = false;
-    displayUserMsg(option.value);
+    displayUserMsg?.(option.value);
 
     // Logic to handle sequential review steps
     switch (option.key) {
@@ -345,8 +347,8 @@ async function fetchAiEmails() {
 
     // Determine the highest-priority category to display
     let emailsToDisplay: Email[] = [];
-    let messageIntro: string = "";
-    let addButtons: boolean = false;
+    let messageIntro = "";
+    let addButtons = false;
 
     if (answerRequiredEmails.value.length > 0) {
         emailsToDisplay = answerRequiredEmails.value;
@@ -402,9 +404,9 @@ async function fetchAiEmails() {
         setTimeout(() => {
             emailsToDisplay.forEach((email) => {
                 const keywordButton = document.getElementById(`responseKeywordButton${email.id}`);
-                if (keywordButton) {
+                if (keywordButton && typeof email.id === "number") {
                     keywordButton.addEventListener("click", () => {
-                        openSeeMailModal(email.id);
+                        openSeeMailModal(email.id as number);
                     });
                 }
             });

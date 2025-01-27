@@ -7,10 +7,10 @@
             <p class="mb-4">
                 {{ $t("errorWebPagesTemplates.error401Page.redirectionToLogin") }}
                 <span class="font-bold">{{ countdown }}</span>
-                seconds
+                {{ $t("errorWebPagesTemplates.error401Page.seconds") }}
             </p>
             <button @click="redirectNow" class="w-full py-2 bg-black text-white rounded hover:bg-gray-800 transition">
-                Redirect Now
+                {{ $t("errorWebPagesTemplates.error401Page.redirectNow") }}
             </button>
         </div>
     </div>

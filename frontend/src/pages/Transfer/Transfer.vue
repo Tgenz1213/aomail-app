@@ -147,8 +147,6 @@ onMounted(async () => {
     for (const attachment of attachments) {
         const result = await getDataRawResponse(`user/emails/${emailId}/attachments/${attachment.attachmentName}/`);
 
-        console.log(result);
-
         const blob = await result.blob();
 
         const file = new File([blob], attachment.attachmentName, {

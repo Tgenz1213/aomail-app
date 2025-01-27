@@ -12,10 +12,10 @@
                     @click="goBack"
                     class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
                 >
-                    Go back
+                    {{ $t("errorWebPagesTemplates.error404Page.goBack") }}
                 </button>
                 <button @click="goHome" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition">
-                    Go to Inbox
+                    {{ $t("errorWebPagesTemplates.error404Page.goToInbox") }}
                 </button>
             </div>
         </div>

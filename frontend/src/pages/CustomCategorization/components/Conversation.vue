@@ -326,7 +326,6 @@ async function generateCategoriesScratch(
             description: category.description,
         })),
     ];
-    categories.value.map((category) => console.log(category.name));
     return result.data.categories;
 }
 

@@ -162,7 +162,6 @@ function handleKeyDown(event: KeyboardEvent) {
             (document.getElementById("username") as HTMLElement).focus();
         }
     } else if (event.key === "Enter") {
-        console.log("Enter pressed!!!");
         event.preventDefault();
         login();
     }

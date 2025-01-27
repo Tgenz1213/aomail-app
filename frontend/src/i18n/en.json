@@ -690,11 +690,15 @@
   "errorWebPagesTemplates": {
     "error401Page": {
       "youAreNotConnected": "You are not connected",
-      "redirectionToLogin": "You will be redirected to the login page in"
+      "redirectionToLogin": "You will be redirected to the login page in",
+      "redirectNow": "Redirect Now",
+      "seconds": "seconds"
     },
     "error404Page": {
-      "pageNotFound": "404 - Page not found",
-      "pageDoesNotExist": "The page you are looking for does not exist"
+      "pageNotFound": "Page Not Found",
+      "pageDoesNotExist": "The page you are looking for does not exist.",
+      "goBack": "Go back",
+      "goToInbox": "Go to Inbox"
     }
   },
   "replyLaterPage": {

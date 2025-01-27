@@ -232,7 +232,6 @@ const fetchSignatures = async () => {
 };
 
 const loadSelectedSignature = async () => {
-    console.log(selectedSignatureId.value);
     if (!selectedSignatureId.value) {
         selectedSignature.value = null;
         editedSignatureContent.value = "";
@@ -242,7 +241,6 @@ const loadSelectedSignature = async () => {
         return;
     }
     const sig = signatures.value.find((sig) => sig.id === selectedSignatureId.value);
-    console.log(sig);
     if (sig) {
         selectedSignature.value = sig;
         editedSignatureContent.value = sig.signature_content;

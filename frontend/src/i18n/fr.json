@@ -704,11 +704,15 @@
   "errorWebPagesTemplates": {
     "error401Page": {
       "youAreNotConnected": "Vous n'êtes pas connecté",
-      "redirectionToLogin": "Vous serez redirigé vers la page de connexion dans"
+      "redirectionToLogin": "Vous serez redirigé vers la page de connexion dans",
+      "redirectNow": "Rediriger maintenant",
+      "seconds": "secondes"
     },
     "error404Page": {
-      "pageNotFound": "404 - Page non trouvée",
-      "pageDoesNotExist": "La page que vous recherchez n'existe pas"
+      "pageNotFound": "Page Non Trouvée",
+      "pageDoesNotExist": "La page que vous recherchez n'existe pas.",
+      "goBack": "Retour",
+      "goToInbox": "Aller à la boîte de réception"
     }
   },
   "replyLaterPage": {

@@ -8,7 +8,8 @@ from aomail.email_providers.google import webhook as webhook_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.email_providers.microsoft import webhook as webhook_microsoft
 from aomail.controllers import artificial_intelligence as ai
-from aomail.controllers import authentication as auth
+from aomail.authentication import authentication as auth
+from aomail.authentication import signup
 from aomail.controllers import preferences as prefs
 from aomail.controllers import (
     categories,
@@ -40,9 +41,9 @@ urlpatterns = [
     path('login/', auth.login, name='login'),
     path('token/refresh/', auth.refresh_token, name='refresh_token'),
     path('delete_account/', auth.delete_account, name='delete_account'),
-    path('signup/', auth.signup, name='signup'),
-    path('process_demo_data/', auth.process_demo_data, name='process_demo_data'),
-    path('check_username/', auth.check_username, name='check_username'),
+    path('signup/', signup.signup, name='signup'),
+    path('process_demo_data/', signup.process_demo_data, name='process_demo_data'),
+    path('check_username/', signup.check_username, name='check_username'),
     path('user/social_api/unlink/', auth.unlink_email, name='unlink_email'),
     path('user/social_api/link/', auth.link_email, name='link_email'),
     #----------------------- CATEGORIES -----------------------#

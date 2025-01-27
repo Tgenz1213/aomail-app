@@ -28,7 +28,7 @@ from aomail.constants import (
 from aomail.email_providers.google.authentication import authenticate_service
 from aomail.models import SocialAPI, Subscription
 from aomail.email_providers.utils import email_to_db
-from aomail.controllers.authentication import subscribe_listeners
+from aomail.authentication.authentication import subscribe_listeners
 
 
 ######################## LOGGING CONFIGURATION ########################

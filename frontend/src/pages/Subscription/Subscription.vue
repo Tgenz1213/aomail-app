@@ -45,10 +45,9 @@
                                 class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
                                 role="alert"
                             >
-                                <p class="font-bold">Account Inactive</p>
+                                <p class="font-bold">{{ $t("settingsPage.subscriptionPage.accountInactive") }}</p>
                                 <p>
-                                    Your account is inactive. You must subscribe to a plan to regain full access. Your
-                                    last plan was:
+                                    {{ $t("settingsPage.subscriptionPage.accountInactiveMessage") }}
                                     <span class="font-semibold">{{ userPlan?.plan }}</span>
                                 </p>
                             </div>
@@ -231,14 +230,14 @@ function checkStripePaymentStatus() {
         if (stripePaymentSuccess === "true") {
             displayPopup(
                 "success",
-                "Payment Successful",
-                "Your subscription has been successfully updated. Thank you for your purchase!"
+                i18n.global.t("settingsPage.subscriptionPage.paymentSuccessful"),
+                i18n.global.t("settingsPage.subscriptionPage.paymentSuccessfulMessage")
             );
         } else if (stripePaymentSuccess === "false") {
             displayPopup(
                 "error",
-                "Payment Failed",
-                "There was an issue with your payment. Please try again or contact support."
+                i18n.global.t("settingsPage.subscriptionPage.paymentFailed"),
+                i18n.global.t("settingsPage.subscriptionPage.paymentFailedMessage")
             );
         }
     }
@@ -304,10 +303,12 @@ const getActionLabel = (plan: PlanType): string => {
     const targetPlanLevel = PLAN_LEVELS[plan];
 
     if (currentPlanLevel === targetPlanLevel) {
-        return "Manage";
+        return i18n.global.t("settingsPage.subscriptionPage.manage");
     }
 
-    return currentPlanLevel < targetPlanLevel ? "Upgrade" : "Downgrade";
+    return currentPlanLevel < targetPlanLevel
+        ? i18n.global.t("settingsPage.subscriptionPage.upgrade")
+        : i18n.global.t("settingsPage.subscriptionPage.downgrade");
 };
 
 function formatDate(date: Date): string {
@@ -323,7 +324,7 @@ function daysLeft(expirationDate: Date): number {
 async function getUserPlan() {
     const result = await getData("user/preferences/plan/");
     if (!result.success) {
-        displayPopup("error", "Failed to fetch plan", result.error as string);
+        displayPopup("error", i18n.global.t("settingsPage.subscriptionPage.failedToFetchPlan"), result.error as string);
     } else {
         userPlan.value = result.data;
     }
@@ -336,7 +337,11 @@ const redirectPaymentPage = async (product: string) => {
     });
 
     if (!result.success) {
-        displayPopup("error", "Failed to create the session id", result.error as string);
+        displayPopup(
+            "error", 
+            i18n.global.t("settingsPage.subscriptionPage.failedToCreateSession"), 
+            result.error as string
+        );
         return;
     }
 
@@ -346,8 +351,8 @@ const redirectPaymentPage = async (product: string) => {
     if (!stripe) {
         displayPopup(
             "error",
-            "Stripe Initialization Error",
-            "There was an issue initializing the payment gateway. Please try again later."
+            i18n.global.t("settingsPage.subscriptionPage.stripeInitError"),
+            i18n.global.t("settingsPage.subscriptionPage.stripeInitErrorMessage")
         );
         return;
     }

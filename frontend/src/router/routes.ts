@@ -162,6 +162,12 @@ const subscription: RouteConfig = {
     component: Subscription,
 };
 
+// const analytics: RouteConfig = {
+//     path: "/analytics",
+//     name: "analytics",
+//     component: Analytics,
+// };
+
 const routes: RouteConfig[] = [
     login,
     logout,
@@ -183,6 +189,7 @@ const routes: RouteConfig[] = [
     notAuthorized,
     notFound,
     subscription,
+    // analytics,
 ];
 
 export default routes;

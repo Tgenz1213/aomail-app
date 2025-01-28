@@ -75,7 +75,7 @@
         "failedToMarkAsRead": "Échec du marquage des e-mails comme lus",
         "noEmailsToMark": "Aucun e-mail à marquer",
         "emailSendError": "Erreur d'envoi d'email",
-        "pleaseEnterAnEmail": "Erreur saissisez un email",
+        "pleaseEnterAnEmail": "Veuillez saisir un email",
         "contactFetchError": "Erreur de récupération des contacts",
         "primaryEmailFetchError": "Erreur récupération de votre email primaire",
         "emailLinkedFetchError": "Erreur récupération de vos emails",
@@ -231,7 +231,8 @@
     "cyberScoreAssessor": "Évaluateur de sécurité TAC Security",
     "emailsAreEncryptedAtRest": "Le contenu des e-mails est crypté au repos dans notre base de données",
     "emailsFallbackToProviders": "Les e-mails restent disponibles dans Gmail ou Outlook en tant que solution de secours",
-    "startApp": "Démarrer l'application 🚀"
+    "startApp": "Démarrer l'application 🚀",
+    "linkYourMailAccount": "Liez votre compte Gmail ou Outlook"
   },
   "homePage": {
     "otherCategory": "Autres",
@@ -378,39 +379,45 @@
       "yearly": "Annuel",
       "monthly": "Mensuel",
       "basic": {
-        "description": "",
+        "description": "Parfait pour les particuliers qui souhaitent commencer à organiser leurs emails",
         "features": [
-          "Jusqu'à 1 email lié",
-          "Tri automatique",
-          "Filtrage personnalisé",
-          "Écriture intelligente",
-          "Recherche intelligente"
+          "Organisation basique des emails",
+          "Catégorisation par IA",
+          "Support standard"
         ]
       },
       "premium": {
-        "description": "",
+        "description": "Fonctionnalités avancées pour les professionnels qui ont besoin de plus de puissance",
         "features": [
-          "Emails illimités liés",
-          "Tri automatique",
-          "Filtrage personnalisé",
-          "Écriture intelligente",
-          "Recherche intelligente avancée",
-          "Fonctionnalités avancées"
+          "Toutes les fonctionnalités Start",
+          "Support prioritaire",
+          "Fonctionnalités IA avancées",
+          "Catégorisation personnalisée"
         ]
       },
       "entreprise": {
-        "description": "",
+        "description": "Solutions personnalisées pour les entreprises ayant des besoins spécifiques",
         "features": [
-          "Emails illimités liés",
-          "Tri automatique",
-          "Filtrage personnalisé",
-          "Écriture intelligente",
-          "Recherche intelligente avancée",
-          "Fonctionnalités avancées",
-          "Synchronisation de tous les emails de la boîte de réception",
-          "Personnalisation avancée des fonctionnalités"
+          "Toutes les fonctionnalités Premium",
+          "Support dédié",
+          "Intégrations personnalisées",
+          "Personnalisation avancée",
+          "Gestion d'équipe"
         ]
-      }
+      },
+      "accountInactive": "Compte inactif",
+      "accountInactiveMessage": "Votre compte est inactif. Vous devez souscrire à un abonnement pour retrouver l'accès complet. Votre dernier abonnement était :",
+      "paymentSuccessful": "Paiement réussi",
+      "paymentSuccessfulMessage": "Votre abonnement a été mis à jour avec succès. Merci pour votre achat !",
+      "paymentFailed": "Échec du paiement",
+      "paymentFailedMessage": "Il y a eu un problème avec votre paiement. Veuillez réessayer ou contacter le support.",
+      "manage": "Gérer",
+      "upgrade": "Mettre à niveau",
+      "downgrade": "Rétrograder",
+      "stripeInitError": "Erreur d'initialisation Stripe",
+      "stripeInitErrorMessage": "Un problème est survenu lors de l'initialisation du système de paiement. Veuillez réessayer plus tard.",
+      "failedToFetchPlan": "Échec de la récupération du plan",
+      "failedToCreateSession": "Échec de la création de l'identifiant de session"
     },
     "accountPage": {
       "unableToDeletePrimaryEmail": "Impossibilité de supprimer l'email principal",

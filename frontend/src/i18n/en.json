@@ -76,7 +76,7 @@
         "noEmailsToMark": "No emails to mark",
         "emailSendError": "Email send error",
         "contactFetchError": "Contact fetch error",
-        "pleaseEnterAnEmail": "Pls enter an email",
+        "pleaseEnterAnEmail": "Please enter an email",
         "primaryEmailFetchError": "Primary email fetch error",
         "emailLinkedFetchError": "Email fetch error",
         "invalidEmail": "Invalid email",
@@ -379,39 +379,45 @@
       "yearly": "Yearly",
       "monthly": "Monthly",
       "basic": {
-        "description": "",
+        "description": "Perfect for individuals who want to start organizing their emails",
         "features": [
-          "Up to 1 linked email",
-          "Automatic sorting",
-          "Custom filtering",
-          "Smart writing",
-          "Smart search"
+          "Basic email organization",
+          "AI-powered categorization",
+          "Standard support"
         ]
       },
       "premium": {
-        "description": "",
+        "description": "Advanced features for professionals who need more power",
         "features": [
-          "Unlimited linked emails",
-          "Automatic sorting",
-          "Custom filtering",
-          "Smart writing",
-          "Advanced smart search",
-          "Advanced features"
+          "All Start features",
+          "Priority support",
+          "Advanced AI features",
+          "Custom categorization"
         ]
       },
       "entreprise": {
-        "description": "",
+        "description": "Custom solutions for businesses with specific needs",
         "features": [
-          "Unlimited linked emails",
-          "Automatic sorting",
-          "Custom filtering",
-          "Smart writing",
-          "Advanced smart search",
-          "Advanced features",
-          "Sync all emails from inbox",
-          "Advanced features customization"
+          "All Premium features",
+          "Dedicated support",
+          "Custom integrations",
+          "Advanced customization",
+          "Team management"
         ]
-      }
+      },
+      "accountInactive": "Account Inactive",
+      "accountInactiveMessage": "Your account is inactive. You must subscribe to a plan to regain full access. Your last plan was:",
+      "paymentSuccessful": "Payment Successful",
+      "paymentSuccessfulMessage": "Your subscription has been successfully updated. Thank you for your purchase!",
+      "paymentFailed": "Payment Failed",
+      "paymentFailedMessage": "There was an issue with your payment. Please try again or contact support.",
+      "manage": "Manage",
+      "upgrade": "Upgrade",
+      "downgrade": "Downgrade",
+      "stripeInitError": "Stripe Initialization Error",
+      "stripeInitErrorMessage": "There was an issue initializing the payment gateway. Please try again later.",
+      "failedToFetchPlan": "Failed to fetch plan",
+      "failedToCreateSession": "Failed to create the session id"
     },
     "accountPage": {
       "unableToDeletePrimaryEmail": "Unable to delete primary email",

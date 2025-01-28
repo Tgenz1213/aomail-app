@@ -723,5 +723,329 @@
   },
   "markAllAsRead": "Mark All as Read",
   "markAllAsArchive": "Archive All",
-  "loading": "Loading"
+  "loading": "Loading",
+  "aiAssistantPage": {
+    "title": "Email Organization Preferences",
+    "subtitle": "Customize how AI understands and organizes your emails based on your professional needs.",
+    "emailCategories": {
+      "button": "Email Categories",
+      "tooltip": "Have a conversation with AI to explain how you want your emails organized. Perfect for unique workflows and specific preferences."
+    },
+    "rules": {
+      "button": "Rules",
+      "tooltip": "Set up automated rules to handle specific emails, like always marking certain senders as important or moving newsletters to a separate category."
+    },
+    "professionalTemplates": {
+      "title": "Professional Templates",
+      "subtitle": "Choose a template that matches your profession. These templates contain pre-configured guidelines based on common email patterns.",
+      "searchPlaceholder": "Search job...",
+      "noResult": "No result"
+    },
+    "detailedGuidelines": {
+      "title": "Detailed Guidelines",
+      "subtitle": "These guidelines help AI understand how to categorize your emails. Be specific and include examples that reflect your actual email patterns.",
+      "important": {
+        "label": "Important Emails",
+        "description": "Describe emails that need immediate attention or are crucial for your work",
+        "placeholder": "Example: Urgent client requests, critical project deadlines, direct messages from your supervisor about immediate tasks..."
+      },
+      "informative": {
+        "label": "Informative Emails",
+        "description": "Describe emails that are useful but don't require immediate action",
+        "placeholder": "Example: Team updates, project progress reports, industry news relevant to your work..."
+      },
+      "lowPriority": {
+        "label": "Low Priority Emails",
+        "description": "Describe emails that are not relevant to your work or can be safely ignored",
+        "placeholder": "Example: Marketing newsletters, social media notifications, promotional offers..."
+      },
+      "saveButton": "Save Guidelines"
+    },
+    "jobs": {
+      "softwareEngineer": {
+        "title": "Software Engineer",
+        "description": "Developer working on software projects and technical systems",
+        "keywords": [
+          "programming",
+          "development",
+          "tech",
+          "coding",
+          "software",
+          "engineering"
+        ],
+        "important": "Critical production issues, urgent pull request reviews, deployment coordination messages, and direct messages from team leads about blocking issues. Example: 'Production database is down' or 'Urgent security patch needed'.",
+        "informative": "Code review requests, sprint planning updates, technical documentation changes, and non-urgent bug reports. Example: 'New feature documentation added' or 'Weekly sprint report'.",
+        "useless": "Marketing emails about development tools, automated CI/CD success notifications, and promotional content about tech conferences. Example: 'Try our new IDE' or 'Build passed successfully'."
+      },
+      "itSupport": {
+        "title": "IT Support",
+        "description": "Technical support and system administration",
+        "keywords": [
+          "IT",
+          "support",
+          "assistance",
+          "technical",
+          "systems",
+          "administration"
+        ],
+        "important": "Critical system alerts, urgent tickets, system outages, security incidents. Example: 'Production system down' or 'Security breach detected'.",
+        "informative": "Regular maintenance notifications, system updates, ticket status changes. Example: 'Scheduled maintenance window' or 'Ticket resolution summary'.",
+        "useless": "Security awareness newsletters, vendor promotions, general IT news. Example: 'New security training available' or 'IT vendor showcase'."
+      },
+      "teacher": {
+        "title": "Teacher/Professor",
+        "description": "Educational professional in K-12 or higher education",
+        "keywords": [
+          "education",
+          "teaching",
+          "academic",
+          "instructor",
+          "faculty",
+          "professor"
+        ],
+        "important": "Student emergencies, parent conferences, grade submission deadlines, department head directives, classroom incidents requiring immediate attention. Example: 'Student medical emergency during class' or 'Urgent parent meeting request regarding student behavior'.",
+        "informative": "Lesson plan submissions, faculty meeting notes, curriculum updates, student progress reports, workshop announcements. Example: 'Next week's department meeting agenda' or 'Quarterly grade submission reminder'.",
+        "useless": "Educational product marketing, general school newsletters not affecting your classes, third-party workshop advertisements. Example: 'Buy our new textbook series' or 'General campus events newsletter'."
+      },
+      "student": {
+        "title": "Student",
+        "description": "University, college, or continuing education student",
+        "keywords": [
+          "student",
+          "education",
+          "university",
+          "college",
+          "academic",
+          "learning"
+        ],
+        "important": "Professor communications, assignment deadlines, exam schedules, registration deadlines. Example: 'Final exam room change' or 'Course registration deadline today'.",
+        "informative": "Course materials, study group updates, campus announcements, academic resources. Example: 'Study group meeting schedule' or 'New course materials posted'.",
+        "useless": "Campus event promotions, submission confirmations, marketing emails. Example: 'Campus store sale' or 'Join student club newsletter'."
+      },
+      "nurse": {
+        "title": "Nurse",
+        "description": "Healthcare professional providing patient care",
+        "keywords": [
+          "nurse",
+          "healthcare",
+          "patient care",
+          "medical",
+          "clinical",
+          "health"
+        ],
+        "important": "Patient emergencies, critical lab results, medication errors, emergency team coverage, immediate care needs. Example: 'Code Blue in Ward 3' or 'Critical lab values for Room 204 patient'.",
+        "informative": "Shift handover notes, routine patient updates, scheduled training sessions, protocol updates. Example: 'Infection control protocol update' or 'Monthly staff rotation schedule'.",
+        "useless": "Medical equipment marketing, general hospital newsletters, non-mandatory conference invites. Example: 'New scrubs catalog' or 'Hospital cafeteria menu'."
+      },
+      "manager": {
+        "title": "Manager",
+        "description": "Team leadership and project management across sectors",
+        "keywords": [
+          "leadership",
+          "management",
+          "team lead",
+          "supervisor",
+          "director",
+          "coordination"
+        ],
+        "important": "Urgent team member escalations, critical client issues, 24-hour budget approvals needed, stakeholder emergency communications. Example: 'Team blocked on critical delivery' or 'Client escalation requiring immediate attention'.",
+        "informative": "Weekly team performance reports, project status updates, resource allocation requests, non-urgent team member feedback. Example: 'Monthly department metrics' or 'Team capacity planning'.",
+        "useless": "General company newsletters, office maintenance notifications, irrelevant department updates. Example: 'Plant watering schedule' or 'Cafeteria menu updates'."
+      },
+      "salesRep": {
+        "title": "Sales Representative",
+        "description": "B2B or B2C sales and business development",
+        "keywords": [
+          "sales",
+          "business development",
+          "account management",
+          "client relations",
+          "business"
+        ],
+        "important": "Client requests, deal updates, urgent prospect inquiries, sales target alerts. Example: 'Hot lead requiring immediate follow-up' or 'Client contract pending urgent approval'.",
+        "informative": "Market reports, competitive updates, pipeline status, sales metrics. Example: 'Weekly sales dashboard' or 'New competitive analysis'.",
+        "useless": "Internal newsletters, system notifications, irrelevant product updates. Example: 'Office social event' or 'General industry newsletter'."
+      },
+      "lawyer": {
+        "title": "Lawyer",
+        "description": "Legal practice and case management",
+        "keywords": [
+          "legal",
+          "law",
+          "attorney",
+          "counsel",
+          "litigation",
+          "judicial"
+        ],
+        "important": "Court deadlines, client emergencies, filing deadlines, urgent case updates. Example: 'Court filing due today' or 'Client emergency situation'.",
+        "informative": "Legal updates, case law changes, client appointment scheduling, document reviews. Example: 'New case law published' or 'Client meeting notes'.",
+        "useless": "Legal vendor marketing, networking events, general newsletters. Example: 'Law firm social event' or 'Legal software promotion'."
+      },
+      "creative": {
+        "title": "Creative Professional",
+        "description": "Designer, writer, artist, or content creator",
+        "keywords": [
+          "creative",
+          "design",
+          "art",
+          "content",
+          "writing",
+          "media"
+        ],
+        "important": "Client feedback, project deadlines, revision requests, urgent approvals. Example: 'Final artwork approval needed' or 'Urgent content update required'.",
+        "informative": "Design resources, creative briefs, project updates, style guides. Example: 'Brand guidelines update' or 'New project brief'.",
+        "useless": "Design tool promotions, industry newsletters, irrelevant training ads. Example: 'Try our new design software' or 'Early bird creative conference'."
+      },
+      "restaurant": {
+        "title": "Restaurant Staff",
+        "description": "Restaurant employees including servers, cooks, and managers",
+        "keywords": [
+          "restaurant",
+          "food service",
+          "culinary",
+          "hospitality",
+          "cooking",
+          "server"
+        ],
+        "important": "Food safety alerts, equipment breakdowns, staff absences, important reservations requiring immediate attention. Example: 'Refrigeration system failure' or 'Emergency health inspector visit'.",
+        "informative": "Menu changes, staff schedules, inventory, supplier updates. Example: 'Weekly ingredient delivery schedule' or 'New menu item training'.",
+        "useless": "Restaurant equipment marketing, general food industry newsletters, irrelevant supplier catalogs. Example: 'Subscribe to cooking magazine' or 'Random vendor menu promotion'."
+      },
+      "beauty": {
+        "title": "Beauty Professional",
+        "description": "Hairstylist, esthetician, or salon owner",
+        "keywords": [
+          "salon",
+          "beauty",
+          "hairstyling",
+          "cosmetics",
+          "aesthetics",
+          "spa"
+        ],
+        "important": "Client emergencies, supply shortages affecting appointments, equipment breakdowns, scheduling conflicts. Example: 'Water outage affecting today's appointments' or 'Urgent client rescheduling needed'.",
+        "informative": "Appointment confirmations, product stock updates, client feedback, trend updates. Example: 'Next week's booking schedule' or 'New product training available'.",
+        "useless": "General beauty product marketing, irrelevant industry news, spam promotions. Example: 'General beauty industry newsletter' or 'Random product catalogs'."
+      },
+      "smallBusiness": {
+        "title": "Small Business Owner",
+        "description": "Retail or service business operator",
+        "keywords": [
+          "business",
+          "small business",
+          "entrepreneur",
+          "shop owner",
+          "merchant",
+          "manager"
+        ],
+        "important": "Supplier delivery issues, POS system outages, security incidents, urgent staff matters. Example: 'Store security alarm triggered' or 'Urgent product recall notice'.",
+        "informative": "Sales reports, inventory levels, employee schedules, supplier updates. Example: 'Weekly sales summary' or 'Holiday inventory planning'.",
+        "useless": "Unsolicited vendor pitches, general industry newsletters, random marketing materials. Example: 'Subscribe to retail magazine' or 'Random supplier catalog'."
+      },
+      "freelance": {
+        "title": "Freelance Professional",
+        "description": "Independent or freelance worker",
+        "keywords": [
+          "freelance",
+          "independent",
+          "self-employed",
+          "contractor",
+          "gig",
+          "consultant"
+        ],
+        "important": "Client project deadlines, contract negotiations, payment issues, urgent revision requests. Example: 'Final deliverable needed by end of day' or 'Urgent client feedback requiring immediate attention'.",
+        "informative": "Project updates, potential client inquiries, industry opportunities, networking events. Example: 'Project milestone review' or 'Potential client introduction'.",
+        "useless": "Platform marketing emails, general freelance newsletters, irrelevant job offers. Example: 'Try our premium freelance tools' or 'Generic networking event invitation'."
+      },
+      "fieldTech": {
+        "title": "Field Technician",
+        "description": "On-site technical support and maintenance professional",
+        "keywords": [
+          "technician",
+          "maintenance",
+          "repair",
+          "field service",
+          "installation",
+          "support"
+        ],
+        "important": "Emergency repair calls, safety incidents, critical equipment failures, immediate service requests. Example: 'Hospital emergency generator failure' or 'Critical system down requiring immediate attention'.",
+        "informative": "Maintenance schedules, equipment updates, training materials, service logs. Example: 'Next week's maintenance schedule' or 'New equipment installation guidelines'.",
+        "useless": "Tool marketing, general industry newsletters, irrelevant training offers. Example: 'Subscribe to tech magazine' or 'Random tool catalog'."
+      },
+      "researcher": {
+        "title": "Research Scientist",
+        "description": "Academic or industry researcher",
+        "keywords": [
+          "research",
+          "science",
+          "laboratory",
+          "investigation",
+          "academic",
+          "scientist"
+        ],
+        "important": "Lab safety incidents, grant deadlines, critical experiment issues, immediate funding matters. Example: 'Lab safety breach requiring immediate action' or 'Grant submission deadline today'.",
+        "informative": "Research results, collaboration opportunities, conference deadlines, publication updates. Example: 'Latest experiment results' or 'Upcoming conference abstract deadline'.",
+        "useless": "Lab equipment marketing, general science newsletters, irrelevant conference spam. Example: 'New microscope catalog' or 'Random research journal subscription'."
+      },
+      "construction": {
+        "title": "Construction Worker",
+        "description": "Building and construction trades professional",
+        "keywords": [
+          "construction",
+          "building",
+          "trades",
+          "contractor",
+          "site",
+          "labor"
+        ],
+        "important": "Safety violations, weather impacts on projects, urgent material shortages, equipment failures. Example: 'Site safety violation requiring immediate action' or 'Critical equipment failure on site'.",
+        "informative": "Project schedules, material deliveries, inspection schedules, site access updates. Example: 'Tomorrow's concrete delivery schedule' or 'Site safety protocol update'.",
+        "useless": "Construction equipment marketing, general industry newsletters, irrelevant training ads. Example: 'New tool catalog' or 'General construction magazine'."
+      },
+      "driver": {
+        "title": "Driver/Delivery Professional",
+        "description": "Transportation and delivery service professional",
+        "keywords": [
+          "driver",
+          "delivery",
+          "transport",
+          "logistics",
+          "shipping",
+          "courier"
+        ],
+        "important": "Route changes, vehicle issues, delivery emergencies, traffic incidents. Example: 'Vehicle breakdown requiring immediate assistance' or 'Urgent route change due to road closure'.",
+        "informative": "Schedule updates, maintenance reminders, route planning, fuel logs. Example: 'Next week's delivery schedule' or 'Vehicle maintenance due notice'.",
+        "useless": "Vehicle sales marketing, general transportation newsletters, irrelevant insurance ads. Example: 'Buy new trucks' or 'Random logistics magazine'."
+      },
+      "admin": {
+        "title": "Administrative Professional",
+        "description": "Office administration and support professional",
+        "keywords": [
+          "admin",
+          "office",
+          "administrative",
+          "secretary",
+          "coordinator",
+          "assistant"
+        ],
+        "important": "Executive calendar conflicts, urgent meeting changes, critical document deadlines, office emergencies. Example: 'CEO schedule conflict requiring immediate resolution' or 'Urgent document needed for board meeting'.",
+        "informative": "Office supply inventory, meeting schedules, filing systems, procedure updates. Example: 'Monthly calendar update' or 'New filing system guidelines'.",
+        "useless": "Office supply marketing, general admin newsletters, irrelevant software ads. Example: 'New printer catalog' or 'Random office magazine'."
+      },
+      "finance": {
+        "title": "Finance Professional",
+        "description": "Finance and accounting professional",
+        "keywords": [
+          "finance",
+          "accounting",
+          "banking",
+          "investment",
+          "accountant",
+          "fiscal"
+        ],
+        "important": "Tax deadlines, audit notices, client financial emergencies, reporting errors. Example: 'Critical tax filing deadline today' or 'Urgent audit document request'.",
+        "informative": "Financial reports, client updates, regulatory changes, software updates. Example: 'Monthly reconciliation reminder' or 'New tax regulation update'.",
+        "useless": "Financial software marketing, general accounting newsletters, irrelevant training ads. Example: 'Try our new accounting software' or 'Random finance magazine'."
+      }
+    }
+  }
 }

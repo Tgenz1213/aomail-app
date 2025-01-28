@@ -722,5 +722,329 @@
   },
   "markAllAsRead": "Marquer tous comme lu",
   "markAllAsArchive": "Marquer tous comme archivé",
-  "loading": "Chargement..."
+  "loading": "Chargement...",
+  "aiAssistantPage": {
+    "title": "Préférences d'Organisation des Emails",
+    "subtitle": "Personnalisez la façon dont l'IA comprend et organise vos emails en fonction de vos besoins professionnels.",
+    "emailCategories": {
+      "button": "Catégories d'Emails",
+      "tooltip": "Conversez avec l'IA pour expliquer comment vous souhaitez organiser vos emails. Parfait pour les flux de travail uniques et les préférences spécifiques."
+    },
+    "rules": {
+      "button": "Règles",
+      "tooltip": "Configurez des règles automatisées pour gérer des emails spécifiques, comme marquer certains expéditeurs comme importants ou déplacer les newsletters dans une catégorie distincte."
+    },
+    "professionalTemplates": {
+      "title": "Modèles Professionnels",
+      "subtitle": "Choisissez un modèle qui correspond à votre profession. Ces modèles contiennent des directives préconfigurées basées sur les schémas d'emails courants.",
+      "searchPlaceholder": "Rechercher un métier...",
+      "noResult": "Aucun résultat"
+    },
+    "detailedGuidelines": {
+      "title": "Directives Détaillées",
+      "subtitle": "Ces directives aident l'IA à comprendre comment catégoriser vos emails. Soyez précis et incluez des exemples qui reflètent vos habitudes de messagerie.",
+      "important": {
+        "label": "Emails Importants",
+        "description": "Décrivez les emails qui nécessitent une attention immédiate ou sont cruciaux pour votre travail",
+        "placeholder": "Exemple : Demandes urgentes de clients, échéances critiques de projets, messages directs de votre superviseur concernant des tâches immédiates..."
+      },
+      "informative": {
+        "label": "Emails Informatifs",
+        "description": "Décrivez les emails qui sont utiles mais ne nécessitent pas d'action immédiate",
+        "placeholder": "Exemple : Mises à jour d'équipe, rapports d'avancement de projet, actualités sectorielles pertinentes pour votre travail..."
+      },
+      "lowPriority": {
+        "label": "Emails Basse Priorité",
+        "description": "Décrivez les emails qui ne sont pas pertinents pour votre travail ou qui peuvent être ignorés en toute sécurité",
+        "placeholder": "Exemple : Newsletters marketing, notifications de réseaux sociaux, offres promotionnelles..."
+      },
+      "saveButton": "Enregistrer les Directives"
+    },
+    "jobs": {
+      "softwareEngineer": {
+        "title": "Ingénieur Logiciel",
+        "description": "Développeur travaillant sur des projets logiciels et des systèmes techniques",
+        "keywords": [
+          "programmation",
+          "développement",
+          "tech",
+          "codage",
+          "logiciel",
+          "ingénierie"
+        ],
+        "important": "Problèmes critiques de production, revues urgentes de pull requests, messages de coordination de déploiement et messages directs des chefs d'équipe concernant les problèmes bloquants. Exemple : 'Base de données de production hors service' ou 'Correctif de sécurité urgent nécessaire'.",
+        "informative": "Demandes de revue de code, mises à jour de planification de sprint, modifications de documentation technique et rapports de bugs non urgents. Exemple : 'Nouvelle documentation de fonctionnalité ajoutée' ou 'Rapport hebdomadaire de sprint'.",
+        "useless": "Emails marketing sur les outils de développement, notifications automatiques de succès CI/CD et contenu promotionnel sur les conférences tech. Exemple : 'Essayez notre nouvel IDE' ou 'Build réussi avec succès'."
+      },
+      "itSupport": {
+        "title": "Support Informatique",
+        "description": "Support technique et administration système",
+        "keywords": [
+          "IT",
+          "support",
+          "assistance",
+          "technique",
+          "systèmes",
+          "administration"
+        ],
+        "important": "Alertes système critiques, tickets urgents, pannes système, incidents de sécurité. Exemple : 'Système de production en panne' ou 'Violation de sécurité détectée'.",
+        "informative": "Notifications de maintenance régulière, mises à jour système, changements de statut des tickets. Exemple : 'Fenêtre de maintenance planifiée' ou 'Résumé de résolution de ticket'.",
+        "useless": "Newsletters de sensibilisation à la sécurité, promotions de fournisseurs, actualités IT générales. Exemple : 'Nouvelle formation de sécurité disponible' ou 'Présentation de fournisseur IT'."
+      },
+      "teacher": {
+        "title": "Enseignant/Professeur",
+        "description": "Professionnel de l'éducation dans le primaire, secondaire ou supérieur",
+        "keywords": [
+          "éducation",
+          "enseignement",
+          "académique",
+          "instructeur",
+          "faculté",
+          "professeur"
+        ],
+        "important": "Urgences d'élèves, conférences avec les parents, dates limites de remise des notes, directives du chef de département, incidents en classe nécessitant une attention immédiate. Exemple : 'Urgence médicale d'un élève en classe' ou 'Demande urgente de réunion avec un parent concernant le comportement d'un élève'.",
+        "informative": "Soumissions de plans de cours, notes de réunion de faculté, mises à jour du programme, rapports de progrès des élèves, annonces d'ateliers. Exemple : 'Ordre du jour de la réunion de département de la semaine prochaine' ou 'Rappel de remise trimestrielle des notes'.",
+        "useless": "Marketing de produits éducatifs, bulletins d'information scolaires généraux n'affectant pas vos cours, publicités d'ateliers tiers. Exemple : 'Achetez notre nouvelle série de manuels' ou 'Bulletin d'événements généraux du campus'."
+      },
+      "student": {
+        "title": "Étudiant",
+        "description": "Étudiant universitaire, collégial ou en formation continue",
+        "keywords": [
+          "étudiant",
+          "éducation",
+          "université",
+          "collège",
+          "académique",
+          "apprentissage"
+        ],
+        "important": "Communications des professeurs, dates limites des devoirs, horaires d'examens, délais d'inscription. Exemple : 'Changement de salle d'examen final' ou 'Date limite d'inscription aux cours aujourd'hui'.",
+        "informative": "Matériel de cours, mises à jour des groupes d'étude, annonces du campus, ressources académiques. Exemple : 'Horaire de réunion du groupe d'étude' ou 'Nouveau matériel de cours publié'.",
+        "useless": "Promotions d'événements du campus, confirmations de soumission, emails marketing. Exemple : 'Solde à la boutique du campus' ou 'Rejoignez la newsletter du club étudiant'."
+      },
+      "nurse": {
+        "title": "Infirmier/Infirmière",
+        "description": "Professionnel de santé prodiguant des soins aux patients",
+        "keywords": [
+          "infirmier",
+          "soins de santé",
+          "soins aux patients",
+          "médical",
+          "clinique",
+          "santé"
+        ],
+        "important": "Urgences patients, résultats critiques de laboratoire, erreurs de médication, couverture d'urgence des équipes, besoins de soins immédiats. Exemple : 'Code Bleu dans le Service 3' ou 'Valeurs critiques de laboratoire pour le patient de la Chambre 204'.",
+        "informative": "Notes de passation de service, mises à jour de routine des patients, sessions de formation programmées, mises à jour des protocoles. Exemple : 'Mise à jour des protocoles de contrôle des infections' ou 'Planning mensuel de rotation du personnel'.",
+        "useless": "Marketing d'équipement médical, newsletters générales de l'hôpital, invitations non obligatoires aux conférences. Exemple : 'Nouveau catalogue de blouses' ou 'Menu de la cafétéria de l'hôpital'."
+      },
+      "manager": {
+        "title": "Manager",
+        "description": "Leadership d'équipe et gestion de projet tous secteurs confondus",
+        "keywords": [
+          "leadership",
+          "gestion",
+          "chef d'équipe",
+          "superviseur",
+          "directeur",
+          "coordination"
+        ],
+        "important": "Escalades urgentes des membres de l'équipe, problèmes critiques avec les clients, approbations budgétaires nécessaires sous 24h, communications d'urgence avec les parties prenantes. Exemple : 'Équipe bloquée sur une livraison critique' ou 'Escalade client nécessitant une attention immédiate'.",
+        "informative": "Rapports hebdomadaires de performance d'équipe, mises à jour de l'état des projets, demandes d'allocation de ressources, retours non urgents des membres de l'équipe. Exemple : 'Métriques mensuelles du département' ou 'Planification des capacités de l'équipe'.",
+        "useless": "Newsletters générales de l'entreprise, notifications de maintenance des bureaux, mises à jour non pertinentes des départements. Exemple : 'Planning d'arrosage des plantes' ou 'Mises à jour du menu de la cafétéria'."
+      },
+      "salesRep": {
+        "title": "Commercial",
+        "description": "Vente B2B ou B2C et développement commercial",
+        "keywords": [
+          "ventes",
+          "développement commercial",
+          "gestion de compte",
+          "relations client",
+          "affaires"
+        ],
+        "important": "Demandes clients, mises à jour des transactions, requêtes urgentes de prospects, alertes d'objectifs de vente. Exemple : 'Lead chaud nécessitant un suivi immédiat' ou 'Contrat client en attente d'approbation urgente'.",
+        "informative": "Rapports de marché, mises à jour concurrentielles, état du pipeline, métriques de vente. Exemple : 'Tableau de bord hebdomadaire des ventes' ou 'Nouvelle analyse concurrentielle'.",
+        "useless": "Newsletters internes, notifications système, mises à jour produits non pertinents. Exemple : 'Événement social du bureau' ou 'Newsletter générale du secteur'."
+      },
+      "lawyer": {
+        "title": "Avocat",
+        "description": "Pratique juridique et gestion des dossiers",
+        "keywords": [
+          "juridique",
+          "droit",
+          "avocat",
+          "conseil",
+          "contentieux",
+          "judiciaire"
+        ],
+        "important": "Délais judiciaires, urgences clients, dates limites de dépôt, mises à jour urgentes des affaires. Exemple : 'Dépôt au tribunal dû aujourd'hui' ou 'Situation d'urgence client'.",
+        "informative": "Mises à jour juridiques, changements de jurisprudence, planification des rendez-vous clients, revues de documents. Exemple : 'Nouveau cas de jurisprudence publié' ou 'Notes de réunion client'.",
+        "useless": "Marketing des fournisseurs juridiques, événements de réseautage, newsletters générales. Exemple : 'Événement social du cabinet' ou 'Promotion de logiciel juridique'."
+      },
+      "creative": {
+        "title": "Professionnel Créatif",
+        "description": "Designer, rédacteur, artiste ou créateur de contenu",
+        "keywords": [
+          "créatif",
+          "design",
+          "art",
+          "contenu",
+          "rédaction",
+          "média"
+        ],
+        "important": "Retours clients, délais de projet, demandes de révision, approbations urgentes. Exemple : 'Approbation finale de l'œuvre nécessaire' ou 'Mise à jour urgente de contenu requise'.",
+        "informative": "Ressources de design, briefs créatifs, mises à jour de projet, guides de style. Exemple : 'Mise à jour des directives de marque' ou 'Nouveau brief de projet'.",
+        "useless": "Promotions d'outils de design, newsletters sectorielles, publicités de formation non pertinentes. Exemple : 'Essayez notre nouveau logiciel de design' ou 'Early bird conférence créative'."
+      },
+      "restaurant": {
+        "title": "Personnel de Restaurant",
+        "description": "Employés de restaurant incluant serveurs, cuisiniers et managers",
+        "keywords": [
+          "restaurant",
+          "service alimentaire",
+          "cuisine",
+          "hôtellerie",
+          "culinaire",
+          "serveur"
+        ],
+        "important": "Alertes de sécurité alimentaire, pannes d'équipement, absences de personnel, réservations importantes nécessitant une attention immédiate. Exemple : 'Panne du système de réfrigération' ou 'Visite d'urgence de l'inspecteur sanitaire'.",
+        "informative": "Changements de menu, plannings des équipes, inventaires, mises à jour fournisseurs. Exemple : 'Planning hebdomadaire de livraison des ingrédients' ou 'Formation nouveau plat au menu'.",
+        "useless": "Marketing d'équipement de restaurant, newsletters générales de l'industrie alimentaire, catalogues fournisseurs non pertinents. Exemple : 'Abonnez-vous au magazine de cuisine' ou 'Menu promotionnel fournisseur aléatoire'."
+      },
+      "beauty": {
+        "title": "Professionnel de la Beauté",
+        "description": "Coiffeur, esthéticien ou propriétaire de salon",
+        "keywords": [
+          "salon",
+          "beauté",
+          "coiffure",
+          "cosmétiques",
+          "esthétique",
+          "spa"
+        ],
+        "important": "Urgences clients, pénuries de fournitures affectant les rendez-vous, pannes d'équipement, conflits de planning. Exemple : 'Coupure d'eau affectant les rendez-vous du jour' ou 'Reprogrammation d'urgence client nécessaire'.",
+        "informative": "Confirmations de rendez-vous, mises à jour des stocks de produits, retours clients, mises à jour des tendances. Exemple : 'Planning de réservation de la semaine prochaine' ou 'Nouvelle formation produit disponible'.",
+        "useless": "Marketing général de produits de beauté, actualités sectorielles non pertinentes, promotions spam. Exemple : 'Newsletter générale de l'industrie de la beauté' ou 'Catalogues produits aléatoires'."
+      },
+      "smallBusiness": {
+        "title": "Propriétaire de Petite Entreprise",
+        "description": "Exploitant de commerce de détail ou de service indépendant",
+        "keywords": [
+          "commerce",
+          "petite entreprise",
+          "entrepreneur",
+          "propriétaire de magasin",
+          "commerçant",
+          "gérant"
+        ],
+        "important": "Problèmes de livraison fournisseurs, pannes de système de caisse, incidents de sécurité, questions urgentes de personnel. Exemple : 'Alarme de sécurité du magasin déclenchée' ou 'Avis urgent de rappel de produit'.",
+        "informative": "Rapports de vente, niveaux de stock, plannings des employés, mises à jour fournisseurs. Exemple : 'Résumé hebdomadaire des ventes' ou 'Planification des stocks pour les fêtes'.",
+        "useless": "Démarchages non sollicités de fournisseurs, newsletters générales du secteur, matériel marketing aléatoire. Exemple : 'Abonnez-vous au magazine de commerce' ou 'Catalogue fournisseur aléatoire'."
+      },
+      "freelance": {
+        "title": "Professionnel Freelance",
+        "description": "Travailleur indépendant ou freelance",
+        "keywords": [
+          "freelance",
+          "indépendant",
+          "autonome",
+          "auto-entrepreneur",
+          "gig",
+          "consultant"
+        ],
+        "important": "Délais de projets clients, négociations de contrats, problèmes de paiement, demandes urgentes de révision. Exemple : 'Livrable final nécessaire pour fin de journée' ou 'Retour client urgent nécessitant une attention immédiate'.",
+        "informative": "Mises à jour de projet, demandes de clients potentiels, opportunités sectorielles, événements de réseautage. Exemple : 'Revue d'étape du projet' ou 'Introduction client potentiel'.",
+        "useless": "Emails marketing de plateforme, newsletters générales freelance, offres d'emploi non pertinentes. Exemple : 'Essayez nos outils premium freelance' ou 'Invitation générique à un événement de réseautage'."
+      },
+      "fieldTech": {
+        "title": "Technicien de Terrain",
+        "description": "Professionnel du support technique et de la maintenance sur site",
+        "keywords": [
+          "technicien",
+          "maintenance",
+          "réparation",
+          "service terrain",
+          "installation",
+          "support"
+        ],
+        "important": "Appels de réparation d'urgence, incidents de sécurité, pannes critiques d'équipement, demandes de service immédiat. Exemple : 'Panne de générateur d'urgence à l'Hôpital' ou 'Système critique en panne nécessitant une attention immédiate'.",
+        "informative": "Plannings de maintenance, mises à jour d'équipement, matériels de formation, journaux de service. Exemple : 'Planning de maintenance de la semaine prochaine' ou 'Nouvelles directives d'installation d'équipement'.",
+        "useless": "Marketing d'outils, newsletters générales du secteur, offres de formation non pertinentes. Exemple : 'Abonnez-vous au magazine tech' ou 'Catalogue d'outils aléatoire'."
+      },
+      "researcher": {
+        "title": "Chercheur Scientifique",
+        "description": "Chercheur académique ou industriel",
+        "keywords": [
+          "recherche",
+          "science",
+          "laboratoire",
+          "investigation",
+          "académique",
+          "scientifique"
+        ],
+        "important": "Incidents de sécurité en laboratoire, dates limites de subventions, problèmes critiques d'expérience, questions de financement immédiat. Exemple : 'Violation de sécurité du laboratoire nécessitant une action immédiate' ou 'Date limite de soumission de subvention aujourd'hui'.",
+        "informative": "Résultats de recherche, opportunités de collaboration, dates limites de conférence, mises à jour de publication. Exemple : 'Derniers résultats d'expérience' ou 'Date limite d'abstract pour la conférence à venir'.",
+        "useless": "Marketing d'équipement de laboratoire, newsletters scientifiques générales, spam de conférence non pertinent. Exemple : 'Nouveau catalogue de microscopes' ou 'Abonnement aléatoire à un magazine de recherche'."
+      },
+      "construction": {
+        "title": "Ouvrier du Bâtiment",
+        "description": "Professionnel du bâtiment et des métiers de la construction",
+        "keywords": [
+          "construction",
+          "bâtiment",
+          "métiers",
+          "entrepreneur",
+          "chantier",
+          "main d'œuvre"
+        ],
+        "important": "Violations de sécurité, impacts météo sur les projets, pénuries urgentes de matériaux, pannes d'équipement. Exemple : 'Violation de sécurité sur le chantier nécessitant une action immédiate' ou 'Panne critique d'équipement sur site'.",
+        "informative": "Calendriers de projet, livraisons de matériaux, plannings d'inspection, mises à jour d'accès au site. Exemple : 'Planning de livraison de béton de demain' ou 'Mise à jour des protocoles de sécurité du site'.",
+        "useless": "Marketing d'équipement de construction, newsletters générales du secteur, publicités de formation non pertinentes. Exemple : 'Nouveau catalogue d'outils' ou 'Magazine général de construction'."
+      },
+      "driver": {
+        "title": "Chauffeur/Livreur Professionnel",
+        "description": "Professionnel du transport et service de livraison",
+        "keywords": [
+          "chauffeur",
+          "livraison",
+          "transport",
+          "logistique",
+          "expédition",
+          "coursier"
+        ],
+        "important": "Changements d'itinéraire, problèmes de véhicule, urgences de livraison, incidents de circulation. Exemple : 'Panne de véhicule nécessitant une assistance immédiate' ou 'Changement urgent d'itinéraire dû à une fermeture de route'.",
+        "informative": "Mises à jour de planning, rappels d'entretien, planification d'itinéraire, registres de carburant. Exemple : 'Planning de livraison de la semaine prochaine' ou 'Avis d'entretien véhicule dû'.",
+        "useless": "Marketing de vente de véhicules, newsletters générales de transport, publicités d'assurance non pertinentes. Exemple : 'Achetez de nouveaux camions' ou 'Magazine aléatoire de logistique'."
+      },
+      "admin": {
+        "title": "Professionnel Administratif",
+        "description": "Professionnel de l'administration et du support de bureau",
+        "keywords": [
+          "admin",
+          "bureau",
+          "administratif",
+          "secrétaire",
+          "coordinateur",
+          "assistant"
+        ],
+        "important": "Conflits de calendrier exécutif, changements urgents de réunion, dates limites critiques de documents, urgences de bureau. Exemple : 'Conflit d'agenda PDG nécessitant une résolution immédiate' ou 'Document urgent requis pour la réunion du conseil'.",
+        "informative": "Inventaire fournitures de bureau, plannings de réunion, systèmes de classement, mises à jour de procédures. Exemple : 'Mise à jour mensuelle du calendrier' ou 'Nouvelles directives de système de classement'.",
+        "useless": "Marketing de fournitures de bureau, newsletters administratives générales, publicités de logiciels non pertinentes. Exemple : 'Nouveau catalogue d'imprimantes' ou 'Magazine aléatoire de bureau'."
+      },
+      "finance": {
+        "title": "Professionnel de la Finance",
+        "description": "Professionnel de la finance et de la comptabilité",
+        "keywords": [
+          "finance",
+          "comptabilité",
+          "banque",
+          "investissement",
+          "comptable",
+          "fiscal"
+        ],
+        "important": "Dates limites fiscales, avis d'audit, urgences financières clients, erreurs de reporting. Exemple : 'Date limite critique de déclaration fiscale aujourd'hui' ou 'Demande urgente de document d'audit'.",
+        "informative": "Rapports financiers, mises à jour clients, changements réglementaires, mises à jour logicielles. Exemple : 'Rappel de rapprochement mensuel' ou 'Nouvelle mise à jour réglementation fiscale'.",
+        "useless": "Marketing de logiciels financiers, newsletters comptables générales, publicités de formation non pertinentes. Exemple : 'Essayez notre nouveau logiciel comptable' ou 'Magazine aléatoire de finance'."
+      }
+    }
+  }
 }

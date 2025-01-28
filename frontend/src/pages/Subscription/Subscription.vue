@@ -9,7 +9,7 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative divide-y divide-gray-200">
@@ -28,10 +28,12 @@
                             >
                                 <p class="font-bold">{{ $t("settingsPage.subscriptionPage.freeTrialTitle") }}</p>
                                 <p v-if="daysLeft(new Date(userPlan.expiresThe)) > 0">
-                                    {{ $t("settingsPage.subscriptionPage.freeTrialMessage", {
-                                        expiryDate: formatDate(new Date(userPlan.expiresThe)),
-                                        daysLeft: daysLeft(new Date(userPlan.expiresThe))
-                                    }) }}
+                                    {{
+                                        $t("settingsPage.subscriptionPage.freeTrialMessage", {
+                                            expiryDate: formatDate(new Date(userPlan.expiresThe)),
+                                            daysLeft: daysLeft(new Date(userPlan.expiresThe)),
+                                        })
+                                    }}
                                 </p>
                                 <p v-else>
                                     {{ $t("constants.freeTrialExpired") }}
@@ -45,7 +47,8 @@
                             >
                                 <p class="font-bold">Account Inactive</p>
                                 <p>
-                                    Your account is inactive. You must subscribe to a plan to regain full access. Your last plan was:
+                                    Your account is inactive. You must subscribe to a plan to regain full access. Your
+                                    last plan was:
                                     <span class="font-semibold">{{ userPlan?.plan }}</span>
                                 </p>
                             </div>
@@ -80,10 +83,18 @@
                                 <div
                                     v-for="tier in tiers"
                                     :key="tier.name"
-                                    :class="[tier.selected ? 'ring-2 ring-gray-800' : 'ring-1 ring-gray-200', 'rounded-3xl p-8 xl:p-10']"
+                                    :class="[
+                                        tier.selected ? 'ring-2 ring-gray-800' : 'ring-1 ring-gray-200',
+                                        'rounded-3xl p-8 xl:p-10',
+                                    ]"
                                 >
                                     <div class="flex items-center justify-between gap-x-4">
-                                        <h3 :class="[tier.selected ? 'text-gray-800' : 'text-gray-900', 'text-lg font-semibold leading-8']">
+                                        <h3
+                                            :class="[
+                                                tier.selected ? 'text-gray-800' : 'text-gray-900',
+                                                'text-lg font-semibold leading-8',
+                                            ]"
+                                        >
                                             {{ tier.name }}
                                         </h3>
                                     </div>
@@ -149,6 +160,7 @@ import { STRIPE_PUBLISHABLE_KEY, SUBSCRIPTION_MANAGEMENT_URL } from "@/global/co
 import { Plan } from "./utils/types";
 import Navbar from "@/global/components/Navbar.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 
 const PLAN_LEVELS = {
     start: 0,
@@ -178,24 +190,59 @@ const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
+const timerId = ref<number | null>(null);
 
-const dismissPopup = () => {
+function displayPopup(type: "success" | "error", title: string, message: string) {
+    if (type === "error") {
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    } else {
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    }
+    timerId.value = setTimeout(dismissPopup, 4000);
+}
+
+function dismissPopup() {
     showNotification.value = false;
-};
-
-const displayPopup = (type: "success" | "error", title: string, message: string) => {
-    showNotification.value = true;
-    notificationTitle.value = title;
-    notificationMessage.value = message;
-    backgroundColor.value = type === "success" ? "bg-green-50" : "bg-red-50";
-};
+    if (timerId.value !== null) {
+        clearTimeout(timerId.value);
+    }
+}
 
 const userPlan = ref<Plan | null>(null);
 const isNavMinimized = ref(false);
 
 onMounted(() => {
     getUserPlan();
+    checkStripePaymentStatus();
 });
+
+function checkStripePaymentStatus() {
+    const regrantConsent = sessionStorage.getItem("regrantConsent");
+
+    if (regrantConsent === "true") {
+        return;
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const stripePaymentSuccess = urlParams.get("stripe-payment-success");
+
+    const modifiedUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, modifiedUrl);
+    if (stripePaymentSuccess) {
+        if (stripePaymentSuccess === "true") {
+            displayPopup(
+                "success",
+                "Payment Successful",
+                "Your subscription has been successfully updated. Thank you for your purchase!"
+            );
+        } else if (stripePaymentSuccess === "false") {
+            displayPopup(
+                "error",
+                "Payment Failed",
+                "There was an issue with your payment. Please try again or contact support."
+            );
+        }
+    }
+}
 
 watch(userPlan, () => {
     if (userPlan.value && userPlan.value.isActive) {
@@ -311,7 +358,3 @@ const redirectToPortal = () => {
     window.location.href = SUBSCRIPTION_MANAGEMENT_URL;
 };
 </script>
-
-<style scoped>
-/* Add your styles here */
-</style>

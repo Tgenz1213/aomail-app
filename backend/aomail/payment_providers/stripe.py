@@ -151,8 +151,8 @@ def create_checkout_session(request: HttpRequest):
 
         price_id = PRODUCTS[product][frequency]
         checkout_session = stripe.checkout.Session.create(
-            success_url=f"{BASE_URL}settings?stripe-payment-success=true",
-            cancel_url=f"{BASE_URL}settings?stripe-payment-success=false",
+            success_url=f"{BASE_URL}subscription?stripe-payment-success=true",
+            cancel_url=f"{BASE_URL}subscription?stripe-payment-success=false",
             mode="subscription",
             line_items=[
                 {

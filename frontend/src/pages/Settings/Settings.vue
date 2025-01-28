@@ -9,7 +9,7 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 ring-black ring-opacity-5">
                 <div class="flex flex-col h-full">
@@ -67,7 +67,7 @@
                                                     {{ $t("settingsPage.preferencesPage.preferencesTitle") }}
                                                 </a>
                                             </div>
-                                            <div
+                                            <!-- <div
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
@@ -90,7 +90,7 @@
                                                 >
                                                     {{ $t("settingsPage.dataPage.myData") }}
                                                 </a>
-                                            </div>
+                                            </div> -->
                                         </nav>
                                     </div>
                                 </div>
@@ -103,16 +103,9 @@
                             <MyAccountMenu />
                         </div>
 
-                        <div
-                            v-if="activeSection === 'subscription'"
-                            class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12"
-                        >
-                            <SubscriptionMenu />
-                        </div>
-
-                        <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
+                        <!-- <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
                             <MyDataMenu />
-                        </div>
+                        </div> -->
 
                         <div v-if="activeSection === 'preferences'" class="flex-1 section">
                             <PreferencesMenu />
@@ -128,11 +121,10 @@
 import { ref, onMounted, provide } from "vue";
 import "@fortawesome/fontawesome-free/css/all.css";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { AdjustmentsVerticalIcon, UserIcon, CreditCardIcon, CircleStackIcon } from "@heroicons/vue/24/outline";
+import { AdjustmentsVerticalIcon, UserIcon, CircleStackIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import PreferencesMenu from "@/pages/Settings/components/PreferencesMenu.vue";
 import MyDataMenu from "@/pages/Settings/components/MyDataMenu.vue";
-import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import { i18n } from "@/global/preferences";
@@ -157,7 +149,7 @@ const isDeleteRadioButtonChecked = ref(false);
 const emailSelected = ref("");
 const userDescription = ref("");
 const emailsLinked = ref<EmailLinked[]>([]);
-const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 provide("displayPopup", displayPopup);
 provide("openAddUserDescriptionModal", openAddUserDescriptionModal);
@@ -184,7 +176,6 @@ provide("emailsLinked", emailsLinked);
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     getUserPlan();
-    checkStripePaymentStatus();
 });
 
 async function getUserPlan() {
@@ -202,46 +193,6 @@ function closeUnlinkEmailModal() {
 
 function closeUpdateUserDescriptionModal() {
     isUpdateUserDescriptionModalOpen.value = false;
-}
-
-function checkStripePaymentStatus() {
-    const regrantConsent = sessionStorage.getItem("regrantConsent");
-
-    if (regrantConsent === "true") {
-        return;
-    }
-    const urlParams = new URLSearchParams(window.location.search);
-    const stripePaymentSuccess = urlParams.get("stripe-payment-success");
-    const subscriptionUpdated = urlParams.get("subscription-updated");
-    const goto = urlParams.get("goto");
-
-    const modifiedUrl = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, document.title, modifiedUrl);
-    if (goto === "subscription") {
-        activeSection.value = "subscription";
-    } else if (subscriptionUpdated === "true") {
-        activeSection.value = "subscription";
-        displayPopup(
-            "success",
-            "Subscription Updated",
-            "Your subscription has been successfully updated. The available features have been updated accordingly."
-        );
-    } else if (stripePaymentSuccess) {
-        activeSection.value = "subscription";
-        if (stripePaymentSuccess === "true") {
-            displayPopup(
-                "success",
-                "Payment Successful",
-                "Your subscription has been activated successfully. Thank you for your purchase!"
-            );
-        } else if (stripePaymentSuccess === "false") {
-            displayPopup(
-                "error",
-                "Payment Failed",
-                "There was an issue with your payment. Please try again or contact support."
-            );
-        }
-    }
 }
 
 async function openUnLinkModal(email: string) {
@@ -351,9 +302,7 @@ function openAccountDeletionModal() {
 function switchActiveSection() {
     const nextSection: { [key: string]: string } = {
         account: "preferences",
-        preferences: "subscription",
-        subscription: "data",
-        data: "account",
+        preferences: "account",
     };
 
     setActiveSection(nextSection[activeSection.value]);

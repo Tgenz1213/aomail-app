@@ -1,7 +1,7 @@
 <template>
-    <div class="sticky z-20 top-0 bg-white w-full flex relative border-b border-black shadow-sm border-opacity-10">
+    <div class="sticky z-[150] top-0 bg-white w-full flex relative border-b border-black shadow-sm border-opacity-10">
         <!-- Search bar -->
-        <div class="z-40 flex flex-1 h-12 2xl:h-14 shrink-0 items-center gap-x-4 px-4 sm:gap-x-6 sm:px-6 lg:px-8">
+        <div class="flex flex-1 h-12 2xl:h-14 shrink-0 items-center gap-x-4 px-4 sm:gap-x-6 sm:px-6 lg:px-8">
             <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
                 <div class="relative flex flex-1">
                     <label for="search-field" class="sr-only">{{ $t("constants.userActions.searchbar_search") }}</label>

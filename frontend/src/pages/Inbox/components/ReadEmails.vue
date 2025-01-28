@@ -1,25 +1,29 @@
 <template>
-    <div v-if="hasEmails" class="px-6 py-6">
-        <div class="bg-stone-200 bg-opacity-90 rounded-md">
-            <div class="flex px-2 py-2">
-                <p class="flex-1 text-sm font-semibold leading-6 text-stone-600">
-                    {{ $t("constants.ruleModalConstants.read") }}
-                </p>
-                <div class="ml-auto flex items-center space-x-2">
-                    <button
-                        @click="markAllAsArchive"
-                        class="text-xs text-stone-700 bg-stone-300 hover:bg-stone-400 px-3 py-1 rounded-md flex items-center gap-1"
-                        :disabled="isMarking.read"
-                    >
-                        <ArchiveBoxIcon class="h-4 w-4 text-stone-700" v-if="!isMarking?.read"/>
-                        {{ isMarking?.read ? $t("loading") : $t("markAllAsArchive") }}
-                    </button>
-                    <CheckIcon class="w-6 h-6 text-stone-500" />
+    <div v-if="hasEmails" class="pb-6">
+        <div class="sticky top-[48.5px] 2xl:top-[56.5px] z-[50] bg-white">
+            <div class="py-6 mr-6 ml-6">
+                <div class="bg-stone-100 border border-stone-200 bg-opacity-90 rounded-md">
+                    <div class="flex px-2 py-2">
+                        <p class="flex-1 text-sm font-semibold leading-6 text-stone-600">
+                            {{ $t("constants.ruleModalConstants.read") }}
+                        </p>
+                        <div class="ml-auto flex items-center space-x-2">
+                            <button
+                                @click="markAllAsArchive"
+                                class="text-xs text-stone-700 bg-stone-300 hover:bg-stone-400 px-3 py-1 rounded-md flex items-center gap-1"
+                                :disabled="isMarking.read"
+                            >
+                                <ArchiveBoxIcon class="h-4 w-4 text-stone-700" v-if="!isMarking?.read"/>
+                                {{ isMarking?.read ? $t("loading") : $t("markAllAsArchive") }}
+                            </button>
+                            <CheckIcon class="w-6 h-6 text-stone-500" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="flex gap-x-2">
-            <div class="flex gap-x-2 px-6 pt-5 w-full group" @click="toggleEmailVisibility">
+            <div class="flex gap-x-2 px-12 pb-4 w-full group" @click="toggleEmailVisibility">
                 <p class="cursor-pointer">
                     {{ $t("homePage.youRead") }}
                     <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
@@ -75,17 +79,19 @@
         </div>
         <div v-if="showEmailDescriptions">
             <div v-for="(emailsByDate, date) in groupedEmails" :key="date">
-                <div class="pt-3 px-4">
-                    <div class="relative">
-                        <div class="absolute inset-0 z-0 flex items-center" aria-hidden="true">
-                            <div class="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div class="relative flex justify-center">
-                            <span class="bg-white px-2 text-xs text-gray-500">{{ formatSentDate(date) }}</span>
+                <div class="sticky top-[137px] 2xl:top-[146px] z-[30] bg-white">
+                    <div class="mx-4">
+                        <div class="relative">
+                            <div class="absolute inset-0 z-0 flex items-center px-6" aria-hidden="true">
+                                <div class="w-full border-t border-gray-200"></div>
+                            </div>
+                            <div class="relative flex justify-center">
+                                <span class="bg-white px-2 text-xs text-gray-500">{{ formatSentDate(date) }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex px-4 pt-4">
+                <div class="flex px-10 py-4">
                     <div class="flex">
                         <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-stone-400">
                             <svg

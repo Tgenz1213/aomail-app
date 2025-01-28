@@ -1,35 +1,41 @@
 <template>
-    <div v-if="hasEmails" class="px-6 py-6">
-        <div class="bg-orange-100 bg-opacity-90 rounded-md">
-            <div class="flex px-3 py-2">
-                <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
-                    {{ $t("constants.ruleModalConstants.important") }}
-                </p>
-                <div class="ml-auto flex items-center space-x-2">
-                    <button
-                        @click="markAllAsRead"
-                        class="text-xs text-orange-700 bg-orange-200 hover:bg-orange-300 px-3 py-1 rounded-md flex items-center gap-1"
-                        :disabled="isMarking?.important"
-                    >
-                        <CheckIcon class="h-4 w-4 text-orange-700" v-if="!isMarking?.important"/>
-                        {{ isMarking?.important ? $t("loading") : $t("markAllAsRead") }}
-                    </button>
-                    <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
+    <div v-if="hasEmails">
+        <div class="sticky top-[48.5px] 2xl:top-[56.5px] z-[50] bg-white">
+            <div class="py-6 mr-6 ml-6 ">
+                <div class="bg-orange-100 z-[60] border border-orange-200 bg-opacity-90 rounded-md">
+                    <div class="flex px-3 py-2">
+                        <p class="flex-1 text-sm font-semibold tracking-wide text-orange-600">
+                            {{ $t("constants.ruleModalConstants.important") }}
+                        </p>
+                        <div class="ml-auto flex items-center space-x-2">
+                            <button
+                                @click="markAllAsRead"
+                                class="text-xs text-orange-700 bg-orange-200 hover:bg-orange-300 px-3 py-1 rounded-md flex items-center gap-1"
+                                :disabled="isMarking?.important"
+                            >
+                                <CheckIcon class="h-4 w-4 text-orange-700" v-if="!isMarking?.important"/>
+                                {{ isMarking?.important ? $t("loading") : $t("markAllAsRead") }}
+                            </button>
+                            <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div v-for="(emailsByDate, date) in groupedEmails" :key="date">
-            <div class="pt-3 px-4">
-                <div class="relative">
-                    <div class="absolute inset-0 z-0 flex items-center" aria-hidden="true">
-                        <div class="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div class="relative flex justify-center">
-                        <span class="bg-white px-2 text-xs text-gray-500">{{ formatSentDate(date) }}</span>
+            <div class="sticky top-[137px] 2xl:top-[146px] z-[30] bg-white">
+                <div class="mx-4">
+                    <div class="relative">
+                        <div class="absolute inset-0 z-0 flex items-center" aria-hidden="true">
+                            <div class="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div class="relative flex justify-center">
+                            <span class="bg-white px-2 text-xs text-gray-500">{{ formatSentDate(date) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="flex px-4 pt-4">
+            <div class="flex px-4 py-4">
                 <div class="flex">
                     <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-orange-300">
                         <svg

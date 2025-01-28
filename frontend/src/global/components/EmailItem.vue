@@ -31,20 +31,7 @@
                             :class="`hidden group-hover:block px-2 bg-${color}-100 border border-${color}-200 bg-opacity-90 rounded-md text-sm`"
                         >
                             <div class="flex gap-x-1 items-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    :class="`w-4 h-4 text-${color}-500`"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
-                                    />
-                                </svg>
+                                <SparklesIcon :class="`w-4 h-4 text-${color}-500`" />
                                 <p :class="`text-${color}-600`">{{ $t("constants.userActions.clickToSeeTheSummary") }}</p>
                             </div>
                         </div>
@@ -474,6 +461,7 @@ import {
     DocumentIcon,
     CameraIcon,
     HandRaisedIcon,
+    SparklesIcon,
 } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import { getData, getDataRawResponse, postData, deleteData, putData } from "@/global/fetchData";

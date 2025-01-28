@@ -46,31 +46,31 @@
                         v-if="email?.flags?.meeting"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
-                        {{ $t("homePage.flag.meeting") }}
+                        📅 {{ $t("homePage.flag.meeting") }}
                     </span>
                     <span
                         v-if="email?.flags?.newsletter"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
-                        {{ $t("homePage.flag.newsletter") }}
+                        📰 {{ $t("homePage.flag.newsletter") }}
                     </span>
                     <span
                         v-if="email?.flags?.notification"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
-                        {{ $t("homePage.flag.notification") }}
+                        🔔 {{ $t("homePage.flag.notification") }}
                     </span>
                     <span
                         v-if="email?.flags?.scam"
                         class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
                     >
-                        {{ $t("homePage.flag.scam") }}
+                        🚨 {{ $t("homePage.flag.scam") }}
                     </span>
                     <span
                         v-if="email?.flags?.spam"
                         class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
                     >
-                        {{ $t("homePage.flag.spam") }}
+                        🚫 {{ $t("homePage.flag.spam") }}
                     </span>
                 </div>
             </div>

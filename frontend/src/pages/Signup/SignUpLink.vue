@@ -72,7 +72,7 @@ function handleKeyDown(event: KeyboardEvent) {
         if (step.value === 1) {
             submitSignupData(event);
         } else if (step.value === 2) {
-            router.push({ name: "home" });
+            router.push({ name: "inbox" });
         }
     }
 }
@@ -252,7 +252,7 @@ async function processDemoEmails() {
 
         if (response.success) {
             sessionStorage.clear();
-            router.push({ name: "home" });
+            router.push({ name: "inbox" });
         } else {
             displayPopup("error", i18n.global.t("signUpLinkPage.demoProcessingError"), "");
         }

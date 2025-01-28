@@ -2,7 +2,7 @@
 Handles Labels operations with Gmail API
 
 Features:
-- ✅ replicate_labels: short desc
+- ✅ replicate_labels: Replicate labels on Gmail.
 """
 
 import logging

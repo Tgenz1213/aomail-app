@@ -54,6 +54,7 @@ from aomail.ai_providers.utils import update_tokens_stats
 from aomail.controllers.labels import is_shipping_label, process_label
 from aomail.utils.security import encrypt_text
 from aomail.email_providers.google import labels as google_labels
+from aomail.email_providers.microsoft import labels as microsoft_labels
 
 
 LOGGER = logging.getLogger(__name__)
@@ -97,6 +98,10 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
         ai_output.pop("summary")
         if social_api.type_api == GOOGLE:
             google_labels.replicate_labels(
+                social_api, ai_output, email_data["email_id"]
+            )
+        elif social_api.type_api == MICROSOFT:
+            microsoft_labels.replicate_labels(
                 social_api, ai_output, email_data["email_id"]
             )
 

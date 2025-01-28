@@ -251,13 +251,18 @@ def signup(request: HttpRequest) -> Response:
         )
 
 
-def create_default_agents(user: User, language: str):
+def create_default_agents(user: User, language: str) -> dict:
     """
     Creates default agents for the user based on the preferred language (English or French).
 
     Args:
         user (User): The user for whom agents will be created.
         language (str): The preferred language ('en' or 'fr').
+
+    Returns:
+        dict: A dictionary indicating the success or failure of the operation.
+              - On success: {'message': 'Default agents created successfully'}
+              - On failure: {'error': <error_message>}
     """
     try:
         default_agents_en = [
@@ -354,6 +359,7 @@ def create_default_agents(user: User, language: str):
                 icon_name=agent_data["icon_name"],
             )
         LOGGER.info(f"Default agents created for user {user.username}")
+        return {"message": "Default agents created successfully"}
     except Exception as e:
         LOGGER.error(
             f"Failed to create default agents for user {user.username}: {str(e)}"

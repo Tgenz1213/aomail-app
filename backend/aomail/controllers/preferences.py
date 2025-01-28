@@ -375,3 +375,33 @@ def prioritization(request: HttpRequest) -> Response:
     return Response(
         {"message": "Guidelines updated successfully"}, status=status.HTTP_200_OK
     )
+
+
+@api_view(["GET"])
+@subscription(ALLOW_ALL)
+def get_user_guidelines(request: HttpRequest) -> Response:
+    """
+    Retrieve the current email prioritization guidelines for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        Response: JSON response containing the user's current guidelines for email prioritization.
+    """
+    try:
+        preference = Preference.objects.get(user=request.user)
+        return Response(
+            {
+                "importantGuidelines": preference.important_guidelines,
+                "informativeGuidelines": preference.informative_guidelines,
+                "uselessGuidelines": preference.useless_guidelines,
+            },
+            status=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        LOGGER.error(f"Failed to retrieve user guidelines: {str(e)}")
+        return Response(
+            {"error": "Failed to retrieve guidelines"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

@@ -22,7 +22,7 @@
                 </div>
             </div>
         </div>
-        <div v-for="(emailsByDate, date) in groupedEmails" :key="date">
+        <div v-for="(emailsByDate, date) in groupedEmails" :key="date" class="px-4">
             <div class="sticky top-[137px] 2xl:top-[146px] z-[30] bg-white">
                 <div class="mx-4">
                     <div class="relative">

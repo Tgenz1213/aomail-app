@@ -106,12 +106,10 @@
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
                         <SearchBar />
-                        <div class="px-4">
-                            <ImportantEmail :emails="importantEmails" />
-                            <InformativeEmail :emails="informativeEmails" />
-                            <UselessEmail :emails="uselessEmails" />
-                            <ReadEmail :emails="readEmails" />
-                        </div>
+                        <ImportantEmail :emails="importantEmails" />
+                        <InformativeEmail :emails="informativeEmails" />
+                        <UselessEmail :emails="uselessEmails" />
+                        <ReadEmail :emails="readEmails" />
                     </div>
                 </div>
             </div>

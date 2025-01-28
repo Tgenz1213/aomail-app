@@ -4,9 +4,12 @@
             <div class="py-6 mr-6 ml-6 ">
                 <div class="bg-orange-100 z-[60] border border-orange-200 bg-opacity-90 rounded-md">
                     <div class="flex px-3 py-2">
-                        <p class="flex-1 text-sm font-semibold tracking-wide text-orange-600">
-                            {{ $t("constants.ruleModalConstants.important") }}
-                        </p>
+                        <div class="flex items-center gap-2">
+                            <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
+                            <p class="text-sm font-semibold tracking-wide text-orange-600">
+                                {{ $t("constants.ruleModalConstants.important") }}
+                            </p>
+                        </div>
                         <div class="ml-auto flex items-center space-x-2">
                             <button
                                 @click="markAllAsRead"
@@ -16,7 +19,6 @@
                                 <CheckIcon class="h-4 w-4 text-orange-700" v-if="!isMarking?.important"/>
                                 {{ isMarking?.important ? $t("loading") : $t("markAllAsRead") }}
                             </button>
-                            <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
                         </div>
                     </div>
                 </div>

@@ -3,10 +3,13 @@
         <div class="sticky top-[48.5px] 2xl:top-[56.5px] z-[50] bg-white">
             <div class="py-6 mr-6 ml-6">
                 <div class="bg-stone-100 border border-stone-200 bg-opacity-90 rounded-md">
-                    <div class="flex px-2 py-2">
-                        <p class="flex-1 text-sm font-semibold leading-6 text-stone-600">
-                            {{ $t("constants.ruleModalConstants.read") }}
-                        </p>
+                    <div class="flex px-3 py-2">
+                        <div class="flex items-center gap-2">
+                            <CheckIcon class="w-6 h-6 text-stone-500" />
+                            <p class="text-sm font-semibold tracking-wide text-stone-600">
+                                {{ $t("constants.ruleModalConstants.read") }}
+                            </p>
+                        </div>
                         <div class="ml-auto flex items-center space-x-2">
                             <button
                                 @click="markAllAsArchive"
@@ -16,7 +19,6 @@
                                 <ArchiveBoxIcon class="h-4 w-4 text-stone-700" v-if="!isMarking?.read"/>
                                 {{ isMarking?.read ? $t("loading") : $t("markAllAsArchive") }}
                             </button>
-                            <CheckIcon class="w-6 h-6 text-stone-500" />
                         </div>
                     </div>
                 </div>

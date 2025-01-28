@@ -516,13 +516,13 @@ def get_email_counts(request: HttpRequest) -> Response:
 
         counts = {
             "useless_count": useless_emails.count(),
-            "useless_ids": list(useless_emails.values_list('id', flat=True)),
+            "useless_ids": list(useless_emails.values_list("id", flat=True)),
             "important_count": important_emails.count(),
-            "important_ids": list(important_emails.values_list('id', flat=True)),
+            "important_ids": list(important_emails.values_list("id", flat=True)),
             "informative_count": informative_emails.count(),
-            "informative_ids": list(informative_emails.values_list('id', flat=True)),
+            "informative_ids": list(informative_emails.values_list("id", flat=True)),
             "read_count": read_emails.count(),
-            "read_ids": list(read_emails.values_list('id', flat=True)),
+            "read_ids": list(read_emails.values_list("id", flat=True)),
         }
 
         return Response(counts, status=status.HTTP_200_OK)

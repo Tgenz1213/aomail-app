@@ -116,7 +116,7 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             )
 
         LOGGER.info(
-            f"Email ID: {email_data['email_id']} saved successfully for user ID: {user.id}"
+            f"Email ID: {email_data['email_id']} saved successfully for social_api email: {social_api.email}"
         )
         return True
 

@@ -162,7 +162,7 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
         """Find an existing label or create a new one."""
         for label in existing_labels:
             if name == "important":
-                name = "Important_"
+                name = "important_"
             elif name == "spam":
                 name = "spam_"
             if label.get("name", "") == name:

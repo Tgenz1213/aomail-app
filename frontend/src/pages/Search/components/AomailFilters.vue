@@ -432,7 +432,7 @@ import {
 import { getData } from "@/global/fetchData";
 import { AomailSearchFilter, Category } from "@/global/types";
 import { ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from "@heroicons/vue/20/solid";
-import { ref, inject, defineProps, Ref, onMounted, watch } from "vue";
+import { ref, inject, Ref, onMounted, watch } from "vue";
 
 const emailProviders = ref<string[]>([]);
 const priorities = ref<(typeof IMPORTANT | typeof INFORMATIVE | typeof USELESS)[]>([]);

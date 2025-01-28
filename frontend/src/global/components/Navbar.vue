@@ -147,7 +147,6 @@ const mainNavigation: NavigationPage[] = [
     { name: i18n.global.t("constants.AiNavbar"), href: "/ai-assistant", icon: SparklesIcon },
     { name: i18n.global.t("constants.inboxNavbar"), href: "/inbox", icon: InboxIcon },
     { name: i18n.global.t("constants.searchEmailNavbar"), href: "/search", icon: MagnifyingGlassIcon },
-    { name: i18n.global.t("constants.rulesNavbar"), href: "/rules", icon: BeakerIcon },
     { name: i18n.global.t("constants.replyLaterNavbar"), href: "/reply-later", icon: ArrowUturnLeftIcon },
 ];
 

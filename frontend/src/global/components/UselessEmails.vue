@@ -38,7 +38,7 @@
                         {{ $t("homePage.uselessEmails") }}
                     </span>
                 </p>
-                <div :class="`hidden group-hover:block px-2 py-0.5 bg-gray-400 text-white text-sm shadow rounded-xl`">
+                <div :class="`hidden group-hover:block bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md px-2 text-sm text-gray-700`">
                     <div class="flex gap-x-1 items-center">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -94,14 +94,14 @@
                 </div>
                 <div class="flex px-10 py-4">
                     <div class="flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-400">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke-width="1.5"
                                 stroke="currentColor"
-                                class="w-6 h-6 text-white"
+                                class="w-6 h-6 text-gray-500"
                             >
                                 <path
                                     stroke-linecap="round"
@@ -113,7 +113,7 @@
                     </div>
                     <div class="ml-6 flex-grow">
                         <div
-                            class="overflow-hidden border-l-4 border-gray-300 hover:rounded-l-xl"
+                            class="overflow-hidden border-l-4 border-gray-200 hover:rounded-l-xl"
                             style="overflow: visible"
                         >
                             <ul role="list" class="divide-y divide-gray-200">

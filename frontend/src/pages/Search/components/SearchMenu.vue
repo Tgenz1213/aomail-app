@@ -1,5 +1,5 @@
 <template>
-    <div class="flex space-x-1 2xl:space-x-2 w-full px-6 pt-2 mb-4">
+    <div class="flex space-x-1 2xl:space-x-2 w-full px-6 pt-2">
         <div class="relative w-full">
             <div class="flex w-full">
                 <div class="relative flex-grow">

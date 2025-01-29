@@ -39,7 +39,7 @@
                     </div>
                     <SearchMenu class="w-full mb-4" />
                 </div>
-                <EmailList class="flex-1 flex flex-col w-full px-6 pt-2 mb-4" />
+                <EmailList class="flex-1 flex flex-col w-full px-6 pt-6 mb-4" />
             </div>
             <div class="drag-wrapper">
                 <div class="separator"></div>

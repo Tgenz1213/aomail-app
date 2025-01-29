@@ -2,7 +2,7 @@
     <div class="flex-1 flex flex-col py-2" id="emailList">
         <div class="h-full overflow-y-auto">
             <template v-if="sortedEmailList.length > 0">
-                <ul class="space-y-4 pr-4">
+                <ul class="space-y-4 px-4">
                     <template v-for="(email, index) in sortedEmailList" :key="email.id">
                         <EmailItem :email="email" />
                         <li v-if="index < sortedEmailList.length - 1" class="flex relative pt-2">

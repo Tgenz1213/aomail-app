@@ -2,23 +2,23 @@
     <div v-if="isOpen" class="absolute left-0 right-0 z-50">
         <div class="px-6">
             <div class="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-                <div class="max-h-[400px] overflow-y-auto p-2">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold mb-4">Advanced Optional Filters - Aomail Search</h2>
+                <div class="max-h-[400px] overflow-y-auto py-2 pl-2 pr-4 space-y-4">
+                    <div class="flex items-center mb-2">
+                        <h2 class="text-lg font-semibold">{{ t('aomailFilters.title') }}</h2>
                         <button
                             @click="resetFilters"
-                            class="bg-gray-100 px-3 py-2 text-gray-600 text-sm rounded-md hover:bg-gray-200"
+                            class="bg-gray-100 px-3 py-2 text-gray-600 text-sm rounded-md hover:bg-gray-200 ml-auto"
                         >
-                            Clear All Filters
+                            {{ t('aomailFilters.clearAll') }}
                         </button>
                     </div>
 
                     <!-- Email Provider Section -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">
-                            Choose the Email Providers you want to include in your search
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
+                            {{ t('aomailFilters.emailProviders.title') }}
                         </h3>
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2 pl-1">
                             <input
                                 type="checkbox"
                                 id="gmail"
@@ -26,9 +26,9 @@
                                 v-model="emailProviders"
                                 class="rounded text-gray-600 focus:ring-gray-500"
                             />
-                            <label for="gmail" class="flex items-center">Gmail</label>
+                            <label for="gmail" class="flex items-center">{{ t('aomailFilters.emailProviders.gmail') }}</label>
                         </div>
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2 pl-1">
                             <input
                                 type="checkbox"
                                 id="outlook"
@@ -36,49 +36,51 @@
                                 v-model="emailProviders"
                                 class="rounded text-gray-600 focus:ring-gray-500"
                             />
-                            <label for="outlook" class="flex items-center">Outlook</label>
+                            <label for="outlook" class="flex items-center">{{ t('aomailFilters.emailProviders.outlook') }}</label>
                         </div>
                     </div>
 
                     <!-- Subject -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Subject</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.subject.title') }}</h3>
                         <input
                             type="text"
                             v-model="aomailSearchFilters.subject"
-                            placeholder="Subject contains..."
-                            class="w-full rounded-md border border-gray-300 p-2"
+                            :placeholder="t('aomailFilters.subject.placeholder')"
+                            class="w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                         />
                     </div>
 
                     <!-- Sender Email -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Sender Email</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.senderEmail.title') }}</h3>
                         <input
                             type="text"
                             v-model="aomailSearchFilters.senderEmail"
-                            placeholder="Sender email address contains..."
-                            class="w-full rounded-md border border-gray-300 p-2"
+                            :placeholder="t('aomailFilters.senderEmail.placeholder')"
+                            class="w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                         />
                     </div>
 
                     <!-- Sender Name -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Sender Name</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.senderName.title') }}</h3>
                         <input
                             type="text"
                             v-model="aomailSearchFilters.senderName"
-                            placeholder="Sender name contains..."
-                            class="w-full rounded-md border border-gray-300 p-2"
+                            :placeholder="t('aomailFilters.senderName.placeholder')"
+                            class="w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                         />
                     </div>
 
                     <!-- Category -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Category</h3>
-
-                        <select v-model="aomailSearchFilters.category">
-                            <option disabled value="">Select the category to search in</option>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.category.title') }}</h3>
+                        <select 
+                            v-model="aomailSearchFilters.category" 
+                            class="w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                        >
+                            <option disabled value="">{{ t('aomailFilters.category.placeholder') }}</option>
                             <option
                                 v-for="category in categories"
                                 :key="category.name"
@@ -91,31 +93,33 @@
 
                     <!-- Received Date -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">
-                            Search from Received Date (choose a date to filter emails from that day until now)
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
+                            {{ t('aomailFilters.receivedDate.title') }}
+                            ({{ t('aomailFilters.receivedDate.description') }})
                         </h3>
                         <input
                             type="date"
                             v-model="aomailSearchFilters.sentDate"
-                            class="w-full rounded-md border border-gray-300 p-2"
+                            class="w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                         />
                     </div>
 
                     <!-- Read Date -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">
-                            Search from Read Date (choose a date to filter emails from that day until now)
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
+                            {{ t('aomailFilters.readDate.title') }}
+                            ({{ t('aomailFilters.readDate.description') }})
                         </h3>
                         <input
                             type="date"
                             v-model="aomailSearchFilters.readDate"
-                            class="w-full rounded-md border border-gray-300 p-2"
+                            class="w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                         />
                     </div>
 
                     <!-- Read Status -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Status</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.status.title') }}</h3>
                         <div class="flex items-center space-x-2">
                             <input
                                 type="checkbox"
@@ -123,7 +127,7 @@
                                 v-model="aomailSearchFilters.read"
                                 class="rounded text-gray-600 focus:ring-gray-500"
                             />
-                            <label for="read" class="flex items-center">Read</label>
+                            <label for="read" class="flex items-center">{{ t('aomailFilters.status.read') }}</label>
                         </div>
                         <div class="flex items-center space-x-2">
                             <input
@@ -132,7 +136,7 @@
                                 v-model="aomailSearchFilters.archive"
                                 class="rounded text-gray-600 focus:ring-gray-500"
                             />
-                            <label for="archive" class="flex items-center">Archive</label>
+                            <label for="archive" class="flex items-center">{{ t('aomailFilters.status.archive') }}</label>
                         </div>
                         <div class="flex items-center space-x-2">
                             <input
@@ -141,15 +145,13 @@
                                 v-model="aomailSearchFilters.replyLater"
                                 class="rounded text-gray-600 focus:ring-gray-500"
                             />
-                            <label for="replyLater" class="flex items-center">Reply Later</label>
+                            <label for="replyLater" class="flex items-center">{{ t('aomailFilters.status.replyLater') }}</label>
                         </div>
                     </div>
 
                     <!-- Priority Section -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">
-                            {{ $t("homePage.modals.filterModal.priority") }}
-                        </h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.priority.title') }}</h3>
                         <div class="flex justify-between items-center">
                             <div class="flex items-center space-x-2">
                                 <input
@@ -160,11 +162,9 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="important" class="flex items-center">
-                                    <span
-                                        class="bg-orange-100 text-orange-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
+                                    <span class="bg-orange-100 text-orange-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                                         <ExclamationCircleIcon class="h-4 w-4 items-center inline mr-1" />
-                                        Important
+                                        {{ t('aomailFilters.priority.important.badge') }}
                                     </span>
                                 </label>
                             </div>
@@ -177,11 +177,9 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="informative" class="flex items-center">
-                                    <span
-                                        class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                                         <InformationCircleIcon class="h-4 w-4 inline mr-1" />
-                                        Informative
+                                        {{ t('aomailFilters.priority.informative.badge') }}
                                     </span>
                                 </label>
                             </div>
@@ -194,11 +192,9 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="useless" class="flex items-center">
-                                    <span
-                                        class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
+                                    <span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                                         <TrashIcon class="h-4 w-4 inline mr-1" />
-                                        Useless
+                                        {{ t('aomailFilters.priority.useless.badge') }}
                                     </span>
                                 </label>
                             </div>
@@ -207,7 +203,7 @@
 
                     <!-- Additional Flags Section -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Flags</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.flags.title') }}</h3>
                         <div class="grid grid-cols-2 gap-2">
                             <div class="flex items-center space-x-2">
                                 <input
@@ -217,10 +213,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="notification" class="flex items-center">
-                                    <span
-                                        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
-                                    >
-                                        Notification
+                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+                                        {{ t('aomailFilters.flags.notification') }}
                                     </span>
                                 </label>
                             </div>
@@ -232,10 +226,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="newsletter" class="flex items-center">
-                                    <span
-                                        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
-                                    >
-                                        Newsletter
+                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+                                        {{ t('aomailFilters.flags.newsletter') }}
                                     </span>
                                 </label>
                             </div>
@@ -247,10 +239,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="meeting" class="flex items-center">
-                                    <span
-                                        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
-                                    >
-                                        Meeting
+                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+                                        {{ t('aomailFilters.flags.meeting') }}
                                     </span>
                                 </label>
                             </div>
@@ -262,10 +252,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="spam" class="flex items-center">
-                                    <span
-                                        class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
-                                    >
-                                        Spam
+                                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                        {{ t('aomailFilters.flags.spam') }}
                                     </span>
                                 </label>
                             </div>
@@ -277,10 +265,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="scam" class="flex items-center">
-                                    <span
-                                        class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
-                                    >
-                                        Scams
+                                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                        {{ t('aomailFilters.flags.scams') }}
                                     </span>
                                 </label>
                             </div>
@@ -291,11 +277,9 @@
                                     v-model="aomailSearchFilters.hasAttachments"
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
-                                <label for="scam" class="flex items-center">
-                                    <span
-                                        class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
-                                    >
-                                        Has Attachments
+                                <label for="hasAttachments" class="flex items-center">
+                                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                        {{ t('aomailFilters.flags.hasAttachments') }}
                                     </span>
                                 </label>
                             </div>
@@ -304,7 +288,7 @@
 
                     <!-- Answer -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Answer</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.answer.title') }}</h3>
                         <div class="grid grid-cols-2 gap-2">
                             <div class="flex items-center space-x-2">
                                 <input
@@ -315,10 +299,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="answerRequired" class="flex items-center">
-                                    <span
-                                        class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
-                                        Answer Required
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                                        {{ t('aomailFilters.answer.answerRequired') }}
                                     </span>
                                 </label>
                             </div>
@@ -331,10 +313,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="mightRequireAnswer" class="flex items-center">
-                                    <span
-                                        class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
-                                        Might Require Answer
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                                        {{ t('aomailFilters.answer.mightRequireAnswer') }}
                                     </span>
                                 </label>
                             </div>
@@ -347,10 +327,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="noAnswerRequired" class="flex items-center">
-                                    <span
-                                        class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
-                                        No Answer Required
+                                    <span class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                                        {{ t('aomailFilters.answer.noAnswerRequired') }}
                                     </span>
                                 </label>
                             </div>
@@ -359,7 +337,7 @@
 
                     <!-- Relevance -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Relevance</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('aomailFilters.relevance.title') }}</h3>
                         <div class="grid grid-cols-2 gap-2">
                             <div class="flex items-center space-x-2">
                                 <input
@@ -370,10 +348,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="highlyRelevant" class="flex items-center">
-                                    <span
-                                        class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
-                                        Highly Relevant
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                                        {{ t('aomailFilters.relevance.highlyRelevant') }}
                                     </span>
                                 </label>
                             </div>
@@ -386,10 +362,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="possiblyRelevant" class="flex items-center">
-                                    <span
-                                        class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
-                                        Possibly Relevant
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                                        {{ t('aomailFilters.relevance.possiblyRelevant') }}
                                     </span>
                                 </label>
                             </div>
@@ -402,10 +376,8 @@
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
                                 <label for="notRelevant" class="flex items-center">
-                                    <span
-                                        class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
-                                    >
-                                        Not Relevant
+                                    <span class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                                        {{ t('aomailFilters.relevance.notRelevant') }}
                                     </span>
                                 </label>
                             </div>
@@ -418,6 +390,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, inject, Ref, watch, onMounted } from "vue";
+import { i18n } from "@/global/preferences";
 import {
     ANSWER_REQUIRED,
     GOOGLE,
@@ -434,7 +408,8 @@ import {
 import { getData } from "@/global/fetchData";
 import { AomailSearchFilter, Category } from "@/global/types";
 import { ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from "@heroicons/vue/20/solid";
-import { ref, inject, Ref, onMounted, watch } from "vue";
+
+const t = (key: string) => i18n.global.t(key);
 
 const emailProviders = ref<string[]>([]);
 const priorities = ref<(typeof IMPORTANT | typeof INFORMATIVE | typeof USELESS)[]>([]);

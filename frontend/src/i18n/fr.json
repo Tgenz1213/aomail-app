@@ -1046,5 +1046,127 @@
         "useless": "Marketing de logiciels financiers, newsletters comptables générales, publicités de formation non pertinentes. Exemple : 'Essayez notre nouveau logiciel comptable' ou 'Magazine aléatoire de finance'."
       }
     }
+  },
+  "apiFilters": {
+    "title": "Filtres Optionnels Avancés - Recherche API",
+    "clearAll": "Effacer tous les filtres",
+    "emailProviders": {
+      "title": "Choisissez les fournisseurs de messagerie à inclure dans votre recherche",
+      "gmail": "Gmail",
+      "outlook": "Outlook"
+    },
+    "subject": "Objet",
+    "subjectPlaceholder": "L'objet contient...",
+    "senderEmail": "Email de l'expéditeur",
+    "senderEmailPlaceholder": "L'adresse email de l'expéditeur contient...",
+    "recipientEmail": "Email du destinataire",
+    "recipientEmailPlaceholder": "L'adresse email du destinataire contient...",
+    "emailBody": "Corps de l'email",
+    "emailBodyPlaceholder": "Le corps de l'email contient...",
+    "receivedDate": "Rechercher depuis la date de réception",
+    "receivedDateDescription": "choisissez une date pour filtrer les emails depuis ce jour jusqu'à maintenant",
+    "attachmentTypes": {
+      "title": "Types de pièces jointes",
+      "placeholder": "Sélectionnez les types de pièces jointes...",
+      "types": {
+        "docx": "Document Word",
+        "xlsx": "Feuille de calcul Excel",
+        "pptx": "Présentation PowerPoint",
+        "pdf": "Document PDF",
+        "jpg": "Image JPEG",
+        "png": "Image PNG",
+        "gif": "Image GIF",
+        "txt": "Document Texte",
+        "zip": "Archive ZIP",
+        "mp3": "Audio MP3",
+        "mp4": "Vidéo MP4",
+        "html": "Document HTML"
+      }
+    },
+    "searchIn": {
+      "title": "Rechercher dans",
+      "placeholder": "Sélectionnez les options de recherche...",
+      "options": {
+        "spams": "Spams",
+        "deleted_emails": "Emails supprimés",
+        "drafts": "Brouillons",
+        "sent_emails": "Emails envoyés"
+      }
+    }
+  },
+  "aomailFilters": {
+    "title": "Filtres Optionnels Avancés - Recherche Aomail",
+    "clearAll": "Effacer tous les filtres",
+    "emailProviders": {
+      "title": "Choisissez les fournisseurs de messagerie à inclure dans votre recherche",
+      "gmail": "Gmail",
+      "outlook": "Outlook"
+    },
+    "subject": {
+      "title": "Objet",
+      "placeholder": "L'objet contient..."
+    },
+    "senderEmail": {
+      "title": "Email de l'expéditeur",
+      "placeholder": "L'adresse email de l'expéditeur contient..."
+    },
+    "senderName": {
+      "title": "Nom de l'expéditeur",
+      "placeholder": "Le nom de l'expéditeur contient..."
+    },
+    "category": {
+      "title": "Catégorie",
+      "placeholder": "Sélectionnez la catégorie à rechercher"
+    },
+    "receivedDate": {
+      "title": "Rechercher depuis la date de réception",
+      "description": "choisissez une date pour filtrer les emails depuis ce jour jusqu'à maintenant"
+    },
+    "readDate": {
+      "title": "Rechercher depuis la date de lecture",
+      "description": "choisissez une date pour filtrer les emails depuis ce jour jusqu'à maintenant"
+    },
+    "status": {
+      "title": "Statut",
+      "read": "Lu",
+      "archive": "Archivé",
+      "replyLater": "Répondre plus tard"
+    },
+    "priority": {
+      "title": "Priorité",
+      "important": {
+        "label": "Important",
+        "badge": "Important"
+      },
+      "informative": {
+        "label": "Informatif",
+        "badge": "Informatif"
+      },
+      "useless": {
+        "label": "Inutile",
+        "badge": "Inutile"
+      }
+    },
+    "flags": {
+      "title": "Indicateurs",
+      "notification": "Notification",
+      "newsletter": "Newsletter",
+      "meeting": "Réunion",
+      "spam": "Spam",
+      "scams": "Arnaques",
+      "hasAttachments": "Contient des pièces jointes"
+    },
+    "answer": {
+      "title": "Réponse",
+      "answerRequired": "Réponse requise",
+      "mightRequireAnswer": "Réponse possible",
+      "noAnswerRequired": "Pas de réponse requise"
+    },
+    "relevance": {
+      "title": "Pertinence",
+      "highlyRelevant": "Très pertinent",
+      "possiblyRelevant": "Possiblement pertinent",
+      "notRelevant": "Non pertinent"
+    }
   }
 }

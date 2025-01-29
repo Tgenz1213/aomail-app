@@ -1047,5 +1047,127 @@
         "useless": "Financial software marketing, general accounting newsletters, irrelevant training ads. Example: 'Try our new accounting software' or 'Random finance magazine'."
       }
     }
+  },
+  "apiFilters": {
+    "title": "Advanced Optional Filters - API Search",
+    "clearAll": "Clear All Filters",
+    "emailProviders": {
+      "title": "Choose the Email Providers you want to include in your search",
+      "gmail": "Gmail",
+      "outlook": "Outlook"
+    },
+    "subject": "Subject",
+    "subjectPlaceholder": "Subject contains...",
+    "senderEmail": "Sender Email",
+    "senderEmailPlaceholder": "Sender Email Address contains...",
+    "recipientEmail": "Recipient Email",
+    "recipientEmailPlaceholder": "Recipient Email Address contains...",
+    "emailBody": "Email body",
+    "emailBodyPlaceholder": "Email body contains...",
+    "receivedDate": "Search from Received Date",
+    "receivedDateDescription": "choose a date to filter emails from that day until now",
+    "attachmentTypes": {
+      "title": "Attachment Types",
+      "placeholder": "Select attachment types...",
+      "types": {
+        "docx": "Word Document",
+        "xlsx": "Excel Spreadsheet",
+        "pptx": "PowerPoint Presentation",
+        "pdf": "PDF Document",
+        "jpg": "JPEG Image",
+        "png": "PNG Image",
+        "gif": "GIF Image",
+        "txt": "Text Document",
+        "zip": "ZIP Archive",
+        "mp3": "MP3 Audio",
+        "mp4": "MP4 Video",
+        "html": "HTML Document"
+      }
+    },
+    "searchIn": {
+      "title": "Search In",
+      "placeholder": "Select search options...",
+      "options": {
+        "spams": "Spams",
+        "deleted_emails": "Deleted emails",
+        "drafts": "Drafts",
+        "sent_emails": "Sent emails"
+      }
+    }
+  },
+  "aomailFilters": {
+    "title": "Advanced Optional Filters - Aomail Search",
+    "clearAll": "Clear All Filters",
+    "emailProviders": {
+      "title": "Choose the Email Providers you want to include in your search",
+      "gmail": "Gmail",
+      "outlook": "Outlook"
+    },
+    "subject": {
+      "title": "Subject",
+      "placeholder": "Subject contains..."
+    },
+    "senderEmail": {
+      "title": "Sender Email",
+      "placeholder": "Sender email address contains..."
+    },
+    "senderName": {
+      "title": "Sender Name",
+      "placeholder": "Sender name contains..."
+    },
+    "category": {
+      "title": "Category",
+      "placeholder": "Select the category to search in"
+    },
+    "receivedDate": {
+      "title": "Search from Received Date",
+      "description": "choose a date to filter emails from that day until now"
+    },
+    "readDate": {
+      "title": "Search from Read Date",
+      "description": "choose a date to filter emails from that day until now"
+    },
+    "status": {
+      "title": "Status",
+      "read": "Read",
+      "archive": "Archive",
+      "replyLater": "Reply Later"
+    },
+    "priority": {
+      "title": "Priority",
+      "important": {
+        "label": "Important",
+        "badge": "Important"
+      },
+      "informative": {
+        "label": "Informative",
+        "badge": "Informative"
+      },
+      "useless": {
+        "label": "Useless",
+        "badge": "Useless"
+      }
+    },
+    "flags": {
+      "title": "Flags",
+      "notification": "Notification",
+      "newsletter": "Newsletter",
+      "meeting": "Meeting",
+      "spam": "Spam",
+      "scams": "Scams",
+      "hasAttachments": "Has Attachments"
+    },
+    "answer": {
+      "title": "Answer",
+      "answerRequired": "Answer Required",
+      "mightRequireAnswer": "Might Require Answer",
+      "noAnswerRequired": "No Answer Required"
+    },
+    "relevance": {
+      "title": "Relevance",
+      "highlyRelevant": "Highly Relevant",
+      "possiblyRelevant": "Possibly Relevant",
+      "notRelevant": "Not Relevant"
+    }
   }
 }

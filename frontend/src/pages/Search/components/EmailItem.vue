@@ -74,27 +74,14 @@
                 <span
                     v-if="localEmail.shortSummary"
                     v-bind:class="{
-                        'hidden group-hover:block px-1.5 text-white shadow rounded-xl inline-flex': true,
-                        'bg-orange-300': localEmail.priority === IMPORTANT,
-                        'bg-blue-300': localEmail.priority === INFORMATIVE,
-                        'bg-gray-300': localEmail.priority !== IMPORTANT && localEmail.priority !== INFORMATIVE,
+                        'hidden group-hover:block px-1.5 shadow rounded-md inline-flex ring-1 ring-inset': true,
+                        'bg-orange-50 text-orange-700 ring-orange-600/10': localEmail.priority === IMPORTANT,
+                        'bg-blue-50 text-blue-700 ring-blue-700/10': localEmail.priority === INFORMATIVE,
+                        'bg-gray-50 text-gray-600 ring-gray-500/10': localEmail.priority !== IMPORTANT && localEmail.priority !== INFORMATIVE,
                     }"
                 >
                     <div class="flex gap-x-1 items-center justify-center h-full">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-4 h-4"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
-                            />
-                        </svg>
+                        <SparklesIcon class="w-4 h-4"></SparklesIcon>
                         <p class="text-xs">
                             {{ $t("constants.userActions.clickToSeeTheSummary") }}
                         </p>
@@ -119,7 +106,7 @@
 <script setup lang="ts">
 import { deleteData, getData, postData, putData } from "@/global/fetchData";
 import { inject, Ref, ref, watch } from "vue";
-import { EyeIcon } from "@heroicons/vue/24/outline";
+import { EyeIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import router from "@/router/router";

@@ -2,10 +2,10 @@
     <div class="flex-1 flex flex-col py-2" id="emailList">
         <div class="h-full overflow-y-auto">
             <template v-if="sortedEmailList.length > 0">
-                <ul class="space-y-4 px-4">
+                <ul class="px-4">
                     <template v-for="(email, index) in sortedEmailList" :key="email.id">
                         <EmailItem :email="email" />
-                        <li v-if="index < sortedEmailList.length - 1" class="flex relative pt-2">
+                        <li v-if="index < sortedEmailList.length - 1" class="flex relative pb-6">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
@@ -14,7 +14,7 @@
                 </ul>
             </template>
             <template v-else-if="showEmailApiList">
-                <ul class="space-y-4 pr-4">
+                <ul class="px-4">
                     <template v-for="(dictEmails, provider) in emailApiList" :key="provider">
                         --- {{ provider }} ---
                         <div v-for="(emailList, userEmail) in dictEmails" :key="userEmail">
@@ -22,7 +22,7 @@
                             <div v-for="email in emailList" :key="email.providerId">
                                 <EmailItem :email="email" />
                             </div>
-                            <li class="flex relative pt-2">
+                            <li class="flex relative pb-6">
                                 <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                     <div class="w-full border-t border-gray-300"></div>
                                 </div>

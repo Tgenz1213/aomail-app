@@ -20,12 +20,13 @@ from aomail.controllers import (
     search_api_emails,
     search_rules,
 )
-from aomail.controllers import statistics
+from aomail.analytics import statistics
 from aomail.controllers import search_labels
 from aomail.controllers import labels
 from aomail.controllers import signatures
 from aomail.payment_providers import stripe
 from aomail.administration import dashboard 
+from aomail.analytics import dashboard as user_dashboard
 from aomail.controllers import custom_categorization
 from .controllers import views
 from .controllers import agents
@@ -111,6 +112,7 @@ urlpatterns = [
     path('check_sender', views.check_sender_for_user, name='check_sender_for_user'),
     #----------------------- STATISTICS -----------------------#
     path('user/statistics/', statistics.get_statistics , name='statistics'),
+    path('user/dashboard_data/', user_dashboard.dashboard_data , name='user_dashboard_data'),
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('user/social_api/review_user_description/', custom_categorization.review_user_description, name='review_user_description'),
     path('user/generate_categories_scratch/', custom_categorization.generate_categories_scratch, name='generate_categories_scratch'),

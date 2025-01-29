@@ -1,7 +1,7 @@
 <template>
     <!-- Email Provider Dashboard Section -->
     <section class="">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Email Provider Dashboard</h2>
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">{{ $t('analyticsPage.analytics.emailProviderData') }}</h2>
         <div class="grid grid-cols-2 gap-4">
             <div class="h-[300px]">
                 <div :id="chartIds.domainDistribution" class="w-full h-full"></div>
@@ -14,18 +14,18 @@
 
     <!-- Aomail Dashboard Section -->
     <section class="">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Aomail Dashboard</h2>
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">{{ $t('analyticsPage.analytics.aomailData') }}</h2>
         <div class="grid grid-cols-3 gap-6">
             <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">Importance distribution per category</h3>
+                <h3 class="text-sm font-medium text-gray-600 mb-2">{{ $t('analyticsPage.analytics.importanceDistribution') }}</h3>
                 <div :id="chartIds.importance" class="h-[400px]"></div>
             </div>
             <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">Answer Requirements distribution per category</h3>
+                <h3 class="text-sm font-medium text-gray-600 mb-2">{{ $t('analyticsPage.analytics.answerRequirementDistribution') }}</h3>
                 <div :id="chartIds.answerRequirement" class="h-[400px]"></div>
             </div>
             <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">Email Relevance distribution per category</h3>
+                <h3 class="text-sm font-medium text-gray-600 mb-2">{{ $t('analyticsPage.analytics.relevanceDistribution') }}</h3>
                 <div :id="chartIds.relevance" class="h-[400px]"></div>
             </div>
         </div>
@@ -33,8 +33,10 @@
 </template>
 
 <script setup lang="ts">
+import { getData } from "@/global/fetchData";
+import { i18n } from "@/global/preferences";
 import * as echarts from "echarts";
-import { onMounted, onUnmounted } from "vue";
+import { inject, onMounted, onUnmounted } from "vue";
 
 let importanceChart: echarts.ECharts;
 let answerRequirementChart: echarts.ECharts;
@@ -50,50 +52,83 @@ const chartIds = {
     senderDistribution: "senderDistributionChart",
 } as const;
 
-const importanceData = [
-    {
-        name: "Others",
-        children: [
-            { name: "Important", value: 43 },
-            { name: "Informative", value: 87 },
-            { name: "Useless", value: 36 },
-        ],
-    },
-    {
-        name: "ESAIP",
-        children: [
-            { name: "Important", value: 12 },
-            { name: "Informative", value: 32 },
-            { name: "Useless", value: 56 },
-        ],
-    },
-    {
-        name: "Aomail Startup",
-        children: [
-            { name: "Important", value: 67 },
-            { name: "Informative", value: 2 },
-            { name: "Useless", value: 21 },
-        ],
-    },
-];
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-const importanceChartOptions = {
-    tooltip: {
-        trigger: "item",
-        formatter: "{b}: {c}",
-    },
-    legend: {
-        title: "Percentage of emails per category per importance",
-    },
-    series: {
-        type: "sunburst",
-        data: importanceData,
-        radius: [0, "90%"],
-        label: {
-            rotate: "radial",
-            minAngle: 10,
-        },
-    },
+interface DashboardData {
+    distribution: {
+        [key: string]: {
+            nbEmailsImportant: number;
+            nbEmailsInformative: number;
+            nbEmailsUseless: number;
+            nbEmailsAnswerRequired: number;
+            nbEmailsMightRequireAnswer: number;
+            nbEmailsNoAnswerRequired: number;
+            nbEmailsHighlyRelevant: number;
+            nbEmailsPossiblyRelevant: number;
+            nbEmailsNotRelevant: number;
+        };
+    };
+}
+
+interface ImportanceData {
+    name: string;
+    children: { name: string; value: number }[];
+}
+let importanceData: ImportanceData[] | undefined;
+let answerRequiredData: number[][] = [];
+let categoryNames: string[];
+let relevanceData: (string | number)[][] = [];
+
+const fetchDashboardData = async () => {
+    const response = await getData("user/dashboard_data/");
+
+    if (!response.success) {
+        displayPopup?.("error", "Failed to fetch dashboard data", response.error as string);
+        return;
+    }
+
+    const distributionData = response.data as DashboardData;
+    categoryNames = Object.keys(distributionData.distribution);
+
+    const answerRequiredRow = categoryNames.map(
+        (category) => distributionData.distribution[category].nbEmailsAnswerRequired
+    );
+    const mightRequireAnswerRow = categoryNames.map(
+        (category) => distributionData.distribution[category].nbEmailsMightRequireAnswer
+    );
+    const noAnswerRequiredRow = categoryNames.map(
+        (category) => distributionData.distribution[category].nbEmailsNoAnswerRequired
+    );
+    answerRequiredData = [answerRequiredRow, mightRequireAnswerRow, noAnswerRequiredRow];
+
+    importanceData = Object.entries(distributionData.distribution).map(([category, data]) => ({
+        name: category,
+        children: [
+            { name: "Important", value: data.nbEmailsImportant },
+            { name: "Informative", value: data.nbEmailsInformative },
+            { name: "Useless", value: data.nbEmailsUseless },
+        ],
+    }));
+
+    categoryNames.forEach((category) => console.log(distributionData.distribution[category].nbEmailsAnswerRequired));
+
+    /// relevant stuff
+
+    // Reset relevanceData before populating
+    relevanceData = [];
+
+    // Add header row first
+    relevanceData.push(["Category", "Highly Relevant", "Possibly Relevant", "Not Relevant"]);
+
+    // Add data rows
+    categoryNames.forEach((category) =>
+        relevanceData.push([
+            category,
+            distributionData.distribution[category].nbEmailsHighlyRelevant,
+            distributionData.distribution[category].nbEmailsPossiblyRelevant,
+            distributionData.distribution[category].nbEmailsNotRelevant,
+        ])
+    );
 };
 
 const handleResize = () => {
@@ -104,84 +139,9 @@ const handleResize = () => {
     senderDistributionChart?.resize();
 };
 
-const rawData = [
-    [100, 302, 301],
-    [320, 132, 101],
-    [220, 182, 191],
-];
-const totalData: number[] = [];
-for (let i = 0; i < rawData[0].length; ++i) {
-    let sum = 0;
-    for (let j = 0; j < rawData.length; ++j) {
-        sum += rawData[j][i];
-    }
-    totalData.push(sum);
-}
-const grid = {
-    left: 100,
-    right: 100,
-    top: 50,
-    bottom: 50,
-};
-const answerRequirementSeries = ["Answer Required", "Might Require Answer", "No Answer Required"].map((name, sid) => {
-    return {
-        name,
-        type: "bar",
-        stack: "total",
-        barWidth: "60%",
-        label: {
-            show: true,
-            formatter: (params: { value: number }) => Math.round(params.value * 1000) / 10 + "%",
-        },
-        data: rawData[sid].map((d, did) => (totalData[did] <= 0 ? 0 : d / totalData[did])),
-    };
-});
-const answerRequirementChartOptions = {
-    tooltip: {
-        trigger: "item",
-        formatter: (params: any) => `${params.seriesName}: ${params.value * totalData[params.dataIndex]}`,
-    },
-    legend: {
-        title: "Percentage of emails per category per answer requirement",
-        selectedMode: true,
-    },
-    grid,
-    yAxis: {
-        type: "value",
-    },
-    xAxis: {
-        type: "category",
-        data: ["Others", "ESAIP", "Aomail Startup"],
-    },
-    series: answerRequirementSeries,
-};
-
-const relevanceChartOptions = {
-    legend: {},
-    tooltip: {
-        formatter: (params: any) => `${params.seriesName}: ${params.value}%`,
-    },
-    dataset: {
-        source: [
-            ["category", "Others", "ESAIP", "Aomail Startup"],
-            ["Highly Relevant", 41.1, 30.4, 65.1],
-            ["Possibly Relevant", 86.5, 92.1, 85.7],
-            ["Not Relevant", 24.1, 67.2, 79.5],
-        ],
-    },
-    xAxis: { type: "category" },
-    yAxis: { type: "value", show: false },
-    grid: { bottom: "55%" },
-    series: [
-        { type: "bar", seriesLayoutBy: "row" },
-        { type: "bar", seriesLayoutBy: "row" },
-        { type: "bar", seriesLayoutBy: "row" },
-    ],
-};
-
 const domainDistributionOptions = {
     title: {
-        text: "Emails received per domain",
+        text: i18n.global.t('analyticsPage.analytics.emailsReceivedPerDomain'),
         textStyle: {
             fontSize: 14,
             fontWeight: "normal",
@@ -232,7 +192,7 @@ const domainDistributionOptions = {
 
 const senderDistributionOptions = {
     title: {
-        text: "Emails received per sender",
+        text: i18n.global.t('analyticsPage.analytics.emailsReceivedPerSender'),
         textStyle: {
             fontSize: 14,
             fontWeight: "normal",
@@ -298,7 +258,10 @@ const senderDistributionOptions = {
     ],
 };
 
-onMounted(() => {
+onMounted(async () => {
+    // First fetch the data
+    await fetchDashboardData();
+
     const importanceChartEl = document.getElementById(chartIds.importance);
     const answerRequirementChartEl = document.getElementById(chartIds.answerRequirement);
     const relevanceChartEl = document.getElementById(chartIds.relevance);
@@ -310,9 +273,100 @@ onMounted(() => {
         !answerRequirementChartEl ||
         !relevanceChartEl ||
         !domainDistributionChartEl ||
-        !senderDistributionChartEl
+        !senderDistributionChartEl ||
+        !importanceData // Add check for data
     )
         return;
+
+    // Initialize charts with data
+    importanceChart = echarts.init(importanceChartEl, null, {
+        renderer: "canvas",
+        useDirtyRect: false,
+    });
+    importanceChart.setOption({
+        tooltip: {
+            trigger: "item",
+            formatter: "{b}: {c}",
+        },
+        legend: {
+            title: "Percentage of emails per category per importance",
+        },
+        series: {
+            type: "sunburst",
+            data: importanceData,
+            radius: [0, "90%"],
+            label: {
+                rotate: "radial",
+                minAngle: 10,
+            },
+        },
+    });
+
+    ////// answer req part
+    const totalData: number[] = [];
+    for (let i = 0; i < answerRequiredData[0].length; ++i) {
+        let sum = 0;
+        for (let j = 0; j < answerRequiredData.length; ++j) {
+            sum += answerRequiredData[j][i];
+        }
+        totalData.push(sum);
+    }
+    const grid = {
+        left: 100,
+        right: 100,
+        top: 50,
+        bottom: 50,
+    };
+    const answerRequirementSeries = ["Answer Required", "Might Require Answer", "No Answer Required"].map(
+        (name, sid) => {
+            return {
+                name,
+                type: "bar",
+                stack: "total",
+                barWidth: "60%",
+                label: {
+                    show: true,
+                    formatter: (params: { value: number }) => Math.round(params.value * 1000) / 10 + "%",
+                },
+                data: answerRequiredData[sid].map((d, did) => (totalData[did] <= 0 ? 0 : d / totalData[did])),
+            };
+        }
+    );
+    const answerRequirementChartOptions = {
+        tooltip: {
+            trigger: "item",
+            formatter: (params: any) => `${params.seriesName}: ${params.value * totalData[params.dataIndex]}`,
+        },
+        legend: {
+            title: "Percentage of emails per category per answer requirement",
+            selectedMode: true,
+        },
+        grid,
+        yAxis: {
+            type: "value",
+        },
+        xAxis: {
+            type: "category",
+            data: categoryNames,
+        },
+        series: answerRequirementSeries,
+    };
+    //// reevance part
+
+    const relevanceChartOptions = {
+        legend: {},
+        tooltip: {},
+        dataset: {
+            source: relevanceData,
+        },
+        xAxis: { type: "category" },
+        yAxis: { type: "value" },
+        series: [
+            { type: "bar", name: "Highly Relevant" },
+            { type: "bar", name: "Possibly Relevant" },
+            { type: "bar", name: "Not Relevant" },
+        ],
+    };
 
     domainDistributionChart = echarts.init(domainDistributionChartEl, null, {
         renderer: "canvas",
@@ -325,12 +379,6 @@ onMounted(() => {
         useDirtyRect: false,
     });
     senderDistributionChart.setOption(senderDistributionOptions);
-
-    importanceChart = echarts.init(importanceChartEl, null, {
-        renderer: "canvas",
-        useDirtyRect: false,
-    });
-    importanceChart.setOption(importanceChartOptions);
 
     answerRequirementChart = echarts.init(answerRequirementChartEl, null, {
         renderer: "canvas",

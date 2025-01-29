@@ -508,6 +508,11 @@
   "analyticsPage": {
     "myData": "Mes données",
     "analytics": {
+      "importanceDistribution": "Distribution de l'importance par catégorie",
+      "answerRequirementDistribution": "Distribution des besoins de réponse par catégorie",
+      "relevanceDistribution": "Distribution de la pertinence par catégorie",
+      "emailsReceivedPerDomain": "Emails reçus par domaine",
+      "emailsReceivedPerSender": "Emails reçus par expéditeur",
       "aomailData": "Données Aomail",
       "emailProviderData": "Données du Fournisseur Email",
       "dashboard": "Tableau de bord",

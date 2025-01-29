@@ -24,7 +24,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Case, When
 from django.contrib.auth import authenticate
 from datetime import timedelta
-from aomail.controllers.statistics import compute_statistics
+from aomail.analytics.statistics import compute_statistics
 from aomail.utils.security import admin_access_required
 from aomail.models import Category, Email, Rule, SocialAPI, Statistics, Subscription
 from aomail.utils import security

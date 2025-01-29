@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, provide } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import DashboardTab from "./components/DashboardTab.vue";
@@ -95,6 +95,8 @@ const currentTabComponent = computed(() => {
     const tab = tabs.find((t) => t.name === activeTab.value);
     return tab ? tab.component : null;
 });
+
+provide("displayPopup", displayPopup);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

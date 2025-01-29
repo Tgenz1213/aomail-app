@@ -37,7 +37,7 @@
                             </h1>
                         </div>
                     </div>
-                    <SearchMenu class="w-full px-6 pt-2 mb-4" />
+                    <SearchMenu class="w-full mb-4" />
                 </div>
                 <EmailList class="flex-1 flex flex-col w-full px-6 pt-2 mb-4" />
             </div>

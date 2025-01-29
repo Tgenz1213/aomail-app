@@ -119,6 +119,7 @@ import AomailFilters from "./AomailFilters.vue";
 import ApiFilters from "./ApiFilters.vue";
 import { AOMAIL_SEARCH_KEY, API_SEARCH_KEY } from "@/global/const";
 import { EmailApiIds, EmailApiListType } from "../utils/types";
+import { i18n } from "@/global/preferences";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -140,8 +141,8 @@ provide("aomailSearchFilters", aomailSearchFilters);
 provide("apiSearchFilters", apiSearchFilters);
 
 const searchModes: KeyValuePair[] = [
-    { key: AOMAIL_SEARCH_KEY, value: "Aomail" },
-    { key: API_SEARCH_KEY, value: "All emails" },
+    { key: AOMAIL_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.aomail") },
+    { key: API_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.allEmails") },
 ];
 const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
 

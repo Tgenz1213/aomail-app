@@ -616,6 +616,10 @@
       "read": "Read",
       "notRead": "Unread",
       "replyLater": "Reply Later"
+    },
+    "searchModes": {
+      "aomail": "Aomail",
+      "allEmails": "Old emails"
     }
   },
   "newPage": {

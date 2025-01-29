@@ -93,10 +93,9 @@
 import { ref, onMounted, provide } from "vue";
 import "@fortawesome/fontawesome-free/css/all.css";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { AdjustmentsVerticalIcon, UserIcon, CircleStackIcon } from "@heroicons/vue/24/outline";
+import { AdjustmentsVerticalIcon, UserIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import PreferencesMenu from "@/pages/Settings/components/PreferencesMenu.vue";
-import MyDataMenu from "@/pages/Settings/components/MyDataMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import { i18n } from "@/global/preferences";

@@ -143,6 +143,7 @@
     "AiNavbar": "Assistant IA",
     "homeNavbar": "Accueil",
     "newEmailNavbar": "Nouveau Email",
+    "analyticsNavbar": "Analytiques",
     "searchEmailNavbar": "Recherche Email (beta)",
     "rulesNavbar": "Règles",
     "replyLaterNavbar": "Répondre Plus Tard",
@@ -502,9 +503,37 @@
         "forOutlook": "Pour Outlook :",
         "closeModal": "Vous pouvez fermer cette fenêtre."
       }
-    },
-    "dataPage": {
-      "myData": "Mes données"
+    }
+  },
+  "analyticsPage": {
+    "myData": "Mes données",
+    "analytics": {
+      "aomailData": "Données Aomail",
+      "emailProviderData": "Données du Fournisseur Email",
+      "dashboard": "Tableau de bord",
+      "emailCategories": "Catégories d'Emails",
+      "emailPriorities": "Priorités des Emails",
+      "emailRelevance": "Pertinence des Emails",
+      "answerRequired": "Réponse Requise",
+      "flags": "Drapeaux",
+      "metrics": "Métriques",
+      "selectSince": "Sélectionner Depuis",
+      "selectPeriod": "Sélectionner la Période",
+      "selectDataOptions": "Sélectionner les Options de Données",
+      "average": "Moyenne",
+      "minimum": "Minimum",
+      "maximum": "Maximum",
+      "statisticsFor": "Statistiques pour {metric}",
+      "since": "Depuis",
+      "periods": "Périodes",
+      "selectProvider": "Sélectionner le Fournisseur",
+      "storageUsage": "Utilisation du Stockage",
+      "emailStats": "Statistiques des Emails",
+      "totalEmails": "Total des Emails",
+      "unreadEmails": "Emails Non Lus",
+      "drafts": "Brouillons",
+      "folderStats": "Statistiques des Dossiers",
+      "selectProviderPrompt": "Veuillez sélectionner un fournisseur d'email pour voir les statistiques"
     }
   },
   "rulesPage": {

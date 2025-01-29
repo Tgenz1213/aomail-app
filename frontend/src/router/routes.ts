@@ -19,6 +19,7 @@ import Labels from "@/pages/Labels/Labels.vue";
 import Logout from "@/pages/Logout/Logout.vue";
 import CustomCategorization from "@/pages/CustomCategorization/CustomCategorization.vue";
 import Subscription from "@/pages/Subscription/Subscription.vue";
+import Analytics from "@/pages/Analytics/Analytics.vue";
 
 export interface RouteConfig {
     path: string;
@@ -162,11 +163,11 @@ const subscription: RouteConfig = {
     component: Subscription,
 };
 
-// const analytics: RouteConfig = {
-//     path: "/analytics",
-//     name: "analytics",
-//     component: Analytics,
-// };
+const analytics: RouteConfig = {
+    path: "/analytics",
+    name: "analytics",
+    component: Analytics,
+};
 
 const routes: RouteConfig[] = [
     login,
@@ -189,7 +190,7 @@ const routes: RouteConfig[] = [
     notAuthorized,
     notFound,
     subscription,
-    // analytics,
+    analytics,
 ];
 
 export default routes;

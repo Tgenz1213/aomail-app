@@ -143,6 +143,7 @@
     "AiNavbar": "AI Assistant",
     "homeNavbar": "Home",
     "newEmailNavbar": "New Email",
+    "analyticsNavbar": "Analytics",
     "searchEmailNavbar": "Search Email (beta)",
     "rulesNavbar": "Rules",
     "replyLaterNavbar": "Reply Later",
@@ -502,9 +503,37 @@
         "forOutlook": "For Outlook:",
         "closeModal": "You can close this modal."
       }
-    },
-    "dataPage": {
-      "myData": "My data"
+    }
+  },
+  "analyticsPage": {
+    "myData": "My Data",
+    "analytics": {
+      "aomailData": "Aomail Data",
+      "emailProviderData": "Email Provider Data",
+      "dashboard": "Dashboard",
+      "emailCategories": "Email Categories",
+      "emailPriorities": "Email Priorities",
+      "emailRelevance": "Email Relevance",
+      "answerRequired": "Answer Required",
+      "flags": "Flags",
+      "metrics": "Metrics",
+      "selectSince": "Select Since",
+      "selectPeriod": "Select Period",
+      "selectDataOptions": "Select Data Options",
+      "average": "Average",
+      "minimum": "Minimum",
+      "maximum": "Maximum",
+      "statisticsFor": "Statistics for {metric}",
+      "since": "Since",
+      "periods": "Periods",
+      "selectProvider": "Select Provider",
+      "storageUsage": "Storage Usage",
+      "emailStats": "Email Statistics",
+      "totalEmails": "Total Emails",
+      "unreadEmails": "Unread Emails",
+      "drafts": "Drafts",
+      "folderStats": "Folder Statistics",
+      "selectProviderPrompt": "Please select an email provider to view statistics"
     }
   },
   "rulesPage": {

@@ -146,7 +146,7 @@ onMounted(() => {
 const mainNavigation: NavigationPage[] = [
     { name: i18n.global.t("constants.AiNavbar"), href: "/ai-assistant", icon: SparklesIcon },
     { name: i18n.global.t("constants.inboxNavbar"), href: "/inbox", icon: InboxIcon },
-    { name: "Analytics", href: "/analytics", icon: ChartBarIcon },
+    { name: i18n.global.t("constants.analyticsNavbar"), href: "/analytics", icon: ChartBarIcon },
     { name: i18n.global.t("constants.searchEmailNavbar"), href: "/search", icon: MagnifyingGlassIcon },
     { name: i18n.global.t("constants.replyLaterNavbar"), href: "/reply-later", icon: ArrowUturnLeftIcon },
 ];

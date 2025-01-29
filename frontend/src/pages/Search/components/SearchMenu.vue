@@ -48,20 +48,20 @@
             <button
                 type="button"
                 @click="searchEmails"
-                class="w-full h-full bg-gray-700 rounded-md px-2 2xl:px-4 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:px-7 2xl:text-lg"
+                class="w-full h-full bg-gray-700 px-3 2xl:px-5 rounded-md text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:text-lg"
             >
                 {{ $t("searchPage.searchButton") }}
                 <magnifying-glass-icon class="w-4 2xl:w-5" />
             </button>
         </div>
-        <div class="flex-grow h-full">
+        <div>
             <Listbox v-model="selectedSearchMode">
                 <div class="relative h-full">
                     <ListboxButton
-                        class="relative w-full h-full cursor-default rounded-md bg-white px-3 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6 flex items-center"
+                        class="relative w-full h-full cursor-default rounded-md bg-white px-2 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6 flex items-center"
                     >
                         <span class="block truncate flex-grow">{{ selectedSearchMode.value }}</span>
-                        <span class="pointer-events-none flex items-center">
+                        <span class="pl-1 pointer-events-none flex items-center">
                             <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                         </span>
                     </ListboxButton>
@@ -71,7 +71,7 @@
                         leave-to-class="opacity-0"
                     >
                         <ListboxOptions
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                            class="absolute z-10 mt-1 max-h-60 w-[120%] overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                         >
                             <ListboxOption
                                 v-for="searchMode in searchModes"
@@ -82,7 +82,7 @@
                                 <li
                                     :class="[
                                         active ? 'bg-gray-800 text-white' : 'text-gray-900',
-                                        'relative cursor-default select-none py-2 pl-3 pr-9',
+                                        'relative cursor-default select-none py-2 pl-3',
                                     ]"
                                 >
                                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
@@ -113,7 +113,7 @@
 import { postData } from "@/global/fetchData";
 import { AomailSearchFilter, ApiSearchFilter, Email, EmailDetails, EmailProvider, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
-import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { MagnifyingGlassIcon, ChevronUpDownIcon } from "@heroicons/vue/24/outline";
 import { inject, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
 import AomailFilters from "./AomailFilters.vue";
 import ApiFilters from "./ApiFilters.vue";
@@ -141,7 +141,7 @@ provide("apiSearchFilters", apiSearchFilters);
 
 const searchModes: KeyValuePair[] = [
     { key: AOMAIL_SEARCH_KEY, value: "Aomail" },
-    { key: API_SEARCH_KEY, value: "API" },
+    { key: API_SEARCH_KEY, value: "All emails" },
 ];
 const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
 

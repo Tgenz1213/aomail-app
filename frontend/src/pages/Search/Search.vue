@@ -15,7 +15,7 @@
                 :style="{ width: manualEmailWidth + '%' }"
                 class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full overflow-y-auto"
             >
-                <div class="sticky top-0 bg-white z-10">
+                <div class="sticky top-0 bg-white z-[10] pb-4">
                     <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
                         <div class="flex gap-x-3 items-center">
                             <svg
@@ -37,7 +37,7 @@
                             </h1>
                         </div>
                     </div>
-                    <SearchMenu class="w-full px-6 pt-2 mb-4" />
+                    <SearchMenu class="w-full mb-4" />
                 </div>
                 <EmailList class="flex-1 flex flex-col w-full px-6 pt-2 mb-4" />
             </div>

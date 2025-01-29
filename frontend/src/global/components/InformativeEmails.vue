@@ -4,9 +4,12 @@
     <div class="py-6 mr-6 ml-6">
       <div class="bg-blue-100 z-[60] border border-blue-200 bg-opacity-90 rounded-md">
         <div class="flex px-3 py-2">
-          <p class="flex-1 text-sm font-semibold tracking-wide text-blue-600">
-            {{ $t("constants.ruleModalConstants.informative") }}
-          </p>
+          <div class="flex items-center gap-2">
+            <information-circle-icon class="w-6 h-6 text-blue-500" />
+            <p class="text-sm font-semibold tracking-wide text-blue-600">
+              {{ $t("constants.ruleModalConstants.informative") }}
+            </p>
+          </div>
           <div class="ml-auto flex items-center space-x-2">
             <button
               @click="markAllAsRead"
@@ -16,14 +19,12 @@
               <CheckIcon v-if="!isMarking?.informative" class="h-4 w-4 text-blue-700" />
               {{ isMarking?.informative ? $t("loading") : $t("markAllAsRead") }}
             </button>
-            <information-circle-icon class="w-6 h-6 text-blue-500" />
           </div>
         </div>
       </div>
     </div>
   </div>
-  
-  <div v-for="(emailsByDate, date) in groupedEmails" :key="date">
+  <div v-for="(emailsByDate, date) in groupedEmails" :key="date" class="px-4">
     <div class="sticky top-[137px] 2xl:top-[146px] z-[30] bg-white">
       <div class="mx-4">
         <div class="relative">
@@ -38,14 +39,14 @@
     </div>
     <div class="flex px-4 py-4">
       <div class="flex">
-        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-300">
+        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-6 h-6 text-white"
+            class="w-6 h-6 text-blue-500"
           >
             <path
               stroke-linecap="round"
@@ -56,7 +57,7 @@
         </span>
       </div>
       <div class="ml-6 flex-grow">
-        <div class="overflow-hidden border-l-4 border-blue-300 hover:rounded-l-xl" style="overflow: visible">
+        <div class="overflow-hidden border-l-4 border-blue-200 hover:rounded-l-xl" style="overflow: visible">
           <ul role="list" class="divide-y divide-gray-200">
             <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
               <EmailItem :email="email" color="blue" :replyLater="replyLater" />

@@ -4,9 +4,12 @@
             <div class="py-6 mr-6 ml-6 ">
                 <div class="bg-orange-100 z-[60] border border-orange-200 bg-opacity-90 rounded-md">
                     <div class="flex px-3 py-2">
-                        <p class="flex-1 text-sm font-semibold tracking-wide text-orange-600">
-                            {{ $t("constants.ruleModalConstants.important") }}
-                        </p>
+                        <div class="flex items-center gap-2">
+                            <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
+                            <p class="text-sm font-semibold tracking-wide text-orange-600">
+                                {{ $t("constants.ruleModalConstants.important") }}
+                            </p>
+                        </div>
                         <div class="ml-auto flex items-center space-x-2">
                             <button
                                 @click="markAllAsRead"
@@ -16,13 +19,12 @@
                                 <CheckIcon class="h-4 w-4 text-orange-700" v-if="!isMarking?.important"/>
                                 {{ isMarking?.important ? $t("loading") : $t("markAllAsRead") }}
                             </button>
-                            <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div v-for="(emailsByDate, date) in groupedEmails" :key="date">
+        <div v-for="(emailsByDate, date) in groupedEmails" :key="date" class="px-4">
             <div class="sticky top-[137px] 2xl:top-[146px] z-[30] bg-white">
                 <div class="mx-4">
                     <div class="relative">
@@ -37,14 +39,14 @@
             </div>
             <div class="flex px-4 py-4">
                 <div class="flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-orange-300">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-orange-100">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke-width="1.5"
                             stroke="currentColor"
-                            class="w-6 h-6 text-white"
+                            class="w-6 h-6 text-orange-500"
                         >
                             <path
                                 stroke-linecap="round"
@@ -56,7 +58,7 @@
                 </div>
                 <div class="ml-6 flex-grow">
                     <div
-                        class="overflow-hidden border-l-4 border-orange-300 hover:rounded-l-xl"
+                        class="overflow-hidden border-l-4 border-orange-200 hover:rounded-l-xl"
                         style="overflow: visible"
                     >
                         <ul role="list" class="divide-y divide-gray-200">

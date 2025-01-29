@@ -4,9 +4,12 @@
             <div class="py-6 mr-6 ml-6">
                 <div class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md">
                     <div class="flex px-3 py-2">
-                        <p class="flex-1 text-sm font-semibold tracking-wide text-gray-600">
-                            {{ $t("constants.ruleModalConstants.useless") }}
-                        </p>
+                        <div class="flex items-center gap-2">
+                            <trash-icon class="w-6 h-6 text-gray-500" />
+                            <p class="text-sm font-semibold tracking-wide text-gray-600">
+                                {{ $t("constants.ruleModalConstants.useless") }}
+                            </p>
+                        </div>
                         <div class="ml-auto flex items-center space-x-2">
                             <button
                                 @click="markAllAsRead"
@@ -16,7 +19,6 @@
                                 <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless"/>
                                 {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
                             </button>
-                            <trash-icon class="w-6 h-6 text-gray-500" />
                         </div>
                     </div>
                 </div>
@@ -36,7 +38,7 @@
                         {{ $t("homePage.uselessEmails") }}
                     </span>
                 </p>
-                <div :class="`hidden group-hover:block px-2 py-0.5 bg-gray-400 text-white text-sm shadow rounded-xl`">
+                <div :class="`hidden group-hover:block bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md px-2 text-sm text-gray-700`">
                     <div class="flex gap-x-1 items-center">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -92,14 +94,14 @@
                 </div>
                 <div class="flex px-10 py-4">
                     <div class="flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-400">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke-width="1.5"
                                 stroke="currentColor"
-                                class="w-6 h-6 text-white"
+                                class="w-6 h-6 text-gray-500"
                             >
                                 <path
                                     stroke-linecap="round"
@@ -111,7 +113,7 @@
                     </div>
                     <div class="ml-6 flex-grow">
                         <div
-                            class="overflow-hidden border-l-4 border-gray-300 hover:rounded-l-xl"
+                            class="overflow-hidden border-l-4 border-gray-200 hover:rounded-l-xl"
                             style="overflow: visible"
                         >
                             <ul role="list" class="divide-y divide-gray-200">

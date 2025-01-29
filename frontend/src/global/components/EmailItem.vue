@@ -28,24 +28,11 @@
                             </p>
                         </div>
                         <div
-                            :class="`hidden group-hover:block px-2 py-0.5 bg-${color}-300 text-white text-sm shadow rounded-xl`"
+                            :class="`hidden group-hover:block px-2 bg-${color}-100 border border-${color}-200 bg-opacity-90 rounded-md text-sm`"
                         >
                             <div class="flex gap-x-1 items-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    class="w-4 h-4"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
-                                    />
-                                </svg>
-                                <p>{{ $t("constants.userActions.clickToSeeTheSummary") }}</p>
+                                <SparklesIcon :class="`w-4 h-4 text-${color}-500`" />
+                                <p :class="`text-${color}-600`">{{ $t("constants.userActions.clickToSeeTheSummary") }}</p>
                             </div>
                         </div>
                     </div>
@@ -59,31 +46,31 @@
                         v-if="email?.flags?.meeting"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
-                        {{ $t("homePage.flag.meeting") }}
+                        📅 {{ $t("homePage.flag.meeting") }}
                     </span>
                     <span
                         v-if="email?.flags?.newsletter"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
-                        {{ $t("homePage.flag.newsletter") }}
+                        📰 {{ $t("homePage.flag.newsletter") }}
                     </span>
                     <span
                         v-if="email?.flags?.notification"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
                     >
-                        {{ $t("homePage.flag.notification") }}
+                        🔔 {{ $t("homePage.flag.notification") }}
                     </span>
                     <span
                         v-if="email?.flags?.scam"
                         class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
                     >
-                        {{ $t("homePage.flag.scam") }}
+                        🚨 {{ $t("homePage.flag.scam") }}
                     </span>
                     <span
                         v-if="email?.flags?.spam"
                         class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
                     >
-                        {{ $t("homePage.flag.spam") }}
+                        🚫 {{ $t("homePage.flag.spam") }}
                     </span>
                 </div>
             </div>
@@ -474,6 +461,7 @@ import {
     DocumentIcon,
     CameraIcon,
     HandRaisedIcon,
+    SparklesIcon,
 } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import { getData, getDataRawResponse, postData, deleteData, putData } from "@/global/fetchData";

@@ -20,7 +20,15 @@ import json
 import logging
 import google.generativeai as genai
 from datetime import datetime
-from aomail.constants import GEMINI_CREDS
+from aomail.constants import (
+    ANSWER_REQUIRED,
+    GEMINI_CREDS,
+    HIGHLY_RELEVANT,
+    MIGHT_REQUIRE_ANSWER,
+    NO_ANSWER_REQUIRED,
+    NOT_RELEVANT,
+    POSSIBLY_RELEVANT,
+)
 from aomail.ai_providers.utils import extract_json_from_response
 
 
@@ -394,14 +402,14 @@ def categorize_and_summarize_email(
         dict: Structured JSON response with categorized and summarized email details.
     """
     response_list = {
-        "Answer Required": "Message requires an answer.",
-        "Might Require Answer": "Message might require an answer.",
-        "No Answer Required": "No answer is required.",
+        ANSWER_REQUIRED: "Message requires an answer.",
+        MIGHT_REQUIRE_ANSWER: "Message might require an answer.",
+        NO_ANSWER_REQUIRED: "No answer is required.",
     }
     relevance_list = {
-        "Highly Relevant": "Message is highly relevant to the recipient.",
-        "Possibly Relevant": "Message might be relevant to the recipient.",
-        "Not Relevant": "Message is not relevant to the recipient.",
+        HIGHLY_RELEVANT: "Message is highly relevant to the recipient.",
+        POSSIBLY_RELEVANT: "Message might be relevant to the recipient.",
+        NOT_RELEVANT: "Message is not relevant to the recipient.",
     }
 
     template = f"""You are a smart email assistant acting as if you were a secretary, summarizing an email for the recipient orally.

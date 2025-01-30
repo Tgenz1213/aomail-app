@@ -1,7 +1,6 @@
 <template>
     <!-- Email Provider Dashboard Section -->
     <section class="">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">{{ $t('analyticsPage.analytics.emailProviderData') }}</h2>
         <div class="grid grid-cols-2 gap-4">
             <div class="h-[300px]">
                 <div :id="chartIds.domainDistribution" class="w-full h-full"></div>
@@ -14,18 +13,23 @@
 
     <!-- Aomail Dashboard Section -->
     <section class="">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">{{ $t('analyticsPage.analytics.aomailData') }}</h2>
         <div class="grid grid-cols-3 gap-6">
             <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">{{ $t('analyticsPage.analytics.importanceDistribution') }}</h3>
+                <h3 class="text-sm font-medium text-gray-600 mb-2">
+                    {{ $t("analyticsPage.analytics.importanceDistribution") }}
+                </h3>
                 <div :id="chartIds.importance" class="h-[400px]"></div>
             </div>
             <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">{{ $t('analyticsPage.analytics.answerRequirementDistribution') }}</h3>
+                <h3 class="text-sm font-medium text-gray-600 mb-2">
+                    {{ $t("analyticsPage.analytics.answerRequirementDistribution") }}
+                </h3>
                 <div :id="chartIds.answerRequirement" class="h-[400px]"></div>
             </div>
             <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">{{ $t('analyticsPage.analytics.relevanceDistribution') }}</h3>
+                <h3 class="text-sm font-medium text-gray-600 mb-2">
+                    {{ $t("analyticsPage.analytics.relevanceDistribution") }}
+                </h3>
                 <div :id="chartIds.relevance" class="h-[400px]"></div>
             </div>
         </div>
@@ -68,6 +72,12 @@ interface DashboardData {
             nbEmailsNotRelevant: number;
         };
     };
+    emailsReceivedData: {
+        orderedDomains: string[];
+        orderedDomainsNbEmails: number[];
+        orderedSenders: { email: string; name: string; value: number }[];
+        orderedSendersNbEmails: number[];
+    };
 }
 
 interface ImportanceData {
@@ -78,6 +88,10 @@ let importanceData: ImportanceData[] | undefined;
 let answerRequiredData: number[][] = [];
 let categoryNames: string[];
 let relevanceData: (string | number)[][] = [];
+let orderedDomains: string[];
+let orderedDomainsNbEmails: number[];
+let orderedSenders: { email: string; name: string; value: number }[];
+let orderedSendersNbEmails: number[];
 
 const fetchDashboardData = async () => {
     const response = await getData("user/dashboard_data/");
@@ -87,21 +101,21 @@ const fetchDashboardData = async () => {
         return;
     }
 
-    const distributionData = response.data as DashboardData;
-    categoryNames = Object.keys(distributionData.distribution);
+    const dashboardData = response.data as DashboardData;
+    categoryNames = Object.keys(dashboardData.distribution);
 
     const answerRequiredRow = categoryNames.map(
-        (category) => distributionData.distribution[category].nbEmailsAnswerRequired
+        (category) => dashboardData.distribution[category].nbEmailsAnswerRequired
     );
     const mightRequireAnswerRow = categoryNames.map(
-        (category) => distributionData.distribution[category].nbEmailsMightRequireAnswer
+        (category) => dashboardData.distribution[category].nbEmailsMightRequireAnswer
     );
     const noAnswerRequiredRow = categoryNames.map(
-        (category) => distributionData.distribution[category].nbEmailsNoAnswerRequired
+        (category) => dashboardData.distribution[category].nbEmailsNoAnswerRequired
     );
     answerRequiredData = [answerRequiredRow, mightRequireAnswerRow, noAnswerRequiredRow];
 
-    importanceData = Object.entries(distributionData.distribution).map(([category, data]) => ({
+    importanceData = Object.entries(dashboardData.distribution).map(([category, data]) => ({
         name: category,
         children: [
             { name: "Important", value: data.nbEmailsImportant },
@@ -110,7 +124,7 @@ const fetchDashboardData = async () => {
         ],
     }));
 
-    categoryNames.forEach((category) => console.log(distributionData.distribution[category].nbEmailsAnswerRequired));
+    categoryNames.forEach((category) => console.log(dashboardData.distribution[category].nbEmailsAnswerRequired));
 
     /// relevant stuff
 
@@ -124,11 +138,16 @@ const fetchDashboardData = async () => {
     categoryNames.forEach((category) =>
         relevanceData.push([
             category,
-            distributionData.distribution[category].nbEmailsHighlyRelevant,
-            distributionData.distribution[category].nbEmailsPossiblyRelevant,
-            distributionData.distribution[category].nbEmailsNotRelevant,
+            dashboardData.distribution[category].nbEmailsHighlyRelevant,
+            dashboardData.distribution[category].nbEmailsPossiblyRelevant,
+            dashboardData.distribution[category].nbEmailsNotRelevant,
         ])
     );
+
+    orderedDomains = dashboardData.emailsReceivedData.orderedDomains;
+    orderedDomainsNbEmails = dashboardData.emailsReceivedData.orderedDomainsNbEmails;
+    orderedSenders = dashboardData.emailsReceivedData.orderedSenders;
+    orderedSendersNbEmails = dashboardData.emailsReceivedData.orderedSendersNbEmails;
 };
 
 const handleResize = () => {
@@ -137,125 +156,6 @@ const handleResize = () => {
     relevanceChart?.resize();
     domainDistributionChart?.resize();
     senderDistributionChart?.resize();
-};
-
-const domainDistributionOptions = {
-    title: {
-        text: i18n.global.t('analyticsPage.analytics.emailsReceivedPerDomain'),
-        textStyle: {
-            fontSize: 14,
-            fontWeight: "normal",
-        },
-    },
-    tooltip: {
-        trigger: "axis",
-        axisPointer: {
-            type: "shadow",
-        },
-    },
-    grid: {
-        top: 40,
-        bottom: 20,
-        left: 100,
-        right: 20,
-    },
-    xAxis: {
-        type: "value",
-        position: "top",
-        splitLine: {
-            lineStyle: {
-                type: "dashed",
-            },
-        },
-    },
-    yAxis: {
-        type: "category",
-        axisLine: { show: true },
-        axisLabel: { show: true },
-        axisTick: { show: true },
-        splitLine: { show: false },
-        data: ["esaip.org", "linkedin.com", "google.com", "sfr.fr", "alphapen.fr"],
-    },
-    series: [
-        {
-            name: "Number of emails",
-            type: "bar",
-            stack: "Total",
-            label: {
-                show: true,
-                position: "right",
-            },
-            data: [40, 45, 32, 26, 32],
-        },
-    ],
-};
-
-const senderDistributionOptions = {
-    title: {
-        text: i18n.global.t('analyticsPage.analytics.emailsReceivedPerSender'),
-        textStyle: {
-            fontSize: 14,
-            fontWeight: "normal",
-        },
-    },
-    tooltip: {
-        trigger: "axis",
-        axisPointer: {
-            type: "shadow",
-        },
-        formatter: (params: any) => {
-            const data = params[0];
-            return `${data.name}: ${data.value}<br/>Email: ${data.axisValue}`;
-        },
-    },
-    grid: {
-        top: 40,
-        bottom: 20,
-        left: 120,
-        right: 20,
-    },
-    xAxis: {
-        type: "value",
-        position: "top",
-        splitLine: {
-            lineStyle: {
-                type: "dashed",
-            },
-        },
-    },
-    yAxis: {
-        type: "category",
-        axisLine: { show: true },
-        axisLabel: {
-            show: true,
-            formatter: (value: string) => {
-                const name = value.split(" ")[0] + " " + (value.split(" ")[1] || "");
-                return name;
-            },
-        },
-        axisTick: { show: true },
-        splitLine: { show: false },
-        data: [
-            "Augustin ROLET augustin.rolet.pro@gmail.com",
-            "notification@linkedin.com",
-            "no-reply@google.com",
-            "Jean DUPONT bonjour@orange.com",
-            "Benoit GIRO colis@amazon.fr",
-        ],
-    },
-    series: [
-        {
-            color: "#4f46e5",
-            name: "Number of emails",
-            type: "bar",
-            stack: "Total",
-            label: {
-                show: true,
-                position: "right",
-            },
-            data: [22, 4, 27, 11, 13],
-        },
-    ],
 };
 
 onMounted(async () => {
@@ -365,6 +265,117 @@ onMounted(async () => {
             { type: "bar", name: "Highly Relevant" },
             { type: "bar", name: "Possibly Relevant" },
             { type: "bar", name: "Not Relevant" },
+        ],
+    };
+
+    /// emails received daaa
+
+    const domainDistributionOptions = {
+        title: {
+            text: i18n.global.t("analyticsPage.analytics.emailsReceivedPerDomain"),
+            textStyle: {
+                fontSize: 14,
+                fontWeight: "normal",
+            },
+        },
+        tooltip: {
+            trigger: "axis",
+            axisPointer: {
+                type: "shadow",
+            },
+        },
+        grid: {
+            top: 40,
+            bottom: 20,
+            left: 100,
+            right: 20,
+        },
+        xAxis: {
+            type: "value",
+            position: "top",
+            splitLine: {
+                lineStyle: {
+                    type: "dashed",
+                },
+            },
+        },
+        yAxis: {
+            type: "category",
+            axisLine: { show: true },
+            axisLabel: { show: true },
+            axisTick: { show: true },
+            splitLine: { show: false },
+            data: orderedDomains,
+        },
+        series: [
+            {
+                name: "Number of emails",
+                type: "bar",
+                stack: "Total",
+                label: {
+                    show: true,
+                    position: "right",
+                },
+                data: orderedDomainsNbEmails,
+            },
+        ],
+    };
+
+    const senderDistributionOptions = {
+        title: {
+            text: i18n.global.t("analyticsPage.analytics.emailsReceivedPerSender"),
+            textStyle: {
+                fontSize: 14,
+                fontWeight: "normal",
+            },
+        },
+        tooltip: {
+            trigger: "axis",
+            axisPointer: {
+                type: "shadow",
+            },
+        },
+        grid: {
+            top: 40,
+            bottom: 20,
+            left: 120,
+            right: 20,
+        },
+        xAxis: {
+            type: "value",
+            position: "top",
+            splitLine: {
+                lineStyle: {
+                    type: "dashed",
+                },
+            },
+        },
+        yAxis: {
+            type: "category",
+            axisLine: { show: true },
+            axisLabel: {
+                show: true,
+                formatter: (value: string) => {
+                    const sender = orderedSenders.find((s) => s.email === value);
+                    return sender?.name;
+                },
+            },
+            axisTick: { show: true },
+            splitLine: { show: false },
+            data: orderedSenders.map((sender) => sender.email),
+        },
+        series: [
+            {
+                color: "#4f46e5",
+                name: "Number of emails",
+                type: "bar",
+                stack: "Total",
+                label: {
+                    show: true,
+                    position: "right",
+                },
+                data: orderedSendersNbEmails,
+            },
         ],
     };
 

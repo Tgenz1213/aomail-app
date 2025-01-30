@@ -24,8 +24,72 @@ from aomail.constants import (
     POSSIBLY_RELEVANT,
     USELESS,
 )
+from django.contrib.auth.models import User
+from django.db.models import Count, Value
+from django.db.models.functions import Substr, StrIndex, Length
 
 LOGGER = logging.getLogger(__name__)
+
+
+def get_emails_received_data(user: User) -> dict:
+    """
+    Get statistics about emails received using database queries.
+    Returns top senders and domains from the user's emails.
+    Optimized for large datasets by using database-level operations.
+    """
+    try:
+        # Get top 5 senders with their counts and names
+        top_senders = (
+            Email.objects.filter(user=user)
+            .values("sender__email", "sender__name")
+            .annotate(count=Count("sender__email"))
+            .order_by("-count")[:5]
+        )
+
+        # Extract domain at database level using substring operations
+        top_domains = (
+            Email.objects.filter(user=user)
+            .annotate(
+                domain=Substr(
+                    "sender__email",
+                    StrIndex("sender__email", Value("@")) + 1,
+                    Length("sender__email"),
+                )
+            )
+            .values("domain")
+            .annotate(count=Count("domain"))
+            .order_by("-count")[:5]
+        )
+
+        # Format data as expected by frontend
+        ordered_domains = [domain["domain"] for domain in top_domains]
+        ordered_domains_nb_emails = [domain["count"] for domain in top_domains]
+
+        ordered_senders = [
+            {
+                "email": sender["sender__email"],
+                "name": sender["sender__name"] or "",  # Ensure name is never null
+                "value": sender["count"],
+            }
+            for sender in top_senders
+        ]
+        ordered_senders_nb_emails = [sender["count"] for sender in top_senders]
+
+        return {
+            "orderedDomains": ordered_domains,
+            "orderedDomainsNbEmails": ordered_domains_nb_emails,
+            "orderedSenders": ordered_senders,
+            "orderedSendersNbEmails": ordered_senders_nb_emails,
+        }
+
+    except Exception as e:
+        LOGGER.error(f"Error getting email statistics for user {user.id}: {str(e)}")
+        return {
+            "orderedDomains": [],
+            "orderedDomainsNbEmails": [],
+            "orderedSenders": [],
+            "orderedSendersNbEmails": [],
+        }
 
 
 @api_view(["GET"])
@@ -65,13 +129,13 @@ def dashboard_data(request: HttpRequest) -> Response:
             )
 
             nb_emails_highly_relevant = Email.objects.filter(
-                user=user, category=category.id, answer=HIGHLY_RELEVANT
+                user=user, category=category.id, relevance=HIGHLY_RELEVANT
             )
             nb_emails_possibly_relevant = Email.objects.filter(
-                user=user, category=category.id, answer=POSSIBLY_RELEVANT
+                user=user, category=category.id, relevance=POSSIBLY_RELEVANT
             )
             nb_emails_not_relevant = Email.objects.filter(
-                user=user, category=category.id, answer=NOT_RELEVANT
+                user=user, category=category.id, relevance=NOT_RELEVANT
             )
 
             distribution[category.name] = {
@@ -86,13 +150,15 @@ def dashboard_data(request: HttpRequest) -> Response:
                 "nbEmailsNotRelevant": nb_emails_not_relevant.count(),
             }
 
+        emails_received_data = get_emails_received_data(user)
+
         return Response(
-            {"distribution": distribution},
+            {"distribution": distribution, "emailsReceivedData": emails_received_data},
             status=status.HTTP_200_OK,
         )
     except Exception as e:
         LOGGER.error(f"Error fetching dashboard data: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

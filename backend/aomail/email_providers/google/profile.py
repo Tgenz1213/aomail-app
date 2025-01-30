@@ -25,6 +25,7 @@ from aomail.constants import (
 )
 from aomail.email_providers.google.authentication import authenticate_service
 from aomail.utils import email_processing
+from aomail.models import SocialAPI
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -308,3 +309,31 @@ def get_profile_image(request: HttpRequest) -> Response:
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+
+def get_data(social_api: SocialAPI) -> dict:
+    """
+    Retrieve email statistics for a given Google social API.
+
+    Args:
+        social_api (SocialAPI): The social API instance for the user.
+
+    Returns:
+        dict: A dictionary containing email statistics.
+    """
+    gmail_service = authenticate_service(social_api.user, social_api.email, ["gmail"])["gmail"]
+
+    # Use the Gmail API to get counts directly
+    num_emails_received = gmail_service.users().messages().list(userId='me').execute().get('resultSizeEstimate', 0)
+    num_emails_read = gmail_service.users().messages().list(userId='me', q='is:read').execute().get('resultSizeEstimate', 0)
+    num_emails_archived = gmail_service.users().messages().list(userId='me', q='in:archive').execute().get('resultSizeEstimate', 0)
+    num_emails_starred = gmail_service.users().messages().list(userId='me', q='is:starred').execute().get('resultSizeEstimate', 0)
+    num_emails_sent = gmail_service.users().messages().list(userId='me', q='in:sent').execute().get('resultSizeEstimate', 0)
+
+    return {
+        "num_emails_received": num_emails_received,
+        "num_emails_read": num_emails_read,
+        "num_emails_archived": num_emails_archived,
+        "num_emails_starred": num_emails_starred,
+        "num_emails_sent": num_emails_sent,
+    }

@@ -3,6 +3,7 @@ Handles user statistics computation and retrieval.
 
 Endpoints:
 - ✅ get_statistics: Returns required statistics of the user based on specified parameters.
+- ✅ get_combined_statistics:  Retrieves combined statistics for the selected emails.     
 """
 
 import json
@@ -11,16 +12,18 @@ from django.http import HttpRequest
 from rest_framework import status
 from django.db.models import Count, Min, Max, Avg
 from django.db.models.functions import TruncDate
-from aomail.models import Email, Statistics
+from aomail.models import Email, SocialAPI, Statistics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from aomail.utils.security import subscription
 from aomail.constants import (
     ALLOW_ALL,
     ANSWER_REQUIRED,
+    GOOGLE,
     HIGHLY_RELEVANT,
     IMPORTANT,
     INFORMATIVE,
+    MICROSOFT,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
     NOT_RELEVANT,
@@ -33,6 +36,8 @@ from django.db.models import QuerySet
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from aomail.utils.email_processing import camel_to_snake
+from aomail.email_providers.google import profile as profile_google
+from aomail.email_providers.microsoft import profile as profile_microsoft
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -336,3 +341,110 @@ def get_avg_value(
         .aggregate(avg_count=Avg("count"))
     )
     return result["avg_count"] or 0
+
+
+@api_view(["POST"])
+@subscription(ALLOW_ALL)
+def get_combined_statistics(request) -> Response:
+    """
+    Retrieve combined statistics for the selected emails.
+
+    Args:
+        request (HttpRequest): The request object containing user and email selection.
+
+    Returns:
+        Response: A JSON response with Aomail and email provider data.
+    """
+    try:
+        user = request.user
+        parameters: dict = json.loads(request.body)
+        emails_selected: list = parameters["emailsSelected"]
+
+        social_apis = SocialAPI.objects.filter(user=user, email__in=emails_selected)
+
+        aomail_data = get_aomail_data(social_apis)
+        email_providers_data = get_email_providers_data(social_apis)
+
+        return Response(
+            {"aomailData": aomail_data, "emailProvidersData": email_providers_data},
+            status=status.HTTP_200_OK,
+        )
+    except json.JSONDecodeError:
+        LOGGER.error("Invalid JSON format in request body.")
+        return Response(
+            {"error": "Invalid JSON format."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except SocialAPI.DoesNotExist:
+        LOGGER.error("Social API not found for user ID {user.id}.")
+        return Response(
+            {"error": "Social API not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except Exception as e:
+        LOGGER.error(f"Error in get statistics for user ID {user.id}: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+def get_aomail_data(social_apis: list[SocialAPI]) -> dict:
+    """
+    Retrieve Aomail data statistics for the given social APIs.
+
+    Args:
+        social_apis (list[SocialAPI]): List of social API instances.
+
+    Returns:
+        dict: A dictionary containing Aomail data statistics.
+    """
+    num_emails_received = Email.objects.filter(social_api__in=social_apis).count()
+    num_emails_read = Email.objects.filter(
+        social_api__in=social_apis, read=True
+    ).count()
+    num_emails_archived = Email.objects.filter(
+        social_api__in=social_apis, archive=True
+    ).count()
+    num_emails_reply_later = Email.objects.filter(
+        social_api__in=social_apis, answer_later=True
+    ).count()
+
+    return {
+        "nbEmailsReceived": num_emails_received,
+        "nbEmailsRead": num_emails_read,
+        "nbEmailsArchived": num_emails_archived,
+        "nbEmailsReplyLater": num_emails_reply_later,
+    }
+
+
+def get_email_providers_data(social_apis: list[SocialAPI]) -> dict:
+    """
+    Retrieve email provider data statistics for the given social APIs.
+
+    Args:
+        social_apis (list[SocialAPI]): List of social API instances.
+
+    Returns:
+        dict: A dictionary containing email provider data statistics.
+    """
+    sum_data = {
+        "nbEmailsReceived": 0,
+        "nbEmailsRead": 0,
+        "nbEmailsArchived": 0,
+        "nbEmailsStarred": 0,
+        "nbEmailsSent": 0,
+    }
+    for social_api in social_apis:
+        if social_api.type_api == GOOGLE:
+            data = profile_google.get_data(social_api)
+        elif social_api.type_api == MICROSOFT:
+            data = profile_microsoft.get_data(social_api)
+
+        sum_data["nbEmailsReceived"] += data["num_emails_received"]
+        sum_data["nbEmailsRead"] += data["num_emails_read"]
+        sum_data["nbEmailsArchived"] += data["num_emails_archived"]
+        sum_data["nbEmailsStarred"] += data["num_emails_starred"]
+        sum_data["nbEmailsSent"] += data["num_emails_sent"]
+
+    return sum_data

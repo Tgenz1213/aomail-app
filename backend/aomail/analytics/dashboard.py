@@ -33,9 +33,11 @@ LOGGER = logging.getLogger(__name__)
 
 def get_emails_received_data(user: User) -> dict:
     """
-    Get statistics about emails received using database queries.
-    Returns top senders and domains from the user's emails.
-    Optimized for large datasets by using database-level operations.
+    Retrieves email distribution statistics for the authenticated user.
+
+    Returns:
+        dict: Aggregated email statistics including category-based distribution,
+              top senders, and most common domains.
     """
     try:
         # Get top 5 senders with their counts and names

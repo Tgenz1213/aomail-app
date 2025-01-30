@@ -113,6 +113,7 @@ urlpatterns = [
     #----------------------- STATISTICS -----------------------#
     path('user/statistics/', statistics.get_statistics , name='statistics'),
     path('user/dashboard_data/', user_dashboard.dashboard_data , name='user_dashboard_data'),
+    path('user/combined_statistics/', statistics.get_combined_statistics , name='user_combined_statistics'),
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('user/social_api/review_user_description/', custom_categorization.review_user_description, name='review_user_description'),
     path('user/generate_categories_scratch/', custom_categorization.generate_categories_scratch, name='generate_categories_scratch'),

@@ -24,6 +24,7 @@ from aomail.email_providers.microsoft.authentication import (
 )
 from aomail.utils import email_processing
 from aomail.constants import ALLOW_ALL, GRAPH_URL
+from aomail.models import SocialAPI
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -293,3 +294,32 @@ def set_all_contacts(user: User, email: str):
         LOGGER.error(
             f"Error fetching contacts from Microsoft Graph API for user ID {user.id}: {str(e)}"
         )
+
+
+def get_data(social_api: SocialAPI) -> dict:
+    """
+    Retrieve email statistics for a given Microsoft social API.
+
+    Args:
+        social_api (SocialAPI): The social API instance for the user.
+
+    Returns:
+        dict: A dictionary containing email statistics.
+    """
+    access_token = refresh_access_token(social_api)
+    headers = get_headers(access_token)
+
+    # Use the Microsoft Graph API to get counts directly
+    num_emails_received = requests.get(f"{GRAPH_URL}/me/messages/$count", headers=headers).json()
+    num_emails_read = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=isRead eq true", headers=headers).json()
+    num_emails_archived = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'archive')", headers=headers).json()
+    num_emails_starred = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'starred')", headers=headers).json()
+    num_emails_sent = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'sent')", headers=headers).json()
+
+    return {
+        "num_emails_received": num_emails_received,
+        "num_emails_read": num_emails_read,
+        "num_emails_archived": num_emails_archived,
+        "num_emails_starred": num_emails_starred,
+        "num_emails_sent": num_emails_sent,
+    }

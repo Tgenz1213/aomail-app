@@ -21,10 +21,15 @@
     <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
+            <div
+                :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']"
+            >
                 <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
-            <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+            <!-- TO IMPLEMENT LATER :style="{ width: emailsContainerWidth + '%' }"-->
+            <div
+                class="bg-white ring-1 shadow-sm ring-black ring-opacity-5 h-full"
+            >
                 <div class="flex flex-col h-full relative">
                     <div
                         v-if="showFeedbackForm"
@@ -125,13 +130,24 @@
                     </div>
                 </div>
             </div>
-            <AssistantChat class="flex overflow-y-auto custom-scrollbar" />
+            <!-- TO IMPLEMENT LATER
+            <div class="drag-wrapper" @mousedown="initDrag">
+                <div class="separator"></div>
+                <div class="drag-overlay"></div>
+            </div>
+
+            <div
+                class="flex overflow-y-auto custom-scrollbar ring-1 shadow-sm ring-black ring-opacity-5"
+                :style="{ width: assistantChatWidth + '%' }"
+            >
+                <AssistantChat />
+            </div>-->
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, provide, onMounted, onUnmounted, watch, onBeforeUnmount } from "vue";
 import { getData, postData, putData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult, Filter } from "@/global/types";
 import { DEFAULT_CATEGORY } from "@/global/const";
@@ -197,6 +213,9 @@ const isMarking = ref({
     useless: false,
     archiveRead: false,
 });
+
+const emailsContainerWidth = ref<number>(parseFloat(localStorage.getItem("inboxEmailsWidth") || '70')); // Default to 70%
+const assistantChatWidth = ref<number>(parseFloat(localStorage.getItem("inboxAssistantChatWidth") || '30')); // Default to 30%
 
 let totalPages = computed(() => {
     return Math.ceil(allEmailIds.value.length / emailsPerPage);
@@ -756,6 +775,75 @@ const processFeedBackForm = async () => {
     }
 };
 
+// Drag state
+const isDragging = ref(false);
+const startX = ref(0);
+const startEmailsWidth = ref(0);
+const startAssistantWidth = ref(0);
+const initialContainerWidth = ref(0);
+
+// Initialize drag
+const initDrag = (event: MouseEvent) => {
+    isDragging.value = true;
+    startX.value = event.clientX;
+    startEmailsWidth.value = emailsContainerWidth.value;
+    startAssistantWidth.value = assistantChatWidth.value;
+
+    const container = (event.target as HTMLElement).closest('.flex');
+    initialContainerWidth.value = container ? container.clientWidth : 0;
+
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", stopDrag);
+};
+
+// Handle dragging
+const onDrag = (event: MouseEvent) => {
+    if (!isDragging.value) return;
+
+    const deltaX = event.clientX - startX.value;
+    if (initialContainerWidth.value === 0) return;
+
+    const deltaPercent = (deltaX / initialContainerWidth.value) * 100;
+    let newEmailsWidth = startEmailsWidth.value + deltaPercent;
+    let newAssistantWidth = startAssistantWidth.value - deltaPercent;
+
+    const MIN_WIDTH = 20;
+    const MAX_WIDTH = 80;
+
+    if (newEmailsWidth < MIN_WIDTH) {
+        newEmailsWidth = MIN_WIDTH;
+        newAssistantWidth = 100 - MIN_WIDTH;
+    } else if (newAssistantWidth < MIN_WIDTH) {
+        newAssistantWidth = MIN_WIDTH;
+        newEmailsWidth = 100 - MIN_WIDTH;
+    } else if (newEmailsWidth > MAX_WIDTH) {
+        newEmailsWidth = MAX_WIDTH;
+        newAssistantWidth = 100 - MAX_WIDTH;
+    } else if (newAssistantWidth > MAX_WIDTH) {
+        newAssistantWidth = MAX_WIDTH;
+        newEmailsWidth = 100 - MAX_WIDTH;
+    }
+
+    emailsContainerWidth.value = newEmailsWidth;
+    assistantChatWidth.value = newAssistantWidth;
+};
+
+// Stop dragging
+const stopDrag = () => {
+    if (isDragging.value) {
+        isDragging.value = false;
+        saveWidths();
+        window.removeEventListener("mousemove", onDrag);
+        window.removeEventListener("mouseup", stopDrag);
+    }
+};
+
+// Save widths to localStorage
+const saveWidths = () => {
+    localStorage.setItem("inboxEmailsWidth", emailsContainerWidth.value.toString());
+    localStorage.setItem("inboxAssistantChatWidth", assistantChatWidth.value.toString());
+};
+
 onMounted(async () => {
     processFeedBackForm();
     loadActiveFilters();
@@ -785,4 +873,49 @@ onUnmounted(() => {
         container.removeEventListener("scroll", handleScroll);
     }
 });
+
+onBeforeUnmount(() => {
+    window.removeEventListener("mousemove", onDrag);
+    window.removeEventListener("mouseup", stopDrag);
+});
 </script>
+
+<style scoped>
+/* Draggable Divider Wrapper */
+.drag-wrapper {
+    position: relative;
+    width: 5px; /* Increased width for easier dragging */
+    height: 100%;
+    cursor: col-resize;
+    background: transparent;
+    z-index: 10; /* Ensure it's above other elements */
+}
+
+/* Visible Separator */
+.separator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 1px; /* Thinner separator */
+    height: 100%;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+/* Transparent Drag Overlay */
+.drag-overlay {
+    position: absolute;
+    left: -2px; /* Adjusted for increased wrapper width */
+    top: 0;
+    width: 9px; /* Increased for better usability */
+    height: 100%;
+    background: transparent;
+    z-index: 2;
+}
+
+/* Hover Effect */
+.drag-wrapper:hover .separator {
+    background-color: #aaa;
+}
+</style>

@@ -28,7 +28,7 @@
             </div>
             <!-- TO IMPLEMENT LATER :style="{ width: emailsContainerWidth + '%' }"-->
             <div
-                class="bg-white ring-1 shadow-sm ring-black ring-opacity-5 h-full"
+                class="bg-white ring-1 shadow-sm ring-black ring-opacity-5 h-full w-full"
             >
                 <div class="flex flex-col h-full relative">
                     <div
@@ -873,11 +873,11 @@ onUnmounted(() => {
         container.removeEventListener("scroll", handleScroll);
     }
 });
-
+/*
 onBeforeUnmount(() => {
     window.removeEventListener("mousemove", onDrag);
     window.removeEventListener("mouseup", stopDrag);
-});
+});*/
 </script>
 
 <style scoped>

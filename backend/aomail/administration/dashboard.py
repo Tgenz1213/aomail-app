@@ -266,7 +266,7 @@ def search_user_info(request: HttpRequest) -> Response:
             )
 
         subscription = Subscription.objects.get(user=user)
-        trial_period = timedelta(days=30)
+        trial_period = timedelta(days=14)
         statistics = Statistics.objects.get(user=user)
         social_apis = SocialAPI.objects.filter(user=user)
 

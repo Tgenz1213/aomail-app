@@ -323,7 +323,7 @@ def get_user_plan(request: HttpRequest) -> Response:
     """Returns the subscription plan of the authenticated user."""
     user = request.user
     subscription = get_object_or_404(Subscription, user=user)
-    trial_period = timedelta(days=30)
+    trial_period = timedelta(days=14)
 
     return Response(
         {

@@ -97,7 +97,7 @@ def subscription(allowed_plans: list):
 
             if not INACTIVE in allowed_plans:
                 if subscription.is_trial:
-                    trial_period = timedelta(days=30)
+                    trial_period = timedelta(days=14)
                     if timezone.now() - subscription.created_at > trial_period:
                         LOGGER.info(f"Free trial expired for user ID: {user.id}")
                         return Response(

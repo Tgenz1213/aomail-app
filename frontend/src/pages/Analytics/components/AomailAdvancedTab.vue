@@ -99,46 +99,11 @@
                 Statistics for {{ metricLabelTranslations[selectedMetric] || selectedMetric }}
             </h3>
 
-            <div class="flex flex-col space-y-4">
-                <!-- Display since values -->
-                <div class="mb-4">
-                    <h4 class="text-sm font-medium text-gray-600 mb-2 ml-10">Since:</h4>
-                    <ul class="space-y-2">
-                        <li v-for="(value, key) in data[selectedMetric]?.since" :key="key" class="flex justify-between">
-                            <span>{{ metricLabelTranslations[key as MetricKeys] || key }}</span>
-                            <span class="font-semibold">{{ formatInteger(value) }}</span>
-                        </li>
-                    </ul>
-                </div>
+            <!-- Since Bar Chart -->
+            <canvas id="sinceBarChart" width="400" height="200"></canvas>
 
-                <!-- Display periods values -->
-                <div>
-                    <h4 class="text-sm font-medium text-gray-600 mb-2">Periods:</h4>
-                    <ul class="space-y-2">
-                        <li
-                            v-for="(period, key) in data[selectedMetric]?.periods"
-                            :key="key"
-                            class="flex justify-between"
-                        >
-                            <span>{{ metricLabelTranslations[key as MetricKeys] || key }}</span>
-                            <span>
-                                <template v-if="period.avg !== null && period.avg !== undefined">
-                                    Avg:
-                                    <strong>{{ formatFloat(period.avg) }}</strong>
-                                </template>
-                                <template v-if="period.min !== null && period.min !== undefined">
-                                    Min:
-                                    <strong>{{ formatInteger(period.min) }}</strong>
-                                </template>
-                                <template v-if="period.max !== null && period.max !== undefined">
-                                    Max:
-                                    <strong>{{ formatInteger(period.max) }}</strong>
-                                </template>
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <!-- Periods Error Bar Chart -->
+            <canvas id="periodsErrorBarChart" width="400" height="200"></canvas>
         </div>
     </div>
 </template>
@@ -147,7 +112,9 @@
 import { ref, onMounted, watch } from "vue";
 import { postData } from "@/global/fetchData";
 import { inject } from "vue";
-import { formatInteger, formatFloat } from "@/global/formatters";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 type MetricKeys = keyof typeof metricLabelTranslations;
 
@@ -239,14 +206,104 @@ const fetchStatistics = async () => {
     }
 };
 
-onMounted(fetchStatistics);
-watch([selectedMetric, selectedSinceOptions, selectedPeriodOptions], () => {
-    fetchStatistics();
+const renderSinceBarChart = () => {
+    const ctx = document.getElementById("sinceBarChart") as HTMLCanvasElement;
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: selectedSinceOptions.value.map((option) => metricLabelTranslations[option] || option),
+            datasets: [
+                {
+                    label: "Since Data",
+                    data: selectedSinceOptions.value.map(
+                        (option) => data.value[selectedMetric.value]?.since?.[option] || 0
+                    ),
+                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                },
+            },
+        },
+    });
+};
+
+const renderPeriodsErrorBarChart = () => {
+    const ctx = document.getElementById("periodsErrorBarChart") as HTMLCanvasElement;
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: selectedPeriodOptions.value.map((option) => metricLabelTranslations[option] || option),
+            datasets: [
+                {
+                    label: "Avg",
+                    data: selectedPeriodOptions.value.map(
+                        (option) => data.value[selectedMetric.value]?.periods?.[option]?.avg || 0
+                    ),
+                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1,
+                },
+                {
+                    label: "Min",
+                    data: selectedPeriodOptions.value.map(
+                        (option) => data.value[selectedMetric.value]?.periods?.[option]?.min || 0
+                    ),
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1,
+                },
+                {
+                    label: "Max",
+                    data: selectedPeriodOptions.value.map(
+                        (option) => data.value[selectedMetric.value]?.periods?.[option]?.max || 0
+                    ),
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                },
+            },
+        },
+    });
+};
+
+onMounted(() => {
+    fetchStatistics().then(() => {
+        renderSinceBarChart();
+        renderPeriodsErrorBarChart();
+    });
 });
+
+watch([selectedMetric, selectedSinceOptions, selectedPeriodOptions], () => {
+    fetchStatistics().then(() => {
+        renderSinceBarChart();
+        renderPeriodsErrorBarChart();
+    });
+});
+
 watch(
     () => selectedDataOptions.value,
     () => {
-        fetchStatistics();
+        fetchStatistics().then(() => {
+            renderSinceBarChart();
+            renderPeriodsErrorBarChart();
+        });
     },
     { deep: true }
 );

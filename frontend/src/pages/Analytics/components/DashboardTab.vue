@@ -124,10 +124,6 @@ const fetchDashboardData = async () => {
         ],
     }));
 
-    categoryNames.forEach((category) => console.log(dashboardData.distribution[category].nbEmailsAnswerRequired));
-
-    /// relevant stuff
-
     // Reset relevanceData before populating
     relevanceData = [];
 

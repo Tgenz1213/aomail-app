@@ -10,8 +10,8 @@ import json
 import logging
 from django.http import HttpRequest
 from rest_framework import status
-from django.db.models import Count, Min, Max, Avg
-from django.db.models.functions import TruncDate
+from django.db.models import Count, Min, Max, Avg, F, Window, DateField
+from django.db.models.functions import TruncDate, TruncHour, FirstValue, Cast
 from aomail.models import Email, SocialAPI, Statistics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -132,6 +132,28 @@ def compute_statistics(statistics: Statistics, parameters: dict) -> dict:
     return computed_stats
 
 
+def get_period_duration(period: str) -> int:
+    """
+    Get the duration in days for a given period.
+
+    Args:
+        period (str): The period identifier (e.g., "24Hours", "7Days")
+
+    Returns:
+        int: Number of days for the period
+    """
+    period_mapping = {
+        "24Hours": 1,
+        "7Days": 7,
+        "30Days": 30,
+        "3Months": 90,
+        "6Months": 180,
+        "1year": 365,
+        "5years": 1825,
+    }
+    return period_mapping.get(period, 0)
+
+
 def compute_stat(
     statistics: Statistics,
     user: User,
@@ -179,24 +201,27 @@ def compute_stat(
         stat_result[stat_name]["periods"] = {}
         for period, stats in stat_config["periods"].items():
             stat_result[stat_name]["periods"][period] = {}
-            start_date = user.date_joined
+            period_days = get_period_duration(period)
+
+            # Get base queryset for the statistic
             email_queryset = get_filtered_queryset(
-                Email.objects.filter(user=user, date__gte=start_date, date__lte=now),
+                Email.objects.filter(
+                    user=user,
+                    date__gte=now - timedelta(days=period_days),
+                    date__lte=now,
+                ),
                 stat_name,
             )
 
             for stat in stats:
                 if stat == "min":
-                    min_value = get_min_value(email_queryset, start_date, now)
+                    min_value = get_min_value(email_queryset, period_days)
                     stat_result[stat_name]["periods"][period]["min"] = min_value
                 elif stat == "max":
-                    max_value = get_max_value(email_queryset, start_date, now)
+                    max_value = get_max_value(email_queryset, period_days)
                     stat_result[stat_name]["periods"][period]["max"] = max_value
-                elif stat == "count":
-                    count = email_queryset.count()
-                    stat_result[stat_name]["periods"][period]["count"] = count
                 elif stat == "avg":
-                    avg_value = get_avg_value(email_queryset, start_date, now)
+                    avg_value = get_avg_value(email_queryset, period_days)
                     stat_result[stat_name]["periods"][period]["avg"] = avg_value
 
     return stat_result
@@ -262,85 +287,164 @@ def get_time_ranges(now: datetime) -> dict:
     """
     return {
         "today": now.replace(hour=0, minute=0, second=0, microsecond=0),
-        "24Hours": now - timedelta(hours=24),
         "monday": now - timedelta(days=now.weekday()),
-        "7Days": now - timedelta(days=7),
         "mtd": now.replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-        "30Days": now - timedelta(days=30),
-        "3Months": now - timedelta(days=90),
-        "6Months": now - timedelta(days=180),
         "ytd": now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0),
-        "1year": now - timedelta(days=365),
-        "5years": now - timedelta(days=1825),
     }
 
 
-def get_min_value(queryset: QuerySet, start_date: datetime, end_date: datetime) -> int:
+def get_min_value(queryset: QuerySet, period_days: int) -> int:
     """
-    Get the minimum daily count from a queryset within a date range using Django's Min aggregation.
+    Get the minimum count for the specified period size.
 
     Args:
-        queryset (QuerySet): The queryset of Email objects to analyze.
-        start_date (datetime): The start date of the range to consider.
-        end_date (datetime): The end date of the range to consider.
+        queryset (QuerySet): The queryset of Email objects to analyze
+        period_days (int): The size of each period in days
 
     Returns:
-        int: The minimum daily count of emails within the date range. Returns 0 if no emails are found.
+        int: The minimum count within any period of the specified size
     """
-    result = (
-        queryset.filter(date__range=(start_date, end_date))
-        .annotate(truncated_date=TruncDate("date"))
-        .values("truncated_date")
-        .annotate(count=Count("id"))
-        .aggregate(min_count=Min("count"))
-    )
+    if period_days == 1:
+        # For 24 hours periods, group by hour
+        result = (
+            queryset.annotate(period=TruncHour("date"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .aggregate(min_count=Min("count"))
+        )
+    else:
+        # For other periods, group by day and calculate min per period_days
+        result = (
+            queryset.annotate(period=TruncDate("date"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .values("period", "count")
+            .order_by("period")
+        )
+
+        # Group into periods of period_days and find minimum
+        counts = []
+        current_count = 0
+        current_days = 0
+
+        for entry in result:
+            current_count += entry["count"]
+            current_days += 1
+
+            if current_days >= period_days:
+                counts.append(current_count)
+                current_count = 0
+                current_days = 0
+
+        # Add the last period if it exists
+        if current_count > 0:
+            counts.append(current_count)
+
+        return min(counts) if counts else 0
+
     return result["min_count"] or 0
 
 
-def get_max_value(queryset: QuerySet, start_date: datetime, end_date: datetime) -> int:
+def get_max_value(queryset: QuerySet, period_days: int) -> int:
     """
-    Get the maximum daily count from a queryset within a date range using Django's Max aggregation.
+    Get the maximum count for the specified period size.
 
     Args:
-        queryset (QuerySet): The queryset of Email objects to analyze.
-        start_date (datetime): The start date of the range to consider.
-        end_date (datetime): The end date of the range to consider.
+        queryset (QuerySet): The queryset of Email objects to analyze
+        period_days (int): The size of each period in days
 
     Returns:
-        int: The maximum daily count of emails within the date range. Returns 0 if no emails are found.
+        int: The maximum count within any period of the specified size
     """
-    result = (
-        queryset.filter(date__range=(start_date, end_date))
-        .annotate(truncated_date=TruncDate("date"))
-        .values("truncated_date")
-        .annotate(count=Count("id"))
-        .aggregate(max_count=Max("count"))
-    )
+    if period_days == 1:
+        result = (
+            queryset.annotate(period=TruncHour("date"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .aggregate(max_count=Max("count"))
+        )
+    else:
+        # For other periods, group by day and calculate max per period_days
+        result = (
+            queryset.annotate(period=TruncDate("date"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .values("period", "count")
+            .order_by("period")
+        )
+
+        # Group into periods of period_days and find maximum
+        counts = []
+        current_count = 0
+        current_days = 0
+
+        for entry in result:
+            current_count += entry["count"]
+            current_days += 1
+
+            if current_days >= period_days:
+                counts.append(current_count)
+                current_count = 0
+                current_days = 0
+
+        # Add the last period if it exists
+        if current_count > 0:
+            counts.append(current_count)
+
+        return max(counts) if counts else 0
+
     return result["max_count"] or 0
 
 
-def get_avg_value(
-    queryset: QuerySet, start_date: datetime, end_date: datetime
-) -> float:
+def get_avg_value(queryset: QuerySet, period_days: int) -> float:
     """
-    Get the average daily count from a queryset within a date range using Django's Avg aggregation.
+    Get the average count for the specified period size.
 
     Args:
-        queryset (QuerySet): The queryset of Email objects to analyze.
-        start_date (datetime): The start date of the range to consider.
-        end_date (datetime): The end date of the range to consider.
+        queryset (QuerySet): The queryset of Email objects to analyze
+        period_days (int): The size of each period in days
 
     Returns:
-        float: The average daily count of emails within the date range. Returns 0 if no emails are found.
+        float: The average count per period of the specified size
     """
-    result = (
-        queryset.filter(date__range=(start_date, end_date))
-        .annotate(truncated_date=TruncDate("date"))
-        .values("truncated_date")
-        .annotate(count=Count("id"))
-        .aggregate(avg_count=Avg("count"))
-    )
-    return result["avg_count"] or 0
+    if period_days == 1:
+        result = (
+            queryset.annotate(period=TruncHour("date"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .aggregate(avg_count=Avg("count"))
+        )
+    else:
+        # For other periods, group by day and calculate avg per period_days
+        result = (
+            queryset.annotate(period=TruncDate("date"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .values("period", "count")
+            .order_by("period")
+        )
+
+        # Group into periods of period_days and calculate average
+        counts = []
+        current_count = 0
+        current_days = 0
+
+        for entry in result:
+            current_count += entry["count"]
+            current_days += 1
+
+            if current_days >= period_days:
+                counts.append(current_count)
+                current_count = 0
+                current_days = 0
+
+        # Add the last period if it exists
+        if current_count > 0:
+            counts.append(current_count)
+
+        return float(sum(counts) / len(counts)) if counts else 0.0
+
+    return float(result["avg_count"] or 0)
 
 
 @api_view(["POST"])

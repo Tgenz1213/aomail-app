@@ -1,6 +1,6 @@
 <template>
-    <div class="flex-1 p-4 flex flex-col relative">
-        <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 mt-8">
+    <div class="flex-1 p-4 flex flex-col bg-zinc-50 bg-opacity-40 h-full relative">
+        <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 mt-8 2xl:mt-12">
             <div v-for="(message, index) in messages" :key="index" class="mb-6">
                 <ChatBubble 
                     :message="message.textHtml" 

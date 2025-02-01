@@ -1,128 +1,66 @@
 <template>
     <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismissPopup="dismissPopup" />
-    <div class="h-screen flex flex-col">
-        <div class="flex h-full">
+    <div class="flex flex-col justify-center items-center h-screen">
+        <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
+                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
             </div>
-
-            <div class="flex flex-1 flex-col">
-                <div class="px-6 py-3 bg-gray-50 border-b border-black shadow-sm border-opacity-10">
-                    <div class="max-w-3xl mx-auto text-center mb-4">
-                        <h1 class="text-xl font-semibold text-gray-900">{{ $t('aiAssistantPage.title') }}</h1>
-                        <p class="text-sm text-gray-600">
-                            {{ $t('aiAssistantPage.subtitle') }}
-                        </p>
-                    </div>
-
-                    <div class="flex justify-center gap-4">
-                        <a href="/custom-categorization"
-                            class="group relative flex items-center gap-2 rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-                            @mouseenter="showTooltip = 'chat'" @mouseleave="showTooltip = ''">
-                            <ChatBubbleLeftRightIcon class="w-5 h-5" />
-                            <span>{{ $t('aiAssistantPage.emailCategories.button') }}</span>
-                            <div v-if="showTooltip === 'chat'"
-                                class="absolute -top-16 w-72 p-2 bg-gray-800 text-white text-sm rounded shadow-lg">
-                                {{ $t('aiAssistantPage.emailCategories.tooltip') }}
-                            </div>
-                        </a>
-
-                        <a href="/rules"
-                            class="group relative flex items-center gap-2 rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-                            @mouseenter="showTooltip = 'rules'" @mouseleave="showTooltip = ''">
-                            <AdjustmentsHorizontalIcon class="w-5 h-5" />
-                            <span>{{ $t('aiAssistantPage.rules.button') }}</span>
-                            <div v-if="showTooltip === 'rules'"
-                                class="absolute -top-16 w-72 p-2 bg-gray-800 text-white text-sm rounded shadow-lg">
-                                {{ $t('aiAssistantPage.rules.tooltip') }}
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="flex-1 overflow-auto p-6">
-                    <div class="flex gap-6">
-                        <!-- Professional Templates -->
-                        <div class="w-2/5 bg-white rounded-lg shadow p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-lg font-semibold">{{ $t('aiAssistantPage.professionalTemplates.title')
-                                    }}</h2>
-                                <div class="relative">
-                                    <input type="text" v-model="searchQuery"
-                                        :placeholder="$t('aiAssistantPage.professionalTemplates.searchPlaceholder')"
-                                        class="w-48 px-3 py-1 border rounded-md text-sm" />
-                                    <MagnifyingGlassIcon class="absolute right-2 top-1.5 w-4 h-4 text-gray-400" />
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-600 mb-4">
-                                {{ $t('aiAssistantPage.professionalTemplates.subtitle') }}
-                            </p>
-                            <div class="space-y-4 max-h-[600px] overflow-y-auto">
-                                <div v-if="filteredProfiles.length === 0"
-                                    class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors">
-                                    <h3 class="font-medium text-gray-900">{{
-                                        $t('aiAssistantPage.professionalTemplates.noResult') }}</h3>
-                                </div>
-                                <div v-else v-for="profile in filteredProfiles" :key="profile.title"
-                                    class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors"
-                                    @click="applyProfile(profile)">
-                                    <h3 class="font-medium text-gray-900">{{ profile.title }}</h3>
-                                    <p class="text-sm text-gray-600 mt-1">{{ profile.description }}</p>
+            <div class="flex-1 bg-white ring-1 ring-black ring-opacity-5">
+                <div class="flex flex-col h-full">
+                    <main class="bg-gray-50 ring-1 ring-black ring-opacity-5">
+                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center">
+                                <div class="w-full flex items-center justify-center py-6 2xl:py-7">
+                                    <div class="sm:hidden"></div>
+                                    <div class="hidden sm:block w-full">
+                                        <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12'
+                                                ]"
+                                            >
+                                                <SparklesIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-800">
+                                                    {{ $t("aiAssistantPage.navtitle") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                ]"
+                                                @click="() => router.push('/custom-categorization')"
+                                            >
+                                                <ChatBubbleLeftRightIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-600">
+                                                    {{ $t("aiAssistantPage.emailCategories.button") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                ]"
+                                                @click="() => router.push('/rules')"
+                                            >
+                                                <AdjustmentsHorizontalIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-600">
+                                                    {{ $t("aiAssistantPage.rules.button") }}
+                                                </a>
+                                            </div>
+                                        </nav>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Guidelines Form -->
-                        <div class="flex-1 bg-white rounded-lg shadow p-4">
-                            <h2 class="text-lg font-semibold mb-4">{{ $t('aiAssistantPage.detailedGuidelines.title') }}
-                            </h2>
-                            <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
-                                <p class="text-sm text-blue-800">
-                                    {{ $t('aiAssistantPage.detailedGuidelines.subtitle') }}
-                                </p>
-                            </div>
-                            <form @submit.prevent="saveGuidelines" class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{
-                                        $t('aiAssistantPage.detailedGuidelines.important.label') }}</label>
-                                    <p class="text-xs text-gray-500 mb-2">
-                                        {{ $t('aiAssistantPage.detailedGuidelines.important.description') }}
-                                    </p>
-                                    <textarea v-model="guidelines.important" rows="4"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                                        :placeholder="getPlaceholder('important')"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        {{ $t('aiAssistantPage.detailedGuidelines.informative.label') }}
-                                    </label>
-                                    <p class="text-xs text-gray-500 mb-2">
-                                        {{ $t('aiAssistantPage.detailedGuidelines.informative.description') }}
-                                    </p>
-                                    <textarea v-model="guidelines.informative" rows="4"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                                        :placeholder="getPlaceholder('informative')"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        {{ $t('aiAssistantPage.detailedGuidelines.lowPriority.label') }}
-                                    </label>
-                                    <p class="text-xs text-gray-500 mb-2">
-                                        {{ $t('aiAssistantPage.detailedGuidelines.lowPriority.description') }}
-                                    </p>
-                                    <textarea v-model="guidelines.useless" rows="4"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                                        :placeholder="getPlaceholder('useless')"></textarea>
-                                </div>
-                                <div class="flex justify-end">
-                                    <button type="submit"
-                                        class="inline-flex justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
-                                        {{ $t('aiAssistantPage.detailedGuidelines.saveButton') }}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                    </main>
+                    <div class="flex-1 overflow-auto p-6">
+                        <PrioritizationGuidelines />
                     </div>
                 </div>
             </div>
@@ -134,10 +72,14 @@
 import { ref, onMounted, computed } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
-import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData, postData } from "@/global/fetchData";
 import { getPredefinedProfiles } from "./utils/jobs";
+import PrioritizationGuidelines from "./components/PrioritizationGuidelines.vue";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const showTooltip = ref("");
 const searchQuery = ref("");
@@ -148,6 +90,7 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 const predefinedProfiles = ref(getPredefinedProfiles());
+const activeSection = ref('assistant');
 
 const currentGuidelines = ref({
     importantGuidelines: "",
@@ -235,6 +178,19 @@ async function saveGuidelines() {
         displayPopup("error", "Failed to update guidelines", result.error as string);
     }
 }
+
+const setActiveSection = (section: string) => {
+    activeSection.value = section;
+    if (section === 'categories') {
+        router.push('/custom-categorization');
+    } else if (section === 'rules') {
+        router.push('/rules');
+    }
+};
+
+const currentComponent = computed(() => {
+    return activeSection.value === 'assistant' ? PrioritizationGuidelines : null;
+});
 
 onMounted(() => {
     loadCurrentGuidelines();

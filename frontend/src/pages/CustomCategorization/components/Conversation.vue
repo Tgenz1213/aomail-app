@@ -1,15 +1,20 @@
 <template>
     <div class="flex-1 p-4 flex flex-col relative">
-        <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
-            <div v-for="(message, index) in messages" :key="index" class="mb-4">
-                <ChatBubble :message="message.textHtml" :isUser="message.isUser" />
-                <div v-if="message.buttonOptions" class="flex flex-col items-center">
+        <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 mt-8">
+            <div v-for="(message, index) in messages" :key="index" class="mb-6">
+                <ChatBubble 
+                    :message="message.textHtml" 
+                    :isUser="message.isUser"
+                    :apiBaseUrl="API_BASE_URL"
+                    :agentIcon="selectedAgent.icon_name"
+                />
+                <div v-if="message.buttonOptions" class="flex flex-col items-center mt-4">
                     <div class="flex-row space-x-5">
                         <button
                             v-for="(option, idx) in message.buttonOptions"
                             :key="idx"
                             @click="handleButtonClick(option, index)"
-                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                            class="px-4 py-2 rounded-md bg-zinc-800 text-sm text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                             {{ option.value }}
                         </button>
@@ -26,8 +31,9 @@ import ChatBubble from "@/global/components/Conversation/ChatBubble.vue";
 import { Category, EmailLinked, KeyValuePair, Message } from "@/global/types";
 import { postData, getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { DEFAULT_CATEGORY } from "@/global/const";
+import { DEFAULT_CATEGORY, API_BASE_URL } from "@/global/const";
 import { createDefaultFilters } from "@/global/filters";
+import { Agent } from "@/global/types";
 
 type CategoryByAI = Category & {
     feedback: string;
@@ -49,6 +55,15 @@ const waitForButtonClick = inject("waitForButtonClick") as Ref<boolean>;
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const displayUserMsg = inject<(message: string) => void>("displayUserMsg")!;
 const waitForUserInput = inject<() => Promise<string>>("waitForUserInput")!;
+const selectedAgent = inject<Ref<Agent>>("selectedAgent") || ref<Agent>({
+    id: "",
+    agent_name: "Default Agent",
+    picture: "/assets/default-agent.png",
+    ai_template: "",
+    length: "",
+    formality: "",
+    icon_name: "default-agent.png"
+});
 
 const displayAIMsg = (message: string, options: KeyValuePair[] | undefined = undefined) => {
     messages.value.push({

@@ -13,19 +13,59 @@
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative">
-                    <div class="divide-y divide-gray-200">
-                        <div
-                            class="flex items-center justify-center h-[70px] 2xl:h-[80px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50"
-                        >
-                            <h1 class="font-poppins font-medium">
-                                {{ $t("rulesPage.assistantRules") }}
-                                <span v-if="totalRules !== null">
-                                    {{ totalRules }}
-                                </span>
-                            </h1>
+                    <main class="bg-gray-50 ring-1 ring-black ring-opacity-5 z-50">
+                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center">
+                                <div class="w-full flex items-center justify-center py-6 2xl:py-7">
+                                    <div class="sm:hidden"></div>
+                                    <div class="hidden sm:block w-full">
+                                        <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-12'
+                                                ]"
+                                                @click="() => router.push('/ai-assistant')"
+                                            >
+                                                <SparklesIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-600">
+                                                    {{ $t("aiAssistantPage.navtitle") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                ]"
+                                                @click="() => router.push('/custom-categorization')"
+                                            >
+                                                <ChatBubbleLeftRightIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-600">
+                                                    {{ $t("aiAssistantPage.emailCategories.button") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8'
+                                                ]"
+                                                @click="() => router.push('/rules')"
+                                            >
+                                                <AdjustmentsHorizontalIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-800">
+                                                    {{ $t("aiAssistantPage.rules.button") }}
+                                                </a>
+                                            </div>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <SearchBar @fetchRules="fetchRules" />
-                    </div>
+                    </main>
+                    <SearchBar @fetchRules="fetchRules" />
                     <div
                         v-if="rules.length > 0"
                         class="flex-grow overflow-y-auto custom-scrollbar"
@@ -133,6 +173,10 @@ import { EmailSender } from "@/global/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { FilterPayload, RuleData } from "./utils/types";
 import { i18n } from "@/global/preferences";
+import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const showModal = ref(false);
 const showUpdateModal = ref(false);

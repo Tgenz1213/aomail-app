@@ -12,17 +12,61 @@
                 <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <div class="flex flex-col h-full relative">
-                    <div class="w-full px-6 py-3 border-b border-gray-200 flex flex-col justify-center items-center">
-                        <h1 class="text-xl font-semibold text-black-600">Custom Categorization Chatbot</h1>
-                        <p class="text-sm text-gray-600">
-                            Improve your email categorization to fit your needs and stay organized easily.
-                        </p>
-                    </div>
+                <div class="flex flex-col h-full">
+                    <main class="bg-gray-50 ring-1 ring-black ring-opacity-5">
+                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center">
+                                <div class="w-full flex items-center justify-center py-6 2xl:py-7">
+                                    <div class="sm:hidden"></div>
+                                    <div class="hidden sm:block w-full">
+                                        <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-12'
+                                                ]"
+                                                @click="() => router.push('/ai-assistant')"
+                                            >
+                                                <SparklesIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-600">
+                                                    {{ $t("aiAssistantPage.navtitle") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8'
+                                                ]"
+                                            >
+                                                <ChatBubbleLeftRightIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-800">
+                                                    {{ $t("aiAssistantPage.emailCategories.button") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                ]"
+                                                @click="() => router.push('/rules')"
+                                            >
+                                                <AdjustmentsHorizontalIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-600">
+                                                    {{ $t("aiAssistantPage.rules.button") }}
+                                                </a>
+                                            </div>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
                     <div class="flex-1 overflow-y-auto">
                         <Conversation />
                     </div>
-
                     <ChatInput v-if="!waitForButtonClick" @response="handleUserResponse" />
                 </div>
             </div>
@@ -37,7 +81,11 @@ import Conversation from "./components/Conversation.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import ChatInput from "./components/ChatInput.vue";
+import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { Message } from "@/global/types";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const showNotification = ref(false);

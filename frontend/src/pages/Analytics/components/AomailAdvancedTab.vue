@@ -1,17 +1,17 @@
 <template>
-    <div class="flex flex-col h-full section bg-white rounded-lg shadow-lg p-8">
+    <div class="flex flex-col h-full section">
         <!-- Form Section (Dropdowns, Checkboxes) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 gap-6">
             <!-- Dropdown Menu for Metrics -->
-            <div>
+            <div class="w-full">
                 <label for="metric-select" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                    <i class="fas fa-chart-bar text-blue-500 mr-2"></i>
+                    <i class="fas fa-chart-bar text-gray-900 mr-2"></i>
                     Metrics
                 </label>
                 <select
                     id="metric-select"
                     v-model="selectedMetric"
-                    class="p-3 border border-gray-300 rounded-lg w-full focus:ring-blue-500 focus:border-blue-500"
+                    class="p-3 border border-gray-300 rounded-lg w-full focus:ring-gray-900 focus:border-gray-900"
                 >
                     <option v-for="metric in statisticsMetrics" :key="metric" :value="metric">
                         {{ metricLabelTranslations[metric] || metric }}
@@ -19,97 +19,113 @@
                 </select>
             </div>
 
-            <!-- Since Selection (Checkbox List) -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                    <i class="fas fa-clock text-blue-500 mr-2"></i>
-                    Select Since
-                </label>
-                <div class="grid grid-cols-2 gap-2">
-                    <div v-for="sinceOption in sinceOptions" :key="sinceOption" class="flex items-center mb-2">
-                        <input
-                            type="checkbox"
-                            v-model="selectedSinceOptions"
-                            :value="sinceOption"
-                            class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span class="text-sm">{{ metricLabelTranslations[sinceOption] || sinceOption }}</span>
+            <!-- Options Container -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Since Selection (Checkbox List) -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-clock text-gray-900 mr-2"></i>
+                        Select Since
+                    </label>
+                    <div class="space-y-2">
+                        <div v-for="sinceOption in sinceOptions" :key="sinceOption" class="flex items-center">
+                            <input
+                                type="checkbox"
+                                v-model="selectedSinceOptions"
+                                :value="sinceOption"
+                                class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                            />
+                            <span class="text-sm">{{ metricLabelTranslations[sinceOption] || sinceOption }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Period Selection (Checkbox List) -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                    <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
-                    Select Period
-                </label>
-                <div class="grid grid-cols-2 gap-2">
-                    <div v-for="periodOption in periodOptions" :key="periodOption" class="flex items-center mb-2">
-                        <input
-                            type="checkbox"
-                            v-model="selectedPeriodOptions"
-                            :value="periodOption"
-                            class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span class="text-sm">{{ metricLabelTranslations[periodOption] || periodOption }}</span>
+                <!-- Period Selection (Checkbox List) -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-calendar-alt text-gray-900 mr-2"></i>
+                        Select Period
+                    </label>
+                    <div class="space-y-2">
+                        <div v-for="periodOption in periodOptions" :key="periodOption" class="flex items-center">
+                            <input
+                                type="checkbox"
+                                v-model="selectedPeriodOptions"
+                                :value="periodOption"
+                                class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                            />
+                            <span class="text-sm">{{ metricLabelTranslations[periodOption] || periodOption }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Data Options (avg, min, max) -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                    <i class="fas fa-database text-blue-500 mr-2"></i>
-                    Select Data Options
-                </label>
-                <div class="flex space-x-4">
-                    <label class="flex items-center">
-                        <input
-                            type="checkbox"
-                            v-model="selectedDataOptions.avg"
-                            class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span class="text-sm">Avg</span>
+                <!-- Data Options (avg, min, max) -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-database text-gray-900 mr-2"></i>
+                        Select Data Options
                     </label>
-                    <label class="flex items-center">
-                        <input
-                            type="checkbox"
-                            v-model="selectedDataOptions.min"
-                            class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span class="text-sm">Min</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input
-                            type="checkbox"
-                            v-model="selectedDataOptions.max"
-                            class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <span class="text-sm">Max</span>
-                    </label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input
+                                type="checkbox"
+                                v-model="selectedDataOptions.avg"
+                                class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                            />
+                            <span class="text-sm">Average</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input
+                                type="checkbox"
+                                v-model="selectedDataOptions.min"
+                                class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                            />
+                            <span class="text-sm">Minimum</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input
+                                type="checkbox"
+                                v-model="selectedDataOptions.max"
+                                class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                            />
+                            <span class="text-sm">Maximum</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Scrollable Content for Statistics -->
-        <div v-if="data[selectedMetric]" class="flex-1 mt-8 bg-gray-50 p-6 rounded-lg shadow-md overflow-y-auto">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-chart-line text-green-500 mr-2"></i>
-                Statistics for {{ metricLabelTranslations[selectedMetric] || selectedMetric }}
-            </h3>
+        <!-- Charts Section -->
+        <div v-if="data[selectedMetric]" class="flex-1 mt-3">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 h-full">
+                <!-- Since Bar Chart Container -->
+                <div class="p-4 flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                        <i class="fas fa-chart-bar text-green-500 mr-2"></i>
+                        Since Statistics
+                    </h3>
+                    <div class="flex-1 min-h-0">
+                        <canvas id="sinceBarChart"></canvas>
+                    </div>
+                </div>
 
-            <!-- Since Bar Chart -->
-            <canvas id="sinceBarChart" width="400" height="200"></canvas>
-
-            <!-- Periods Error Bar Chart -->
-            <canvas id="periodsErrorBarChart" width="400" height="200"></canvas>
+                <!-- Periods Error Bar Chart Container -->
+                <div class="p-4 flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                        <i class="fas fa-chart-line text-green-500 mr-2"></i>
+                        Period Statistics
+                    </h3>
+                    <div class="flex-1 min-h-0">
+                        <canvas id="periodsErrorBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { postData } from "@/global/fetchData";
 import { inject } from "vue";
 import { Chart, registerables } from "chart.js";
@@ -184,6 +200,9 @@ const selectedDataOptions = ref<{ avg?: boolean; min?: boolean; max?: boolean }>
     max: true,
 });
 
+let sinceChart: Chart | null = null;
+let periodsChart: Chart | null = null;
+
 const fetchStatistics = async () => {
     const result = await postData("user/statistics/", {
         [selectedMetric.value]: {
@@ -209,7 +228,11 @@ const fetchStatistics = async () => {
 const renderSinceBarChart = () => {
     const ctx = document.getElementById("sinceBarChart") as HTMLCanvasElement;
     if (!ctx) return;
-    new Chart(ctx, {
+
+    if (sinceChart) {
+        sinceChart.destroy();
+    }
+    sinceChart = new Chart(ctx, {
         type: "bar",
         data: {
             labels: selectedSinceOptions.value.map((option) => metricLabelTranslations[option] || option),
@@ -239,7 +262,10 @@ const renderPeriodsErrorBarChart = () => {
     const ctx = document.getElementById("periodsErrorBarChart") as HTMLCanvasElement;
     if (!ctx) return;
 
-    new Chart(ctx, {
+    if (periodsChart) {
+        periodsChart.destroy();
+    }
+    periodsChart = new Chart(ctx, {
         type: "bar",
         data: {
             labels: selectedPeriodOptions.value.map((option) => metricLabelTranslations[option] || option),
@@ -282,6 +308,16 @@ const renderPeriodsErrorBarChart = () => {
         },
     });
 };
+
+// Clean up chart instances when the component is unmounted
+onBeforeUnmount(() => {
+    if (sinceChart) {
+        sinceChart.destroy();
+    }
+    if (periodsChart) {
+        periodsChart.destroy();
+    }
+});
 
 onMounted(() => {
     fetchStatistics().then(() => {

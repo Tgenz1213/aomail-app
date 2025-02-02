@@ -14,19 +14,19 @@
     <!-- Aomail Dashboard Section -->
     <section class="">
         <div class="grid grid-cols-3 gap-6">
-            <div class="bg-gray-50 rounded p-4">
+            <div class="rounded p-4">
                 <h3 class="text-sm font-medium text-gray-600 mb-2">
                     {{ $t("analyticsPage.analytics.importanceDistribution") }}
                 </h3>
                 <div :id="chartIds.importance" class="h-[400px]"></div>
             </div>
-            <div class="bg-gray-50 rounded p-4">
+            <div class="rounded p-4">
                 <h3 class="text-sm font-medium text-gray-600 mb-2">
                     {{ $t("analyticsPage.analytics.answerRequirementDistribution") }}
                 </h3>
                 <div :id="chartIds.answerRequirement" class="h-[400px]"></div>
             </div>
-            <div class="bg-gray-50 rounded p-4">
+            <div class="rounded p-4">
                 <h3 class="text-sm font-medium text-gray-600 mb-2">
                     {{ $t("analyticsPage.analytics.relevanceDistribution") }}
                 </h3>

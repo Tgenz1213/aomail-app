@@ -35,11 +35,7 @@
                                                 ]"
                                                 @click="activeTab = tab.name"
                                             >
-                                                <component 
-                                                    :is="tab.icon" 
-                                                    class="w-4 h-4" 
-                                                    aria-hidden="true"
-                                                />
+                                                <component :is="tab.icon" class="w-4 h-4" aria-hidden="true" />
                                                 <a
                                                     :class="{
                                                         'text-gray-800': activeTab === tab.name,
@@ -68,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide } from "vue";
+import { ref, provide } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import DashboardTab from "./components/DashboardTab.vue";
@@ -108,11 +104,6 @@ const tabs = [
 ];
 
 const activeTab = ref("dashboard");
-
-const currentTabComponent = computed(() => {
-    const tab = tabs.find((t) => t.name === activeTab.value);
-    return tab ? tab.component : null;
-});
 
 provide("displayPopup", displayPopup);
 

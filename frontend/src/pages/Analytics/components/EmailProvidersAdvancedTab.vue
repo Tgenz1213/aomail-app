@@ -1,74 +1,110 @@
 <template>
-    <div class="p-6 bg-gray-50 rounded-lg">
-        <!-- Toggle Switch for Chart View -->
-        <div class="flex items-center justify-between mb-4">
-            <span class="text-lg font-medium text-gray-700">View Mode:</span>
-            <label class="flex items-center cursor-pointer">
-                <input type="checkbox" v-model="isChartView" class="hidden" />
-                <div
-                    class="relative w-14 h-7 bg-gray-300 rounded-full transition-all duration-300"
-                    :class="{ 'bg-blue-500': isChartView }"
-                >
+    <div class="flex flex-col h-full">
+        <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
+            <!-- View Mode Toggle -->
+            <div class="flex items-center justify-between mb-6 flex-shrink-0">
+                <span class="text-sm font-medium text-gray-700">View Mode</span>
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="isChartView" class="hidden" />
                     <div
-                        class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300"
-                        :class="{ 'translate-x-7': isChartView }"
-                    ></div>
+                        class="relative w-11 h-6 rounded-full transition-all duration-300"
+                        :class="{ 'bg-gray-900': isChartView, 'bg-gray-200': !isChartView }"
+                    >
+                        <div
+                            class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300"
+                            :class="{ 'translate-x-5': isChartView }"
+                        ></div>
+                    </div>
+                    <span class="ml-3 text-sm text-gray-600">{{ isChartView ? "Chart" : "Raw" }}</span>
+                </label>
+            </div>
+
+            <!-- Email Selection and Fetch Data Container -->
+            <div class="mb-6 flex-shrink-0">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Emails</label>
+                <div class="flex gap-x-4">
+                    <multiselect
+                        v-model="selectedEmails"
+                        tag-placeholder="Add new email"
+                        placeholder="Search or add an email"
+                        label="email"
+                        track-by="email"
+                        :options="emailsLinked"
+                        :multiple="true"
+                        :taggable="true"
+                        class="multiselect-gray flex-1"
+                        style="height: 38px"
+                        @tag="addEmailTag"
+                    ></multiselect>
+                    <button
+                        @click="fetchCombinedStatistics"
+                        class="bg-gray-700 rounded-lg px-6 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 2xl:px-7 2xl:text-lg"
+                        style="height: 38px"
+                    >
+                        Fetch Data
+                    </button>
                 </div>
-                <span class="ml-3 text-gray-700">{{ isChartView ? "Chart" : "Raw" }}</span>
-            </label>
-        </div>
-
-        <!-- Multiselect Dropdown -->
-        <div class="mb-4">
-            <label class="block text-lg font-medium text-gray-700">Select Emails</label>
-            <multiselect
-                id="tagging"
-                v-model="selectedEmails"
-                tag-placeholder="Add new email"
-                placeholder="Search or add an email"
-                label="email"
-                track-by="email"
-                :options="emailsLinked"
-                :multiple="true"
-                :taggable="true"
-                class="mt-2"
-                @tag="addEmailTag"
-            ></multiselect>
-        </div>
-
-        <!-- Fetch Data Button -->
-        <button
-            @click="fetchCombinedStatistics"
-            class="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-all"
-        >
-            Fetch Data
-        </button>
-
-        <!-- Display JSON Data -->
-        <pre class="p-4 mt-4 text-sm bg-white rounded-lg shadow">{{ selectedEmails }}</pre>
-
-        <!-- Raw Statistics View -->
-        <div v-if="!isChartView" class="mt-6">
-            <div class="p-4 bg-white shadow rounded-lg mb-4">
-                <h2 class="text-xl font-semibold text-gray-800">Aomail Statistics</h2>
-                <p>📩 Emails Received: {{ combinedStatistics?.aomailData.nbEmailsReceived }}</p>
-                <p>📖 Emails Read: {{ combinedStatistics?.aomailData.nbEmailsRead }}</p>
-                <p>📂 Emails Archived: {{ combinedStatistics?.aomailData.nbEmailsArchived }}</p>
-                <p>⏳ Emails Reply Later: {{ combinedStatistics?.aomailData.nbEmailsReplyLater }}</p>
             </div>
-            <div class="p-4 bg-white shadow rounded-lg">
-                <h2 class="text-xl font-semibold text-gray-800">Email Providers Statistics</h2>
-                <p>📩 Emails Received: {{ combinedStatistics?.emailProvidersData.nbEmailsReceived }}</p>
-                <p>📖 Emails Read: {{ combinedStatistics?.emailProvidersData.nbEmailsRead }}</p>
-                <p>📂 Emails Archived: {{ combinedStatistics?.emailProvidersData.nbEmailsArchived }}</p>
-                <p>⭐ Emails Starred: {{ combinedStatistics?.emailProvidersData.nbEmailsStarred }}</p>
-                <p>📤 Emails Sent: {{ combinedStatistics?.emailProvidersData.nbEmailsSent }}</p>
-            </div>
-        </div>
 
-        <!-- Bar Chart View -->
-        <div v-else class="mt-6">
-            <div ref="barChart" class="h-80"></div>
+            <!-- Statistics Display -->
+            <div class="mt-6 flex-1 overflow-auto">
+                <div v-if="!isChartView" class="space-y-4">
+                    <!-- Aomail Stats Card -->
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h2 class="text-base font-semibold text-gray-900 mb-4">Aomail Statistics</h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">📩</span>
+                                <span>Emails Received: {{ combinedStatistics?.aomailData.nbEmailsReceived }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">📖</span>
+                                <span>Emails Read: {{ combinedStatistics?.aomailData.nbEmailsRead }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">📂</span>
+                                <span>Emails Archived: {{ combinedStatistics?.aomailData.nbEmailsArchived }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">⏳</span>
+                                <span>Emails Reply Later: {{ combinedStatistics?.aomailData.nbEmailsReplyLater }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Providers Stats Card -->
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h2 class="text-base font-semibold text-gray-900 mb-4">Email Providers Statistics</h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">📩</span>
+                                <span>Emails Received: {{ combinedStatistics?.emailProvidersData.nbEmailsReceived }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">📖</span>
+                                <span>Emails Read: {{ combinedStatistics?.emailProvidersData.nbEmailsRead }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">📂</span>
+                                <span>Emails Archived: {{ combinedStatistics?.emailProvidersData.nbEmailsArchived }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">⭐</span>
+                                <span>Emails Starred: {{ combinedStatistics?.emailProvidersData.nbEmailsStarred }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <span class="mr-2">📤</span>
+                                <span>Emails Sent: {{ combinedStatistics?.emailProvidersData.nbEmailsSent }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart View -->
+                <div v-else class="h-full">
+                    <div ref="barChart" class="h-full w-full"></div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -80,6 +116,7 @@ import Multiselect from "vue-multiselect";
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { EmailLinked } from "@/global/types";
+import { PaperAirplaneIcon } from "@heroicons/vue/24/outline";
 
 // Refs
 const emailsLinked = ref<EmailLinked[]>([]);
@@ -213,4 +250,11 @@ watch(isChartView, (newValue) => {
 
 <style scoped>
 @import "vue-multiselect/dist/vue-multiselect.css";
+
+.multiselect-gray {
+    --ms-tag-bg: #f3f4f6;
+    --ms-tag-color: #111827;
+    --ms-tag-radius: 0.375rem;
+    --ms-option-bg-selected: #111827;
+}
 </style>

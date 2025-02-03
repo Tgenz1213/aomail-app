@@ -29,7 +29,7 @@
                     @keydown.enter.prevent="addTag"
                     @keydown.backspace="handleBackspace"
                     @keydown.tab="addTag"
-                    @keydown.comma.prevent="addTag"
+                    @keydown="handleKeydown"
                 />
             </div>
         </div>
@@ -84,6 +84,13 @@ const handleBackspace = (event: KeyboardEvent) => {
     if (!inputValue.value && props.modelValue.length > 0) {
         event.preventDefault();
         removeTag(props.modelValue.length - 1);
+    }
+};
+
+const handleKeydown = (event: KeyboardEvent) => {
+    if (event.key === ',') {
+        event.preventDefault();
+        addTag();
     }
 };
 </script> 

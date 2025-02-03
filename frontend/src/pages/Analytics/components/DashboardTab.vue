@@ -1,36 +1,42 @@
 <template>
     <!-- Email Provider Dashboard Section -->
     <section class="">
-        <div class="grid grid-cols-2 gap-4">
-            <div class="h-[300px]">
-                <div :id="chartIds.domainDistribution" class="w-full h-full"></div>
+        <div class="grid grid-cols-2 gap-10">
+            <div class="h-[34vh]">
+                <ChartTitle>
+                    {{ $t("analyticsPage.analytics.emailsReceivedPerDomain") }}
+                </ChartTitle>
+                <div :id="chartIds.domainDistribution" class="w-full h-full pt-6"></div>
             </div>
-            <div class="h-[300px]">
-                <div :id="chartIds.senderDistribution" class="w-full h-full"></div>
+            <div class="h-[34vh]">
+                <ChartTitle>
+                    {{ $t("analyticsPage.analytics.emailsReceivedPerSender") }}
+                </ChartTitle>
+                <div :id="chartIds.senderDistribution" class="w-full h-full pt-6"></div>
             </div>
         </div>
     </section>
 
     <!-- Aomail Dashboard Section -->
-    <section class="">
-        <div class="grid grid-cols-3 gap-6">
-            <div class="rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">
+    <section class="pt-10">
+        <div class="grid grid-cols-3 gap-10">
+            <div class="h-[43vh]">
+                <ChartTitle>
                     {{ $t("analyticsPage.analytics.importanceDistribution") }}
-                </h3>
-                <div :id="chartIds.importance" class="h-[400px]"></div>
+                </ChartTitle>
+                <div :id="chartIds.importance" class="w-full h-full pt-4"></div>
             </div>
-            <div class="rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">
+            <div class="h-[43vh]">
+                <ChartTitle>
                     {{ $t("analyticsPage.analytics.answerRequirementDistribution") }}
-                </h3>
-                <div :id="chartIds.answerRequirement" class="h-[400px]"></div>
+                </ChartTitle>
+                <div :id="chartIds.answerRequirement" class="w-full h-full pt-4"></div>
             </div>
-            <div class="rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">
+            <div class="h-[43vh]">
+                <ChartTitle>
                     {{ $t("analyticsPage.analytics.relevanceDistribution") }}
-                </h3>
-                <div :id="chartIds.relevance" class="h-[400px]"></div>
+                </ChartTitle>
+                <div :id="chartIds.relevance" class="w-full h-full pt-4"></div>
             </div>
         </div>
     </section>
@@ -41,6 +47,7 @@ import { getData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import * as echarts from "echarts";
 import { inject, onMounted, onUnmounted } from "vue";
+import ChartTitle from "./CharTitle.vue";
 
 let importanceChart: echarts.ECharts;
 let answerRequirementChart: echarts.ECharts;
@@ -210,8 +217,8 @@ onMounted(async () => {
     const grid = {
         left: 100,
         right: 100,
-        top: 50,
-        bottom: 50,
+        top: 20,
+        bottom: 80,
     };
     const answerRequirementSeries = ["Answer Required", "Might Require Answer", "No Answer Required"].map(
         (name, sid) => {
@@ -234,7 +241,7 @@ onMounted(async () => {
             formatter: (params: any) => `${params.seriesName}: ${params.value * totalData[params.dataIndex]}`,
         },
         legend: {
-            title: "Percentage of emails per category per answer requirement",
+            bottom: 10,
             selectedMode: true,
         },
         grid,
@@ -250,11 +257,14 @@ onMounted(async () => {
     //// reevance part
 
     const relevanceChartOptions = {
-        legend: {},
+        legend: {
+            bottom: 10,
+        },
         tooltip: {},
         dataset: {
             source: relevanceData,
         },
+        grid,
         xAxis: { type: "category" },
         yAxis: { type: "value" },
         series: [
@@ -267,13 +277,6 @@ onMounted(async () => {
     /// emails received daaa
 
     const domainDistributionOptions = {
-        title: {
-            text: i18n.global.t("analyticsPage.analytics.emailsReceivedPerDomain"),
-            textStyle: {
-                fontSize: 14,
-                fontWeight: "normal",
-            },
-        },
         tooltip: {
             trigger: "axis",
             axisPointer: {
@@ -281,7 +284,7 @@ onMounted(async () => {
             },
         },
         grid: {
-            top: 40,
+            top: 20,
             bottom: 20,
             left: 100,
             right: 20,
@@ -318,13 +321,6 @@ onMounted(async () => {
     };
 
     const senderDistributionOptions = {
-        title: {
-            text: i18n.global.t("analyticsPage.analytics.emailsReceivedPerSender"),
-            textStyle: {
-                fontSize: 14,
-                fontWeight: "normal",
-            },
-        },
         tooltip: {
             trigger: "axis",
             axisPointer: {
@@ -332,7 +328,7 @@ onMounted(async () => {
             },
         },
         grid: {
-            top: 40,
+            top: 20,
             bottom: 20,
             left: 120,
             right: 20,

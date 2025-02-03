@@ -53,8 +53,8 @@ const messages = inject("messages") as Ref<Message[]>;
 const guidelines = ref<Guideline>({ importantGuidelines: "", informativeGuidelines: "", uselessGuidelines: "" });
 const waitForButtonClick = inject("waitForButtonClick") as Ref<boolean>;
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-const displayUserMsg = inject<(message: string) => void>("displayUserMsg")!;
-const waitForUserInput = inject<() => Promise<string>>("waitForUserInput")!;
+const displayUserMsg = inject<(message: string) => void>("displayUserMsg") || ((message: string) => {});
+const waitForUserInput = inject<() => Promise<string>>("waitForUserInput") || (() => Promise.resolve(""));
 const selectedAgent = inject<Ref<Agent>>("selectedAgent") || ref<Agent>({
     id: "",
     agent_name: "Default Agent",

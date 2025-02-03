@@ -5,13 +5,13 @@ declare module "*.png" {
 
 declare module "@heroicons/vue/*" {
     import { DefineComponent } from "vue";
-    const component: DefineComponent<{}, {}, any>;
+    const component: DefineComponent<object, object, any>;
     export default component;
 }
 
 declare module "@heroicons/vue/24/outline/*" {
     import { DefineComponent } from "vue";
-    const component: DefineComponent<{}, {}, any>;
+    const component: DefineComponent<object, object, any>;
     export default component;
 }
 
@@ -22,7 +22,7 @@ declare module "moment-timezone" {
 
 declare module "*.vue" {
     import { DefineComponent } from "vue";
-    const component: DefineComponent<{}, {}, any>;
+    const component: DefineComponent<object, object, any>;
     export default component;
 }
 

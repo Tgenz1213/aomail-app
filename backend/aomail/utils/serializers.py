@@ -103,6 +103,7 @@ class ContactSerializer(serializers.ModelSerializer):
 
 
 # ----------------------- RULE  SERIALIZER -----------------------#
+# DEPRECATED
 class RuleSerializer(serializers.ModelSerializer):
     """Serializer for handling 'Rule' model data in API interactions."""
 
@@ -128,7 +129,7 @@ class RuleSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
+# DEPRECATED
 class RuleBlockUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rule

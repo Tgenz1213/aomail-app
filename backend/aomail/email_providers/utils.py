@@ -144,6 +144,7 @@ def get_email_data(social_api: SocialAPI, email_id: str = None) -> dict:
         raise ValueError(f"Unsupported API type: {social_api.type_api}")
 
 
+# DEPRECATED (under refactoring)
 def should_process_email(email_data: dict) -> bool:
     """
     Check if the email should be processed.

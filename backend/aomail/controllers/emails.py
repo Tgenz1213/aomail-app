@@ -33,7 +33,7 @@ from aomail.constants import (
     MICROSOFT,
     MIGHT_REQUIRE_ANSWER,
 )
-from aomail.models import Rule, SocialAPI, Email
+from aomail.models import SocialAPI, Email
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.email_providers.microsoft import (
@@ -153,12 +153,12 @@ def get_simple_email_data(request: HttpRequest) -> Response:
             )
 
         queryset = Email.objects.filter(id__in=email_ids, user=user)
-        rule_id_subquery = Rule.objects.filter(
-            sender=OuterRef("sender"), user=user
-        ).values("id")[:1]
-        queryset = queryset.annotate(
-            has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
-        )
+        # rule_id_subquery = Rule.objects.filter(
+        #     sender=OuterRef("sender"), user=user
+        # ).values("id")[:1]
+        # queryset = queryset.annotate(
+        #     has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
+        # )
 
         emails_data = []
         for email in queryset:
@@ -188,22 +188,22 @@ def get_simple_email_data(request: HttpRequest) -> Response:
                     ],
                     "read": email.read,
                     "answerLater": email.answer_later,
-                    "rule": {
-                        "hasRule": (
-                            True
-                            if Rule.objects.filter(
-                                sender=email.sender, user=user
-                            ).exists()
-                            else False
-                        ),
-                        "ruleId": (
-                            Rule.objects.get(sender=email.sender, user=user).id
-                            if Rule.objects.filter(
-                                sender=email.sender, user=user
-                            ).exists()
-                            else None
-                        ),
-                    },
+                    # "rule": {
+                    #     "hasRule": (
+                    #         True
+                    #         if Rule.objects.filter(
+                    #             sender=email.sender, user=user
+                    #         ).exists()
+                    #         else False
+                    #     ),
+                    #     "ruleId": (
+                    #         Rule.objects.get(sender=email.sender, user=user).id
+                    #         if Rule.objects.filter(
+                    #             sender=email.sender, user=user
+                    #         ).exists()
+                    #         else None
+                    #     ),
+                    # },
                     "hasAttachments": email.has_attachments,
                     "attachments": [
                         {

@@ -6,6 +6,7 @@ Each model corresponds to a database table, storing data and implementing securi
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 
 
 class Subscription(models.Model):
@@ -118,14 +119,52 @@ class SocialAPI(models.Model):
 class Rule(models.Model):
     """Model for storing rule information."""
 
-    info_AI = models.TextField(blank=True, null=True)
-    priority = models.CharField(max_length=50, blank=True, null=True)
-    block = models.BooleanField()
-    category = models.ForeignKey(
+    # info_AI = models.TextField(blank=True, null=True)
+    # priority = models.CharField(max_length=50, blank=True, null=True)
+    # block = models.BooleanField()
+    # category = models.ForeignKey(
+    #     Category, on_delete=models.CASCADE, blank=True, null=True
+    # )
+    # sender = models.OneToOneField(Sender, on_delete=models.CASCADE)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    logical_operator = models.CharField(default="AND")  # "OR" allowed
+
+    # --- static triggers --- #
+    # gmail triggers
+    domains = ArrayField(models.CharField(), null=True)
+    sender_emails = ArrayField(models.CharField(), null=True)
+    has_attachements = models.BooleanField(null=True)
+    # after AI processing triggers
+    categories = ArrayField(models.CharField(max_length=30), null=True)
+    priorities = ArrayField(models.CharField(), null=True)
+    answers = ArrayField(models.CharField(), null=True)
+    relevances = ArrayField(models.CharField(), null=True)
+    flags = ArrayField(models.CharField(max_length=30), null=True)
+    # --- AI triggers --- #
+    email_deal_with = models.CharField(null=True)  # user prompt
+
+    # --- static actions --- #
+    action_transfer = ArrayField(
+        models.CharField(max_length=30), null=True
+    )  # list of emails
+    action_set_tags = ArrayField(
+        models.CharField(max_length=30), null=True
+    )  # list of tags
+    action_mark_as = ArrayField(
+        models.CharField(max_length=30), null=True
+    )  # e.g [read, answerLater, archive]
+    action_delete = models.BooleanField(null=True)  # whether to delete the email or not
+    action_set_category = models.ForeignKey(
         Category, on_delete=models.CASCADE, blank=True, null=True
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    sender = models.OneToOneField(Sender, on_delete=models.CASCADE)
+    action_set_priority = models.CharField(null=True)  # Important
+    action_set_relevance = models.CharField(null=True)  # Highly Relevant
+    action_set_answer = models.CharField(null=True)  # Answer Required
+
+    # --- AI actions --- #
+    action_reply_prompt = models.CharField(null=True)  # user prompt
+    recipients_reply_emails = ArrayField(models.CharField(), null=True)
 
 
 class MicrosoftListener(models.Model):
@@ -267,14 +306,16 @@ class KeyPoint(models.Model):
 class Signature(models.Model):
     """Model for storing user email signatures."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='signatures')
-    social_api = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, related_name='signatures')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="signatures")
+    social_api = models.ForeignKey(
+        SocialAPI, on_delete=models.CASCADE, related_name="signatures"
+    )
     signature_content = models.TextField()
 
 
 class Agent(models.Model):
     """Model for storing agent information."""
-    
+
     agent_name = models.CharField(max_length=255)
     agent_ai_model = models.CharField(max_length=255)
     ai_template = models.TextField(null=True, blank=True)
@@ -284,8 +325,10 @@ class Agent(models.Model):
     formality = models.CharField(max_length=50)
     language = models.CharField(max_length=50)
     last_used = models.BooleanField(default=False)
-    picture = models.ImageField(upload_to='media/agent_icon/', null=True, blank=True) # To update
-    icon_name = models.TextField(default="") # img name + file ext
+    picture = models.ImageField(
+        upload_to="media/agent_icon/", null=True, blank=True
+    )  # To update
+    icon_name = models.TextField(default="")  # img name + file ext
 
     def __str__(self):
         return self.agent_name

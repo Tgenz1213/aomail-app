@@ -194,7 +194,7 @@ def get_dependencies(request: HttpRequest) -> Response:
             {"error": "Category not found"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    rules_count = Rule.objects.filter(category=category, user=user).count()
+    rules_count = Rule.objects.filter(action_set_category=category, user=user).count()
     emails_count = Email.objects.filter(category=category, user=user).count()
 
     return Response(

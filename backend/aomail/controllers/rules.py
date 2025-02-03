@@ -8,6 +8,8 @@ Endpoints:
 - ✅ delete_user_rule_by_id: Delete a specific rule.
 - ✅ create_user_rule: Create a new rule.
 - ✅ update_user_rule: Update an existing rule.
+
+⚠️This module is deprecated and under refactoring
 """
 
 import json

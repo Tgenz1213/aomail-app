@@ -4,6 +4,8 @@ Handles searching for rules in the Aomail database, filtering, sorting, and retr
 Endpoints:
 - ✅ get_user_rule_ids: Retrieves filtered and formatted user rule IDs based on specified criteria.
 - ✅ get_rules_data: Retrieves formatted rules data for display.
+
+⚠️This module is deprecated and under refactoring
 """
 
 import json

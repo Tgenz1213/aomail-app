@@ -18,7 +18,7 @@
     </section>
 
     <!-- Aomail Dashboard Section -->
-    <section class="pt-10">
+    <section class="pt-12">
         <div class="grid grid-cols-3 gap-10">
             <div class="h-[43vh]">
                 <ChartTitle>

@@ -1,38 +1,46 @@
 <template>
-    <div class="relative">
+    <div>
         <div
             class="min-h-[38px] w-full rounded-md border border-gray-300 focus-within:border-gray-500 focus-within:ring focus-within:ring-gray-500 focus-within:ring-opacity-50"
         >
             <div class="flex flex-wrap gap-1 p-1">
-                <span
+                <!-- Tags -->
+                <div
                     v-for="(tag, index) in modelValue"
                     :key="index"
-                    class="inline-flex items-center px-2 py-1 rounded-md text-sm bg-gray-100"
+                    class="flex items-center bg-gray-100 rounded px-2 py-1 text-sm"
                 >
-                    {{ tag }}
+                    <span>{{ tag }}</span>
                     <button
                         @click="removeTag(index)"
                         class="ml-1 text-gray-500 hover:text-gray-700"
                     >
                         ×
                     </button>
-                </span>
+                </div>
+
+                <!-- Input -->
                 <input
-                    ref="input"
-                    v-model="newTag"
+                    ref="inputRef"
+                    v-model="inputValue"
+                    type="text"
                     :placeholder="placeholder"
+                    class="flex-1 min-w-[120px] outline-none border-0 bg-transparent p-1"
                     @keydown.enter.prevent="addTag"
                     @keydown.backspace="handleBackspace"
-                    class="flex-1 min-w-[60px] outline-none border-0 bg-transparent p-1"
+                    @keydown.tab="addTag"
+                    @keydown.comma.prevent="addTag"
                 />
             </div>
         </div>
-        <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
+        <div v-if="error" class="mt-1 text-xs text-red-500">
+            {{ error }}
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps<{
     modelValue: string[];
@@ -40,33 +48,40 @@ const props = defineProps<{
     validate?: (value: string) => boolean;
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+    (e: 'update:modelValue', value: string[]): void;
+}>();
 
-const input = ref<HTMLInputElement | null>(null);
-const newTag = ref('');
+const inputRef = ref<HTMLInputElement | null>(null);
+const inputValue = ref('');
 const error = ref('');
 
 const addTag = () => {
-    if (newTag.value.trim()) {
-        if (props.validate && !props.validate(newTag.value.trim())) {
-            error.value = 'Invalid format';
-            return;
-        }
-        
-        const updatedTags = [...props.modelValue, newTag.value.trim()];
-        emit('update:modelValue', updatedTags);
-        newTag.value = '';
-        error.value = '';
+    const value = inputValue.value.trim().replace(',', '');
+    
+    if (!value) return;
+    
+    if (props.validate && !props.validate(value)) {
+        error.value = 'Invalid format';
+        return;
     }
+
+    if (!props.modelValue.includes(value)) {
+        emit('update:modelValue', [...props.modelValue, value]);
+    }
+    
+    inputValue.value = '';
+    error.value = '';
 };
 
 const removeTag = (index: number) => {
-    const updatedTags = props.modelValue.filter((_, i) => i !== index);
-    emit('update:modelValue', updatedTags);
+    const newTags = [...props.modelValue];
+    newTags.splice(index, 1);
+    emit('update:modelValue', newTags);
 };
 
 const handleBackspace = (event: KeyboardEvent) => {
-    if (newTag.value === '' && props.modelValue.length > 0) {
+    if (!inputValue.value && props.modelValue.length > 0) {
         event.preventDefault();
         removeTag(props.modelValue.length - 1);
     }

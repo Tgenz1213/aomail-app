@@ -9,7 +9,7 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative">
@@ -24,7 +24,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-12'
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-12',
                                                 ]"
                                                 @click="() => router.push('/ai-assistant')"
                                             >
@@ -37,7 +37,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/custom-categorization')"
                                             >
@@ -50,7 +50,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/rules')"
                                             >
@@ -79,7 +79,7 @@
                             >
                                 <li
                                     v-for="rule in rules"
-                                    :key="rule.email"
+                                    :key="rule.id"
                                     class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative"
                                 >
                                     <Rule :rule="rule" @edit="handleEditRule" />
@@ -144,10 +144,9 @@
     </div>
     <NewRuleModal
         :isOpen="showModal"
-        @update:isOpen="updateModalStatus"
         :emailSenders="emailSenders"
+        @update:isOpen="updateModalStatus"
         :categories="categories"
-        :sender="senderSelected"
         @fetch-rules="fetchRules"
     />
     <UpdateRuleModal
@@ -169,23 +168,22 @@ import NewRuleModal from "./components/NewRuleModal.vue";
 import UpdateRuleModal from "./components/UpdateRuleModal.vue";
 import Rule from "./components/Rule.vue";
 import SearchBar from "./components/SearchBar.vue";
-import { EmailSender } from "@/global/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { FilterPayload, RuleData } from "./utils/types";
 import { i18n } from "@/global/preferences";
 import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
+import { EmailSender } from "@/global/types";
 
 const router = useRouter();
 
+const emailSenders = ref<EmailSender[]>([]);
 const showModal = ref(false);
 const showUpdateModal = ref(false);
 const rules = ref<RuleData[]>([]);
 const ruleIds = ref<number[]>([]);
 const categories = ref<any[]>([]);
-const emailSenders = ref<any[]>([]);
-const senderSelected = ref<EmailSender | null>(null);
-const ruleSelected = ref<any>(null);
+const ruleSelected = ref<RuleData | null>(null);
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
@@ -205,18 +203,16 @@ const senderEmail = ref("");
 const searchInput = ref("");
 
 const debounceTimer = ref<number | undefined>(undefined);
-const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 onMounted(async () => {
     await fetchRules();
-    fetchEmailSenders();
-    fetchCategories();
+    await fetchCategories();
+    await fetchEmailSenders();
 
     const urlParams = new URLSearchParams(window.location.search);
     const editRule = urlParams.get("editRule");
     const ruleId = urlParams.get("idRule");
-    const nameSender = urlParams.get("ruleName");
-    const emailSender = urlParams.get("ruleEmail");
 
     if (editRule === "true" && ruleId) {
         fetchRuleById(ruleId);
@@ -226,11 +222,6 @@ onMounted(async () => {
             const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
             window.history.replaceState({}, document.title, newUrl);
         }
-    } else if (editRule === "false" && nameSender && emailSender) {
-        senderSelected.value = { username: nameSender as string, email: emailSender as string };
-        updateModalStatus(true);
-        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-        window.history.replaceState({}, document.title, newUrl);
     }
 
     document.addEventListener("keydown", handleKeyDown);
@@ -300,7 +291,29 @@ function updateModalUpdateStatus(status: boolean) {
 }
 
 function handleEditRule(rule: any) {
-    ruleSelected.value = rule;
+    ruleSelected.value = {
+        ...rule,
+        logicalOperator: rule.logicalOperator || "AND",
+        domains: rule.domains || [],
+        senderEmails: rule.senderEmails || [],
+        hasAttachements: rule.hasAttachements || false,
+        categories: rule.categories || [],
+        priorities: rule.priorities || [],
+        answers: rule.answers || [],
+        relevances: rule.relevances || [],
+        flags: rule.flags || [],
+        emailDealWith: rule.emailDealWith || "",
+        actionTransferRecipients: rule.actionTransferRecipients || [],
+        actionSetTags: rule.actionSetTags || [],
+        actionMarkAs: rule.actionMarkAs || [],
+        actionDelete: rule.actionDelete || false,
+        actionSetCategory: rule.actionSetCategory || null,
+        actionSetPriority: rule.actionSetPriority || "",
+        actionSetRelevance: rule.actionSetRelevance || "",
+        actionSetAnswer: rule.actionSetAnswer || "",
+        actionReplyPrompt: rule.actionReplyPrompt || "",
+        actionReplyRecipients: rule.actionReplyRecipients || [],
+    };
     showUpdateModal.value = true;
 }
 
@@ -352,12 +365,7 @@ async function fetchRules() {
     }
 
     rules.value = result.data.rulesData.map((rule: RuleData) => ({
-        id: rule.id,
-        name: rule.username,
-        email: rule.email,
-        category: rule.category,
-        priority: rule.priority,
-        block: rule.block,
+        ...rule,
     }));
 }
 
@@ -394,13 +402,8 @@ const loadMoreRules = async () => {
 
         rules.value = [
             ...rules.value,
-            result.data.rulesData.map((rule: RuleData) => ({
-                id: rule.id,
-                name: rule.username,
-                email: rule.email,
-                category: rule.category,
-                priority: rule.priority,
-                block: rule.block,
+            ...result.data.rulesData.map((rule: RuleData) => ({
+                ...rule,
             })),
         ];
 
@@ -411,7 +414,7 @@ const loadMoreRules = async () => {
 };
 
 async function fetchRuleById(idRule: string) {
-    const result = await getData(`user/rules/${idRule}/`);
+    const result = await postData(`user/get_rules_data/`, { ids: [idRule] });
 
     if (!result.success) {
         displayPopup(
@@ -423,12 +426,27 @@ async function fetchRuleById(idRule: string) {
     }
 
     ruleSelected.value = {
-        id: result.data.id,
-        name: result.data.senderName,
-        email: result.data.senderEmail,
-        category: result.data.categoryName,
-        priority: result.data.priority,
-        mailStop: result.data.block,
+        ...result.data,
+        logicalOperator: result.data.logicalOperator || "AND",
+        domains: result.data.domains || [],
+        senderEmails: result.data.senderEmails || [],
+        hasAttachements: result.data.hasAttachements || false,
+        categories: result.data.categories || [],
+        priorities: result.data.priorities || [],
+        answers: result.data.answers || [],
+        relevances: result.data.relevances || [],
+        flags: result.data.flags || [],
+        emailDealWith: result.data.emailDealWith || "",
+        actionTransferRecipients: result.data.actionTransferRecipients || [],
+        actionSetTags: result.data.actionSetTags || [],
+        actionMarkAs: result.data.actionMarkAs || [],
+        actionDelete: result.data.actionDelete || false,
+        actionSetCategory: result.data.actionSetCategory || null,
+        actionSetPriority: result.data.actionSetPriority || "",
+        actionSetRelevance: result.data.actionSetRelevance || "",
+        actionSetAnswer: result.data.actionSetAnswer || "",
+        actionReplyPrompt: result.data.actionReplyPrompt || "",
+        actionReplyRecipients: result.data.actionReplyRecipients || [],
     };
 }
 

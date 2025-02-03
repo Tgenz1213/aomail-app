@@ -62,10 +62,7 @@ urlpatterns = [
     #----------------------- RULES -----------------------#
     path('user/rules_ids/', search_rules.get_user_rule_ids, name='get_user_rule_ids'),
     path('user/get_rules_data/', search_rules.get_rules_data, name='get_rules_data'),
-    path('user/rules/<int:id_rule>/', rules.get_user_rule_by_id, name='get_user_rule_by_id'),
-    path('user/delete_rules/<int:id_rule>/', rules.delete_user_rule_by_id, name='delete_user_rule_by_id'),
-    path('user/create_rule/', rules.create_user_rule, name='create_user_rule'),
-    path('user/update_rule/', rules.update_user_rule, name='update_user_rule'),
+    path('user/rules/', rules.handle_rules, name='handle_rules'),
     path('user/emails/<int:email_id>/block_sender/', rules.set_rule_block_for_sender, name='set_rule_block_for_sender'),
     #----------------------- PREFERENCES -----------------------#
     path('user/preferences/update_username/', prefs.update_username, name='update_username'),
@@ -109,7 +106,6 @@ urlpatterns = [
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'),
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'),    
     path('create_sender', views.create_sender, name='create_sender'),
-    path('check_sender', views.check_sender_for_user, name='check_sender_for_user'),
     #----------------------- STATISTICS -----------------------#
     path('user/statistics/', statistics.get_statistics , name='statistics'),
     path('user/dashboard_data/', user_dashboard.dashboard_data , name='user_dashboard_data'),

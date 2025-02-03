@@ -88,6 +88,7 @@ class EmailGenerateAnswer(serializers.Serializer):
     keyword = serializers.CharField()
     signature = serializers.CharField()
 
+
 class UserLoginSerializer(serializers.ModelSerializer):
     """Serializer for retrieving user login data through a GET request."""
 
@@ -103,31 +104,112 @@ class ContactSerializer(serializers.ModelSerializer):
 
 
 # ----------------------- RULE  SERIALIZER -----------------------#
-# DEPRECATED
 class RuleSerializer(serializers.ModelSerializer):
-    """Serializer for handling 'Rule' model data in API interactions."""
+    """Serializer for Rule model with validation."""
+
+    # Make all fields optional by default
+    domains = serializers.ListField(required=False, allow_null=True)
+    sender_emails = serializers.ListField(required=False, allow_null=True)
+    has_attachements = serializers.BooleanField(required=False, allow_null=True)
+    categories = serializers.ListField(required=False, allow_null=True)
+    priorities = serializers.ListField(required=False, allow_null=True)
+    answers = serializers.ListField(required=False, allow_null=True)
+    relevances = serializers.ListField(required=False, allow_null=True)
+    flags = serializers.ListField(required=False, allow_null=True)
+    email_deal_with = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    
+    action_transfer_recipients = serializers.ListField(required=False, allow_null=True)
+    action_set_flags = serializers.ListField(required=False, allow_null=True)
+    action_mark_as = serializers.ListField(required=False, allow_null=True)
+    action_delete = serializers.BooleanField(required=False, allow_null=True)
+    action_set_category = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    action_set_priority = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    action_set_relevance = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    action_set_answer = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    action_reply_prompt = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    action_reply_recipients = serializers.ListField(required=False, allow_null=True)
 
     class Meta:
         model = Rule
-        fields = ["id", "info_AI", "priority", "block", "category", "user", "sender"]
-        read_only_fields = ["user"]
+        fields = [
+            "id",
+            "user",
+            "logical_operator",
+            # Email triggers
+            "domains",
+            "sender_emails",
+            "has_attachements",
+            # AI processing triggers
+            "categories",
+            "priorities",
+            "answers",
+            "relevances",
+            "flags",
+            # AI triggers
+            "email_deal_with",
+            # Actions
+            "action_transfer_recipients",
+            "action_set_flags",
+            "action_mark_as",
+            "action_delete",
+            "action_set_category",
+            "action_set_priority",
+            "action_set_relevance",
+            "action_set_answer",
+            "action_reply_prompt",
+            "action_reply_recipients",
+        ]
+        read_only_fields = ["id", "user"]
+
+    def validate(self, data):
+        """
+        Validate the rule data.
+        Ensure at least one trigger and one action is specified.
+        """
+        # Check if at least one trigger is specified
+        trigger_fields = [
+            "domains",
+            "sender_emails",
+            "has_attachements",
+            "categories",
+            "priorities",
+            "answers",
+            "relevances",
+            "flags",
+            "email_deal_with",
+        ]
+
+        has_trigger = any(data.get(field) for field in trigger_fields)
+        if not has_trigger:
+            raise serializers.ValidationError(
+                "At least one trigger condition must be specified"
+            )
+
+        # Check if at least one action is specified
+        action_fields = [
+            "action_transfer_recipients",
+            "action_set_flags",
+            "action_mark_as",
+            "action_delete",
+            "action_set_category",
+            "action_set_priority",
+            "action_set_relevance",
+            "action_set_answer",
+            "action_reply_prompt",
+        ]
+
+        has_action = any(data.get(field) for field in action_fields)
+        if not has_action:
+            raise serializers.ValidationError("At least one action must be specified")
+
+        return data
 
     def create(self, validated_data):
-        """Create method for handling the creation of a new 'Rule' instance."""
-        user = self.context.get("user")
-        category = validated_data.get("category")
+        """Create a new rule with the validated data."""
+        user = self.context["user"]
+        validated_data["user"] = user
+        return super().create(validated_data)
 
-        if category is None or category == "":
-            validated_data.pop("category", None)
-
-        return Rule.objects.create(user=user, **validated_data)
-
-    def update(self, instance, validated_data):
-        """Update method for handling the update of an existing 'Rule' instance."""
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
-        instance.save()
-        return instance
 
 # DEPRECATED
 class RuleBlockUpdateSerializer(serializers.ModelSerializer):
@@ -235,8 +317,8 @@ class FilterSerializer(serializers.ModelSerializer):
 class SignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signature
-        fields = ['id', 'user', 'social_api', 'signature_content']
-        read_only_fields = ['id', 'user']
+        fields = ["id", "user", "social_api", "signature_content"]
+        read_only_fields = ["id", "user"]
 
 
 class AgentSerializer(serializers.ModelSerializer):
@@ -245,24 +327,24 @@ class AgentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agent
         fields = [
-            'id',
-            'agent_name',
-            'agent_ai_model',
-            'ai_template',
-            'email_example',
-            'length',
-            'formality',
-            'language',
-            'last_used',
-            'picture',
-            'icon_name'
+            "id",
+            "agent_name",
+            "agent_ai_model",
+            "ai_template",
+            "email_example",
+            "length",
+            "formality",
+            "language",
+            "last_used",
+            "picture",
+            "icon_name",
         ]
-        read_only_fields = ['id']
+        read_only_fields = ["id"]
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        user = self.context["request"].user
         return Agent.objects.create(user=user, **validated_data)
-    
+
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

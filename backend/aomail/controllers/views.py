@@ -2,7 +2,6 @@
 Handles user profile, email sending, and contact management operations, returns results to frontend, and saves to database.
 
 Endpoints:
-- ✅ check_sender_for_user: Check if a sender with the specified email exists.
 - ✅ create_sender: Create a new sender associated with the authenticated user.
 - ✅ get_emails_linked: Returns the list of emails linked to the authenticated user's account.
 - ✅ get_profile_image: Retrieves the profile image URL of the social API selected.
@@ -253,33 +252,6 @@ def get_user_contacts(request: HttpRequest) -> Response:
 
 
 ######################## DATABASE OPERATIONS ########################
-@api_view(["POST"])
-@subscription(ALLOW_ALL)
-def check_sender_for_user(request: HttpRequest) -> Response:
-    """
-    Check if a sender with the specified email exists.
-
-    Args:
-        request (HttpRequest): HTTP request object containing the email to check in the request body.
-            Expects JSON body with:
-                email (str): The email address of the sender to check.
-
-    Returns:
-        Response: Either {"exists": True, "sender_id": sender.id} if the sender exists,
-                      or {"exists": False} if the sender does not exist.
-    """
-    parameters: dict = json.loads(request.body)
-    email = parameters.get("email")
-
-    try:
-        sender = Sender.objects.get(email=email)
-        return Response(
-            {"exists": True, "senderId": sender.id}, status=status.HTTP_200_OK
-        )
-    except ObjectDoesNotExist:
-        return Response({"exists": False}, status=status.HTTP_200_OK)
-
-
 @api_view(["GET"])
 @subscription(ALLOW_ALL)
 def get_emails_linked(request: HttpRequest) -> Response:

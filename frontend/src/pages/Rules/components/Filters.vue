@@ -61,7 +61,7 @@
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Categories</label>
                             <multiselect
-                                v-model="selectedCategories"
+                                v-model="selectedCategoriesNames"
                                 :options="categoryOptions"
                                 :multiple="true"
                                 placeholder="Select categories"
@@ -126,9 +126,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { inject, onMounted, ref, watch } from "vue";
 import Multiselect from "vue-multiselect";
 import TagInput from "./TagInput.vue";
+import { i18n } from "@/global/preferences";
+import { getData } from "@/global/fetchData";
 
 interface Category {
     id: number;
@@ -142,7 +144,7 @@ const props = defineProps<{
         domains?: string[];
         senderEmails?: string[];
         hasAttachments?: boolean;
-        categories?: Category[];
+        categories?: string[];
         priorities?: string[];
         answers?: string[];
         relevance?: string[];
@@ -153,28 +155,25 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "update:filters", filters: object): void;
 }>();
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+
+// Options for dropdowns
+let categoryOptions: Category[] = [];
+const priorityOptions = ["Important", "Informative", "Useless"];
+const answerOptions = ["Answer Required", "Might Require Answer", "No Answer Required"];
+const relevanceOptions = ["Highly Relevant", "Possibly Relevant", "Not Relevant"];
+const flagOptions = ["Spam", "Scam", "Newsletter", "Notification", "Meeting"];
 
 // Form state
 const logicalOperator = ref(props.initialFilters?.logicalOperator || "AND");
 const domains = ref<string[]>(props.initialFilters?.domains || []);
 const senderEmails = ref<string[]>(props.initialFilters?.senderEmails || []);
 const hasAttachments = ref(props.initialFilters?.hasAttachments || false);
-const selectedCategories = ref<Category[]>(props.initialFilters?.categories || []);
 const selectedPriorities = ref<string[]>(props.initialFilters?.priorities || []);
 const selectedAnswers = ref<string[]>(props.initialFilters?.answers || []);
 const selectedRelevance = ref<string[]>(props.initialFilters?.relevance || []);
 const selectedFlags = ref<string[]>(props.initialFilters?.flags || []);
-
-// Options for dropdowns
-const categoryOptions = ref<Category[]>([]); // This should be populated from your API
-
-const priorityOptions = ["Important", "Informative", "Useless"];
-
-const answerOptions = ["Answer Required", "Might Require Answer", "No Answer Required"];
-
-const relevanceOptions = ["Highly Relevant", "Possibly Relevant", "Not Relevant"];
-
-const flagOptions = ["Spam", "Scam", "Newsletter", "Notification", "Meeting"];
+const selectedCategoriesNames = ref<string[]>([]);
 
 // Watch for changes and emit updates
 watch(
@@ -183,7 +182,7 @@ watch(
         domains,
         senderEmails,
         hasAttachments,
-        selectedCategories,
+        selectedCategoriesNames,
         selectedPriorities,
         selectedAnswers,
         selectedRelevance,
@@ -195,7 +194,7 @@ watch(
             domains: domains.value,
             senderEmails: senderEmails.value,
             hasAttachments: hasAttachments.value,
-            categories: selectedCategories.value,
+            categories: selectedCategoriesNames.value,
             priorities: selectedPriorities.value,
             answers: selectedAnswers.value,
             relevance: selectedRelevance.value,
@@ -206,17 +205,22 @@ watch(
 );
 
 // Fetch categories when component mounts
-const fetchCategories = async () => {
-    try {
-        const response = await fetch("/api/user/categories/");
-        const data = await response.json();
-        categoryOptions.value = data;
-    } catch (error) {
-        console.error("Failed to fetch categories:", error);
+async function fetchCategories() {
+    const result = await getData("user/categories/");
+    if (!result.success) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchCategories"),
+            result.error as string
+        );
+        return;
     }
-};
+    categoryOptions = result.data;
+}
 
-fetchCategories();
+onMounted(async () => {
+    await fetchCategories();
+});
 
 // Validation functions
 const validateEmail = (email: string) => {

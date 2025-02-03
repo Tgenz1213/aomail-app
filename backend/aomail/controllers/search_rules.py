@@ -61,7 +61,7 @@ def get_rules_data(request: HttpRequest) -> Response:
 
             rule_data = {
                 "id": rule.id,
-                "logical_operator": rule.logical_operator,
+                "logicalOperator": rule.logical_operator,
                 "domains": rule.domains,
                 "sender_emails": rule.sender_emails,
                 "hasAttachements": rule.has_attachements,
@@ -72,7 +72,7 @@ def get_rules_data(request: HttpRequest) -> Response:
                 "flags": rule.flags,
                 "emailDealWith": rule.email_deal_with,
                 "actionTransferRecipients": rule.action_transfer_recipients,
-                "actionSetTags": rule.action_set_tags,
+                "actionSetTags": rule.action_set_flags,
                 "actionMarkAs": rule.action_mark_as,
                 "actionDelete": rule.action_delete,
                 "actionSetCategory": rule.action_set_category,

@@ -5,106 +5,115 @@
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
             v-if="isOpen"
         >
-            <div class="bg-white rounded-lg relative w-[450px]">
-                <slot></slot>
-                <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-                    <button
-                        @click="closeModal"
-                        @keydown="handleKeyDown"
-                        type="button"
-                        class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                    >
-                        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
-                    </button>
-                </div>
-                <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
-                    <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">
+            <div class="bg-white rounded-lg relative w-[600px] max-h-[90vh] overflow-y-auto">
+                <!-- Header -->
+                <div class="sticky top-0 z-10 bg-white rounded-t-lg border-b border-gray-200">
+                    <div class="flex items-center justify-between p-4">
+                        <h2 class="text-lg font-semibold text-gray-900">
                             {{ $t("rulesPage.modals.updateRule.modifyTheRule") }}
-                        </p>
+                        </h2>
+                        <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
+                            <XMarkIcon class="h-6 w-6" />
+                        </button>
                     </div>
                 </div>
-                <div class="flex flex-col gap-4 px-8 py-6">
-                    <Combobox as="div" v-model="selectedPerson">
-                        <div v-if="errorMessage" class="text-red-600 text-sm mb-4">
-                            {{ errorMessage }}
-                        </div>
+
+                <!-- Content -->
+                <div class="p-4 space-y-6">
+                    <div v-if="errorMessage" class="text-red-600 text-sm mb-4">
+                        {{ errorMessage }}
+                    </div>
+
+                    <!-- Logical Operator -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Logical Operator</label>
+                        <select
+                            v-model="formData.logicalOperator"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                        >
+                            <option value="AND">AND - All conditions must match</option>
+                            <option value="OR">OR - Any condition can match</option>
+                        </select>
+                    </div>
+
+                    <!-- Email Sender -->
+                    <div>
                         <div class="flex space-x-1 items-center">
                             <UserIcon class="w-4 h-4" />
-                            <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">
+                            <label class="block text-sm font-medium text-gray-900">
                                 {{ $t("rulesPage.contactField") }}
-                            </ComboboxLabel>
+                            </label>
                         </div>
-                        <div class="relative mt-2">
-                            <ComboboxInput
-                                id="inputField"
-                                class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                @change="query = $event.target.value"
-                                :display-value="displayEmailSender"
-                                @blur="handleBlur($event)"
-                                @click="handleInputClick"
-                                @keydown="handleKeyDown($event)"
-                            />
-                            <ComboboxButton
-                                class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-                            >
-                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                            </ComboboxButton>
-                            <ComboboxOptions
-                                v-if="filteredPeople.length > 0"
-                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                            >
-                                <ComboboxOption
-                                    v-for="person in filteredPeople"
-                                    :key="person.username"
-                                    :value="person"
-                                    as="template"
-                                    v-slot="{ active, selected }"
+                        <Combobox as="div" v-model="selectedPerson">
+                            <div class="relative mt-2">
+                                <ComboboxInput
+                                    id="inputField"
+                                    class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                    @change="query = $event.target.value"
+                                    :display-value="displayEmailSender"
+                                    @blur="handleBlur($event)"
+                                />
+                                <ComboboxButton
+                                    class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
                                 >
-                                    <li
-                                        :class="[
-                                            'relative cursor-default select-none py-2 pl-3 pr-9',
-                                            active ? 'bg-gray-500 text-white' : 'text-gray-900',
-                                        ]"
+                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                </ComboboxButton>
+                                <ComboboxOptions
+                                    v-if="filteredPeople.length > 0"
+                                    class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                                >
+                                    <ComboboxOption
+                                        v-for="person in filteredPeople"
+                                        :key="person.username"
+                                        :value="person"
+                                        as="template"
+                                        v-slot="{ active, selected }"
                                     >
-                                        <div class="flex">
-                                            <span :class="['truncate', selected && 'font-semibold']">
-                                                {{ person.username }}
-                                            </span>
-                                            <span
-                                                :class="[
-                                                    'ml-2 truncate text-gray-800',
-                                                    active ? 'text-gray-200' : 'text-gray-800',
-                                                ]"
-                                            >
-                                                {{ person.email }}
-                                            </span>
-                                        </div>
-                                        <span
-                                            v-if="selected"
+                                        <li
                                             :class="[
-                                                'absolute inset-y-0 right-0 flex items-center pr-4',
-                                                active ? 'text-white' : 'text-gray-500',
+                                                'relative cursor-default select-none py-2 pl-3 pr-9',
+                                                active ? 'bg-gray-500 text-white' : 'text-gray-900',
                                             ]"
                                         >
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                        </span>
-                                    </li>
-                                </ComboboxOption>
-                            </ComboboxOptions>
-                        </div>
-                    </Combobox>
+                                            <div class="flex">
+                                                <span :class="['truncate', selected && 'font-semibold']">
+                                                    {{ person.username }}
+                                                </span>
+                                                <span
+                                                    :class="[
+                                                        'ml-2 truncate text-gray-800',
+                                                        active ? 'text-gray-200' : 'text-gray-800',
+                                                    ]"
+                                                >
+                                                    {{ person.email }}
+                                                </span>
+                                            </div>
+                                            <span
+                                                v-if="selected"
+                                                :class="[
+                                                    'absolute inset-y-0 right-0 flex items-center pr-4',
+                                                    active ? 'text-white' : 'text-gray-500',
+                                                ]"
+                                            >
+                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                            </span>
+                                        </li>
+                                    </ComboboxOption>
+                                </ComboboxOptions>
+                            </div>
+                        </Combobox>
+                    </div>
+
+                    <!-- Category -->
                     <div>
                         <div class="flex space-x-1 items-center">
                             <ArchiveBoxIcon class="w-4 h-4" />
-                            <label for="category" class="block text-sm font-medium leading-6 text-gray-900">
+                            <label class="block text-sm font-medium text-gray-900">
                                 {{ $t("constants.category") }}
                             </label>
                         </div>
                         <select
-                            id="category"
-                            name="category"
-                            v-model="formData.category"
+                            v-model="formData.actionSetCategory"
                             class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6"
                         >
                             <option value="">{{ $t("constants.ruleModalConstants.noCategoryDefined") }}</option>
@@ -113,17 +122,17 @@
                             </option>
                         </select>
                     </div>
+
+                    <!-- Priority -->
                     <div>
                         <div class="flex space-x-1 items-center">
                             <ExclamationCircleIcon class="w-4 h-4" />
-                            <label for="priority" class="block text-sm font-medium leading-6 text-gray-900">
+                            <label class="block text-sm font-medium text-gray-900">
                                 {{ $t("rulesPage.priorityField") }}
                             </label>
                         </div>
                         <select
-                            id="priority"
-                            name="priority"
-                            v-model="formData.priority"
+                            v-model="formData.actionSetPriority"
                             class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6"
                         >
                             <option value="">{{ $t("constants.ruleModalConstants.noPriority") }}</option>
@@ -132,18 +141,20 @@
                             <option :value="USELESS">{{ $t("constants.ruleModalConstants.useless") }}</option>
                         </select>
                     </div>
+
+                    <!-- Block Switch -->
                     <SwitchGroup as="div" class="flex items-center pt-2">
                         <Switch
-                            v-model="formData.block"
+                            v-model="formData.actionDelete"
                             :class="[
-                                formData.block ? 'bg-gray-500' : 'bg-gray-200',
+                                formData.actionDelete ? 'bg-gray-500' : 'bg-gray-200',
                                 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2',
                             ]"
                         >
                             <span
                                 aria-hidden="true"
                                 :class="[
-                                    formData.block ? 'translate-x-5' : 'translate-x-0',
+                                    formData.actionDelete ? 'translate-x-5' : 'translate-x-0',
                                     'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
                                 ]"
                             />
@@ -152,10 +163,11 @@
                             <span class="font-medium text-gray-900">
                                 {{ $t("constants.ruleModalConstants.blockTheEmails") }}
                             </span>
-                            {{ " " }}
                         </SwitchLabel>
                         <ShieldCheckIcon class="ml-1 w-4 h-4" />
                     </SwitchGroup>
+
+                    <!-- Action Buttons -->
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
                         <button
                             type="button"
@@ -211,12 +223,7 @@ import { i18n } from "@/global/preferences";
 import { EmailSender, Category } from "@/global/types";
 import { RuleData } from "../utils/types";
 
-interface FormData {
-    id?: string;
-    category: string;
-    priority: string;
-    block: boolean;
-    infoAI: string;
+interface FormData extends RuleData {
     errorMessage: string;
 }
 
@@ -243,10 +250,27 @@ const currentSelectedPersonUsername = ref("");
 const selectedPerson = ref<EmailSender | null>(null);
 const totalRules = inject<Ref<number>>("totalRules") || ref(0);
 const formData = ref<FormData>({
-    category: "",
-    priority: "",
-    block: false,
-    infoAI: "",
+    id: -1,
+    logicalOperator: "AND",
+    domains: [],
+    senderEmails: [],
+    hasAttachements: false,
+    categories: [],
+    priorities: [],
+    answers: [],
+    relevances: [],
+    flags: [],
+    emailDealWith: "",
+    actionTransferRecipients: [],
+    actionSetFlags: [],
+    actionMarkAs: [],
+    actionDelete: false,
+    actionSetCategory: undefined,
+    actionSetPriority: "",
+    actionSetRelevance: "",
+    actionSetAnswer: "",
+    actionReplyPrompt: "",
+    actionReplyRecipients: [],
     errorMessage: "",
 });
 
@@ -276,17 +300,35 @@ watch(
     (newVal) => {
         if (newVal) {
             formData.value = {
-                id: newVal.id.toString(),
-                category: newVal.category || "",
-                priority: newVal?.priority || "",
-                block: newVal.block || false,
-                infoAI: "",
+                id: newVal.id,
+                logicalOperator: newVal.logicalOperator || "AND",
+                domains: newVal.domains || [],
+                senderEmails: newVal.senderEmails || [],
+                hasAttachements: newVal.hasAttachements || false,
+                categories: newVal.categories || [],
+                priorities: newVal.priorities || [],
+                answers: newVal.answers || [],
+                relevances: newVal.relevances || [],
+                flags: newVal.flags || [],
+                emailDealWith: newVal.emailDealWith || "",
+                actionTransferRecipients: newVal.actionTransferRecipients || [],
+                actionSetFlags: newVal.actionSetFlags || [],
+                actionMarkAs: newVal.actionMarkAs || [],
+                actionDelete: newVal.actionDelete || false,
+                actionSetCategory: newVal.actionSetCategory,
+                actionSetPriority: newVal.actionSetPriority || "",
+                actionSetRelevance: newVal.actionSetRelevance || "",
+                actionSetAnswer: newVal.actionSetAnswer || "",
+                actionReplyPrompt: newVal.actionReplyPrompt || "",
+                actionReplyRecipients: newVal.actionReplyRecipients || [],
                 errorMessage: "",
             };
-            selectedPerson.value = {
-                username: newVal.username || "",
-                email: newVal.email,
-            };
+            selectedPerson.value = newVal.senderEmails?.[0]
+                ? {
+                      username: newVal.senderEmails[0],
+                      email: newVal.senderEmails[0],
+                  }
+                : null;
         }
     },
     { immediate: true }
@@ -306,13 +348,6 @@ function displayEmailSender(item: unknown): string {
 function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Escape") {
         closeModal();
-    } else if (event.key === "Enter") {
-        event.preventDefault();
-        if ((event.target as HTMLElement).id === "inputField" && !selectedPerson.value) {
-            handleBlur(event as unknown as FocusEvent);
-        } else {
-            updateUserRule();
-        }
     }
 }
 
@@ -353,7 +388,7 @@ async function deleteRule() {
         return;
     }
 
-    const result = await deleteData(`user/delete_rules/${formData.value.id}/`);
+    const result = await deleteData(`user/rules/`, { ids: [formData.value.id] });
 
     if (!result.success) {
         errorMessage.value = result.error as string;
@@ -392,66 +427,20 @@ async function postSender(): Promise<number | null> {
     return result.data.id;
 }
 
-async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number }> {
-    if (!selectedPerson.value) {
-        errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
-        return { exists: false };
-    }
-
-    const senderData = { email: selectedPerson.value.email };
-
-    const result = await postData(`check_sender`, senderData);
-
-    if (!result.success) {
-        errorMessage.value = result.error as string;
-        return { exists: false };
-    }
-
-    return result.data.exists ? { exists: result.data.exists, senderId: result.data.senderId } : { exists: false };
-}
-
 async function updateUserRule() {
     if (!formData.value.id) {
         errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError");
         return;
     }
 
-    let { exists, senderId } = await checkSenderExists();
-
-    if (!exists) {
-        const newSenderId = await postSender();
-        if (newSenderId === null) {
-            errorMessage.value = "Failed to create new sender";
-            return;
-        }
-        senderId = newSenderId;
+    if (selectedPerson.value) {
+        formData.value.senderEmails = [selectedPerson.value.email];
     }
 
-    if (senderId === undefined) {
-        errorMessage.value = "Failed to obtain sender ID";
-        return;
-    }
+    const result = await putData(`user/rules/`, { ids: [formData.value.id], ...formData.value });
 
-    let ruleData: any = { ...formData.value, sender: senderId, infoAI: "" };
-
-    if (formData.value.category) {
-        const categoryResult = await postData(`get_category_id/`, { categoryName: formData.value.category });
-
-        if (!categoryResult.success) {
-            errorMessage.value = "Failed to fetch category ID";
-            return;
-        }
-
-        ruleData.category = categoryResult.data.id;
-    }
-
-    const ruleResult = await putData(`user/update_rule/`, ruleData);
-
-    if (!ruleResult.success) {
-        errorMessage.value =
-            ruleResult.error === "A rule already exists for that sender"
-                ? i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender")
-                : (ruleResult.error as string);
+    if (!result.success) {
+        errorMessage.value = result.error as string;
         return;
     }
 

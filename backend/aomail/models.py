@@ -119,14 +119,6 @@ class SocialAPI(models.Model):
 class Rule(models.Model):
     """Model for storing rule information."""
 
-    # info_AI = models.TextField(blank=True, null=True)
-    # priority = models.CharField(max_length=50, blank=True, null=True)
-    # block = models.BooleanField()
-    # category = models.ForeignKey(
-    #     Category, on_delete=models.CASCADE, blank=True, null=True
-    # )
-    # sender = models.OneToOneField(Sender, on_delete=models.CASCADE)
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     logical_operator = models.CharField(default="AND")  # "OR" allowed
 
@@ -148,9 +140,9 @@ class Rule(models.Model):
     action_transfer_recipients = ArrayField(
         models.CharField(max_length=30), null=True
     )  # list of emails
-    action_set_tags = ArrayField(
+    action_set_flags = ArrayField(
         models.CharField(max_length=30), null=True
-    )  # list of tags
+    )  # list of flags
     action_mark_as = ArrayField(
         models.CharField(max_length=30), null=True
     )  # e.g [read, answerLater, archive]

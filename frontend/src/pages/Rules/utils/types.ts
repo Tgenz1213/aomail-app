@@ -1,12 +1,31 @@
 export interface RuleData {
-    id: number;
-    priority?: string;
-    categoryId?: number;
-    category?: string;
-    username?: string;
-    email: string;
-    block?: boolean;
-    infoAI?: string;
+    id?: number;
+    logicalOperator: "AND" | "OR";
+    // --- email triggers --- //
+    domains?: string[];
+    senderEmails?: string[];
+    hasAttachements?: boolean;
+    // --- after AI processing triggers --- //
+    categories?: string[];
+    priorities?: string[];
+    answers?: string[];
+    relevances?: string[];
+    flags?: string[];
+    // --- AI triggers --- //
+    emailDealWith?: string;
+
+    // --- static actions --- //
+    actionTransferRecipients?: string[];
+    actionSetFlags?: string[];
+    actionMarkAs?: string[];
+    actionDelete?: boolean;
+    actionSetCategory?: number;
+    actionSetPriority?: string;
+    actionSetRelevance?: string;
+    actionSetAnswer?: string;
+    // --- AI actions --- //
+    actionReplyPrompt?: string;
+    actionReplyRecipients?: string[];
 }
 
 export interface FilterPayload {

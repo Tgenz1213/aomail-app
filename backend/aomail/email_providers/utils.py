@@ -55,6 +55,7 @@ from aomail.controllers.labels import is_shipping_label, process_label
 from aomail.utils.security import encrypt_text
 from aomail.email_providers.google import labels as google_labels
 from aomail.email_providers.microsoft import labels as microsoft_labels
+from django.db import models
 
 
 LOGGER = logging.getLogger(__name__)
@@ -88,7 +89,11 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
         if not email_data:
             return False
 
-        if not should_process_email(email_data):
+        if not should_process_email(user, email_data):
+            if social_api.type_api == GOOGLE:
+                email_operations_google.delete_email(user, social_api.email, email_id)
+            elif social_api.type_api == MICROSOFT:
+                email_operations_microsoft.delete_email(email_id, social_api)
             return True
 
         processed_email = process_email(email_data, user, social_api)
@@ -144,8 +149,7 @@ def get_email_data(social_api: SocialAPI, email_id: str = None) -> dict:
         raise ValueError(f"Unsupported API type: {social_api.type_api}")
 
 
-# DEPRECATED (under refactoring)
-def should_process_email(email_data: dict) -> bool:
+def should_process_email(user: User, email_data: dict) -> bool:
     """
     Check if the email should be processed.
 
@@ -160,13 +164,23 @@ def should_process_email(email_data: dict) -> bool:
 
     from_email = email_data["from_info"][1]
 
-    sender = Sender.objects.filter(email=from_email).first()
-    if sender:
-        rules = Rule.objects.filter(sender=sender)
-        if rules.exists() and any(rule.block for rule in rules):
-            return False
+    sender_domain = from_email.split("@")[1]
 
-    return True
+    # Check if there's already a rule blocking this sender's domain or email
+    existing_rule = (
+        Rule.objects.filter(user=user)
+        .filter(
+            models.Q(domains__contains=[sender_domain])
+            | models.Q(sender_emails__contains=[from_email])
+        )
+        .filter(action_delete=True)
+        .first()
+    )
+
+    if existing_rule:
+        return False
+    else:
+        return True
 
 
 def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:

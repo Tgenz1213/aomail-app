@@ -160,12 +160,14 @@ const notFound: RouteConfig = {
 const subscription: RouteConfig = {
     path: "/subscription",
     name: "subscription",
+    meta: { requiresAuth: true, allowInactive: true },
     component: Subscription,
 };
 
 const analytics: RouteConfig = {
     path: "/analytics",
     name: "analytics",
+    meta: { requiresAuth: true },
     component: Analytics,
 };
 

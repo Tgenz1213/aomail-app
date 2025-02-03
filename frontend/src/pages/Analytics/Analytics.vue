@@ -56,16 +56,11 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="flex-1 overflow-auto p-8 text-center">
-                        <Transition
-                            enter-active-class="transition-opacity duration-200"
-                            leave-active-class="transition-opacity duration-200"
-                            enter-from-class="opacity-0"
-                            leave-to-class="opacity-0"
-                        >
-                            <component :is="currentTabComponent" />
-                        </Transition>
-                    </div> -->
+                    <div class="flex-1 overflow-auto p-8 text-center">
+                        <DashboardTab v-if="activeTab === 'dashboard'" />
+                        <AomailAdvancedTab v-if="activeTab === 'aomail-data'" />
+                        <EmailProvidersAdvancedTab v-if="activeTab === 'provider-data'" />
+                    </div>
                 </div>
             </div>
         </div>

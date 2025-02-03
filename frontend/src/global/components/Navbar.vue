@@ -18,7 +18,7 @@
             <a
                 href="/new"
                 :class="[
-                    'bg-black text-white py-2 rounded-md flex items-center transition-colors',
+                    'bg-gray-900 text-white py-2 rounded-md flex items-center transition-colors',
                     isMinimized ? 'justify-center w-12 mx-auto' : 'justify-center w-full hover:bg-gray-800',
                 ]"
             >

@@ -1,5 +1,5 @@
 <template>
-    <div class="p-6 bg-gray-100 rounded-lg shadow-lg">
+    <div class="p-6 bg-gray-50 rounded-lg">
         <!-- Toggle Switch for Chart View -->
         <div class="flex items-center justify-between mb-4">
             <span class="text-lg font-medium text-gray-700">View Mode:</span>

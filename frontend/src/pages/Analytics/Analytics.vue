@@ -12,25 +12,48 @@
                 <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 overflow-hidden">
-                <div class="h-full flex flex-col bg-gray-50">
-                    <div class="bg-white border-b border-gray-200">
-                        <div class="px-8 py-4">
-                            <nav class="-mb-px flex space-x-8">
-                                <a
-                                    v-for="tab in tabs"
-                                    :key="tab.name"
-                                    :class="[
-                                        activeTab === tab.name
-                                            ? 'border-blue-500 text-blue-600'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                                        'whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm cursor-pointer',
-                                    ]"
-                                    @click="activeTab = tab.name"
-                                >
-                                    <component :is="tab.icon" class="h-5 w-5 inline-block mr-1" aria-hidden="true" />
-                                    {{ tab.label }}
-                                </a>
-                            </nav>
+                <div class="h-full flex flex-col">
+                    <div class="bg-gray-50 ring-1 ring-black ring-opacity-5">
+                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center">
+                                <div class="w-full flex items-center justify-center py-6 2xl:py-7">
+                                    <div class="sm:hidden"></div>
+                                    <div class="hidden sm:block w-full">
+                                        <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
+                                            <div
+                                                v-for="tab in tabs"
+                                                :key="tab.name"
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    {
+                                                        'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12':
+                                                            activeTab === tab.name,
+                                                        'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8':
+                                                            activeTab !== tab.name,
+                                                    },
+                                                ]"
+                                                @click="activeTab = tab.name"
+                                            >
+                                                <component 
+                                                    :is="tab.icon" 
+                                                    class="w-4 h-4" 
+                                                    aria-hidden="true"
+                                                />
+                                                <a
+                                                    :class="{
+                                                        'text-gray-800': activeTab === tab.name,
+                                                        'text-gray-600': activeTab !== tab.name,
+                                                    }"
+                                                    class="text-sm font-medium"
+                                                >
+                                                    {{ tab.label }}
+                                                </a>
+                                            </div>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="flex-1 overflow-auto p-8 text-center">

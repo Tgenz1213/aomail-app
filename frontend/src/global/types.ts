@@ -42,6 +42,7 @@ export interface NavigationPage {
     icon: VueComponent;
     current?: boolean;
     target?: string;
+    activePaths?: string[];
 }
 
 interface Sender {

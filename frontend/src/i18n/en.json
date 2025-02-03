@@ -746,6 +746,7 @@
   "markAllAsArchive": "Archive All",
   "loading": "Loading",
   "aiAssistantPage": {
+    "navtitle": "Email priority",
     "title": "Email Organization Preferences",
     "subtitle": "Customize how AI understands and organizes your emails based on your professional needs.",
     "emailCategories": {

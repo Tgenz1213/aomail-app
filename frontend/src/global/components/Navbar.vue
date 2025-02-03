@@ -34,7 +34,7 @@
                     <a
                         :href="item.href"
                         :class="[
-                            useRoute().path === item.href
+                            (useRoute().path === item.href || (item.activePaths && item.activePaths.includes(useRoute().path)))
                                 ? 'bg-gray-200 text-gray-900'
                                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
                             'group flex items-center rounded-md py-2 text-sm font-medium',
@@ -144,7 +144,12 @@ onMounted(() => {
 
 // Main navigation items (excluding 'New Email')
 const mainNavigation: NavigationPage[] = [
-    { name: i18n.global.t("constants.AiNavbar"), href: "/ai-assistant", icon: SparklesIcon },
+    { 
+        name: i18n.global.t("constants.AiNavbar"), 
+        href: "/ai-assistant", 
+        icon: SparklesIcon,
+        activePaths: ["/ai-assistant", "/rules", "/custom-categorization"]
+    },
     { name: i18n.global.t("constants.inboxNavbar"), href: "/inbox", icon: InboxIcon },
     { name: i18n.global.t("constants.analyticsNavbar"), href: "/analytics", icon: ChartBarIcon },
     { name: i18n.global.t("constants.searchEmailNavbar"), href: "/search", icon: MagnifyingGlassIcon },

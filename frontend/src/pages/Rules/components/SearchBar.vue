@@ -23,7 +23,7 @@
                     <!-- Toggle Filters Button -->
                     <button
                         type="button"
-                        class="group w-full h-full bg-gray-100 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3 ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm"
+                        class="group w-full h-full bg-gray-100 text-white hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center px-4 2xl:px-5 2xl:py-3 border-l border-gray-200"
                         @click="toggleFilters"
                     >
                         <svg
@@ -43,7 +43,7 @@
                     <button
                         type="button"
                         @click="fetchRules"
-                        class="w-full h-full bg-gray-700 px-2 2xl:px-4 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:px-7 2xl:text-lg"
+                        class="w-full h-full bg-gray-700 px-8 2xl:px-10 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:text-lg"
                     >
                         {{ $t("constants.userActions.search") }}
                         <magnifying-glass-icon class="w-4 2xl:w-5" />

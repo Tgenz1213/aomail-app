@@ -1,26 +1,51 @@
 <template>
-    <div class="flex items-start mb-4" :class="{ 'flex-row-reverse': isUser }">
-        <!-- User or AI avatar -->
-        <img v-if="isUser" :src="userImage" alt="User" class="w-10 h-10 rounded-full" />
-        <img v-else :src="logoAomail" alt="AI" class="w-10 h-10 rounded-full" />
+    <div class="flex justify-center">
+        <div class="w-full max-w-5xl">
+            <div class="flex items-start mb-4" :class="{ 'flex-row-reverse': isUser }">
+                <!-- User message -->
+                <template v-if="isUser">
+                    <div class="max-w-2xl">
+                        <div class="flex items-start gap-x-3 justify-end">
+                            <div class="bg-blue-100 border border-blue-200 p-4 rounded-lg">
+                                <p class="text-gray-800" v-html="message"></p>
+                            </div>
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0">
+                                <img :src="userImage" alt="User" class="h-12 w-12 rounded-full object-cover" />
+                            </span>
+                        </div>
+                    </div>
+                </template>
 
-        <!-- Chat bubble -->
-        <div
-            v-html="message"
-            :class="[
-                'px-4 py-4 rounded-lg text-sm',
-                isUser ? 'bg-blue-500 text-white mr-2' : 'bg-green-100 text-gray-800 ml-2',
-            ]"
-        ></div>
+                <!-- AI message -->
+                <template v-else>
+                    <div class="mr-3 flex-shrink-0">
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                            <img :src="`${apiBaseUrl}agent_icon/${agentIcon}`" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                        </span>
+                    </div>
+                    <div class="flex flex-col bg-white rounded-lg p-4 max-w-2xl border border-gray-200">
+                        <p v-html="message" class="text-gray-800"></p>
+                    </div>
+                </template>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import userImage from "@/assets/user.png";
-import logoAomail from "@/assets/logo-aomail.png";
 
+// Add these new props
 defineProps({
     message: String,
     isUser: Boolean,
+    apiBaseUrl: {
+        type: String,
+        required: true
+    },
+    agentIcon: {
+        type: String,
+        required: true
+    }
 });
 </script>

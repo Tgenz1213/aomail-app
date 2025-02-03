@@ -58,20 +58,29 @@ def get_rules_data(request: HttpRequest) -> Response:
 
         for id in ids:
             rule = Rule.objects.get(id=id, user=user)
-            category_name = rule.category.name if rule.category else None
-            category_id = rule.category.id if rule.category else None
-            sender_name = rule.sender.name if rule.sender else None
-            sender_email = rule.sender.email if rule.sender else None
 
             rule_data = {
                 "id": rule.id,
-                "priority": rule.priority,
-                "categoryId": category_id,
-                "category": category_name,
-                "username": sender_name,
-                "email": sender_email,
-                "block": rule.block,
-                "infoAI": rule.info_AI,
+                "logical_operator": rule.logical_operator,
+                "domains": rule.domains,
+                "sender_emails": rule.sender_emails,
+                "hasAttachements": rule.has_attachements,
+                "categories": rule.categories,
+                "priorities": rule.priorities,
+                "answers": rule.answers,
+                "relevances": rule.relevances,
+                "flags": rule.flags,
+                "emailDealWith": rule.email_deal_with,
+                "actionTransferRecipients": rule.action_transfer_recipients,
+                "actionSetTags": rule.action_set_tags,
+                "actionMarkAs": rule.action_mark_as,
+                "actionDelete": rule.action_delete,
+                "actionSetCategory": rule.action_set_category,
+                "actionSetPriority": rule.action_set_priority,
+                "actionSetRelevance": rule.action_set_relevance,
+                "actionSetAnswer": rule.action_set_answer,
+                "actionReplyPrompt": rule.action_reply_prompt,
+                "actionReplyRecipients": rule.action_reply_recipients,
             }
             formatted_data.append(rule_data)
 
@@ -180,7 +189,7 @@ def validate_and_parse_parameters(request: HttpRequest) -> dict:
     """
     parameters: dict = json.loads(request.body)
     order = parameters.get("order", "asc")
-    sort = camel_to_snake(parameters.get("sort", "categoryName"))
+    sort = camel_to_snake(parameters.get("sort", "domains"))
 
     return {"parameters": parameters, "sort": sort, "order": order}
 
@@ -199,6 +208,7 @@ def construct_filters(user: User, parameters: dict) -> dict:
     filters = {"user": user}
 
     if parameters.get("advanced"):
+        # TODO: refactor this
         if "categoryName" in parameters:
             category_obj = Category.objects.filter(
                 name=parameters["categoryName"], user=user
@@ -247,20 +257,23 @@ def get_sorted_queryset(
         queryset = Rule.objects.filter(**filters)
     else:
         query = (
-            Q(category__name__icontains=search)
-            | Q(sender__email__icontains=search)
-            | Q(sender__name__icontains=search)
-            | Q(priority__icontains=search)
+            Q(domains__icontains=search)
+            | Q(sender_emails__icontains=search)
+            | Q(categories__icontains=search)
+            | Q(priorities__icontains=search)
+            | Q(answers__icontains=search)
+            | Q(relevances__icontains=search)
+            | Q(flags__icontains=search)
         )
         queryset = Rule.objects.filter(
             query,
             user=filters["user"],
         )
 
-    if order == "asc":
-        queryset = queryset.order_by(F(sort_maping[sort]).asc())
-    else:
-        queryset = queryset.order_by(F(sort_maping[sort]).desc())
+    # if order == "asc":
+    #     queryset = queryset.order_by(F(sort_maping[sort]).asc())
+    # else:
+    #     queryset = queryset.order_by(F(sort_maping[sort]).desc())
 
     return queryset
 

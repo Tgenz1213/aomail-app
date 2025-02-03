@@ -131,7 +131,7 @@ class Rule(models.Model):
     logical_operator = models.CharField(default="AND")  # "OR" allowed
 
     # --- static triggers --- #
-    # gmail triggers
+    # email triggers
     domains = ArrayField(models.CharField(), null=True)
     sender_emails = ArrayField(models.CharField(), null=True)
     has_attachements = models.BooleanField(null=True)
@@ -145,7 +145,7 @@ class Rule(models.Model):
     email_deal_with = models.CharField(null=True)  # user prompt
 
     # --- static actions --- #
-    action_transfer = ArrayField(
+    action_transfer_recipients = ArrayField(
         models.CharField(max_length=30), null=True
     )  # list of emails
     action_set_tags = ArrayField(
@@ -164,7 +164,7 @@ class Rule(models.Model):
 
     # --- AI actions --- #
     action_reply_prompt = models.CharField(null=True)  # user prompt
-    recipients_reply_emails = ArrayField(models.CharField(), null=True)
+    action_reply_recipients = ArrayField(models.CharField(), null=True)
 
 
 class MicrosoftListener(models.Model):

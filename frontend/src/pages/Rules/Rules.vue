@@ -206,16 +206,14 @@ const debounceTimer = ref<number | undefined>(undefined);
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 onMounted(async () => {
-    await fetchRules();
-    await fetchCategories();
-    await fetchEmailSenders();
+    await Promise.all([fetchRules(), fetchCategories(), fetchEmailSenders()]);
 
     const urlParams = new URLSearchParams(window.location.search);
     const editRule = urlParams.get("editRule");
     const ruleId = urlParams.get("idRule");
 
     if (editRule === "true" && ruleId) {
-        fetchRuleById(ruleId);
+        await fetchRuleById(ruleId);
 
         if (ruleSelected.value) {
             updateModalUpdateStatus(true);
@@ -242,9 +240,8 @@ watch(searchInput, (newValue) => {
     clearTimeout(debounceTimer.value);
 
     if (newValue.trim() !== "" && !filters.value.advanced) {
-        // Set up a timer to call fetchRules after 900ms of inactivity
         debounceTimer.value = setTimeout(() => {
-            fetchRules();
+            fetchRules({ search: newValue, advanced: false });
         }, 900);
     }
 });
@@ -317,29 +314,45 @@ function handleEditRule(rule: any) {
     showUpdateModal.value = true;
 }
 
-async function fetchRules() {
-    if (
-        block.value !== null ||
-        categoryName.value.trim() !== "" ||
-        priority.value.trim() !== "" ||
-        senderName.value.trim() !== "" ||
-        senderEmail.value.trim() !== ""
-    ) {
-        filters.value = {
-            advanced: true,
-            ...(block.value !== null && { block: block.value }),
-            ...(categoryName.value && { categoryName: categoryName.value }),
-            ...(priority.value && { priority: priority.value }),
-            ...(senderName.value && { senderName: senderName.value }),
-            ...(senderEmail.value && { senderEmail: senderEmail.value }),
-        };
-    } else {
-        filters.value = {
-            search: searchInput.value.trim(),
-        };
-    }
+interface SearchParams {
+    search: string;
+    advanced: boolean;
+    logicalOperator?: string;
+    domains?: string[];
+    senderEmails?: string[];
+    hasAttachments?: boolean;
+    categories?: string[];
+    priorities?: string[];
+    answers?: string[];
+    relevance?: string[];
+    flags?: string[];
+    emailDealWith?: string;
+}
 
-    let result = await postData("user/rules_ids/", filters.value);
+async function fetchRules(params: SearchParams = { search: searchInput.value, advanced: false }) {
+    // Reset pagination and rules
+    currentPage.value = 1;
+    rules.value = [];
+
+    const result = await postData("user/rules_ids/", {
+        search: params.search,
+        advanced: params.advanced,
+        // Include advanced filters if they exist
+        ...(params.advanced
+            ? {
+                  logicalOperator: params.logicalOperator,
+                  domains: params.domains,
+                  senderEmails: params.senderEmails,
+                  hasAttachments: params.hasAttachments,
+                  categories: params.categories,
+                  priorities: params.priorities,
+                  answers: params.answers,
+                  relevance: params.relevance,
+                  flags: params.flags,
+                  emailDealWith: params.emailDealWith,
+              }
+            : {}),
+    });
 
     if (!result.success) {
         displayPopup(
@@ -351,22 +364,28 @@ async function fetchRules() {
     }
 
     ruleIds.value = result.data.ids;
-    totalRules.value = result.data.count;
+    totalRules.value = result.data.total;
 
-    result = await postData("user/get_rules_data/", { ids: result.data.ids.slice(0, 100) });
+    // Fetch initial page of rules
+    const idsToFetch = ruleIds.value.slice(0, rulesPerPage);
+    if (idsToFetch.length > 0) {
+        const rulesResult = await postData("user/get_rules_data/", { ids: idsToFetch });
 
-    if (!result.success) {
-        displayPopup(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchRules"),
-            result.error as string
-        );
-        return;
+        if (!rulesResult.success) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchRules"),
+                rulesResult.error as string
+            );
+            return;
+        }
+
+        rules.value = rulesResult.data.rulesData.map((rule: RuleData) => ({
+            ...rule,
+        }));
+
+        currentPage.value++;
     }
-
-    rules.value = result.data.rulesData.map((rule: RuleData) => ({
-        ...rule,
-    }));
 }
 
 const handleScroll = () => {

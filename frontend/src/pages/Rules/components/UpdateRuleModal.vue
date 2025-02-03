@@ -36,136 +36,247 @@
                         </select>
                     </div>
 
-                    <!-- Email Sender -->
-                    <div>
-                        <div class="flex space-x-1 items-center">
-                            <UserIcon class="w-4 h-4" />
-                            <label class="block text-sm font-medium text-gray-900">
-                                {{ $t("rulesPage.contactField") }}
-                            </label>
-                        </div>
-                        <Combobox as="div" v-model="selectedPerson">
-                            <div class="relative mt-2">
-                                <ComboboxInput
-                                    id="inputField"
-                                    class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                    @change="query = $event.target.value"
-                                    :display-value="displayEmailSender"
-                                    @blur="handleBlur($event)"
-                                />
-                                <ComboboxButton
-                                    class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-                                >
-                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </ComboboxButton>
-                                <ComboboxOptions
-                                    v-if="filteredPeople.length > 0"
-                                    class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                                >
-                                    <ComboboxOption
-                                        v-for="person in filteredPeople"
-                                        :key="person.username"
-                                        :value="person"
-                                        as="template"
-                                        v-slot="{ active, selected }"
-                                    >
-                                        <li
-                                            :class="[
-                                                'relative cursor-default select-none py-2 pl-3 pr-9',
-                                                active ? 'bg-gray-500 text-white' : 'text-gray-900',
-                                            ]"
-                                        >
-                                            <div class="flex">
-                                                <span :class="['truncate', selected && 'font-semibold']">
-                                                    {{ person.username }}
-                                                </span>
-                                                <span
-                                                    :class="[
-                                                        'ml-2 truncate text-gray-800',
-                                                        active ? 'text-gray-200' : 'text-gray-800',
-                                                    ]"
-                                                >
-                                                    {{ person.email }}
-                                                </span>
-                                            </div>
-                                            <span
-                                                v-if="selected"
-                                                :class="[
-                                                    'absolute inset-y-0 right-0 flex items-center pr-4',
-                                                    active ? 'text-white' : 'text-gray-500',
-                                                ]"
-                                            >
-                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                            </span>
-                                        </li>
-                                    </ComboboxOption>
-                                </ComboboxOptions>
-                            </div>
-                        </Combobox>
-                    </div>
-
-                    <!-- Category -->
-                    <div>
-                        <div class="flex space-x-1 items-center">
-                            <ArchiveBoxIcon class="w-4 h-4" />
-                            <label class="block text-sm font-medium text-gray-900">
-                                {{ $t("constants.category") }}
-                            </label>
-                        </div>
-                        <select
-                            v-model="formData.actionSetCategory"
-                            class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6"
+                    <!-- Triggers Section -->
+                    <div class="border rounded-md">
+                        <button
+                            @click="sections.triggers = !sections.triggers"
+                            class="w-full flex justify-between items-center p-3 text-left"
                         >
-                            <option value="">{{ $t("constants.ruleModalConstants.noCategoryDefined") }}</option>
-                            <option v-for="category in categories" :key="category.name" :value="category.name">
-                                {{ category.name }}
-                            </option>
-                        </select>
-                    </div>
-
-                    <!-- Priority -->
-                    <div>
-                        <div class="flex space-x-1 items-center">
-                            <ExclamationCircleIcon class="w-4 h-4" />
-                            <label class="block text-sm font-medium text-gray-900">
-                                {{ $t("rulesPage.priorityField") }}
-                            </label>
-                        </div>
-                        <select
-                            v-model="formData.actionSetPriority"
-                            class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6"
-                        >
-                            <option value="">{{ $t("constants.ruleModalConstants.noPriority") }}</option>
-                            <option :value="IMPORTANT">{{ $t("constants.ruleModalConstants.important") }}</option>
-                            <option :value="INFORMATIVE">{{ $t("constants.ruleModalConstants.informative") }}</option>
-                            <option :value="USELESS">{{ $t("constants.ruleModalConstants.useless") }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Block Switch -->
-                    <SwitchGroup as="div" class="flex items-center pt-2">
-                        <Switch
-                            v-model="formData.actionDelete"
-                            :class="[
-                                formData.actionDelete ? 'bg-gray-500' : 'bg-gray-200',
-                                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2',
-                            ]"
-                        >
-                            <span
-                                aria-hidden="true"
-                                :class="[
-                                    formData.actionDelete ? 'translate-x-5' : 'translate-x-0',
-                                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                                ]"
+                            <span class="text-sm font-medium text-gray-900">Triggers</span>
+                            <ChevronDownIcon
+                                class="h-5 w-5 text-gray-500"
+                                :class="{ 'transform rotate-180': sections.triggers }"
                             />
-                        </Switch>
-                        <SwitchLabel as="span" class="ml-3 text-sm">
-                            <span class="font-medium text-gray-900">
-                                {{ $t("constants.ruleModalConstants.blockTheEmails") }}
-                            </span>
-                        </SwitchLabel>
-                        <ShieldCheckIcon class="ml-1 w-4 h-4" />
-                    </SwitchGroup>
+                        </button>
+
+                        <div v-if="sections.triggers" class="p-4 border-t space-y-4">
+                            <!-- Email Triggers -->
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-medium text-gray-700">Email Triggers</h4>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Email Domains</label>
+                                    <div class="space-y-2">
+                                        <div class="text-xs text-gray-500">
+                                            Enter domains to match (e.g., "gmail.com", "esaip.org").
+                                        </div>
+                                        <TagInput
+                                            v-model="formData.domains"
+                                            placeholder="Add domain (e.g. gmail.com, esaip.org)"
+                                            :validate="validateDomain"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Sender Emails</label>
+                                    <TagInput
+                                        v-model="formData.senderEmails"
+                                        placeholder="Add email address"
+                                        :validate="validateEmail"
+                                    />
+                                </div>
+
+                                <div class="flex items-center">
+                                    <input
+                                        id="hasAttachments"
+                                        v-model="formData.hasAttachements"
+                                        type="checkbox"
+                                        class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                                    />
+                                    <label for="hasAttachments" class="ml-2 text-sm text-gray-700">
+                                        Has attachments
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- AI Processing Triggers -->
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-medium text-gray-700">AI Processing Triggers</h4>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Categories</label>
+                                    <multiselect
+                                        v-model="formData.categories"
+                                        :options="categoryOptions.map((c) => c.name)"
+                                        :multiple="true"
+                                        placeholder="Select categories"
+                                        class="multiselect-gray"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Priorities</label>
+                                    <multiselect
+                                        v-model="formData.priorities"
+                                        :options="priorityOptions"
+                                        :multiple="true"
+                                        placeholder="Select priorities"
+                                        class="multiselect-gray"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Answer Requirements</label>
+                                    <multiselect
+                                        v-model="formData.answers"
+                                        :options="answerOptions"
+                                        :multiple="true"
+                                        placeholder="Select answer requirements"
+                                        class="multiselect-gray"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Relevance</label>
+                                    <multiselect
+                                        v-model="formData.relevances"
+                                        :options="relevanceOptions"
+                                        :multiple="true"
+                                        placeholder="Select relevance levels"
+                                        class="multiselect-gray"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Flags</label>
+                                    <multiselect
+                                        v-model="formData.flags"
+                                        :options="flagOptions"
+                                        :multiple="true"
+                                        placeholder="Select flags"
+                                        class="multiselect-gray"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Email Content Deals With</label>
+                                    <textarea
+                                        v-model="formData.emailDealWith"
+                                        rows="2"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                        placeholder="Describe what the email content should deal with..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Section -->
+                    <div class="border rounded-md">
+                        <button
+                            @click="sections.actions = !sections.actions"
+                            class="w-full flex justify-between items-center p-3 text-left"
+                        >
+                            <span class="text-sm font-medium text-gray-900">Actions</span>
+                            <ChevronDownIcon
+                                class="h-5 w-5 text-gray-500"
+                                :class="{ 'transform rotate-180': sections.actions }"
+                            />
+                        </button>
+
+                        <div v-if="sections.actions" class="p-4 border-t space-y-4">
+                            <!-- Static Actions -->
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-medium text-gray-700">Email Actions</h4>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Transfer to Recipients</label>
+                                    <TagInput
+                                        v-model="formData.actionTransferRecipients"
+                                        placeholder="Add email address"
+                                        :validate="validateEmail"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Set Flags</label>
+                                    <multiselect
+                                        v-model="formData.actionSetFlags"
+                                        :options="flagOptions"
+                                        :multiple="true"
+                                        placeholder="Add flag"
+                                        class="multiselect-gray"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Mark As</label>
+                                    <multiselect
+                                        v-model="formData.actionMarkAs"
+                                        :options="markAsOptions"
+                                        :multiple="true"
+                                        placeholder="Select marking options"
+                                        class="multiselect-gray"
+                                    />
+                                </div>
+
+                                <div class="flex items-center">
+                                    <input
+                                        id="actionDelete"
+                                        v-model="formData.actionDelete"
+                                        type="checkbox"
+                                        class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                                    />
+                                    <label for="actionDelete" class="ml-2 text-sm text-gray-700">Delete email</label>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Set Category</label>
+                                    <select
+                                        v-model="formData.actionSetCategory"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select category</option>
+                                        <option
+                                            v-for="category in props.categories"
+                                            :key="category.name"
+                                            :value="category.name"
+                                        >
+                                            {{ category.name }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Set Priority</label>
+                                    <select
+                                        v-model="formData.actionSetPriority"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select priority</option>
+                                        <option v-for="priority in priorityOptions" :key="priority" :value="priority">
+                                            {{ priority }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- AI Actions -->
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-medium text-gray-700">AI Actions</h4>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Auto-Reply Prompt</label>
+                                    <textarea
+                                        v-model="formData.actionReplyPrompt"
+                                        rows="2"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                        placeholder="Describe how to reply to the email..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Reply Recipients</label>
+                                    <TagInput
+                                        v-model="formData.actionReplyRecipients"
+                                        placeholder="Add email address"
+                                        :validate="validateEmail"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Action Buttons -->
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
@@ -205,27 +316,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, inject, Ref } from "vue";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
-import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
-import { postData, putData, deleteData } from "@/global/fetchData";
-import {
-    Combobox,
-    ComboboxButton,
-    ComboboxInput,
-    ComboboxLabel,
-    ComboboxOption,
-    ComboboxOptions,
-} from "@headlessui/vue";
-import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline";
-import { i18n } from "@/global/preferences";
-import { EmailSender, Category } from "@/global/types";
+import { ref, computed, onMounted, watch, inject } from "vue";
+import { ChevronDownIcon } from "@heroicons/vue/20/solid";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { putData, deleteData } from "@/global/fetchData";
+import { Category, EmailSender } from "@/global/types";
 import { RuleData } from "../utils/types";
-
-interface FormData extends RuleData {
-    errorMessage: string;
-}
+import Multiselect from "vue-multiselect";
+import TagInput from "./TagInput.vue";
+import { i18n } from "@/global/preferences";
 
 interface Props {
     isOpen: boolean;
@@ -235,8 +334,10 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    emailSenders: () => [],
+    isOpen: false,
+    categories: () => [],
     rule: null,
+    emailSenders: () => [],
 });
 
 const emit = defineEmits<{
@@ -244,13 +345,17 @@ const emit = defineEmits<{
     (e: "fetch-rules"): void;
 }>();
 
-const query = ref("");
+// Section visibility state
+const sections = ref({
+    triggers: false,
+    actions: false,
+});
+
 const errorMessage = ref("");
-const currentSelectedPersonUsername = ref("");
-const selectedPerson = ref<EmailSender | null>(null);
-const totalRules = inject<Ref<number>>("totalRules") || ref(0);
-const formData = ref<FormData>({
-    id: -1,
+const totalRules = inject("totalRules", ref(0));
+
+// Form state
+const formData = ref<RuleData>({
     logicalOperator: "AND",
     domains: [],
     senderEmails: [],
@@ -271,116 +376,44 @@ const formData = ref<FormData>({
     actionSetAnswer: "",
     actionReplyPrompt: "",
     actionReplyRecipients: [],
-    errorMessage: "",
 });
+
+// Options
+const priorityOptions = ["Important", "Informative", "Useless"];
+const answerOptions = ["Answer Required", "Might Require Answer", "No Answer Required"];
+const relevanceOptions = ["Highly Relevant", "Possibly Relevant", "Not Relevant"];
+const flagOptions = ["Spam", "Scam", "Newsletter", "Notification", "Meeting"];
+const markAsOptions = ["Read", "Answer Later", "Archive"];
+const categoryOptions = computed(() => props.categories);
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-
-const filteredPeople = computed(() => {
-    const sendersArray = props.emailSenders.map((sender) => ({
-        email: sender.email,
-        username: sender.username,
-    }));
-
-    return query.value === ""
-        ? sendersArray
-        : sendersArray.filter(
-              (person) =>
-                  person.username.toLowerCase().includes(query.value.toLowerCase()) ||
-                  person.email.toLowerCase().includes(query.value.toLowerCase())
-          );
-});
-
-onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown);
-});
 
 watch(
     () => props.rule,
     (newVal) => {
         if (newVal) {
-            formData.value = {
-                id: newVal.id,
-                logicalOperator: newVal.logicalOperator || "AND",
-                domains: newVal.domains || [],
-                senderEmails: newVal.senderEmails || [],
-                hasAttachements: newVal.hasAttachements || false,
-                categories: newVal.categories || [],
-                priorities: newVal.priorities || [],
-                answers: newVal.answers || [],
-                relevances: newVal.relevances || [],
-                flags: newVal.flags || [],
-                emailDealWith: newVal.emailDealWith || "",
-                actionTransferRecipients: newVal.actionTransferRecipients || [],
-                actionSetFlags: newVal.actionSetFlags || [],
-                actionMarkAs: newVal.actionMarkAs || [],
-                actionDelete: newVal.actionDelete || false,
-                actionSetCategory: newVal.actionSetCategory,
-                actionSetPriority: newVal.actionSetPriority || "",
-                actionSetRelevance: newVal.actionSetRelevance || "",
-                actionSetAnswer: newVal.actionSetAnswer || "",
-                actionReplyPrompt: newVal.actionReplyPrompt || "",
-                actionReplyRecipients: newVal.actionReplyRecipients || [],
-                errorMessage: "",
-            };
-            selectedPerson.value = newVal.senderEmails?.[0]
-                ? {
-                      username: newVal.senderEmails[0],
-                      email: newVal.senderEmails[0],
-                  }
-                : null;
+            formData.value = { ...newVal };
         }
     },
     { immediate: true }
 );
 
-function displayEmailSender(item: unknown): string {
-    const person = item as EmailSender | null;
+const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
 
-    if (!person) {
-        selectedPerson.value = null;
-        return "";
-    }
+const validateDomain = (domain: string) => {
+    // Remove @ prefix if present
+    const cleanDomain = domain.startsWith("@") ? domain.slice(1) : domain;
 
-    return person.email;
-}
+    // Domain can contain letters, numbers, dots, and hyphens
+    // Must have at least one dot
+    // Each part must start and end with alphanumeric
+    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9](\.[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])+$/;
 
-function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-        closeModal();
-    }
-}
-
-function handleInputClick() {
-    currentSelectedPersonUsername.value = selectedPerson.value?.username || "";
-    selectedPerson.value = null;
-}
-
-function handleBlur(event: FocusEvent) {
-    const inputValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (inputValue === "") {
-        selectedPerson.value = {
-            email: currentSelectedPersonUsername.value,
-            username: currentSelectedPersonUsername.value,
-        };
-        return;
-    }
-
-    if (inputValue && emailFormat.test(inputValue)) {
-        selectedPerson.value = {
-            email: inputValue,
-            username: inputValue
-                .split("@")[0]
-                .split(/\.|-/)
-                .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-                .join(" "),
-        };
-    } else {
-        formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.emailFormatIncorrect");
-    }
-}
+    return domainRegex.test(cleanDomain);
+};
 
 async function deleteRule() {
     if (!formData.value.id) {
@@ -396,7 +429,6 @@ async function deleteRule() {
     }
 
     totalRules.value -= 1;
-    selectedPerson.value = null;
     displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
@@ -406,35 +438,10 @@ async function deleteRule() {
     emit("fetch-rules");
 }
 
-async function postSender(): Promise<number | null> {
-    if (!selectedPerson.value) {
-        errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
-        return null;
-    }
-
-    const senderData = {
-        name: selectedPerson.value.username,
-        email: selectedPerson.value.email,
-    };
-
-    const result = await postData(`create_sender`, senderData);
-
-    if (!result.success) {
-        errorMessage.value = result.error as string;
-        return null;
-    }
-
-    return result.data.id;
-}
-
 async function updateUserRule() {
     if (!formData.value.id) {
         errorMessage.value = i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError");
         return;
-    }
-
-    if (selectedPerson.value) {
-        formData.value.senderEmails = [selectedPerson.value.email];
     }
 
     const result = await putData(`user/rules/`, { ids: [formData.value.id], ...formData.value });
@@ -444,7 +451,6 @@ async function updateUserRule() {
         return;
     }
 
-    selectedPerson.value = null;
     displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
@@ -455,8 +461,24 @@ async function updateUserRule() {
 }
 
 function closeModal() {
-    formData.value.errorMessage = "";
     errorMessage.value = "";
     emit("update:isOpen", false);
 }
+
+onMounted(() => {
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+});
 </script>
+
+<style>
+.multiselect-gray {
+    --ms-tag-bg: #f3f4f6;
+    --ms-tag-color: #374151;
+    --ms-ring-color: rgb(107 114 128 / 0.5);
+    --ms-option-bg-selected: #f3f4f6;
+}
+</style>

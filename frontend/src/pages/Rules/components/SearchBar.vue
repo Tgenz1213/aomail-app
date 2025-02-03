@@ -52,7 +52,7 @@
             </div>
         </div>
     </div>
-    <Filters :isOpen="arefiltersOpen" />
+    <Filters :isOpen="arefiltersOpen" @update:filters="updateFilters" />
 </template>
 
 <script setup lang="ts">
@@ -62,15 +62,49 @@ import Filters from "./Filters.vue";
 
 const arefiltersOpen = ref(false);
 const searchInput = inject<Ref<string>>("searchInput") || ref("");
+const advancedFilters = ref<Record<string, any>>({});
 
 const emit = defineEmits<{
-    (e: "fetchRules"): void;
+    (
+        e: "fetchRules",
+        params: {
+            search: string;
+            advanced: boolean;
+            logicalOperator?: string;
+            domains?: string[];
+            senderEmails?: string[];
+            hasAttachments?: boolean;
+            categories?: string[];
+            priorities?: string[];
+            answers?: string[];
+            relevance?: string[];
+            flags?: string[];
+            emailDealWith?: string;
+        }
+    ): void;
 }>();
 
 const fetchRules = () => {
     hideFilters();
-    emit("fetchRules");
+    if (Object.keys(advancedFilters.value).length > 0) {
+        // Send advanced search
+        emit("fetchRules", {
+            search: searchInput.value,
+            advanced: true,
+            ...advancedFilters.value,
+        });
+    } else {
+        // Send basic search
+        emit("fetchRules", {
+            search: searchInput.value,
+            advanced: false,
+        });
+    }
 };
+
+function updateFilters(filters: Record<string, any>) {
+    advancedFilters.value = filters;
+}
 
 function toggleFilters() {
     arefiltersOpen.value = !arefiltersOpen.value;

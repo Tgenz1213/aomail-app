@@ -183,20 +183,31 @@ def validate_and_parse_parameters(request: HttpRequest) -> dict:
         request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.
 
     Returns:
-        dict: A dictionary containing:
-            parameters (dict): The parsed parameters.
-            sort (str): The sort order.
+        dict: A dictionary containing validated parameters, sort field, and order.
     """
     parameters: dict = json.loads(request.body)
-    order = parameters.get("order", "asc")
+    
+    # Validate order
+    order = parameters.get("order", "asc").lower()
+    if order not in ["asc", "desc"]:
+        order = "asc"
+    
+    # Convert camelCase to snake_case and validate sort field
     sort = camel_to_snake(parameters.get("sort", "domains"))
+    valid_sort_fields = [
+        "domains", "sender_emails", "categories", "priorities",
+        "answers", "relevances", "flags", "email_deal_with",
+        "has_attachements", "logical_operator"
+    ]
+    if sort not in valid_sort_fields:
+        sort = "domains"
 
     return {"parameters": parameters, "sort": sort, "order": order}
 
 
 def construct_filters(user: User, parameters: dict) -> dict:
     """
-    Constructs a dictionary of filters based on provided user, parameters, and category.
+    Constructs a dictionary of filters based on provided parameters.
 
     Args:
         user (User): The user object for whom the filters are being constructed.
@@ -208,25 +219,31 @@ def construct_filters(user: User, parameters: dict) -> dict:
     filters = {"user": user}
 
     if parameters.get("advanced"):
-        # TODO: refactor this
-        if "categoryName" in parameters:
-            category_obj = Category.objects.filter(
-                name=parameters["categoryName"], user=user
-            )
-            if category_obj:
-                filters["category"] = category_obj.first()
-        if "priority" in parameters:
-            filters["priority__icontains"] = parameters["priority"]
-        if "senderEmail" in parameters:
-            sender_obj = Sender.objects.filter(email=parameters["senderEmail"])
-            if sender_obj:
-                filters["sender"] = sender_obj.first()
-        if "senderName" in parameters:
-            sender_obj = Sender.objects.filter(name=parameters["senderName"])
-            if sender_obj:
-                filters["sender"] = sender_obj.first()
-        if "block" in parameters:
-            filters["block"] = parameters["block"]
+        # Email Triggers
+        if "domains" in parameters and parameters["domains"]:
+            filters["domains__contains"] = parameters["domains"]
+        if "senderEmails" in parameters and parameters["senderEmails"]:
+            filters["sender_emails__contains"] = parameters["senderEmails"]
+        if "hasAttachments" in parameters:
+            filters["has_attachements"] = parameters["hasAttachments"]
+
+        # AI Processing Triggers
+        if "categories" in parameters and parameters["categories"]:
+            filters["categories__contains"] = parameters["categories"]
+        if "priorities" in parameters and parameters["priorities"]:
+            filters["priorities__contains"] = parameters["priorities"]
+        if "answers" in parameters and parameters["answers"]:
+            filters["answers__contains"] = parameters["answers"]
+        if "relevance" in parameters and parameters["relevance"]:
+            filters["relevances__contains"] = parameters["relevance"]
+        if "flags" in parameters and parameters["flags"]:
+            filters["flags__contains"] = parameters["flags"]
+        if "emailDealWith" in parameters and parameters["emailDealWith"]:
+            filters["email_deal_with__icontains"] = parameters["emailDealWith"]
+        
+        # Logical Operator
+        if "logicalOperator" in parameters:
+            filters["logical_operator"] = parameters["logicalOperator"]
 
     return filters
 
@@ -239,43 +256,61 @@ def get_sorted_queryset(
 
     Args:
         filters (dict): A dictionary containing the filter parameters for the queryset.
-        sort (str): Sorting method (e.g., categoryName (default), senderEmail, priority, senderName).
-        order (str): Sorting order ("asc" for ascending, "desc" for descending). Default is "asc".
+        sort (str): Field to sort by (e.g., domains, sender_emails, etc.).
+        order (str): Sorting order ("asc" for ascending, "desc" for descending).
         search (str): Search query for a general search without filters.
         advanced (bool): True for an AND query, default is an OR query.
 
     Returns:
         BaseManager[QuerySet]: A Django BaseManager for the Rule model's QuerySet.
     """
-    sort_maping = {
-        "category_name": "category__name",
-        "sender_email": "sender__email",
-        "sender_name": "sender__name",
-        "priority": "priority",
+    # Define valid sort fields and their mappings
+    sort_mapping = {
+        "domains": "domains",
+        "sender_emails": "sender_emails",
+        "categories": "categories",
+        "priorities": "priorities",
+        "answers": "answers",
+        "relevances": "relevances",
+        "flags": "flags",
+        "email_deal_with": "email_deal_with",
+        "has_attachements": "has_attachements",
+        "logical_operator": "logical_operator",
     }
+
+    # Use default sort if provided sort field is invalid
+    sort_field = sort_mapping.get(sort, "domains")
+
     if advanced:
-        queryset = Rule.objects.filter(**filters)
+        # Create Q objects for each filter
+        q_objects = Q()
+        for field, value in filters.items():
+            if field != "user":  # Skip the user filter as it's always applied
+                q_objects &= Q(**{field: value})
+        
+        # Apply user filter and Q objects
+        queryset = Rule.objects.filter(user=filters["user"]).filter(q_objects)
     else:
-        query = (
-            Q(domains__icontains=search)
-            | Q(sender_emails__icontains=search)
-            | Q(categories__icontains=search)
-            | Q(priorities__icontains=search)
-            | Q(answers__icontains=search)
-            | Q(relevances__icontains=search)
-            | Q(flags__icontains=search)
-        )
-        queryset = Rule.objects.filter(
-            query,
-            user=filters["user"],
-        )
+        # Update search query to match all available trigger fields
+        query = Q()
+        if search:
+            query = (
+                Q(domains__icontains=search)
+                | Q(sender_emails__icontains=search)
+                | Q(categories__icontains=search)
+                | Q(priorities__icontains=search)
+                | Q(answers__icontains=search)
+                | Q(relevances__icontains=search)
+                | Q(flags__icontains=search)
+                | Q(email_deal_with__icontains=search)
+            )
+        queryset = Rule.objects.filter(query & Q(user=filters["user"]))
 
-    # if order == "asc":
-    #     queryset = queryset.order_by(F(sort_maping[sort]).asc())
-    # else:
-    #     queryset = queryset.order_by(F(sort_maping[sort]).desc())
-
-    return queryset
+    # Apply sorting
+    if order == "desc":
+        sort_field = f"-{sort_field}"
+    
+    return queryset.order_by(sort_field)
 
 
 def format_rules_data(queryset: BaseManager[Rule]) -> tuple:

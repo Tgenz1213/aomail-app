@@ -96,7 +96,7 @@
                                     <label class="block text-sm text-gray-700">Categories</label>
                                     <multiselect
                                         v-model="formData.categories"
-                                        :options="categoryOptions.map((c) => c.name)"
+                                        :options="categoryOptions.map((c: Category) => c.name)"
                                         :multiple="true"
                                         placeholder="Select categories"
                                         class="multiselect-gray"

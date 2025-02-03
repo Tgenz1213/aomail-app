@@ -56,7 +56,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex-1 overflow-auto p-8 text-center">
+                    <!-- <div class="flex-1 overflow-auto p-8 text-center">
                         <Transition
                             enter-active-class="transition-opacity duration-200"
                             leave-active-class="transition-opacity duration-200"
@@ -65,7 +65,7 @@
                         >
                             <component :is="currentTabComponent" />
                         </Transition>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

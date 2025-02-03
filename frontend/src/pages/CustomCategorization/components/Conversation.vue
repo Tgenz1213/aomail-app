@@ -53,7 +53,9 @@ const messages = inject("messages") as Ref<Message[]>;
 const guidelines = ref<Guideline>({ importantGuidelines: "", informativeGuidelines: "", uselessGuidelines: "" });
 const waitForButtonClick = inject("waitForButtonClick") as Ref<boolean>;
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 const displayUserMsg = inject<(message: string) => void>("displayUserMsg") || ((message: string) => {});
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 const waitForUserInput = inject<() => Promise<string>>("waitForUserInput") || (() => Promise.resolve(""));
 const selectedAgent = inject<Ref<Agent>>("selectedAgent") || ref<Agent>({
     id: "",

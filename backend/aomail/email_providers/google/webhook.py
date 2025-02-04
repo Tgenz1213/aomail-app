@@ -16,12 +16,7 @@ from django.db import IntegrityError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
 from aomail.constants import (
-    EMAIL_ADMIN,
-    EMAIL_NO_REPLY,
-    GOOGLE,
     GOOGLE_PROJECT_ID,
     GOOGLE_TOPIC_NAME,
 )
@@ -81,32 +76,7 @@ def receive_mail_notifications(request: HttpRequest) -> Response:
                 )
                 unsubscribe_from_email_notifications(social_api.user, email)
             else:
-
-                def process_email():
-                    result = email_to_db(social_api)
-
-                    if not result:
-                        LOGGER.critical(
-                            f"[Attempt {1}] Failed to process email with AI for email: {email}"
-                        )
-                        context = {
-                            "error": result,
-                            "attempt_number": 1,
-                            "email": email,
-                            "email_provider": GOOGLE,
-                            "user": social_api.user,
-                        }
-                        email_html = render_to_string("ai_failed_email.html", context)
-                        send_mail(
-                            subject="Critical Alert: Email Processing Failure",
-                            message="",
-                            recipient_list=[EMAIL_ADMIN],
-                            from_email=EMAIL_NO_REPLY,
-                            html_message=email_html,
-                            fail_silently=False,
-                        )
-
-                threading.Thread(target=process_email).start()
+                threading.Thread(target=email_to_db, args=(social_api,)).start()
 
         except SocialAPI.DoesNotExist:
             pass

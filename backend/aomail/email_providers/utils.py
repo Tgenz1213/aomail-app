@@ -14,6 +14,8 @@ from aomail.ai_providers import gemini
 from aomail.constants import (
     ANSWER_REQUIRED,
     DEFAULT_CATEGORY,
+    EMAIL_ADMIN,
+    EMAIL_NO_REPLY,
     GOOGLE,
     HIGHLY_RELEVANT,
     IMPORTANT,
@@ -56,6 +58,8 @@ from aomail.utils.security import encrypt_text
 from aomail.email_providers.google import labels as google_labels
 from aomail.email_providers.microsoft import labels as microsoft_labels
 from django.db import models
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 
 
 LOGGER = logging.getLogger(__name__)
@@ -87,6 +91,9 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
     try:
         email_data = get_email_data(social_api, email_id)
         if not email_data:
+            return False
+
+        if Email.objects.filter(provider_id=email_data["email_id"]).exists():
             return False
 
         if not should_process_email(user, email_data):
@@ -159,9 +166,6 @@ def should_process_email(user: User, email_data: dict) -> bool:
     Returns:
         bool: True if the email should be processed, False otherwise.
     """
-    if Email.objects.filter(provider_id=email_data["email_id"]).exists():
-        return False
-
     from_email = email_data["from_info"][1]
 
     sender_domain = from_email.split("@")[1]
@@ -196,55 +200,84 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
         dict: A dictionary containing the processed email data, including the original
               email data, processed information, and summary.
     """
-    user_description = social_api.user_description or ""
-    language = Preference.objects.get(user=user).language
-    category_dict = email_processing.get_db_categories(user)
+    try:
+        user_description = social_api.user_description or ""
+        language = Preference.objects.get(user=user).language
+        category_dict = email_processing.get_db_categories(user)
 
-    email_content = email_processing.preprocess_email(email_data["preprocessed_data"])
-    search = Search(user.id)
-
-    from_email = email_data["from_info"][1]
-    preference = Preference.objects.get(user=user)
-
-    def get_summary():
-        if email_data["is_reply"]:
-            return search.summarize_conversation(
-                email_data["subject"], email_content, user_description, language
-            )
-        else:
-            return search.summarize_email(
-                email_data["subject"], email_content, user_description, language
-            )
-
-    def get_email_processed():
-        return gemini.categorize_and_summarize_email(
-            email_data["subject"],
-            email_data["preprocessed_data"],
-            category_dict,
-            user_description,
-            from_email,
-            preference.important_guidelines,
-            preference.informative_guidelines,
-            preference.useless_guidelines,
+        email_content = email_processing.preprocess_email(
+            email_data["preprocessed_data"]
         )
+        search = Search(user.id)
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        summary_future = executor.submit(get_summary)
-        email_processed_future = executor.submit(get_email_processed)
+        from_email = email_data["from_info"][1]
+        preference = Preference.objects.get(user=user)
 
-        summary = summary_future.result()
-        email_processed = email_processed_future.result()
-        summary = update_tokens_stats(user, summary)
-        email_processed = update_tokens_stats(user, email_processed)
+        def get_summary():
+            if email_data["is_reply"]:
+                return search.summarize_conversation(
+                    email_data["subject"], email_content, user_description, language
+                )
+            else:
+                return search.summarize_email(
+                    email_data["subject"], email_content, user_description, language
+                )
 
-    if email_processed["topic"] not in category_dict:
-        email_processed["topic"] = DEFAULT_CATEGORY
+        def get_email_processed():
+            return gemini.categorize_and_summarize_email(
+                email_data["subject"],
+                email_data["preprocessed_data"],
+                category_dict,
+                user_description,
+                from_email,
+                preference.important_guidelines,
+                preference.informative_guidelines,
+                preference.useless_guidelines,
+            )
 
-    return {
-        "email_data": email_data,
-        "email_processed": email_processed,
-        "summary": summary,
-    }
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            summary_future = executor.submit(get_summary)
+            email_processed_future = executor.submit(get_email_processed)
+
+            summary = summary_future.result()
+            email_processed = email_processed_future.result()
+            summary = update_tokens_stats(user, summary)
+            email_processed = update_tokens_stats(user, email_processed)
+
+        if email_processed["topic"] not in category_dict:
+            email_processed["topic"] = DEFAULT_CATEGORY
+
+        return {
+            "email_data": email_data,
+            "email_processed": email_processed,
+            "summary": summary,
+        }
+    except Exception as e:
+        LOGGER.critical(
+            f"Failed to process email with AI for email: {social_api.email}"
+        )
+        if social_api.type_api == GOOGLE:
+            email_provider = GOOGLE
+        elif social_api.type_api == MICROSOFT:
+            email_provider = MICROSOFT
+        else:
+            email_provider = "Unknown"
+
+        context = {
+            "error": str(e),
+            "email": social_api.email,
+            "email_provider": email_provider,
+            "user": social_api.user,
+        }
+        email_html = render_to_string("ai_failed_email.html", context)
+        send_mail(
+            subject="Critical Alert: Email Processing Failure",
+            message="",
+            recipient_list=[EMAIL_ADMIN],
+            from_email=EMAIL_NO_REPLY,
+            html_message=email_html,
+            fail_silently=False,
+        )
 
 
 @transaction.atomic

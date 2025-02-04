@@ -13,9 +13,7 @@ import logging
 import threading
 import requests
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
@@ -29,10 +27,7 @@ from aomail.email_providers.microsoft.authentication import (
 from aomail.utils import email_processing
 from aomail.constants import (
     BASE_URL,
-    EMAIL_ADMIN,
-    EMAIL_NO_REPLY,
     GRAPH_URL,
-    MICROSOFT,
     MICROSOFT_CLIENT_STATE,
 )
 from aomail.models import (
@@ -501,41 +496,7 @@ class MicrosoftEmailNotification(View):
                         microsoft_listener.first().user,
                         microsoft_listener.first().email,
                     )
-
-                    def process_email():
-                        """Processes the email asynchronously.
-
-                        Attempts to store the email in the database using AI processing for a limited number of retries.
-                        Logs critical failures and sends an email alert to administrators on failure.
-                        """
-                        result = email_to_db(
-                            social_api,
-                            email_id,
-                        )
-                        if not result:
-                            LOGGER.critical(
-                                f"[Attempt n°{1}] Failed to process email with AI for email: {microsoft_listener.first().email} and email ID: {email_id}"
-                            )
-                            context = {
-                                "error": result,
-                                "attempt_number": 1,
-                                "email": microsoft_listener.first().email,
-                                "email_provider": MICROSOFT,
-                                "user": microsoft_listener.first().user,
-                            }
-                            email_html = render_to_string(
-                                "ai_failed_email.html", context
-                            )
-                            send_mail(
-                                subject="Critical Alert: Email Processing Failure",
-                                message="",
-                                recipient_list=[EMAIL_ADMIN],
-                                from_email=EMAIL_NO_REPLY,
-                                html_message=email_html,
-                                fail_silently=False,
-                            )
-
-                    threading.Thread(target=process_email).start()
+                    threading.Thread(target=email_to_db, args=(social_api,)).start()
 
                 return JsonResponse(
                     {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED

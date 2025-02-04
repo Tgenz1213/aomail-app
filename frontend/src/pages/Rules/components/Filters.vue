@@ -2,6 +2,14 @@
     <div class="relative">
         <div v-if="isOpen" class="absolute left-0 right-0 z-50">
             <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200 max-h-[80vh] overflow-hidden">
+                <button
+                    type="button"
+                    @click="resetFilters"
+                    class="m-2 absolute top-0 right-0 bg-gray-700 px-8 2xl:px-10 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:text-lg rounded-md"
+                >
+                    Reset Filters
+                </button>
+
                 <!-- Logical Operator -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Logical Operator</label>
@@ -178,6 +186,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: "update:filters", filters: object): void;
+    (e: "fetchRules"): void;
 }>();
 
 // Section visibility state
@@ -236,6 +245,11 @@ watch(
     },
     { deep: true }
 );
+
+const resetFilters = () => {
+    emit("update:filters", {});
+    emit("fetchRules");
+};
 
 // Fetch categories when component mounts
 async function fetchCategories() {

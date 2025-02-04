@@ -52,7 +52,7 @@
             </div>
         </div>
     </div>
-    <Filters :isOpen="arefiltersOpen" @update:filters="updateFilters" />
+    <Filters :isOpen="arefiltersOpen" @update:filters="updateFilters" @fetchRules="fetchRules" />
 </template>
 
 <script setup lang="ts">

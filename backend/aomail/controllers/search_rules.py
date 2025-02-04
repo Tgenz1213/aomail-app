@@ -63,7 +63,7 @@ def get_rules_data(request: HttpRequest) -> Response:
                 "id": rule.id,
                 "logicalOperator": rule.logical_operator,
                 "domains": rule.domains,
-                "sender_emails": rule.sender_emails,
+                "senderEmails": rule.sender_emails,
                 "hasAttachements": rule.has_attachements,
                 "categories": rule.categories,
                 "priorities": rule.priorities,
@@ -267,15 +267,15 @@ def get_sorted_queryset(
     # Define valid sort fields and their mappings
     sort_mapping = {
         "domains": "domains",
-        "sender_emails": "sender_emails",
+        "senderEmails": "sender_emails",
         "categories": "categories",
         "priorities": "priorities",
         "answers": "answers",
         "relevances": "relevances",
         "flags": "flags",
-        "email_deal_with": "email_deal_with",
-        "has_attachements": "has_attachements",
-        "logical_operator": "logical_operator",
+        "emailDealWith": "email_deal_with",
+        "hasAttachements": "has_attachements",
+        "logicalOperator": "logical_operator",
     }
 
     # Use default sort if provided sort field is invalid

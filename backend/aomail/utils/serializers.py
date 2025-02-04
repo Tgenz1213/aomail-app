@@ -116,17 +116,29 @@ class RuleSerializer(serializers.ModelSerializer):
     answers = serializers.ListField(required=False, allow_null=True)
     relevances = serializers.ListField(required=False, allow_null=True)
     flags = serializers.ListField(required=False, allow_null=True)
-    email_deal_with = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    
+    email_deal_with = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True
+    )
+
     action_transfer_recipients = serializers.ListField(required=False, allow_null=True)
     action_set_flags = serializers.ListField(required=False, allow_null=True)
     action_mark_as = serializers.ListField(required=False, allow_null=True)
     action_delete = serializers.BooleanField(required=False, allow_null=True)
-    action_set_category = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    action_set_priority = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    action_set_relevance = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    action_set_answer = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    action_reply_prompt = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    action_set_category = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True
+    )
+    action_set_priority = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True
+    )
+    action_set_relevance = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True
+    )
+    action_set_answer = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True
+    )
+    action_reply_prompt = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True
+    )
     action_reply_recipients = serializers.ListField(required=False, allow_null=True)
 
     class Meta:
@@ -211,7 +223,6 @@ class RuleSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-# DEPRECATED
 class RuleBlockUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rule

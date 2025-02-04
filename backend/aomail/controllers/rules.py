@@ -219,7 +219,7 @@ def create_rule(request: HttpRequest) -> Response:
     serializer = RuleSerializer(data=backend_data, context={"user": user})
     if serializer.is_valid():
         try:
-            rule = serializer.save()
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(

@@ -9,7 +9,7 @@
     <div class="flex flex-col h-screen">
         <div class="flex h-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
+                <Navbar @update:isMinimized="(value: boolean) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 overflow-hidden">
                 <div class="h-full flex flex-col">

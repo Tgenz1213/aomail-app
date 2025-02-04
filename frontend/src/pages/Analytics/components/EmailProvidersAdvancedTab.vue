@@ -111,14 +111,30 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick, inject } from "vue";
-import * as echarts from "echarts";
+import { init } from "echarts/core";
+import { BarChart } from "echarts/charts";
+import {
+    TitleComponent,
+    TooltipComponent,
+    GridComponent,
+    LegendComponent,
+} from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+import { use } from "echarts/core";
 import Multiselect from "vue-multiselect";
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { EmailLinked } from "@/global/types";
-import { PaperAirplaneIcon } from "@heroicons/vue/24/outline";
 
-// Refs
+use([
+    TitleComponent,
+    TooltipComponent,
+    GridComponent,
+    LegendComponent,
+    BarChart,
+    CanvasRenderer
+]);
+
 const emailsLinked = ref<EmailLinked[]>([]);
 const combinedStatistics = ref<CombinedStatistics | undefined>();
 const isChartView = ref(false);
@@ -193,7 +209,7 @@ const renderBarChart = () => {
         ],
     };
 
-    const chart = echarts.init(barChart.value);
+    const chart = init(barChart.value);
 
     const options = {
         title: {

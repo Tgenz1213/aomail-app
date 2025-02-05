@@ -97,10 +97,7 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             return False
 
         if delete_email_rule(user, email_data):
-            if social_api.type_api == GOOGLE:
-                email_operations_google.delete_email(user, social_api.email, email_id)
-            elif social_api.type_api == MICROSOFT:
-                email_operations_microsoft.delete_email(email_id, social_api)
+            delete_email(social_api, email_data, user)
             return False
 
         processed_email = process_email(email_data, user, social_api)
@@ -127,128 +124,7 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
                 email_entry,
             )
 
-        # TODO: put that in a function
-        # apply rules
-        from_email = email_data["from_info"][1]
-        sender_domain = from_email.split("@")[1]
-        rules = Rule.objects.filter(user=user)
-        for rule in rules:
-            if rule.logical_operator == "AND":
-
-                def verify_condition(condition: str, processed_email: dict) -> bool:
-                    """Return True if the condition is met, False otherwise"""
-
-                    if condition == "domains":
-                        return (
-                            processed_email["email_data"]["from_info"][1].split("@")[1]
-                            in rule.domains
-                        )
-                    elif condition == "sender_emails":
-                        return (
-                            processed_email["email_data"]["from_info"][1]
-                            in rule.sender_emails
-                        )
-                    elif condition == "has_attachements":
-                        return processed_email["email_data"]["has_attachments"]
-                    elif condition == "categories":
-                        return (
-                            processed_email["email_processed"]["category"]
-                            in rule.categories
-                        )
-                    elif condition == "priorities":
-                        return (
-                            processed_email["email_processed"]["priority"]
-                            in rule.priorities
-                        )
-                    elif condition == "answers":
-                        return (
-                            processed_email["email_processed"]["answer"] in rule.answers
-                        )
-                    elif condition == "relevances":
-                        return (
-                            processed_email["email_processed"]["relevance"]
-                            in rule.relevances
-                        )
-                    elif condition == "flags":
-                        return any(
-                            processed_email["email_processed"]["flags"][flag]
-                            for flag in rule.flags
-                        )
-                    else:
-                        return False
-
-                # first get the list of defined conditions
-                defined_conditions = []
-                if rule.domains:
-                    defined_conditions.append("domains")
-                if rule.sender_emails:
-                    defined_conditions.append("sender_emails")
-                if rule.has_attachements:
-                    defined_conditions.append("has_attachements")
-                if rule.categories:
-                    defined_conditions.append("categories")
-                if rule.priorities:
-                    defined_conditions.append("priorities")
-                if rule.answers:
-                    defined_conditions.append("answers")
-                if rule.relevances:
-                    defined_conditions.append("relevances")
-                if rule.flags:
-                    defined_conditions.append("flags")
-
-                # now check if all the conditions are met
-                if all(
-                    verify_condition(condition, email_entry, processed_email)
-                    for condition in defined_conditions
-                ):
-                    apply_rule_actions(rule, email_entry)
-
-            elif rule.logical_operator == "OR":
-                if (
-                    Rule.objects.filter(user=user)
-                    .filter(domains__contains=[sender_domain])
-                    .exists()
-                ):
-                    apply_rule_actions(rule, email_entry)
-                elif (
-                    Rule.objects.filter(user=user)
-                    .filter(sender_emails__contains=[from_email])
-                    .exists()
-                ):
-                    apply_rule_actions(rule, email_entry)
-                elif (
-                    rule.has_attachements
-                    and processed_email["email_data"]["has_attachments"]
-                ):
-                    apply_rule_actions(rule, email_entry)
-                elif (
-                    rule.categories
-                    and processed_email["email_processed"]["category"]
-                    in rule.categories
-                ):
-                    apply_rule_actions(rule, email_entry)
-                elif (
-                    rule.priorities
-                    and processed_email["email_processed"]["priority"]
-                    in rule.priorities
-                ):
-                    apply_rule_actions(rule, email_entry)
-                elif (
-                    rule.answers
-                    and processed_email["email_processed"]["answer"] in rule.answers
-                ):
-                    apply_rule_actions(rule, email_entry)
-                elif (
-                    rule.relevances
-                    and processed_email["email_processed"]["relevance"]
-                    in rule.relevances
-                ):
-                    apply_rule_actions(rule, email_entry)
-                elif (
-                    rule.flags
-                    and processed_email["email_processed"]["flags"] in rule.flags
-                ):
-                    apply_rule_actions(rule, email_entry)
+        apply_rules(processed_email, user, email_entry)
 
         LOGGER.info(
             f"Email ID: {email_data['email_id']} saved successfully for social_api email: {social_api.email}"
@@ -257,6 +133,139 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
 
     except Exception as e:
         LOGGER.error(f"Error saving email for user ID: {user.id}: {str(e)}")
+        return False
+
+
+def delete_email(social_api: SocialAPI, email_data: dict, user: User):
+    if social_api.type_api == GOOGLE:
+        result = email_operations_google.delete_email(
+            user, social_api.email, email_data["email_id"]
+        )
+        if "error" in result:
+            LOGGER.error(f"Error deleting email via Google: {result.get('error')}")
+        else:
+            LOGGER.info(
+                f"Result after deleting email via Google: {result.get('message')}"
+            )
+    elif social_api.type_api == MICROSOFT:
+        result = email_operations_microsoft.delete_email(
+            email_data["email_id"], social_api
+        )
+        if "error" in result:
+            LOGGER.error(f"Error deleting email via Microsoft: {result.get('error')}")
+        else:
+            LOGGER.info(
+                f"Result after deleting email via Microsoft: {result.get('message')}"
+            )
+
+
+def apply_rules(processed_email: dict, user: User, email_entry: Email) -> bool:
+    rules = Rule.objects.filter(user=user)
+    for rule in rules:
+        if rule.logical_operator == "AND":
+
+            # first get the list of defined conditions
+            defined_conditions = []
+            if rule.domains:
+                defined_conditions.append("domains")
+            if rule.sender_emails:
+                defined_conditions.append("sender_emails")
+            if rule.has_attachements:
+                defined_conditions.append("has_attachements")
+            if rule.categories:
+                defined_conditions.append("categories")
+            if rule.priorities:
+                defined_conditions.append("priorities")
+            if rule.answers:
+                defined_conditions.append("answers")
+            if rule.relevances:
+                defined_conditions.append("relevances")
+            if rule.flags:
+                defined_conditions.append("flags")
+
+            # now check if all the conditions are met
+            if all(
+                verify_condition(condition, processed_email, rule)
+                for condition in defined_conditions
+            ):
+                apply_rule_actions(rule, email_entry)
+
+        elif rule.logical_operator == "OR":
+            if (
+                Rule.objects.filter(user=user)
+                .filter(
+                    domains__contains=[
+                        processed_email["email_data"]["from_info"][1].split("@")[1]
+                    ]
+                )
+                .exists()
+            ):
+                apply_rule_actions(rule, email_entry)
+            elif (
+                Rule.objects.filter(user=user)
+                .filter(
+                    sender_emails__contains=[
+                        processed_email["email_data"]["from_info"][1]
+                    ]
+                )
+                .exists()
+            ):
+                apply_rule_actions(rule, email_entry)
+            elif (
+                rule.has_attachements
+                and processed_email["email_data"]["has_attachments"]
+            ):
+                apply_rule_actions(rule, email_entry)
+            elif (
+                rule.categories
+                and processed_email["email_processed"]["category"] in rule.categories
+            ):
+                apply_rule_actions(rule, email_entry)
+            elif (
+                rule.priorities
+                and processed_email["email_processed"]["priority"] in rule.priorities
+            ):
+                apply_rule_actions(rule, email_entry)
+            elif (
+                rule.answers
+                and processed_email["email_processed"]["answer"] in rule.answers
+            ):
+                apply_rule_actions(rule, email_entry)
+            elif (
+                rule.relevances
+                and processed_email["email_processed"]["relevance"] in rule.relevances
+            ):
+                apply_rule_actions(rule, email_entry)
+            elif (
+                rule.flags and processed_email["email_processed"]["flags"] in rule.flags
+            ):
+                apply_rule_actions(rule, email_entry)
+
+
+def verify_condition(condition: str, processed_email: dict, rule: Rule) -> bool:
+    """Return True if the condition is met, False otherwise"""
+
+    if condition == "domains":
+        return (
+            processed_email["email_data"]["from_info"][1].split("@")[1] in rule.domains
+        )
+    elif condition == "sender_emails":
+        return processed_email["email_data"]["from_info"][1] in rule.sender_emails
+    elif condition == "has_attachements":
+        return processed_email["email_data"]["has_attachments"]
+    elif condition == "categories":
+        return processed_email["email_processed"]["category"] in rule.categories
+    elif condition == "priorities":
+        return processed_email["email_processed"]["priority"] in rule.priorities
+    elif condition == "answers":
+        return processed_email["email_processed"]["answer"] in rule.answers
+    elif condition == "relevances":
+        return processed_email["email_processed"]["relevance"] in rule.relevances
+    elif condition == "flags":
+        return any(
+            processed_email["email_processed"]["flags"][flag] for flag in rule.flags
+        )
+    else:
         return False
 
 

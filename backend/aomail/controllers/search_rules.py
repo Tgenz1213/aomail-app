@@ -72,10 +72,12 @@ def get_rules_data(request: HttpRequest) -> Response:
                 "flags": rule.flags,
                 "emailDealWith": rule.email_deal_with,
                 "actionTransferRecipients": rule.action_transfer_recipients,
-                "actionSetTags": rule.action_set_flags,
+                "actionSetFlags": rule.action_set_flags,
                 "actionMarkAs": rule.action_mark_as,
                 "actionDelete": rule.action_delete,
-                "actionSetCategory": rule.action_set_category,
+                "actionSetCategory": (
+                    rule.action_set_category.name if rule.action_set_category else None
+                ),
                 "actionSetPriority": rule.action_set_priority,
                 "actionSetRelevance": rule.action_set_relevance,
                 "actionSetAnswer": rule.action_set_answer,
@@ -186,18 +188,25 @@ def validate_and_parse_parameters(request: HttpRequest) -> dict:
         dict: A dictionary containing validated parameters, sort field, and order.
     """
     parameters: dict = json.loads(request.body)
-    
+
     # Validate order
     order = parameters.get("order", "asc").lower()
     if order not in ["asc", "desc"]:
         order = "asc"
-    
+
     # Convert camelCase to snake_case and validate sort field
     sort = camel_to_snake(parameters.get("sort", "domains"))
     valid_sort_fields = [
-        "domains", "sender_emails", "categories", "priorities",
-        "answers", "relevances", "flags", "email_deal_with",
-        "has_attachements", "logical_operator"
+        "domains",
+        "sender_emails",
+        "categories",
+        "priorities",
+        "answers",
+        "relevances",
+        "flags",
+        "email_deal_with",
+        "has_attachements",
+        "logical_operator",
     ]
     if sort not in valid_sort_fields:
         sort = "domains"
@@ -240,7 +249,7 @@ def construct_filters(user: User, parameters: dict) -> dict:
             filters["flags__contains"] = parameters["flags"]
         if "emailDealWith" in parameters and parameters["emailDealWith"]:
             filters["email_deal_with__icontains"] = parameters["emailDealWith"]
-        
+
         # Logical Operator
         if "logicalOperator" in parameters:
             filters["logical_operator"] = parameters["logicalOperator"]
@@ -287,7 +296,7 @@ def get_sorted_queryset(
         for field, value in filters.items():
             if field != "user":  # Skip the user filter as it's always applied
                 q_objects &= Q(**{field: value})
-        
+
         # Apply user filter and Q objects
         queryset = Rule.objects.filter(user=filters["user"]).filter(q_objects)
     else:
@@ -309,7 +318,7 @@ def get_sorted_queryset(
     # Apply sorting
     if order == "desc":
         sort_field = f"-{sort_field}"
-    
+
     return queryset.order_by(sort_field)
 
 

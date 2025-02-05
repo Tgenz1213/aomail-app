@@ -19,7 +19,7 @@ export interface RuleData {
     actionSetFlags?: string[];
     actionMarkAs?: string[];
     actionDelete?: boolean;
-    actionSetCategory?: number;
+    actionSetCategory?: string;
     actionSetPriority?: string;
     actionSetRelevance?: string;
     actionSetAnswer?: string;

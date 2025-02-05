@@ -59,7 +59,7 @@
                                             Enter domains to match (e.g., "gmail.com", "esaip.org").
                                         </div>
                                         <TagInput
-                                            v-model="formData.domains"
+                                            v-model="formData.domains as string[]"
                                             placeholder="Add domain (e.g. gmail.com, esaip.org)"
                                             :validate="validateDomain"
                                         />
@@ -69,7 +69,7 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Sender Emails</label>
                                     <TagInput
-                                        v-model="formData.senderEmails"
+                                        v-model="formData.senderEmails as string[]"
                                         placeholder="Add email address"
                                         :validate="validateEmail"
                                     />
@@ -95,7 +95,7 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Categories</label>
                                     <multiselect
-                                        v-model="formData.categories"
+                                        v-model="formData.categories as string[]"
                                         :options="categoryOptions.map((c: Category) => c.name)"
                                         :multiple="true"
                                         placeholder="Select categories"
@@ -106,9 +106,10 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Priorities</label>
                                     <multiselect
-                                        v-model="formData.priorities"
+                                        v-model="selectedPriorities"
                                         :options="priorityOptions"
                                         :multiple="true"
+                                        label="value"
                                         placeholder="Select priorities"
                                         class="multiselect-gray"
                                     />
@@ -117,9 +118,10 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Answer Requirements</label>
                                     <multiselect
-                                        v-model="formData.answers"
+                                        v-model="selectedAnswers"
                                         :options="answerOptions"
                                         :multiple="true"
+                                        label="value"
                                         placeholder="Select answer requirements"
                                         class="multiselect-gray"
                                     />
@@ -128,9 +130,10 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Relevance</label>
                                     <multiselect
-                                        v-model="formData.relevances"
+                                        v-model="selectedRelevances"
                                         :options="relevanceOptions"
                                         :multiple="true"
+                                        label="value"
                                         placeholder="Select relevance levels"
                                         class="multiselect-gray"
                                     />
@@ -139,9 +142,10 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Flags</label>
                                     <multiselect
-                                        v-model="formData.flags"
+                                        v-model="selectedFlags"
                                         :options="flagOptions"
                                         :multiple="true"
+                                        label="value"
                                         placeholder="Select flags"
                                         class="multiselect-gray"
                                     />
@@ -181,7 +185,7 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Transfer to Recipients</label>
                                     <TagInput
-                                        v-model="formData.actionTransferRecipients"
+                                        v-model="formData.actionTransferRecipients as string[]"
                                         placeholder="Add email address"
                                         :validate="validateEmail"
                                     />
@@ -190,9 +194,11 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Set Flags</label>
                                     <multiselect
-                                        v-model="formData.actionSetFlags"
+                                        v-model="selectedActionFlags"
                                         :options="flagOptions"
                                         :multiple="true"
+                                        track-by="key"
+                                        label="value"
                                         placeholder="Add flag"
                                         class="multiselect-gray"
                                     />
@@ -201,9 +207,11 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Mark As</label>
                                     <multiselect
-                                        v-model="formData.actionMarkAs"
+                                        v-model="selectedActionMarkAs"
                                         :options="markAsOptions"
                                         :multiple="true"
+                                        track-by="key"
+                                        label="value"
                                         placeholder="Select marking options"
                                         class="multiselect-gray"
                                     />
@@ -243,8 +251,42 @@
                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                                     >
                                         <option value="">Select priority</option>
-                                        <option v-for="priority in priorityOptions" :key="priority" :value="priority">
-                                            {{ priority }}
+                                        <option
+                                            v-for="priority in priorityOptions"
+                                            :key="priority.key"
+                                            :value="priority.value"
+                                        >
+                                            {{ priority.value }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Set Relevance</label>
+                                    <select
+                                        v-model="formData.actionSetRelevance"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select relevance</option>
+                                        <option
+                                            v-for="relevance in relevanceOptions"
+                                            :key="relevance.key"
+                                            :value="relevance.value"
+                                        >
+                                            {{ relevance.value }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm text-gray-700">Set Answer</label>
+                                    <select
+                                        v-model="formData.actionSetAnswer"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                    >
+                                        <option value="">Select relevance</option>
+                                        <option v-for="answer in answerOptions" :key="answer.key" :value="answer.value">
+                                            {{ answer.value }}
                                         </option>
                                     </select>
                                 </div>
@@ -267,7 +309,7 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Reply Recipients</label>
                                     <TagInput
-                                        v-model="formData.actionReplyRecipients"
+                                        v-model="formData.actionReplyRecipients as string[]"
                                         placeholder="Add email address"
                                         :validate="validateEmail"
                                     />
@@ -293,11 +335,11 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, ref, watch } from "vue";
+import { computed, inject, onMounted, ref, watch } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/20/solid";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { getData, postData } from "@/global/fetchData";
-import { Category, EmailSender } from "@/global/types";
+import { Category, EmailSender, KeyValuePair } from "@/global/types";
 import { RuleData } from "../utils/types";
 import Multiselect from "vue-multiselect";
 import TagInput from "./TagInput.vue";
@@ -327,9 +369,15 @@ const sections = ref({
     actions: false,
 });
 
-// Form state
+const selectedPriorities = ref<KeyValuePair[]>([]);
+const selectedAnswers = ref<KeyValuePair[]>([]);
+const selectedRelevances = ref<KeyValuePair[]>([]);
+const selectedFlags = ref<KeyValuePair[]>([]);
+const selectedActionFlags = ref<KeyValuePair[]>([]);
+const selectedActionMarkAs = ref<KeyValuePair[]>([]);
+
 const formData = ref<RuleData>({
-    logicalOperator: "AND",
+    logicalOperator: "OR",
     domains: [],
     senderEmails: [],
     hasAttachements: false,
@@ -354,12 +402,34 @@ const formData = ref<RuleData>({
 const errorMessage = ref("");
 
 // Options
-const priorityOptions = ["Important", "Informative", "Useless"];
-const answerOptions = ["Answer Required", "Might Require Answer", "No Answer Required"];
-const relevanceOptions = ["Highly Relevant", "Possibly Relevant", "Not Relevant"];
-const flagOptions = ["Spam", "Scam", "Newsletter", "Notification", "Meeting"];
-const markAsOptions = ["Read", "Answer Later", "Archive"];
-let categoryOptions: Category[] = [];
+const priorityOptions: KeyValuePair[] = [
+    { key: "important", value: "Important" },
+    { key: "informative", value: "Informative" },
+    { key: "useless", value: "Useless" },
+];
+const answerOptions: KeyValuePair[] = [
+    { key: "Answer Required", value: "Answer Required" },
+    { key: "Might Require Answer", value: "Might Require Answer" },
+    { key: "No Answer Required", value: "No Answer Required" },
+];
+const relevanceOptions: KeyValuePair[] = [
+    { key: "Highly Relevant", value: "Highly Relevant" },
+    { key: "Possibly Relevant", value: "Possibly Relevant" },
+    { key: "Not Relevant", value: "Not Relevant" },
+];
+const flagOptions: KeyValuePair[] = [
+    { key: "spam", value: "spam" },
+    { key: "scam", value: "scam" },
+    { key: "newsletter", value: "newsletter" },
+    { key: "notification", value: "notification" },
+    { key: "meeting", value: "meeting" },
+];
+const markAsOptions: KeyValuePair[] = [
+    { key: "read", value: "read" },
+    { key: "answerLater", value: "answer later" },
+    { key: "archive", value: "archive" },
+];
+const categoryOptions = computed(() => props.categories);
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
@@ -371,7 +441,6 @@ watch(
 );
 
 const closeModal = () => {
-    isOpen.value = false;
     errorMessage.value = "";
     emit("update:isOpen", false);
 };
@@ -383,6 +452,14 @@ const handleKeyDown = (event: KeyboardEvent) => {
 };
 
 const handleSubmit = async () => {
+    // transform KeyValuePair[] to string[]
+    formData.value.priorities = selectedPriorities.value.map((priority) => priority.key);
+    formData.value.answers = selectedAnswers.value.map((answer) => answer.key);
+    formData.value.relevances = selectedRelevances.value.map((relevance) => relevance.key);
+    formData.value.flags = selectedFlags.value.map((flag) => flag.key);
+    formData.value.actionMarkAs = selectedActionMarkAs.value.map((markAs) => markAs.key);
+    formData.value.actionSetFlags = selectedActionFlags.value.map((flag) => flag.key);
+
     const result = await postData("user/rules/", formData.value);
 
     if (!result.success) {
@@ -412,21 +489,7 @@ const validateDomain = (domain: string) => {
     return domainRegex.test(cleanDomain);
 };
 
-async function fetchCategories() {
-    const result = await getData("user/categories/");
-    if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("rulesPage.popUpConstants.errorMessages.failedToFetchCategories"),
-            result.error as string
-        );
-        return;
-    }
-    categoryOptions = result.data;
-}
-
 onMounted(async () => {
-    await fetchCategories();
     document.addEventListener("keydown", handleKeyDown);
 });
 </script>

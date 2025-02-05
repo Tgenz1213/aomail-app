@@ -220,7 +220,29 @@ class RuleSerializer(serializers.ModelSerializer):
         """Create a new rule with the validated data."""
         user = self.context["user"]
         validated_data["user"] = user
+
+        # Get the category instance if action_set_category is provided
+        if (
+            "action_set_category" in validated_data
+            and validated_data["action_set_category"]
+        ):
+            category_name = validated_data["action_set_category"]
+            category = Category.objects.get(user=user, name=category_name)
+            validated_data["action_set_category"] = category
+
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        user = self.context["user"]
+
+        if (
+            "action_set_category" in validated_data
+            and validated_data["action_set_category"]
+        ):
+            category_name = validated_data["action_set_category"]
+            category = Category.objects.get(user=user, name=category_name)
+            validated_data["action_set_category"] = category
+        return super().update(instance, validated_data)
 
 
 class RuleBlockUpdateSerializer(serializers.ModelSerializer):

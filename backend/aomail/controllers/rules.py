@@ -105,26 +105,58 @@ def handle_rules(request: HttpRequest) -> Response:
 
         # Convert frontend keys to backend keys
         backend_data = {
-            "logical_operator": data.get("logicalOperator"),
-            "domains": data.get("domains", []),
-            "sender_emails": data.get("senderEmails", []),
-            "has_attachements": data.get("hasAttachements", False),
-            "categories": data.get("categories", []),
-            "priorities": data.get("priorities", []),
-            "answers": data.get("answers", []),
-            "relevances": data.get("relevances", []),
-            "flags": data.get("flags", []),
-            "email_deal_with": data.get("emailDealWith", ""),
-            "action_transfer_recipients": data.get("actionTransferRecipients", []),
-            "action_set_flags": data.get("actionSetFlags", []),
-            "action_mark_as": data.get("actionMarkAs", []),
-            "action_delete": data.get("actionDelete", False),
-            "action_set_category": data.get("actionSetCategory"),
-            "action_set_priority": data.get("actionSetPriority", ""),
-            "action_set_relevance": data.get("actionSetRelevance", ""),
-            "action_set_answer": data.get("actionSetAnswer", ""),
-            "action_reply_prompt": data.get("actionReplyPrompt", ""),
-            "action_reply_recipients": data.get("actionReplyRecipients", []),
+            "logical_operator": data.get("logicalOperator", "OR"),
+            "domains": data.get("domains") if data.get("domains") else None,
+            "sender_emails": (
+                data.get("senderEmails") if data.get("senderEmails") else None
+            ),
+            "has_attachements": (
+                data.get("hasAttachements") if data.get("hasAttachements") else None
+            ),
+            "categories": data.get("categories") if data.get("categories") else None,
+            "priorities": data.get("priorities") if data.get("priorities") else None,
+            "answers": data.get("answers") if data.get("answers") else None,
+            "relevances": data.get("relevances") if data.get("relevances") else None,
+            "flags": data.get("flags") if data.get("flags") else None,
+            "email_deal_with": (
+                data.get("emailDealWith") if data.get("emailDealWith") else None
+            ),
+            "action_transfer_recipients": (
+                data.get("actionTransferRecipients")
+                if data.get("actionTransferRecipients")
+                else None
+            ),
+            "action_set_flags": (
+                data.get("actionSetFlags") if data.get("actionSetFlags") else None
+            ),
+            "action_mark_as": (
+                data.get("actionMarkAs") if data.get("actionMarkAs") else None
+            ),
+            "action_delete": (
+                data.get("actionDelete") if data.get("actionDelete") else None
+            ),
+            "action_set_category": (
+                data.get("actionSetCategory") if data.get("actionSetCategory") else None
+            ),
+            "action_set_priority": (
+                data.get("actionSetPriority") if data.get("actionSetPriority") else None
+            ),
+            "action_set_relevance": (
+                data.get("actionSetRelevance")
+                if data.get("actionSetRelevance")
+                else None
+            ),
+            "action_set_answer": (
+                data.get("actionSetAnswer") if data.get("actionSetAnswer") else None
+            ),
+            "action_reply_prompt": (
+                data.get("actionReplyPrompt") if data.get("actionReplyPrompt") else None
+            ),
+            "action_reply_recipients": (
+                data.get("actionReplyRecipients")
+                if data.get("actionReplyRecipients")
+                else None
+            ),
         }
 
         serializer = RuleSerializer(
@@ -194,26 +226,56 @@ def create_rule(request: HttpRequest) -> Response:
 
     # Convert frontend keys to backend keys
     backend_data = {
-        "logical_operator": data.get("logicalOperator"),
-        "domains": data.get("domains", []),
-        "sender_emails": data.get("senderEmails", []),
-        "has_attachements": data.get("hasAttachements", False),
-        "categories": data.get("categories", []),
-        "priorities": data.get("priorities", []),
-        "answers": data.get("answers", []),
-        "relevances": data.get("relevances", []),
-        "flags": data.get("flags", []),
-        "email_deal_with": data.get("emailDealWith", ""),
-        "action_transfer_recipients": data.get("actionTransferRecipients", []),
-        "action_set_flags": data.get("actionSetFlags", []),
-        "action_mark_as": data.get("actionMarkAs", []),
-        "action_delete": data.get("actionDelete", False),
-        "action_set_category": data.get("actionSetCategory"),
-        "action_set_priority": data.get("actionSetPriority", ""),
-        "action_set_relevance": data.get("actionSetRelevance", ""),
-        "action_set_answer": data.get("actionSetAnswer", ""),
-        "action_reply_prompt": data.get("actionReplyPrompt", ""),
-        "action_reply_recipients": data.get("actionReplyRecipients", []),
+        "logical_operator": data.get("logicalOperator", "OR"),
+        "domains": data.get("domains") if data.get("domains") else None,
+        "sender_emails": (
+            data.get("senderEmails") if data.get("senderEmails") else None
+        ),
+        "has_attachements": (
+            data.get("hasAttachements") if data.get("hasAttachements") else None
+        ),
+        "categories": data.get("categories") if data.get("categories") else None,
+        "priorities": data.get("priorities") if data.get("priorities") else None,
+        "answers": data.get("answers") if data.get("answers") else None,
+        "relevances": data.get("relevances") if data.get("relevances") else None,
+        "flags": data.get("flags") if data.get("flags") else None,
+        "email_deal_with": (
+            data.get("emailDealWith") if data.get("emailDealWith") else None
+        ),
+        "action_transfer_recipients": (
+            data.get("actionTransferRecipients")
+            if data.get("actionTransferRecipients")
+            else None
+        ),
+        "action_set_flags": (
+            data.get("actionSetFlags") if data.get("actionSetFlags") else None
+        ),
+        "action_mark_as": (
+            data.get("actionMarkAs") if data.get("actionMarkAs") else None
+        ),
+        "action_delete": (
+            data.get("actionDelete") if data.get("actionDelete") else None
+        ),
+        "action_set_category": (
+            data.get("actionSetCategory") if data.get("actionSetCategory") else None
+        ),
+        "action_set_priority": (
+            data.get("actionSetPriority") if data.get("actionSetPriority") else None
+        ),
+        "action_set_relevance": (
+            data.get("actionSetRelevance") if data.get("actionSetRelevance") else None
+        ),
+        "action_set_answer": (
+            data.get("actionSetAnswer") if data.get("actionSetAnswer") else None
+        ),
+        "action_reply_prompt": (
+            data.get("actionReplyPrompt") if data.get("actionReplyPrompt") else None
+        ),
+        "action_reply_recipients": (
+            data.get("actionReplyRecipients")
+            if data.get("actionReplyRecipients")
+            else None
+        ),
     }
 
     serializer = RuleSerializer(data=backend_data, context={"user": user})
@@ -227,6 +289,7 @@ def create_rule(request: HttpRequest) -> Response:
                 status=status.HTTP_400_BAD_REQUEST,
             )
     else:
+        LOGGER.info(f"serializer.errors: {serializer.errors}")
         return Response(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,

@@ -104,7 +104,9 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
 
         # Replicate labels on email provider
         ai_output: dict = processed_email["email_processed"].copy()
+        # We replicate only the topic and the importance of the email
         ai_output.pop("summary")
+
         if social_api.type_api == GOOGLE:
             google_labels.replicate_labels(
                 social_api, ai_output, email_data["email_id"]

@@ -10,9 +10,30 @@ from aomail.email_providers.google.authentication import (
     authenticate_service,
 )
 from aomail.models import SocialAPI
+from aomail.constants import (
+    ANSWER_REQUIRED,
+    MIGHT_REQUIRE_ANSWER,
+    NO_ANSWER_REQUIRED,
+    HIGHLY_RELEVANT,
+    POSSIBLY_RELEVANT,
+    NOT_RELEVANT,
+)
 
 
 LOGGER = logging.getLogger(__name__)
+HIDE_LABEL_NAMES = [
+    ANSWER_REQUIRED,
+    MIGHT_REQUIRE_ANSWER,
+    NO_ANSWER_REQUIRED,
+    HIGHLY_RELEVANT,
+    POSSIBLY_RELEVANT,
+    NOT_RELEVANT,
+    "spam",
+    "scam",
+    "newsletter",
+    "notification",
+    "meeting",
+]
 
 
 def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
@@ -175,6 +196,10 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
                 "textColor": "#000000",
                 "backgroundColor": label_color,
             },
+            "messageListVisibility": "hide" if name in HIDE_LABEL_NAMES else "show",
+            "labelListVisibility": (
+                "labelHide" if name in HIDE_LABEL_NAMES else "labelShow"
+            ),
         }
         response = gmail.users().labels().create(userId="me", body=label_body).execute()
         return response.get("id")

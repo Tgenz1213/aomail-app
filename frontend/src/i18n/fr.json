@@ -1209,5 +1209,27 @@
       "possiblyRelevant": "Possiblement pertinent",
       "notRelevant": "Non pertinent"
     }
+  },
+  "emailProvidersAdvancedTab": {
+    "viewMode": "Mode d'affichage",
+    "chart": "Graphique",
+    "raw": "Données",
+    "selectEmails": "Sélectionner les emails",
+    "addNewEmail": "Ajouter un nouvel email",
+    "searchOrAddEmail": "Rechercher ou ajouter un email",
+    "fetchData": "Récupérer les données",
+    "statistics": {
+      "aomailTitle": "Statistiques Aomail",
+      "emailProvidersTitle": "Statistiques des fournisseurs d'email",
+      "emailsReceived": "Emails reçus",
+      "emailsRead": "Emails lus",
+      "emailsArchived": "Emails archivés",
+      "emailsReplyLater": "Emails à répondre plus tard",
+      "emailsStarred": "Emails favoris",
+      "emailsSent": "Emails envoyés"
+    },
+    "chart": {
+      "title": "Statistiques des emails"
+    }
   }
 }

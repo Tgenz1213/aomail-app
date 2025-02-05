@@ -3,6 +3,9 @@ File that stores all constants and computed paths
 """
 
 import os
+import dotenv
+
+dotenv.load_dotenv()
 
 ######################## SECURITY ########################
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))

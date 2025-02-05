@@ -125,11 +125,6 @@ def get_emails_data(request: HttpRequest) -> Response:
         return Response(
             {"error": "An email does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
-    except TypeError:
-        return Response(
-            {"error": "IDs must be provided as a list with 0 to 100 elements"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
     except json.JSONDecodeError:
         return Response(
             {"error": "Invalid JSON in request body"},

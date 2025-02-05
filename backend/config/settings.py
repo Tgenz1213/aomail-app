@@ -3,7 +3,6 @@ Aomail Project - Django settings
 """
 
 import os
-import dotenv
 from datetime import timedelta
 from aomail.constants import (
     BACKEND_DIR,
@@ -13,7 +12,6 @@ from aomail.constants import (
     CORS_ALLOWED_ORIGINS,
 )
 
-dotenv.load_dotenv()
 
 ######################## CREDENTIALS ########################
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")

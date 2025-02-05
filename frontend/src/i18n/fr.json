@@ -535,7 +535,17 @@
           "notRelevant": "Non pertinent"
         }
       }
-    }
+    },
+    "metrics": "Métriques",
+    "selectSince": "Sélectionner Depuis",
+    "selectPeriod": "Sélectionner Période",
+    "selectDataOptions": "Sélectionner Options de Données",
+    "average": "Moyenne",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "sinceStatistics": "Statistiques Depuis",
+    "periodStatistics": "Statistiques par Période",
+    "failedToFetchStatistics": "Échec de la récupération des statistiques"
   },
   "rulesPage": {
     "advancedFilters": "Filtres avancés",

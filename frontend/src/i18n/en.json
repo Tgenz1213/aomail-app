@@ -535,7 +535,17 @@
           "notRelevant": "Not Relevant"
         }
       }
-    }
+    },
+    "metrics": "Metrics",
+    "selectSince": "Select Since",
+    "selectPeriod": "Select Period",
+    "selectDataOptions": "Select Data Options",
+    "average": "Average",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "sinceStatistics": "Since Statistics",
+    "periodStatistics": "Period Statistics",
+    "failedToFetchStatistics": "Failed to fetch statistics"
   },
   "rulesPage": {
     "advancedFilters": "Advanced Filters",

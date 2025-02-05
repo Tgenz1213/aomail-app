@@ -39,14 +39,36 @@
 <script setup lang="ts">
 import { getData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import * as echarts from "echarts";
+import { init, EChartsType } from "echarts/core";
+import { BarChart, SunburstChart } from "echarts/charts";
+import {
+    TitleComponent,
+    TooltipComponent,
+    GridComponent,
+    DatasetComponent,
+    LegendComponent,
+} from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
 import { inject, onMounted, onUnmounted } from "vue";
+import ChartTitle from "./CharTitle.vue";
+import { use } from "echarts/core";
 
-let importanceChart: echarts.ECharts;
-let answerRequirementChart: echarts.ECharts;
-let relevanceChart: echarts.ECharts;
-let domainDistributionChart: echarts.ECharts;
-let senderDistributionChart: echarts.ECharts;
+use([
+    TitleComponent,
+    TooltipComponent,
+    GridComponent,
+    DatasetComponent,
+    LegendComponent,
+    BarChart,
+    SunburstChart,
+    CanvasRenderer
+]);
+
+let importanceChart: EChartsType;
+let answerRequirementChart: EChartsType;
+let relevanceChart: EChartsType;
+let domainDistributionChart: EChartsType;
+let senderDistributionChart: EChartsType;
 
 const chartIds = {
     importance: "importanceChart",
@@ -175,7 +197,7 @@ onMounted(async () => {
         return;
 
     // Initialize charts with data
-    importanceChart = echarts.init(importanceChartEl, null, {
+    importanceChart = init(importanceChartEl, null, {
         renderer: "canvas",
         useDirtyRect: false,
     });
@@ -375,25 +397,25 @@ onMounted(async () => {
         ],
     };
 
-    domainDistributionChart = echarts.init(domainDistributionChartEl, null, {
+    domainDistributionChart = init(domainDistributionChartEl, null, {
         renderer: "canvas",
         useDirtyRect: false,
     });
     domainDistributionChart.setOption(domainDistributionOptions);
 
-    senderDistributionChart = echarts.init(senderDistributionChartEl, null, {
+    senderDistributionChart = init(senderDistributionChartEl, null, {
         renderer: "canvas",
         useDirtyRect: false,
     });
     senderDistributionChart.setOption(senderDistributionOptions);
 
-    answerRequirementChart = echarts.init(answerRequirementChartEl, null, {
+    answerRequirementChart = init(answerRequirementChartEl, null, {
         renderer: "canvas",
         useDirtyRect: false,
     });
     answerRequirementChart.setOption(answerRequirementChartOptions);
 
-    relevanceChart = echarts.init(relevanceChartEl, null, {
+    relevanceChart = init(relevanceChartEl, null, {
         renderer: "canvas",
         useDirtyRect: false,
     });

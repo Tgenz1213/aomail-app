@@ -26,7 +26,8 @@ from aomail.utils.security import decrypt_text, subscription
 from aomail.constants import (
     ALLOW_ALL,
     ANSWER_REQUIRED,
-    ENCRYPTION_KEYS,
+    EMAIL_ONE_LINE_SUMMARY_KEY,
+    EMAIL_SHORT_SUMMARY_KEY,
     GOOGLE,
     IMPORTANT,
     INFORMATIVE,
@@ -172,10 +173,10 @@ def get_simple_email_data(request: HttpRequest) -> Response:
                     },
                     "providerId": email.provider_id,
                     "shortSummary": decrypt_text(
-                        ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary
+                        EMAIL_SHORT_SUMMARY_KEY, email.short_summary
                     ),
                     "oneLineSummary": decrypt_text(
-                        ENCRYPTION_KEYS["Email"]["one_line_summary"],
+                        EMAIL_ONE_LINE_SUMMARY_KEY,
                         email.one_line_summary,
                     ),
                     "cc": [

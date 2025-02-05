@@ -42,7 +42,6 @@ from aomail.constants import (
     EMAIL_ADMIN,
     BASE_URL_MA,
     EMAIL_NO_REPLY,
-    ENCRYPTION_KEYS,
     ENTREPRISE_PLAN,
     GOOGLE,
     GOOGLE,
@@ -50,6 +49,7 @@ from aomail.constants import (
     MICROSOFT,
     MICROSOFT,
     PREMIUM_PLAN,
+    SOCIAL_API_REFRESH_TOKEN_KEY,
 )
 from aomail.email_providers.google import profile as profile_google
 from aomail.email_providers.microsoft import profile as profile_microsoft
@@ -417,7 +417,7 @@ def link_email(request: HttpRequest) -> Response:
     refresh_token = authorization_result["refresh_token"]
     email = authorization_result["email"]
     refresh_token_encrypted = security.encrypt_text(
-        ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token
+        SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token
     )
 
     regrant = False

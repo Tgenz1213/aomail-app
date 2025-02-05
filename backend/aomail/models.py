@@ -120,21 +120,21 @@ class Rule(models.Model):
     """Model for storing rule information."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    logical_operator = models.CharField(default="AND")  # "OR" allowed
+    logical_operator = models.CharField(max_length=3, default="AND")  # "OR" allowed
 
     # --- static triggers --- #
     # email triggers
-    domains = ArrayField(models.CharField(), null=True)
-    sender_emails = ArrayField(models.CharField(), null=True)
+    domains = ArrayField(models.CharField(max_length=30), null=True)
+    sender_emails = ArrayField(models.CharField(max_length=30), null=True)
     has_attachements = models.BooleanField(null=True)
     # after AI processing triggers
     categories = ArrayField(models.CharField(max_length=30), null=True)
-    priorities = ArrayField(models.CharField(), null=True)
-    answers = ArrayField(models.CharField(), null=True)
-    relevances = ArrayField(models.CharField(), null=True)
+    priorities = ArrayField(models.CharField(max_length=30), null=True)
+    answers = ArrayField(models.CharField(max_length=30), null=True)
+    relevances = ArrayField(models.CharField(max_length=30), null=True)
     flags = ArrayField(models.CharField(max_length=30), null=True)
     # --- AI triggers --- #
-    email_deal_with = models.CharField(null=True)  # user prompt
+    email_deal_with = models.CharField(max_length=1000, null=True)  # user prompt
 
     # --- static actions --- #
     action_transfer_recipients = ArrayField(
@@ -150,13 +150,13 @@ class Rule(models.Model):
     action_set_category = models.ForeignKey(
         Category, on_delete=models.CASCADE, blank=True, null=True
     )
-    action_set_priority = models.CharField(null=True)  # Important
-    action_set_relevance = models.CharField(null=True)  # Highly Relevant
-    action_set_answer = models.CharField(null=True)  # Answer Required
+    action_set_priority = models.CharField(max_length=30, null=True)  # Important
+    action_set_relevance = models.CharField(max_length=30, null=True)  # Highly Relevant
+    action_set_answer = models.CharField(max_length=30, null=True)  # Answer Required
 
     # --- AI actions --- #
-    action_reply_prompt = models.CharField(null=True)  # user prompt
-    action_reply_recipients = ArrayField(models.CharField(), null=True)
+    action_reply_prompt = models.CharField(max_length=1000, null=True)  # user prompt
+    action_reply_recipients = ArrayField(models.CharField(max_length=30), null=True)
 
 
 class MicrosoftListener(models.Model):

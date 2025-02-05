@@ -16,8 +16,13 @@ from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aomail.constants import ALLOW_ALL, ENCRYPTION_KEYS
-from aomail.models import Category, SocialAPI, Email #, Rule
+from aomail.constants import (
+    ALLOW_ALL,
+    EMAIL_HTML_CONTENT_KEY,
+    EMAIL_ONE_LINE_SUMMARY_KEY,
+    EMAIL_SHORT_SUMMARY_KEY,
+)
+from aomail.models import Category, SocialAPI, Email  # , Rule
 from aomail.utils.security import subscription, decrypt_text
 from django.contrib.auth.models import User
 
@@ -69,10 +74,10 @@ def get_emails_data(request: HttpRequest) -> Response:
                 },
                 "providerId": email.provider_id,
                 "shortSummary": decrypt_text(
-                    ENCRYPTION_KEYS["Email"]["short_summary"], email.short_summary
+                    EMAIL_SHORT_SUMMARY_KEY, email.short_summary
                 ),
                 "oneLineSummary": decrypt_text(
-                    ENCRYPTION_KEYS["Email"]["one_line_summary"], email.one_line_summary
+                    EMAIL_ONE_LINE_SUMMARY_KEY, email.one_line_summary
                 ),
                 "cc": [
                     {"email": cc.email, "name": cc.name}
@@ -161,9 +166,7 @@ def get_email_content(request: HttpRequest) -> Response:
 
     try:
         email = Email.objects.get(user=request.user, id=email_id)
-        decrypted_content = decrypt_text(
-            ENCRYPTION_KEYS["Email"]["html_content"], email.html_content
-        )
+        decrypted_content = decrypt_text(EMAIL_HTML_CONTENT_KEY, email.html_content)
         return Response({"content": decrypted_content}, status=status.HTTP_200_OK)
     except Email.DoesNotExist:
         return Response(

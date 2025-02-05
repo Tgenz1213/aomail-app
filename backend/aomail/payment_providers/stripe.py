@@ -9,6 +9,8 @@ Endpoints:
 import stripe
 import json
 import logging
+import os
+import dotenv
 from rest_framework import status
 from django.http import HttpRequest
 from django.contrib.auth.models import User
@@ -19,7 +21,6 @@ from django.views.decorators.csrf import csrf_exempt
 from aomail.constants import (
     ALLOW_ALL,
     BASE_URL,
-    CREDS_PATH,
     ENV,
     GOOGLE,
     MAX_RETRIES,
@@ -31,11 +32,12 @@ from aomail.email_providers.microsoft import webhook as webhook_microsoft
 from aomail.email_providers.google import webhook as webhook_google
 
 
+dotenv.load_dotenv()
+
 LOGGER = logging.getLogger(__name__)
-STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json"))
-PUBLISHABLE_KEY = STRIPE_CREDS["publishable_key"]
-SECRET_KEY = STRIPE_CREDS["secret_key"]
-WEBHOOK_SECRET = STRIPE_CREDS[ENV + "_webhook_secret"]
+PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+WEBHOOK_SECRET = os.getenv(ENV + "_webhook_secret")
 PRODUCTS = {
     "start": {
         "monthly": "price_1QaFTRK8H3QtVm1pHDyJyrp5",

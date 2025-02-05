@@ -23,12 +23,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from aomail.utils import security
 from aomail.constants import (
-    ENCRYPTION_KEYS,
     GOOGLE,
     GOOGLE,
     MICROSOFT,
     MICROSOFT,
     PREMIUM_PLAN,
+    SOCIAL_API_REFRESH_TOKEN_KEY,
 )
 from aomail.email_providers.google import profile as profile_google
 from aomail.email_providers.microsoft import profile as profile_microsoft
@@ -586,7 +586,7 @@ def save_user_data(
     """
     try:
         refresh_token_encrypted = security.encrypt_text(
-            ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token
+            SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token
         )
         SocialAPI.objects.create(
             user=user,

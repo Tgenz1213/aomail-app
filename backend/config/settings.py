@@ -2,7 +2,8 @@
 Aomail Project - Django settings
 """
 
-import json
+import os
+import dotenv
 from datetime import timedelta
 from aomail.constants import (
     BACKEND_DIR,
@@ -12,10 +13,20 @@ from aomail.constants import (
     CORS_ALLOWED_ORIGINS,
 )
 
+dotenv.load_dotenv()
 
 ######################## CREDENTIALS ########################
-CONFIG = json.load(open("creds/django_creds.json"))
-SECRET_KEY = CONFIG["secret_key"]
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+DATABASE_CONFIG = {
+    "default": {
+        "ENGINE": os.getenv("DJANGO_DB_ENGINE"),
+        "NAME": os.getenv("DJANGO_DB_NAME"),
+        "USER": os.getenv("DJANGO_DB_USER"),
+        "PASSWORD": os.getenv("DJANGO_DB_PASSWORD"),
+        "HOST": os.getenv("DJANGO_DB_HOST"),
+        "PORT": os.getenv("DJANGO_DB_PORT"),
+    }
+}
 BACKEND_LOG_PATH = "backend.log"
 CUSTOM_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -151,7 +162,7 @@ CSRF_COOKIE_SECURE = False  # Allow CSRF tokens over HTTP
 
 
 # ----------------------- DATABASE CONFIGURATION -----------------------#
-DATABASES = CONFIG["database_conf"]
+DATABASES = DATABASE_CONFIG
 
 # ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

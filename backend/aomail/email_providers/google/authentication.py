@@ -25,12 +25,14 @@ from aomail.utils import security
 from aomail.utils.security import subscription
 from aomail.constants import (
     ALLOWED_PLANS,
-    ENCRYPTION_KEYS,
-    GOOGLE_CONFIG,
-    GOOGLE_CREDS,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GOOGLE_TOKEN_URI,
+    GOOGLE_WEB_CONFIG,
     REDIRECT_URI_LINK_EMAIL,
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
+    SOCIAL_API_REFRESH_TOKEN_KEY,
 )
 from aomail.models import SocialAPI, Subscription
 
@@ -54,7 +56,7 @@ def generate_auth_url(request: HttpRequest) -> HttpResponseRedirect:
         LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
 
         flow = Flow.from_client_secrets_file(
-            GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+            GOOGLE_WEB_CONFIG, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
         )
         authorization_url, _ = flow.authorization_url(
             access_type="offline", include_granted_scopes="true", prompt="consent"
@@ -82,7 +84,7 @@ def exchange_code_for_tokens(
                otherwise (None, None) if credentials are not obtained.
     """
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+        GOOGLE_WEB_CONFIG, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     flow.fetch_token(code=authorization_code)
 
@@ -120,7 +122,9 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
 
         flow = Flow.from_client_secrets_file(
-            GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
+            GOOGLE_WEB_CONFIG,
+            scopes=GOOGLE_SCOPES,
+            redirect_uri=REDIRECT_URI_LINK_EMAIL,
         )
         authorization_url, _ = flow.authorization_url(
             access_type="offline", include_granted_scopes="true", prompt="consent"
@@ -199,7 +203,7 @@ def auth_url_regrant(request: HttpRequest) -> HttpResponseRedirect:
             )
 
         flow = Flow.from_client_secrets_file(
-            GOOGLE_CREDS,
+            GOOGLE_WEB_CONFIG,
             scopes=GOOGLE_SCOPES,
             redirect_uri=REDIRECT_URI_LINK_EMAIL,
         )
@@ -240,7 +244,7 @@ def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, 
                otherwise (None, None) if credentials are not obtained.
     """
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
+        GOOGLE_WEB_CONFIG, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
     )
     flow.fetch_token(code=authorization_code)
 
@@ -270,14 +274,14 @@ def get_credentials(user: User, email: str) -> credentials.Credentials | None:
         social_api = SocialAPI.objects.get(user=user, email=email)
         refresh_token_encrypted = social_api.refresh_token
         refresh_token = security.decrypt_text(
-            ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token_encrypted
+            SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token_encrypted
         )
         creds_data = {
             "token": social_api.access_token,
             "refresh_token": refresh_token,
-            "token_uri": GOOGLE_CONFIG["token_uri"],
-            "client_id": GOOGLE_CONFIG["client_id"],
-            "client_secret": GOOGLE_CONFIG["client_secret"],
+            "token_uri": GOOGLE_TOKEN_URI,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
             "scopes": GOOGLE_SCOPES,
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)

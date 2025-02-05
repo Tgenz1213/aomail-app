@@ -17,13 +17,13 @@ import ast
 import json
 import anthropic
 from datetime import datetime
-from aomail.constants import ANTHROPIC_CREDS
+from aomail.constants import ANTHROPIC_API_KEY
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
 def get_prompt_response(formatted_prompt):
     """Returns the prompt response"""
-    client = anthropic.Anthropic(api_key=ANTHROPIC_CREDS["api_key"])
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
         model="claude-3-haiku-20240307",
         max_tokens=4096,

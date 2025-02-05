@@ -15,7 +15,10 @@ from aomail.constants import (
     ANSWER_REQUIRED,
     DEFAULT_CATEGORY,
     EMAIL_ADMIN,
+    EMAIL_HTML_CONTENT_KEY,
     EMAIL_NO_REPLY,
+    EMAIL_ONE_LINE_SUMMARY_KEY,
+    EMAIL_SHORT_SUMMARY_KEY,
     GOOGLE,
     HIGHLY_RELEVANT,
     IMPORTANT,
@@ -26,7 +29,6 @@ from aomail.constants import (
     NOT_RELEVANT,
     POSSIBLY_RELEVANT,
     USELESS,
-    ENCRYPTION_KEYS,
 )
 from aomail.utils.tree_knowledge import Search
 from aomail.utils import email_processing
@@ -566,14 +568,14 @@ def create_email_entry(
         provider_id=email_data["email_id"],
         email_provider=social_api.type_api,
         short_summary=encrypt_text(
-            ENCRYPTION_KEYS["Email"]["short_summary"], email_ai["summary"]["short"]
+            EMAIL_SHORT_SUMMARY_KEY, email_ai["summary"]["short"]
         ),
         one_line_summary=encrypt_text(
-            ENCRYPTION_KEYS["Email"]["one_line_summary"],
+            EMAIL_ONE_LINE_SUMMARY_KEY,
             email_ai["summary"]["one_line"],
         ),
         html_content=encrypt_text(
-            ENCRYPTION_KEYS["Email"]["html_content"], email_data.get("safe_html", "")
+            EMAIL_HTML_CONTENT_KEY, email_data.get("safe_html", "")
         ),
         subject=email_data["subject"],
         priority=email_ai["importance"],

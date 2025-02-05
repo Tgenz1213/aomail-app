@@ -2,7 +2,6 @@
 File that stores all constants and computed paths
 """
 
-import json
 import os
 import dotenv
 
@@ -11,9 +10,11 @@ dotenv.load_dotenv()
 ######################## SECURITY ########################
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.dirname(CURRENT_DIR)
-CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
-ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
+SOCIAL_API_REFRESH_TOKEN_KEY = os.getenv("SOCIAL_API_REFRESH_TOKEN_KEY")
+EMAIL_ONE_LINE_SUMMARY_KEY = os.getenv("EMAIL_ONE_LINE_SUMMARY_KEY")
+EMAIL_SHORT_SUMMARY_KEY = os.getenv("EMAIL_SHORT_SUMMARY_KEY")
+EMAIL_HTML_CONTENT_KEY = os.getenv("EMAIL_HTML_CONTENT_KEY")
 
 # ----------------------- PICTURES ------------------------#
 MEDIA_URL = "/media/"
@@ -29,10 +30,9 @@ HOSTS_URLS = [BASE_URL, f"{ENV}.aomail.ai"]
 CORS_ALLOWED_ORIGINS = [DOMAIN, "https://admin.aomail.ai"]
 
 # ----------------------- EMAIL CREDS -----------------------#
-EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))
-EMAIL_NO_REPLY = EMAILS_CREDS["email"]
-EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
-EMAIL_ADMIN = EMAILS_CREDS["email_admin"]
+EMAIL_NO_REPLY = os.getenv("EMAIL_NO_REPLY")
+EMAIL_NO_REPLY_PASSWORD = os.getenv("EMAIL_NO_REPLY_PASSWORD")
+EMAIL_ADMIN = os.getenv("EMAIL_ADMIN")
 
 ######################## PAYMENTS ########################
 INACTIVE = "inactive"
@@ -44,10 +44,10 @@ ALLOW_ALL = ALLOWED_PLANS + [INACTIVE]
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
-MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
-ANTHROPIC_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
-GEMINI_CREDS = json.load(open(f"{CREDS_PATH}gemini_creds.json"))
+# OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
+# MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 IMPORTANT = "important"
 INFORMATIVE = "informative"
 USELESS = "useless"
@@ -81,10 +81,21 @@ GOOGLE_SCOPES = [
     GOOGLE_OTHER_CONTACT_READONLY_SCOPE,
     GOOGLE_EMAIL_MODIFY,
 ]
-GOOGLE_CREDS = f"{CREDS_PATH}google_creds.json"
-GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]
-GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
-GOOGLE_TOPIC_NAME = "mail_push"
+GOOGLE_AUTH_URI = "https://accounts.google.com/o/oauth2/auth"
+GOOGLE_TOKEN_URI = "https://oauth2.googleapis.com/token"
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+GOOGLE_PROJECT_ID = os.getenv("GOOGLE_PROJECT_ID")
+GOOGLE_TOPIC_NAME = os.getenv("GOOGLE_TOPIC_NAME")
+GOOGLE_WEB_CONFIG = {
+    "web": {
+        "client_id": GOOGLE_CLIENT_ID,
+        "project_id": GOOGLE_PROJECT_ID,
+        "auth_uri": GOOGLE_AUTH_URI,
+        "token_uri": GOOGLE_TOKEN_URI,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+    }
+}
 GOOGLE = "google"
 
 ######################## MICROSOFT API ########################
@@ -102,9 +113,10 @@ MICROSOFT_SCOPES = [
     MICROSOFT_USER_READ_SCOPE,
     MICROSOFT_MAILBOX_SETTINGS_SCOPE,
 ]
-MICROSOFT_CREDS = f"{CREDS_PATH}microsoft_creds.json"
-MICROSOFT_CONFIG = json.load(open(MICROSOFT_CREDS))
 MICROSOFT_AUTHORITY = f"https://login.microsoftonline.com/common"
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
+MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
+MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
+MICROSOFT_TENANT_ID = os.getenv("MICROSOFT_TENANT_ID")
+MICROSOFT_CLIENT_STATE = os.getenv("MICROSOFT_CLIENT_STATE")
 MICROSOFT = "microsoft"
-MICROSOFT_CLIENT_STATE = MICROSOFT_CONFIG["client_state"]

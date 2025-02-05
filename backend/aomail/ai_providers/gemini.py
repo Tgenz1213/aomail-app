@@ -22,7 +22,7 @@ import google.generativeai as genai
 from datetime import datetime
 from aomail.constants import (
     ANSWER_REQUIRED,
-    GEMINI_CREDS,
+    GEMINI_API_KEY,
     HIGHLY_RELEVANT,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
@@ -38,7 +38,7 @@ LOGGER = logging.getLogger(__name__)
 ######################## TEXT PROCESSING UTILITIES ########################
 def get_prompt_response(formatted_prompt: str):
     """Returns the prompt response using Gemini 1.5 Flash model"""
-    genai.configure(api_key=GEMINI_CREDS["api_key"])
+    genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(
         formatted_prompt,
@@ -51,7 +51,7 @@ def get_prompt_response(formatted_prompt: str):
 
 def get_prompt_response_exp(formatted_prompt: str):
     """Returns the prompt response using Gemini 2.0 Flash exp model"""
-    genai.configure(api_key=GEMINI_CREDS["api_key"])
+    genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel("gemini-2.0-flash-exp")
     response = model.generate_content(
         formatted_prompt,

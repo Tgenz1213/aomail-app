@@ -20,8 +20,10 @@ from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import (
     ALLOW_ALL,
-    GOOGLE_CONFIG,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
     GOOGLE_SCOPES,
+    GOOGLE_TOKEN_URI,
 )
 from aomail.email_providers.google.authentication import authenticate_service
 from aomail.utils import email_processing
@@ -47,9 +49,9 @@ def get_email(access_token: str, refresh_token: str) -> dict:
     creds_data = {
         "token": access_token,
         "refresh_token": refresh_token,
-        "token_uri": GOOGLE_CONFIG["token_uri"],
-        "client_id": GOOGLE_CONFIG["client_id"],
-        "client_secret": GOOGLE_CONFIG["client_secret"],
+        "token_uri": GOOGLE_TOKEN_URI,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
         "scopes": GOOGLE_SCOPES,
     }
     creds = credentials.Credentials.from_authorized_user_info(creds_data)
@@ -321,14 +323,46 @@ def get_data(social_api: SocialAPI) -> dict:
     Returns:
         dict: A dictionary containing email statistics.
     """
-    gmail_service = authenticate_service(social_api.user, social_api.email, ["gmail"])["gmail"]
+    gmail_service = authenticate_service(social_api.user, social_api.email, ["gmail"])[
+        "gmail"
+    ]
 
     # Use the Gmail API to get counts directly
-    num_emails_received = gmail_service.users().messages().list(userId='me').execute().get('resultSizeEstimate', 0)
-    num_emails_read = gmail_service.users().messages().list(userId='me', q='is:read').execute().get('resultSizeEstimate', 0)
-    num_emails_archived = gmail_service.users().messages().list(userId='me', q='in:archive').execute().get('resultSizeEstimate', 0)
-    num_emails_starred = gmail_service.users().messages().list(userId='me', q='is:starred').execute().get('resultSizeEstimate', 0)
-    num_emails_sent = gmail_service.users().messages().list(userId='me', q='in:sent').execute().get('resultSizeEstimate', 0)
+    num_emails_received = (
+        gmail_service.users()
+        .messages()
+        .list(userId="me")
+        .execute()
+        .get("resultSizeEstimate", 0)
+    )
+    num_emails_read = (
+        gmail_service.users()
+        .messages()
+        .list(userId="me", q="is:read")
+        .execute()
+        .get("resultSizeEstimate", 0)
+    )
+    num_emails_archived = (
+        gmail_service.users()
+        .messages()
+        .list(userId="me", q="in:archive")
+        .execute()
+        .get("resultSizeEstimate", 0)
+    )
+    num_emails_starred = (
+        gmail_service.users()
+        .messages()
+        .list(userId="me", q="is:starred")
+        .execute()
+        .get("resultSizeEstimate", 0)
+    )
+    num_emails_sent = (
+        gmail_service.users()
+        .messages()
+        .list(userId="me", q="in:sent")
+        .execute()
+        .get("resultSizeEstimate", 0)
+    )
 
     return {
         "num_emails_received": num_emails_received,

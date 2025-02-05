@@ -24,13 +24,15 @@ from aomail.utils.security import subscription
 from aomail.utils import security
 from aomail.constants import (
     ALLOWED_PLANS,
-    ENCRYPTION_KEYS,
     GRAPH_URL,
     MICROSOFT_AUTHORITY,
-    MICROSOFT_CONFIG,
+    MICROSOFT_CLIENT_ID,
+    MICROSOFT_CLIENT_SECRET,
+    MICROSOFT_CLIENT_STATE,
     MICROSOFT_SCOPES,
     REDIRECT_URI_LINK_EMAIL,
     REDIRECT_URI_SIGNUP,
+    SOCIAL_API_REFRESH_TOKEN_KEY,
 )
 from aomail.models import SocialAPI, Subscription
 
@@ -54,12 +56,12 @@ def generate_auth_url(request: HttpRequest) -> HttpResponseRedirect:
         LOGGER.info(f"Initiating Microsoft OAuth flow from IP: {ip}")
 
         params = {
-            "client_id": MICROSOFT_CONFIG["client_id"],
+            "client_id": MICROSOFT_CLIENT_ID,
             "response_type": "code",
             "redirect_uri": REDIRECT_URI_SIGNUP,
             "response_mode": "query",
             "scope": " ".join(MICROSOFT_SCOPES),
-            "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+            "state": MICROSOFT_CLIENT_STATE,
             "prompt": "consent",
         }
         authorization_url = (
@@ -89,8 +91,8 @@ def exchange_code_for_tokens(
                otherwise (None, None) if credentials are not obtained.
     """
     app = ConfidentialClientApplication(
-        client_id=MICROSOFT_CONFIG["client_id"],
-        client_credential=MICROSOFT_CONFIG["client_secret"],
+        client_id=MICROSOFT_CLIENT_ID,
+        client_credential=MICROSOFT_CLIENT_SECRET,
         authority=MICROSOFT_AUTHORITY,
     )
 
@@ -128,12 +130,12 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         LOGGER.info(f"Initiating Microsoft OAuth flow from IP: {ip}")
 
         params = {
-            "client_id": MICROSOFT_CONFIG["client_id"],
+            "client_id": MICROSOFT_CLIENT_ID,
             "response_type": "code",
             "redirect_uri": REDIRECT_URI_LINK_EMAIL,
             "response_mode": "query",
             "scope": " ".join(MICROSOFT_SCOPES),
-            "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+            "state": MICROSOFT_CLIENT_STATE,
             "prompt": "consent",
         }
         authorization_url = (
@@ -216,12 +218,12 @@ def auth_url_regrant(request: HttpRequest) -> HttpResponseRedirect:
             )
 
         params = {
-            "client_id": MICROSOFT_CONFIG["client_id"],
+            "client_id": MICROSOFT_CLIENT_ID,
             "response_type": "code",
             "redirect_uri": REDIRECT_URI_LINK_EMAIL,
             "response_mode": "query",
             "scope": " ".join(MICROSOFT_SCOPES),
-            "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+            "state": MICROSOFT_CLIENT_STATE,
             "prompt": "consent",
             "login_hint": email,
         }
@@ -257,8 +259,8 @@ def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, 
                otherwise (None, None) if credentials are not obtained.
     """
     app = ConfidentialClientApplication(
-        client_id=MICROSOFT_CONFIG["client_id"],
-        client_credential=MICROSOFT_CONFIG["client_secret"],
+        client_id=MICROSOFT_CLIENT_ID,
+        client_credential=MICROSOFT_CLIENT_SECRET,
         authority=MICROSOFT_AUTHORITY,
     )
 
@@ -346,13 +348,13 @@ def refresh_access_token(social_api: SocialAPI) -> str | None:
     refresh_url = f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/token"
     refresh_token_encrypted = social_api.refresh_token
     refresh_token = security.decrypt_text(
-        ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token_encrypted
+        SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token_encrypted
     )
     data = {
         "grant_type": "refresh_token",
         "refresh_token": refresh_token,
-        "client_id": MICROSOFT_CONFIG["client_id"],
-        "client_secret": MICROSOFT_CONFIG["client_secret"],
+        "client_id": MICROSOFT_CLIENT_ID,
+        "client_secret": MICROSOFT_CLIENT_SECRET,
         "scope": " ".join(MICROSOFT_SCOPES),
     }
 

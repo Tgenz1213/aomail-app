@@ -59,7 +59,7 @@
                                             Enter domains to match (e.g., "gmail.com", "esaip.org").
                                         </div>
                                         <TagInput
-                                            v-model="formData.domains as string[]"
+                                            v-model="formData.domains"
                                             placeholder="Add domain (e.g. gmail.com, esaip.org)"
                                             :validate="validateDomain"
                                         />
@@ -69,7 +69,7 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Sender Emails</label>
                                     <TagInput
-                                        v-model="formData.senderEmails as string[]"
+                                        v-model="formData.senderEmails"
                                         placeholder="Add email address"
                                         :validate="validateEmail"
                                     />
@@ -95,7 +95,7 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Categories</label>
                                     <multiselect
-                                        v-model="formData.categories as string[]"
+                                        v-model="formData.categories"
                                         :options="categoryOptions.map((c: Category) => c.name)"
                                         :multiple="true"
                                         placeholder="Select categories"
@@ -185,7 +185,7 @@
                                 <!-- <div>
                                     <label class="block text-sm text-gray-700">Transfer to Recipients</label>
                                     <TagInput
-                                        v-model="formData.actionTransferRecipients as string[]"
+                                        v-model="formData.actionTransferRecipients "
                                         placeholder="Add email address"
                                         :validate="validateEmail"
                                     />
@@ -309,7 +309,7 @@
                                 <div>
                                     <label class="block text-sm text-gray-700">Reply Recipients</label>
                                     <TagInput
-                                        v-model="formData.actionReplyRecipients as string[]"
+                                        v-model="formData.actionReplyRecipients "
                                         placeholder="Add email address"
                                         :validate="validateEmail"
                                     />
@@ -391,7 +391,7 @@ const formData = ref<RuleData>({
     actionSetFlags: [],
     actionMarkAs: [],
     actionDelete: false,
-    actionSetCategory: undefined,
+    actionSetCategory: "",
     actionSetPriority: "",
     actionSetRelevance: "",
     actionSetAnswer: "",

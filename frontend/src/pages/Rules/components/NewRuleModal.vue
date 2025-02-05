@@ -151,7 +151,7 @@
                                     />
                                 </div>
 
-                                <div>
+                                <!-- <div>
                                     <label class="block text-sm text-gray-700">Email Content Deals With</label>
                                     <textarea
                                         v-model="formData.emailDealWith"
@@ -159,7 +159,7 @@
                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                                         placeholder="Describe what the email content should deal with..."
                                     />
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -182,14 +182,14 @@
                             <div class="space-y-4">
                                 <h4 class="text-sm font-medium text-gray-700">Email Actions</h4>
 
-                                <div>
+                                <!-- <div>
                                     <label class="block text-sm text-gray-700">Transfer to Recipients</label>
                                     <TagInput
                                         v-model="formData.actionTransferRecipients as string[]"
                                         placeholder="Add email address"
                                         :validate="validateEmail"
                                     />
-                                </div>
+                                </div> -->
 
                                 <div>
                                     <label class="block text-sm text-gray-700">Set Flags</label>
@@ -293,7 +293,7 @@
                             </div>
 
                             <!-- AI Actions -->
-                            <div class="space-y-4">
+                            <!-- <div class="space-y-4">
                                 <h4 class="text-sm font-medium text-gray-700">AI Actions</h4>
 
                                 <div>
@@ -314,7 +314,7 @@
                                         :validate="validateEmail"
                                     />
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
 

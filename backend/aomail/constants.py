@@ -4,7 +4,9 @@ File that stores all constants and computed paths
 
 import json
 import os
+import dotenv
 
+dotenv.load_dotenv()
 
 ######################## SECURITY ########################
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +43,7 @@ ALLOWED_PLANS = [START_PLAN, PREMIUM_PLAN, ENTREPRISE_PLAN]
 ALLOW_ALL = ALLOWED_PLANS + [INACTIVE]
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
 ANTHROPIC_CREDS = json.load(open(f"{CREDS_PATH}anthropic_creds.json"))
@@ -83,7 +86,6 @@ GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE = "google"
-# TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 
 ######################## MICROSOFT API ########################
 MICROSOFT_READ_SCOPE = "Mail.Read"

@@ -33,3 +33,10 @@ package-lock.json
 .py_env/
 dist/
 backend/logger.json
+
+# Credentials
+build.sh
+start_augustin_dev.sh
+start_theo_dev.sh
+backend/creds/
+.env

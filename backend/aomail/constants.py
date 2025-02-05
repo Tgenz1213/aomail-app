@@ -3,9 +3,6 @@ File that stores all constants and computed paths
 """
 
 import os
-import dotenv
-
-dotenv.load_dotenv()
 
 ######################## SECURITY ########################
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -43,11 +40,6 @@ ALLOWED_PLANS = [START_PLAN, PREMIUM_PLAN, ENTREPRISE_PLAN]
 ALLOW_ALL = ALLOWED_PLANS + [INACTIVE]
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-# OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
-# MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 IMPORTANT = "important"
 INFORMATIVE = "informative"
 USELESS = "useless"

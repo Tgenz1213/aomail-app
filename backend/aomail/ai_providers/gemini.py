@@ -14,6 +14,7 @@ Features:
 - ✅ generate_categories_scratch: Generates categories based on user topics for email classification.
 """
 
+import os
 import re
 import ast
 import json
@@ -22,7 +23,6 @@ import google.generativeai as genai
 from datetime import datetime
 from aomail.constants import (
     ANSWER_REQUIRED,
-    GEMINI_API_KEY,
     HIGHLY_RELEVANT,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
@@ -33,6 +33,7 @@ from aomail.ai_providers.utils import extract_json_from_response
 
 
 LOGGER = logging.getLogger(__name__)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 ######################## TEXT PROCESSING UTILITIES ########################

@@ -15,9 +15,12 @@ Features:
 
 import ast
 import json
+import os
 import anthropic
 from datetime import datetime
-from aomail.constants import ANTHROPIC_API_KEY
+
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 
 ######################## TEXT PROCESSING UTILITIES ########################

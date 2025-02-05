@@ -10,7 +10,6 @@ import stripe
 import json
 import logging
 import os
-import dotenv
 from rest_framework import status
 from django.http import HttpRequest
 from django.contrib.auth.models import User
@@ -31,8 +30,6 @@ from aomail.utils.security import subscription
 from aomail.email_providers.microsoft import webhook as webhook_microsoft
 from aomail.email_providers.google import webhook as webhook_google
 
-
-dotenv.load_dotenv()
 
 LOGGER = logging.getLogger(__name__)
 PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")

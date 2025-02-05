@@ -167,9 +167,9 @@ const fetchDashboardData = async () => {
     importanceData = Object.entries(dashboardData.distribution).map(([category, data]) => ({
         name: category,
         children: [
-            { name: "Important", value: data.nbEmailsImportant },
-            { name: "Informative", value: data.nbEmailsInformative },
-            { name: "Useless", value: data.nbEmailsUseless },
+            { name: i18n.global.t("analyticsPage.analytics.charts.importance.important"), value: data.nbEmailsImportant },
+            { name: i18n.global.t("analyticsPage.analytics.charts.importance.informative"), value: data.nbEmailsInformative },
+            { name: i18n.global.t("analyticsPage.analytics.charts.importance.useless"), value: data.nbEmailsUseless },
         ],
     }));
 
@@ -319,9 +319,9 @@ onMounted(async () => {
         xAxis: { type: "category" },
         yAxis: { type: "value" },
         series: [
-            { ...barSeriesDefaultOptions, name: "Highly Relevant" },
-            { ...barSeriesDefaultOptions, name: "Possibly Relevant" },
-            { ...barSeriesDefaultOptions, name: "Not Relevant" },
+            { ...barSeriesDefaultOptions, name: i18n.global.t("analyticsPage.analytics.charts.relevance.highlyRelevant") },
+            { ...barSeriesDefaultOptions, name: i18n.global.t("analyticsPage.analytics.charts.relevance.possiblyRelevant") },
+            { ...barSeriesDefaultOptions, name: i18n.global.t("analyticsPage.analytics.charts.relevance.notRelevant") },
         ],
     };
 

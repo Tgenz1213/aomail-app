@@ -511,11 +511,30 @@
       "dashboard": "Tableau de bord",
       "aomailData": "Données Aomail",
       "emailProviderData": "Données du fournisseur d'e-mail",
-      "importanceDistribution": "Distribution de l'importance",
-      "answerRequirementDistribution": "Distribution des besoins de réponse",
-      "relevanceDistribution": "Distribution de la pertinence",
-      "emailsReceivedPerDomain": "E-mails reçus par domaine",
-      "emailsReceivedPerSender": "E-mails reçus par expéditeur"
+      "importanceDistribution": "Distribution par importance",
+      "answerRequirementDistribution": "Distribution par besoin de réponse",
+      "relevanceDistribution": "Distribution par pertinence",
+      "emailsReceivedPerDomain": "Emails reçus par domaine",
+      "emailsReceivedPerSender": "Emails reçus par expéditeur",
+      "charts": {
+        "numberOfEmails": "Nombre d'emails",
+        "percentageOfEmails": "Pourcentage d'emails par catégorie et importance",
+        "importance": {
+          "important": "Important",
+          "informative": "Informatif",
+          "useless": "Inutile"
+        },
+        "answerRequirement": {
+          "answerRequired": "Réponse requise",
+          "mightRequireAnswer": "Réponse possible",
+          "noAnswerRequired": "Pas de réponse requise"
+        },
+        "relevance": {
+          "highlyRelevant": "Très pertinent",
+          "possiblyRelevant": "Possiblement pertinent",
+          "notRelevant": "Non pertinent"
+        }
+      }
     }
   },
   "rulesPage": {

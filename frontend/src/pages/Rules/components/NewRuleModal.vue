@@ -128,7 +128,7 @@
                                                     leave-from-class="opacity-100"
                                                     leave-to-class="opacity-0"
                                                 >
-                                                    <ListboxOptions class="fixed w-[634px] rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                    <ListboxOptions class="absolute z-10 overflow-y-auto max-h-[200px] w-full rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                                         <ListboxOption
                                                             v-for="option in availableTriggerTypes"
                                                             :key="option.value"
@@ -140,20 +140,31 @@
                                                             <li :class="[
                                                                 active ? 'bg-gray-800 text-white' : 'text-gray-900',
                                                                 isTypeUsed(option.value, index, triggers) ? 'opacity-50 cursor-not-allowed' : 'cursor-default',
-                                                                'relative select-none py-1.5 pl-3 pr-9'
+                                                                'relative select-none py-2 pl-3 pr-9'
                                                             ]">
-                                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
-                                                                    {{ option.label }}
-                                                                </span>
-                                                                <span
-                                                                    v-if="selected"
-                                                                    :class="[
-                                                                        active ? 'text-white' : 'text-gray-500',
-                                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
-                                                                    ]"
-                                                                >
-                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                                </span>
+                                                                <div class="flex items-center justify-between">
+                                                                    <div class="flex items-center">
+                                                                        <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                                            {{ option.label }}
+                                                                        </span>
+                                                                        <InformationCircleIcon 
+                                                                            class="h-4 w-4 ml-1.5" 
+                                                                            :class="active ? 'text-gray-300' : 'text-gray-400'"
+                                                                        />
+                                                                        <span class="ml-2 text-xs" :class="active ? 'text-gray-300' : 'text-gray-500'">
+                                                                            {{ option.description }}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span
+                                                                        v-if="selected"
+                                                                        :class="[
+                                                                            active ? 'text-gray-300' : 'text-gray-500',
+                                                                            'flex items-center pr-4'
+                                                                        ]"
+                                                                    >
+                                                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                    </span>
+                                                                </div>
                                                             </li>
                                                         </ListboxOption>
                                                     </ListboxOptions>
@@ -282,7 +293,7 @@
                                                     leave-from-class="opacity-100"
                                                     leave-to-class="opacity-0"
                                                 >
-                                                    <ListboxOptions class="absolute z-50 w-full rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                    <ListboxOptions class="absolute z-10 w-full overflow-y-auto max-h-[150px] rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                                         <ListboxOption
                                                             v-for="option in availableActionTypes"
                                                             :key="option.value"
@@ -296,18 +307,29 @@
                                                                 isTypeUsed(option.value, index, actions) ? 'opacity-50 cursor-not-allowed' : 'cursor-default',
                                                                 'relative select-none py-2 pl-3 pr-9'
                                                             ]">
-                                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
-                                                                    {{ option.label }}
-                                                                </span>
-                                                                <span
-                                                                    v-if="selected"
-                                                                    :class="[
-                                                                        active ? 'text-white' : 'text-gray-500',
-                                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
-                                                                    ]"
-                                                                >
-                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                                </span>
+                                                                <div class="flex items-center justify-between">
+                                                                    <div class="flex items-center">
+                                                                        <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                                            {{ option.label }}
+                                                                        </span>
+                                                                        <InformationCircleIcon 
+                                                                            class="h-4 w-4 ml-1.5" 
+                                                                            :class="active ? 'text-gray-300' : 'text-gray-400'"
+                                                                        />
+                                                                        <span class="ml-2 text-xs" :class="active ? 'text-gray-300' : 'text-gray-500'">
+                                                                            {{ option.description }}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span
+                                                                        v-if="selected"
+                                                                        :class="[
+                                                                            active ? 'text-gray-300' : 'text-gray-500',
+                                                                            'flex items-center pr-4'
+                                                                        ]"
+                                                                    >
+                                                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                    </span>
+                                                                </div>
                                                             </li>
                                                         </ListboxOption>
                                                     </ListboxOptions>
@@ -462,7 +484,7 @@
 
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch } from "vue";
-import { ChevronDownIcon, ChevronUpDownIcon, CheckIcon } from "@heroicons/vue/20/solid";
+import { ChevronDownIcon, ChevronUpDownIcon, CheckIcon, InformationCircleIcon } from "@heroicons/vue/20/solid";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { getData, postData } from "@/global/fetchData";
 import { Category, EmailSender, KeyValuePair } from "@/global/types";
@@ -589,14 +611,46 @@ const triggers = ref<Trigger[]>([{ type: '', value: null }]);
 const actions = ref<Trigger[]>([{ type: '', value: null }]);
 
 const triggerTypes = [
-    { value: 'domains', label: 'Email Domains' },
-    { value: 'senderEmails', label: 'Sender Emails' },
-    { value: 'hasAttachments', label: 'Has Attachments' },
-    { value: 'categories', label: 'Categories' },
-    { value: 'priorities', label: 'Priorities' },
-    { value: 'answers', label: 'Answer Requirements' },
-    { value: 'relevances', label: 'Relevance' },
-    { value: 'flags', label: 'Flags' },
+    { 
+        value: 'domains',
+        label: 'Email Domains',
+        description: 'Match emails from specific domain names (e.g., gmail.com, company.com)'
+    },
+    {
+        value: 'senderEmails',
+        label: 'Sender Emails',
+        description: 'Match specific email addresses of senders'
+    },
+    {
+        value: 'hasAttachments',
+        label: 'Has Attachments',
+        description: 'Match emails that contain file attachments'
+    },
+    {
+        value: 'categories',
+        label: 'Categories',
+        description: 'Match emails assigned to specific categories'
+    },
+    {
+        value: 'priorities',
+        label: 'Priorities',
+        description: 'Match emails with specific priority levels'
+    },
+    {
+        value: 'answers',
+        label: 'Answer Requirements',
+        description: 'Match emails based on their answer requirement status'
+    },
+    {
+        value: 'relevances',
+        label: 'Relevance',
+        description: 'Match emails based on their relevance level'
+    },
+    {
+        value: 'flags',
+        label: 'Flags',
+        description: 'Match emails with specific flags (spam, newsletter, etc.)'
+    },
 ];
 
 const availableTriggerTypes = computed(() => triggerTypes);
@@ -644,13 +698,41 @@ const getOrdinalSuffix = (num: number) => {
 
 // Add to your existing data
 const actionTypes = [
-    { value: 'setFlags', label: 'Set Flags' },
-    { value: 'markAs', label: 'Mark As' },
-    { value: 'delete', label: 'Delete Email' },
-    { value: 'setCategory', label: 'Set Category' },
-    { value: 'setPriority', label: 'Set Priority' },
-    { value: 'setRelevance', label: 'Set Relevance' },
-    { value: 'setAnswer', label: 'Set Answer' },
+    {
+        value: 'setFlags',
+        label: 'Set Flags',
+        description: 'Add specific flags to matching emails'
+    },
+    {
+        value: 'markAs',
+        label: 'Mark As',
+        description: 'Mark matching emails as read, archived, or to answer later'
+    },
+    {
+        value: 'delete',
+        label: 'Delete Email',
+        description: 'Automatically delete matching emails'
+    },
+    {
+        value: 'setCategory',
+        label: 'Set Category',
+        description: 'Assign matching emails to a specific category'
+    },
+    {
+        value: 'setPriority',
+        label: 'Set Priority',
+        description: 'Set the priority level for matching emails'
+    },
+    {
+        value: 'setRelevance',
+        label: 'Set Relevance',
+        description: 'Set the relevance level for matching emails'
+    },
+    {
+        value: 'setAnswer',
+        label: 'Set Answer',
+        description: 'Set the answer requirement status for matching emails'
+    },
 ];
 
 const availableActionTypes = computed(() => actionTypes);

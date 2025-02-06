@@ -746,6 +746,7 @@
   "markAllAsArchive": "Marquer tous comme archivé",
   "loading": "Chargement...",
   "aiAssistantPage": {
+    "navtitle": "Priorité des emails",
     "title": "Préférences d'Organisation des Emails",
     "subtitle": "Personnalisez la façon dont l'IA comprend et organise vos emails en fonction de vos besoins professionnels.",
     "emailCategories": {

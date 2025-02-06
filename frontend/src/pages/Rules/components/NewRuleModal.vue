@@ -5,7 +5,7 @@
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
             v-if="isOpen"
         >
-            <div class="bg-white rounded-lg relative w-[600px] max-h-[90vh] overflow-y-auto">
+            <div class="bg-white rounded-lg relative w-[700px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
                 <div class="sticky top-0 z-10 bg-white rounded-t-lg border-b border-gray-200">
                     <div class="flex items-center justify-between p-4">
@@ -25,13 +25,70 @@
                     <!-- Logical Operator -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Logical Operator</label>
-                        <select
-                            v-model="formData.logicalOperator"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                        >
-                            <option value="AND">AND - All conditions must match</option>
-                            <option value="OR">OR - Any condition can match</option>
-                        </select>
+                        <Listbox v-model="formData.logicalOperator">
+                            <div class="relative">
+                                <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                    <span class="block truncate">{{ formData.logicalOperator === 'AND' ? 'AND - All conditions must match' : 'OR - Any condition can match' }}</span>
+                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                    </span>
+                                </ListboxButton>
+                                <transition
+                                    leave-active-class="transition ease-in duration-100"
+                                    leave-from-class="opacity-100"
+                                    leave-to-class="opacity-0"
+                                >
+                                    <ListboxOptions class="absolute z-10 max-h-60 w-full rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                        <ListboxOption
+                                            v-slot="{ active, selected }"
+                                            :value="'AND'"
+                                            as="template"
+                                        >
+                                            <li :class="[
+                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                'relative cursor-default select-none py-2 pl-3 pr-9'
+                                            ]">
+                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                    AND - All conditions must match
+                                                </span>
+                                                <span
+                                                    v-if="selected"
+                                                    :class="[
+                                                        active ? 'text-white' : 'text-gray-500',
+                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                    ]"
+                                                >
+                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            </li>
+                                        </ListboxOption>
+                                        <ListboxOption
+                                            v-slot="{ active, selected }"
+                                            :value="'OR'"
+                                            as="template"
+                                        >
+                                            <li :class="[
+                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                'relative cursor-default select-none py-2 pl-3 pr-9'
+                                            ]">
+                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                    OR - Any condition can match
+                                                </span>
+                                                <span
+                                                    v-if="selected"
+                                                    :class="[
+                                                        active ? 'text-white' : 'text-gray-500',
+                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                    ]"
+                                                >
+                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </transition>
+                            </div>
+                        </Listbox>
                     </div>
 
                     <!-- Triggers Section -->
@@ -56,20 +113,53 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
                                             {{ index === 0 ? 'Choose trigger' : `Choose ${index + 1}${getOrdinalSuffix(index + 1)} trigger` }}
                                         </label>
-                                        <select
-                                            v-model="trigger.type"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                        >
-                                            <option value="">Select a trigger type</option>
-                                            <option
-                                                v-for="option in availableTriggerTypes"
-                                                :key="option.value"
-                                                :value="option.value"
-                                                :disabled="isTypeUsed(option.value, index, triggers)"
-                                            >
-                                                {{ option.label }}
-                                            </option>
-                                        </select>
+                                        <Listbox v-model="trigger.type">
+                                            <div class="relative">
+                                                <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                                    <span class="block truncate">
+                                                        {{ trigger.type ? availableTriggerTypes.find(t => t.value === trigger.type)?.label : 'Select a trigger type' }}
+                                                    </span>
+                                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                    </span>
+                                                </ListboxButton>
+                                                <transition
+                                                    leave-active-class="transition ease-in duration-100"
+                                                    leave-from-class="opacity-100"
+                                                    leave-to-class="opacity-0"
+                                                >
+                                                    <ListboxOptions class="fixed w-[634px] rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                        <ListboxOption
+                                                            v-for="option in availableTriggerTypes"
+                                                            :key="option.value"
+                                                            v-slot="{ active, selected }"
+                                                            :value="option.value"
+                                                            :disabled="isTypeUsed(option.value, index, triggers)"
+                                                            as="template"
+                                                        >
+                                                            <li :class="[
+                                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                                isTypeUsed(option.value, index, triggers) ? 'opacity-50 cursor-not-allowed' : 'cursor-default',
+                                                                'relative select-none py-1.5 pl-3 pr-9'
+                                                            ]">
+                                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                                    {{ option.label }}
+                                                                </span>
+                                                                <span
+                                                                    v-if="selected"
+                                                                    :class="[
+                                                                        active ? 'text-white' : 'text-gray-500',
+                                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                                    ]"
+                                                                >
+                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                </span>
+                                                            </li>
+                                                        </ListboxOption>
+                                                    </ListboxOptions>
+                                                </transition>
+                                            </div>
+                                        </Listbox>
                                     </div>
 
                                     <!-- Trigger Value Input -->
@@ -177,20 +267,53 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
                                             {{ index === 0 ? 'Choose action' : `Choose ${index + 1}${getOrdinalSuffix(index + 1)} action` }}
                                         </label>
-                                        <select
-                                            v-model="action.type"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                        >
-                                            <option value="">Select an action type</option>
-                                            <option
-                                                v-for="option in availableActionTypes"
-                                                :key="option.value"
-                                                :value="option.value"
-                                                :disabled="isTypeUsed(option.value, index, actions)"
-                                            >
-                                                {{ option.label }}
-                                            </option>
-                                        </select>
+                                        <Listbox v-model="action.type">
+                                            <div class="relative">
+                                                <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                                    <span class="block truncate">
+                                                        {{ action.type ? availableActionTypes.find(t => t.value === action.type)?.label : 'Select an action type' }}
+                                                    </span>
+                                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                    </span>
+                                                </ListboxButton>
+                                                <transition
+                                                    leave-active-class="transition ease-in duration-100"
+                                                    leave-from-class="opacity-100"
+                                                    leave-to-class="opacity-0"
+                                                >
+                                                    <ListboxOptions class="absolute z-50 w-full rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                        <ListboxOption
+                                                            v-for="option in availableActionTypes"
+                                                            :key="option.value"
+                                                            v-slot="{ active, selected }"
+                                                            :value="option.value"
+                                                            :disabled="isTypeUsed(option.value, index, actions)"
+                                                            as="template"
+                                                        >
+                                                            <li :class="[
+                                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                                isTypeUsed(option.value, index, actions) ? 'opacity-50 cursor-not-allowed' : 'cursor-default',
+                                                                'relative select-none py-2 pl-3 pr-9'
+                                                            ]">
+                                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                                    {{ option.label }}
+                                                                </span>
+                                                                <span
+                                                                    v-if="selected"
+                                                                    :class="[
+                                                                        active ? 'text-white' : 'text-gray-500',
+                                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                                    ]"
+                                                                >
+                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                </span>
+                                                            </li>
+                                                        </ListboxOption>
+                                                    </ListboxOptions>
+                                                </transition>
+                                            </div>
+                                        </Listbox>
                                     </div>
 
                                     <!-- Action Value Input -->
@@ -339,7 +462,7 @@
 
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch } from "vue";
-import { ChevronDownIcon } from "@heroicons/vue/20/solid";
+import { ChevronDownIcon, ChevronUpDownIcon, CheckIcon } from "@heroicons/vue/20/solid";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { getData, postData } from "@/global/fetchData";
 import { Category, EmailSender, KeyValuePair } from "@/global/types";
@@ -347,6 +470,7 @@ import { RuleData } from "../utils/types";
 import Multiselect from "vue-multiselect";
 import TagInput from "./TagInput.vue";
 import { i18n } from "@/global/preferences";
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 
 interface Props {
     isOpen: boolean;

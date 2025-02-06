@@ -750,7 +750,7 @@
     "title": "Email Organization Preferences",
     "subtitle": "Customize how AI understands and organizes your emails based on your professional needs.",
     "emailCategories": {
-      "button": "Email Categories",
+      "button": "Talk to configure",
       "tooltip": "Have a conversation with AI to explain how you want your emails organized. Perfect for unique workflows and specific preferences."
     },
     "rules": {

@@ -27,8 +27,9 @@ BASE_URL = f"{SUB_DOMAIN}/"
 BASE_URL_API = f"{BASE_URL}aomail/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
-HOSTS_URLS = [BASE_URL, f"{ENV}.aomail.ai"]
-CORS_ALLOWED_ORIGINS = [SUB_DOMAIN, f"https://admin.{DOMAIN}"]
+FRONTEND_PORT = os.getenv("FRONTEND_PORT")
+HOSTS_URLS = [DOMAIN] #, f"{ENV}.aomail.ai"] #, SUB_DOMAIN]
+CORS_ALLOWED_ORIGINS = [SUB_DOMAIN, f"https://admin.{DOMAIN}", f"http://localhost:{FRONTEND_PORT}"]
 
 # ----------------------- EMAIL CREDS -----------------------#
 EMAIL_NO_REPLY = os.getenv("EMAIL_NO_REPLY")

@@ -6,9 +6,6 @@ module.exports = defineConfig({
     transpileDependencies: true,
     devServer: {
         ...(process.env.NODE_ENV === "development" && {
-            server: {
-                type: "https",
-            },
             headers: {
                 "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
                 "Cross-Origin-Embedder-Policy": "unsafe-none",
@@ -19,7 +16,7 @@ module.exports = defineConfig({
                     usePolling: true,
                 },
             },
-            allowedHosts: process.env.ALLOWED_HOSTS.split(",")
+            allowedHosts: process.env.ALLOWED_HOSTS.split(","),
         }),
         ...(process.env.NODE_ENV === "production" && {
             productionSourceMap: true,

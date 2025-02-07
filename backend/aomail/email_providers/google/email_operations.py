@@ -30,7 +30,7 @@ from aomail.constants import (
     ALLOW_ALL,
     MEDIA_ROOT,
     MEDIA_URL,
-    BASE_URL_MA,
+    BASE_URL_API,
 )
 from aomail.email_providers.google.authentication import (
     authenticate_service,
@@ -623,7 +623,7 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
             LOGGER.info(f"Found CID in HTML: '{cid_ref}'")
             if cid_ref in cid_to_filename:
                 img["src"] = (
-                    f"{BASE_URL_MA}pictures/{cid_to_filename[cid_ref]}?v={uuid.uuid4()}"
+                    f"{BASE_URL_API}pictures/{cid_to_filename[cid_ref]}?v={uuid.uuid4()}"
                 )
             else:
                 LOGGER.error(f"CID '{cid_ref}' not found in mapping")

@@ -19,14 +19,13 @@ module.exports = defineConfig({
                     usePolling: true,
                 },
             },
-            allowedHosts: ["aomail.ai", "augustin.aomail.ai", "theo.aomail.ai", "localhost"],
+            allowedHosts: process.env.ALLOWED_HOSTS.split(",")
         }),
         ...(process.env.NODE_ENV === "production" && {
             productionSourceMap: true,
             headers: {
                 // Handled by Nginx
             },
-            allowedHosts: ["aomail.ai", "app.aomail.ai"],
         }),
     },
     configureWebpack: (config) => {

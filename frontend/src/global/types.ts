@@ -50,11 +50,6 @@ interface Sender {
     name: string;
 }
 
-interface EmailRule {
-    hasRule: boolean;
-    ruleId: number;
-}
-
 interface EmailAttachment {
     attachmentName: string;
     attachmentId: number;
@@ -91,7 +86,6 @@ export interface Email {
     bcc: Sender[];
     read?: boolean;
     answerLater?: boolean;
-    rule?: EmailRule;
     hasAttachments: boolean;
     attachments: EmailAttachment[];
     sentDate: string;

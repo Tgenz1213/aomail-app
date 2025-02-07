@@ -18,7 +18,6 @@ from datetime import timedelta
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.db.models import Exists, OuterRef, Subquery
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -154,12 +153,6 @@ def get_simple_email_data(request: HttpRequest) -> Response:
             )
 
         queryset = Email.objects.filter(id__in=email_ids, user=user)
-        # rule_id_subquery = Rule.objects.filter(
-        #     sender=OuterRef("sender"), user=user
-        # ).values("id")[:1]
-        # queryset = queryset.annotate(
-        #     has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
-        # )
 
         emails_data = []
         for email in queryset:
@@ -189,22 +182,6 @@ def get_simple_email_data(request: HttpRequest) -> Response:
                     ],
                     "read": email.read,
                     "answerLater": email.answer_later,
-                    # "rule": {
-                    #     "hasRule": (
-                    #         True
-                    #         if Rule.objects.filter(
-                    #             sender=email.sender, user=user
-                    #         ).exists()
-                    #         else False
-                    #     ),
-                    #     "ruleId": (
-                    #         Rule.objects.get(sender=email.sender, user=user).id
-                    #         if Rule.objects.filter(
-                    #             sender=email.sender, user=user
-                    #         ).exists()
-                    #         else None
-                    #     ),
-                    # },
                     "hasAttachments": email.has_attachments,
                     "attachments": [
                         {

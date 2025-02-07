@@ -4,20 +4,18 @@ Handles searching for rules in the Aomail database, filtering, sorting, and retr
 Endpoints:
 - ✅ get_user_rule_ids: Retrieves filtered and formatted user rule IDs based on specified criteria.
 - ✅ get_rules_data: Retrieves formatted rules data for display.
-
-⚠️This module is deprecated and under refactoring
 """
 
 import json
 import logging
-from django.db.models import F, Q
+from django.db.models import Q
 from django.db.models.manager import BaseManager
 from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.constants import ALLOW_ALL
-from aomail.models import Category, Rule, Sender
+from aomail.models import Rule
 from aomail.utils.security import subscription
 from django.contrib.auth.models import User
 from aomail.email_providers.utils import camel_to_snake

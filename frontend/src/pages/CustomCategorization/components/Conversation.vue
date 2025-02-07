@@ -1,13 +1,10 @@
 <template>
     <div class="flex-1 p-4 flex flex-col bg-zinc-50 bg-opacity-40 h-full relative">
-        <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 mt-8 2xl:mt-12">
+        <div
+            class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 mt-8 2xl:mt-12"
+        >
             <div v-for="(message, index) in messages" :key="index" class="mb-6">
-                <ChatBubble 
-                    :message="message.textHtml" 
-                    :isUser="message.isUser"
-                    :apiBaseUrl="API_BASE_URL"
-                    :agentIcon="selectedAgent.icon_name"
-                />
+                <ChatBubble :message="message.textHtml" :isUser="message.isUser" :agentIcon="selectedAgent.icon_name" />
                 <div v-if="message.buttonOptions" class="flex flex-col items-center mt-4">
                     <div class="flex-row space-x-5">
                         <button
@@ -31,7 +28,7 @@ import ChatBubble from "@/global/components/Conversation/ChatBubble.vue";
 import { Category, EmailLinked, KeyValuePair, Message } from "@/global/types";
 import { postData, getData, putData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { DEFAULT_CATEGORY, API_BASE_URL } from "@/global/const";
+import { DEFAULT_CATEGORY } from "@/global/const";
 import { createDefaultFilters } from "@/global/filters";
 import { Agent } from "@/global/types";
 
@@ -57,15 +54,17 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 const displayUserMsg = inject<(message: string) => void>("displayUserMsg") || ((message: string) => {});
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const waitForUserInput = inject<() => Promise<string>>("waitForUserInput") || (() => Promise.resolve(""));
-const selectedAgent = inject<Ref<Agent>>("selectedAgent") || ref<Agent>({
-    id: "",
-    agent_name: "Default Agent",
-    picture: "/assets/default-agent.png",
-    ai_template: "",
-    length: "",
-    formality: "",
-    icon_name: "default-agent.png"
-});
+const selectedAgent =
+    inject<Ref<Agent>>("selectedAgent") ||
+    ref<Agent>({
+        id: "",
+        agent_name: "Default Agent",
+        picture: "/assets/default-agent.png",
+        ai_template: "",
+        length: "",
+        formality: "",
+        icon_name: "default-agent.png",
+    });
 
 const displayAIMsg = (message: string, options: KeyValuePair[] | undefined = undefined) => {
     messages.value.push({

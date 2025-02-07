@@ -24,7 +24,6 @@ services:
       target: development
     environment:
       - ENV=${ENV}
-      - TOPIC_NAME=${TOPIC_NAME}
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
       - "${BACKEND_PORT}:8000"
@@ -47,7 +46,6 @@ services:
       target: production
     environment:
       - ENV=${ENV}
-      - TOPIC_NAME=${TOPIC_NAME}
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
       - "${BACKEND_PORT}:8000"
@@ -72,6 +70,7 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
       - VUE_APP_ENV=${ENV}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
     ports:
       - "${FRONTEND_PORT}:${SERVER_FRONTEND_PORT}"
     depends_on:

@@ -40,7 +40,7 @@ from aomail.constants import (
     ALLOW_ALL,
     BASE_URL,
     EMAIL_ADMIN,
-    BASE_URL_MA,
+    BASE_URL_API,
     EMAIL_NO_REPLY,
     ENTREPRISE_PLAN,
     GOOGLE,
@@ -597,7 +597,7 @@ def generate_reset_token(request: HttpRequest) -> Response:
         social_api = SocialAPI.objects.get(email=email)
         token = PasswordResetTokenGenerator().make_token(social_api.user)
         uidb64 = urlsafe_base64_encode(str(social_api.user.pk).encode())
-        reset_link = f"{BASE_URL_MA}reset_password/{uidb64}/{token}/"
+        reset_link = f"{BASE_URL_API}reset_password/{uidb64}/{token}/"
 
         context = {"reset_link": reset_link, "email": EMAIL_ADMIN}
         email_html = render_to_string("password_reset_email.html", context)

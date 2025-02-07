@@ -4,7 +4,6 @@
         :isOpen="isSeeMailOpen"
         :email="selectedEmail"
         @closeModal="closeSeeMailModal"
-        @openRule="openRule"
         @markEmailAsRead="markEmailAsRead"
         @markEmailAsUnread="markEmailAsUnread"
         @archiveEmail="archiveEmail"
@@ -18,7 +17,7 @@
     <div class="flex-1 p-4 bg-white flex flex-col relative">
         <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
             <div v-for="(message, index) in messages" :key="index" class="mb-4">
-                <ChatBubble :message="message.textHtml" :isUser="message.isUser" />
+                <ChatBubble :message="message.textHtml" :isUser="message.isUser" :agentIcon="selectedAgent.icon_name" />
                 <div v-if="message.buttonOptions" class="flex flex-col items-center">
                     <div class="flex-row space-x-5">
                         <button
@@ -39,7 +38,7 @@
 <script setup lang="ts">
 import { inject, onMounted, Ref, ref } from "vue";
 import ChatBubble from "@/global/components/Conversation/ChatBubble.vue";
-import { Email, KeyValuePair, Message } from "@/global/types";
+import { Agent, Email, KeyValuePair, Message } from "@/global/types";
 import { postData, getData, putData, deleteData } from "@/global/fetchData";
 import { formatSentDate, formatSentTime } from "@/global/formatters";
 import { i18n } from "@/global/preferences";
@@ -47,6 +46,18 @@ import router from "@/router/router";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 
 const currentStep = ref("");
+
+const selectedAgent =
+    inject<Ref<Agent>>("selectedAgent") ||
+    ref<Agent>({
+        id: "",
+        agent_name: "Default Agent",
+        picture: "/assets/default-agent.png",
+        ai_template: "",
+        length: "",
+        formality: "",
+        icon_name: "default-agent.png",
+    });
 
 const messages = inject("messages") as Ref<Message[]>;
 const waitForButtonClick = inject("waitForButtonClick") as Ref<boolean>;
@@ -78,31 +89,6 @@ async function openSeeMailModal(id: number) {
 const closeSeeMailModal = () => {
     isSeeMailOpen.value = false;
 };
-
-function openRule() {
-    if (selectedEmail?.value?.rule?.hasRule) {
-        openRuleEditor();
-    } else {
-        openNewRule();
-    }
-}
-
-function openRuleEditor() {
-    if (selectedEmail?.value?.rule) {
-        router.push({ name: "rules", query: { idRule: selectedEmail?.value?.rule.ruleId, editRule: "true" } });
-    }
-}
-
-function openNewRule() {
-    router.push({
-        name: "rules",
-        query: {
-            ruleName: selectedEmail?.value?.sender.name,
-            ruleEmail: selectedEmail?.value?.sender.email,
-            editRule: "false",
-        },
-    });
-}
 
 async function markEmailAsRead() {
     if (selectedEmail?.value) {

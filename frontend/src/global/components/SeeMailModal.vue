@@ -144,24 +144,6 @@
                                             <div class="group action-buttons">
                                                 <div class="relative group">
                                                     <div
-                                                        class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-[-25px] w-[90px] translate-y-2"
-                                                    >
-                                                        {{ $t("homePage.modals.seeEmailModal.manageRules") }}
-                                                    </div>
-                                                    <button
-                                                        @click="openRule"
-                                                        type="button"
-                                                        class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 border-t border-b border-gray-600 hover:bg-gray-600 focus:z-10"
-                                                    >
-                                                        <BeakerIcon
-                                                            class="w-5 h-5 group-hover:text-white text-gray-600 group-active:text-gray-600 group-focus:text-grey focus:text-gray-600"
-                                                        />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="group action-buttons">
-                                                <div class="relative group">
-                                                    <div
                                                         class="absolute hidden group-hover:block px-2 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-[-5px] translate-y-2 -translate-x-3"
                                                     >
                                                         {{ $t("homePage.modals.seeEmailModal.moreActions") }}
@@ -515,7 +497,6 @@ const emits = defineEmits([
     "closeModal",
     "markEmailAsRead",
     "markEmailAsUnread",
-    "openRule",
     "markEmailReplyLater",
     "markEmailAsUnreplyLater",
     "openAnswer",
@@ -560,10 +541,6 @@ const markEmailReplyLater = () => {
 const markEmailAsUnreplyLater = () => {
     emits("markEmailAsUnreplyLater");
     closeModal();
-};
-
-const openRule = () => {
-    emits("openRule");
 };
 
 const archiveEmail = () => {

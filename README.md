@@ -1,11 +1,54 @@
 # Aomail Web Application
 
-## Quick Setup
+## Getting started with self-hosting
 
-### Ask Théo HUBERT for your credentials
-1) Setup the tunel with Wireguard by giving your public key
-2) Setup VSC and wsl to connect to the server via ssh
-3) Run your assigned script: ./start_{username}_dev.sh
+External services:
+- Gemini 
+- Google OAuth
+- Google PubSub
+Optional services:
+- Stripe
+- Microsoft Azure
+
+ 
+```bash
+git clone https://github.com/aomail-ai/aomail-app
+cd aomail-app
+cp backend/.env.example backend/.env
+```
+Fill the .env file with your API keys and secrets.
+
+required environment variables:
+GEMINI_API_KEY
+for encryption keys: use ```python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'``` to generate a key 
+    SOCIAL_API_REFRESH_TOKEN_KEY
+    EMAIL_ONE_LINE_SUMMARY_KEY
+    EMAIL_SHORT_SUMMARY_KEY
+    EMAIL_HTML_CONTENT_KEY
+DJANGO_SECRET_KEY
+DJANGO_DB_USER
+DJANGO_DB_PASSWORD
+
+GOOGLE_TOPIC_NAME
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+
+
+
+
+## Start the application
+update the variables in the start.sh 
+update the NODE_ENV variable to "development" or "production"
+```bash
+chmod +x start.sh
+```
+
+```bash
+./start.sh
+```
+
+
+
 
 
 # Debugging database migrations errors
@@ -15,27 +58,9 @@ docker exec -it {username}_project-backend-1 python manage.py makemigrations --e
 ./start_{username}_dev.sh
 ```
 
+
 # Adding a New Subdomain
 1) Add the subdomain in the DNS server.
-2) Add the subdomain in Nginx Proxy Manager.
+2) Add the subdomain to your reverse proxy server.
 3) Open the required port: `sudo ufw allow PORT_NUMBER` 
 4) Update vue.config.js: Add the new domain to the list of allowedHosts.
-
-## Tech Stack
-
-- Frontend: Vue
-- Backend: Django
-- Containerization: Docker
-- Web Server: Nginx
-
-## Launch in Production
-
-```bash
-./build.sh
-```
-
-## Run in development
-
-```bash
-./start_{username}_dev.sh
-```

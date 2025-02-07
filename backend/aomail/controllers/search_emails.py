@@ -10,7 +10,7 @@ Endpoints:
 import json
 import logging
 from collections import defaultdict
-from django.db.models import Exists, OuterRef, Q, Subquery
+from django.db.models import Q
 from django.db.models.manager import BaseManager
 from django.http import HttpRequest
 from rest_framework import status
@@ -22,7 +22,7 @@ from aomail.constants import (
     EMAIL_ONE_LINE_SUMMARY_KEY,
     EMAIL_SHORT_SUMMARY_KEY,
 )
-from aomail.models import Category, SocialAPI, Email  # , Rule
+from aomail.models import Category, SocialAPI, Email
 from aomail.utils.security import subscription, decrypt_text
 from django.contrib.auth.models import User
 
@@ -57,12 +57,6 @@ def get_emails_data(request: HttpRequest) -> Response:
 
         formatted_data = defaultdict(lambda: defaultdict(list))
         queryset = Email.objects.filter(id__in=email_ids, user=user)
-        # rule_id_subquery = Rule.objects.filter(
-        #     sender=OuterRef("sender"), user=user
-        # ).values("id")[:1]
-        # queryset = queryset.annotate(
-        #     has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
-        # )
 
         for email in queryset:
             email_data = {
@@ -89,10 +83,6 @@ def get_emails_data(request: HttpRequest) -> Response:
                 ],
                 "read": email.read,
                 "answerLater": email.answer_later,
-                # "rule": {
-                #     "hasRule": email.has_rule,
-                #     "ruleId": email.rule_id,
-                # },
                 "hasAttachments": email.has_attachments,
                 "attachments": [
                     {
@@ -310,14 +300,6 @@ def get_sorted_queryset(
 
     if or_filters_search:
         queryset = queryset.filter(or_filters_search, user=user)
-
-    # rule_id_subquery = Rule.objects.filter(
-    #     sender=OuterRef("sender"), user=and_filters["user"]
-    # ).values("id")[:1]
-
-    # queryset = queryset.annotate(
-    #     has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
-    # )
 
     return queryset
 

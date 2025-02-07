@@ -4,7 +4,6 @@
         :isOpen="isSeeMailOpen"
         :email="localEmail"
         @closeModal="closeSeeMailModal"
-        @openRule="openRule"
         @markEmailAsRead="markEmailAsRead"
         @markEmailAsUnread="markEmailAsUnread"
         @archiveEmail="archiveEmail"
@@ -77,7 +76,8 @@
                         'hidden group-hover:block px-1.5 shadow rounded-md inline-flex ring-1 ring-inset': true,
                         'bg-orange-50 text-orange-700 ring-orange-600/10': localEmail.priority === IMPORTANT,
                         'bg-blue-50 text-blue-700 ring-blue-700/10': localEmail.priority === INFORMATIVE,
-                        'bg-gray-50 text-gray-600 ring-gray-500/10': localEmail.priority !== IMPORTANT && localEmail.priority !== INFORMATIVE,
+                        'bg-gray-50 text-gray-600 ring-gray-500/10':
+                            localEmail.priority !== IMPORTANT && localEmail.priority !== INFORMATIVE,
                     }"
                 >
                     <div class="flex gap-x-1 items-center justify-center h-full">
@@ -148,25 +148,6 @@ async function openSeeMailModal() {
     }
     localEmail.value.htmlContent = result.data.content;
     isSeeMailOpen.value = true;
-}
-
-function openRule() {
-    if (localEmail?.value?.rule?.hasRule) {
-        openRuleEditor();
-    } else {
-        openNewRule();
-    }
-}
-
-function openRuleEditor() {
-    router.push({ name: "rules", query: { idRule: localEmail?.value?.rule?.ruleId, editRule: "true" } });
-}
-
-function openNewRule() {
-    router.push({
-        name: "rules",
-        query: { ruleName: localEmail.value.sender.name, ruleEmail: localEmail.value.sender.email, editRule: "false" },
-    });
 }
 
 async function markEmailAsRead() {

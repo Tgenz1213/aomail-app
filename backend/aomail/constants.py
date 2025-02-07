@@ -21,13 +21,15 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BACKEND_DIR, "media")
 
 # ----------------------- URLS AND CORS -----------------------#
-DOMAIN = f"https://{ENV}.aomail.ai"
-BASE_URL = f"{DOMAIN}/"
-BASE_URL_MA = f"{BASE_URL}aomail/"
+DOMAIN = os.getenv("DOMAIN")
+# SUB_DOMAIN = f"https://{ENV}.{DOMAIN}"
+SUB_DOMAIN = f"http://{DOMAIN}"
+BASE_URL = f"{SUB_DOMAIN}/"
+BASE_URL_API = f"{BASE_URL}aomail/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aomail.ai"]
-CORS_ALLOWED_ORIGINS = [DOMAIN, "https://admin.aomail.ai"]
+CORS_ALLOWED_ORIGINS = [SUB_DOMAIN, f"https://admin.{DOMAIN}"]
 
 # ----------------------- EMAIL CREDS -----------------------#
 EMAIL_NO_REPLY = os.getenv("EMAIL_NO_REPLY")
@@ -108,7 +110,7 @@ MICROSOFT_SCOPES = [
     MICROSOFT_USER_READ_SCOPE,
     MICROSOFT_MAILBOX_SETTINGS_SCOPE,
 ]
-MICROSOFT_AUTHORITY = f"https://login.microsoftonline.com/common"
+MICROSOFT_AUTHORITY = "https://login.microsoftonline.com/common"
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
 MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")

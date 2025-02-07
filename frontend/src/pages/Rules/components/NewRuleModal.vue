@@ -7,7 +7,7 @@
         >
             <div class="bg-white rounded-lg relative w-[740px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
-                <div class="sticky top-0 z-10 bg-white rounded-t-lg border-b border-gray-200">
+                <div class="sticky top-0 z-10 rounded-t-lg border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between p-4">
                         <h2 class="text-lg font-semibold text-gray-900">Create New Rule</h2>
                         <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
@@ -97,7 +97,10 @@
                             @click="sections.triggers = !sections.triggers"
                             class="w-full flex justify-between items-center p-3 text-left bg-gray-50 rounded-md"
                         >
-                            <span class="text-sm font-medium text-gray-900">Triggers</span>
+                            <div class="flex items-center">
+                                <InboxArrowDownIcon class="h-5 w-5 text-gray-500 mr-2" />
+                                <span class="text-sm font-medium text-gray-900">Triggers</span>
+                            </div>
                             <ChevronDownIcon
                                 class="h-5 w-5 text-gray-500"
                                 :class="{ 'transform rotate-180': sections.triggers }"
@@ -260,7 +263,10 @@
                             @click="sections.actions = !sections.actions"
                             class="w-full flex justify-between items-center p-3 text-left bg-gray-50 rounded-md"
                         >
-                            <span class="text-sm font-medium text-gray-900">Actions</span>
+                            <div class="flex items-center">
+                                <BoltIcon class="h-5 w-5 text-gray-500 mr-2" />
+                                <span class="text-sm font-medium text-gray-900">Actions</span>
+                            </div>
                             <ChevronDownIcon
                                 class="h-5 w-5 text-gray-500"
                                 :class="{ 'transform rotate-180': sections.actions }"
@@ -482,7 +488,7 @@
 
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch } from "vue";
-import { ChevronDownIcon, ChevronUpDownIcon, CheckIcon, InformationCircleIcon } from "@heroicons/vue/20/solid";
+import { ChevronDownIcon, ChevronUpDownIcon, CheckIcon, InformationCircleIcon, BoltIcon, InboxArrowDownIcon } from "@heroicons/vue/20/solid";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { getData, postData } from "@/global/fetchData";
 import { Category, EmailSender, KeyValuePair } from "@/global/types";

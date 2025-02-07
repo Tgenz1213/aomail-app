@@ -14,6 +14,9 @@ Optional services:
 ```bash
 git clone https://github.com/aomail-ai/aomail-app
 cd aomail-app
+cd frontend 
+npm install
+cd .. 
 cp backend/.env.example backend/.env
 ```
 Fill the .env file with your API keys and secrets.

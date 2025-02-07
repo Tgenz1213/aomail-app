@@ -6,6 +6,9 @@ module.exports = defineConfig({
     transpileDependencies: true,
     devServer: {
         ...(process.env.NODE_ENV === "development" && {
+            server: {
+                type: process.env.ALLOWED_HOSTS !== "localhost" ? "https" : "http",
+            },
             headers: {
                 "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
                 "Cross-Origin-Embedder-Policy": "unsafe-none",

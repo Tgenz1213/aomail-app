@@ -534,9 +534,10 @@ def process_email_entities(
         email=sender_email, defaults={"name": sender_name or sender_email}
     )
 
-    Contact.objects.get_or_create(
-        user=user, email=sender_email, defaults={"username": sender_name}
-    )
+    if not Contact.objects.filter(user=user, email=sender_email).exists():
+        Contact.objects.get_or_create(
+            user=user, email=sender_email, defaults={"username": sender_name}
+        )
 
     return category, sender
 

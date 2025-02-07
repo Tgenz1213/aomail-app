@@ -496,7 +496,9 @@ class MicrosoftEmailNotification(View):
                         microsoft_listener.first().user,
                         microsoft_listener.first().email,
                     )
-                    threading.Thread(target=email_to_db, args=(social_api,)).start()
+                    threading.Thread(
+                        target=email_to_db, args=(social_api, email_id)
+                    ).start()
 
                 return JsonResponse(
                     {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED

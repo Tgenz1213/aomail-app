@@ -22,8 +22,8 @@ MEDIA_ROOT = os.path.join(BACKEND_DIR, "media")
 
 # ----------------------- URLS AND CORS -----------------------#
 DOMAIN = os.getenv("DOMAIN")
-# SUB_DOMAIN = f"https://{ENV}.{DOMAIN}"
-SUB_DOMAIN = f"http://{DOMAIN}"
+SUB_DOMAIN = f"https://{ENV}.{DOMAIN}"
+# SUB_DOMAIN = f"http://{DOMAIN}"
 BASE_URL = f"{SUB_DOMAIN}/"
 BASE_URL_API = f"{BASE_URL}aomail/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"

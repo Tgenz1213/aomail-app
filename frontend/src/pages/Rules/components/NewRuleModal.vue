@@ -5,7 +5,7 @@
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
             v-if="isOpen"
         >
-            <div class="bg-white rounded-lg relative w-[700px] max-h-[85vh] overflow-y-auto">
+            <div class="bg-white rounded-lg relative w-[740px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
                 <div class="sticky top-0 z-10 bg-white rounded-t-lg border-b border-gray-200">
                     <div class="flex items-center justify-between p-4">
@@ -95,7 +95,7 @@
                     <div class="border rounded-md">
                         <button
                             @click="sections.triggers = !sections.triggers"
-                            class="w-full flex justify-between items-center p-3 text-left"
+                            class="w-full flex justify-between items-center p-3 text-left bg-gray-50 rounded-md"
                         >
                             <span class="text-sm font-medium text-gray-900">Triggers</span>
                             <ChevronDownIcon
@@ -106,14 +106,14 @@
 
                         <div v-if="sections.triggers" class="p-4 border-t space-y-4">
                             <!-- Trigger List -->
-                            <div class="space-y-4">
-                                <div v-for="(trigger, index) in triggers" :key="index" class="space-y-4">
+                            <div class="space-y-3">
+                                <div v-for="(trigger, index) in triggers" :key="index" class="space-y-3">
                                     <!-- Trigger Type Selection -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                                            {{ index === 0 ? 'Choose trigger' : `Choose ${index + 1}${getOrdinalSuffix(index + 1)} trigger` }}
+                                    <div class="flex items-center gap-4">
+                                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} ` }}trigger
                                         </label>
-                                        <Listbox v-model="trigger.type">
+                                        <Listbox v-model="trigger.type" class="flex-1">
                                             <div class="relative">
                                                 <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
                                                     <span class="block truncate">
@@ -144,15 +144,13 @@
                                                             ]">
                                                                 <div class="flex items-center justify-between">
                                                                     <div class="flex items-center">
-                                                                        <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
-                                                                            {{ option.label }}
+                                                                        <span v-html="option.label" :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
                                                                         </span>
                                                                         <InformationCircleIcon 
                                                                             class="h-4 w-4 ml-1.5" 
                                                                             :class="active ? 'text-gray-300' : 'text-gray-400'"
                                                                         />
-                                                                        <span class="ml-2 text-xs" :class="active ? 'text-gray-300' : 'text-gray-500'">
-                                                                            {{ option.description }}
+                                                                        <span v-html="option.description" class="ml-2 text-xs" :class="active ? 'text-gray-300' : 'text-gray-500'">
                                                                         </span>
                                                                     </div>
                                                                     <span
@@ -248,7 +246,7 @@
                             <!-- Add Trigger Button -->
                             <button
                                 @click="addTrigger"
-                                class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 bg-gray-50"
                                 :disabled="!canAddMoreTriggers"
                             >
                                 Add Another Trigger
@@ -260,7 +258,7 @@
                     <div class="border rounded-md">
                         <button
                             @click="sections.actions = !sections.actions"
-                            class="w-full flex justify-between items-center p-3 text-left"
+                            class="w-full flex justify-between items-center p-3 text-left bg-gray-50 rounded-md"
                         >
                             <span class="text-sm font-medium text-gray-900">Actions</span>
                             <ChevronDownIcon
@@ -271,14 +269,14 @@
 
                         <div v-if="sections.actions" class="p-4 border-t space-y-4">
                             <!-- Action List -->
-                            <div class="space-y-4">
-                                <div v-for="(action, index) in actions" :key="index" class="space-y-4">
+                            <div class="space-y-3">
+                                <div v-for="(action, index) in actions" :key="index" class="space-y-3">
                                     <!-- Action Type Selection -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                                            {{ index === 0 ? 'Choose action' : `Choose ${index + 1}${getOrdinalSuffix(index + 1)} action` }}
+                                    <div class="flex items-center gap-4">
+                                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} ` }}action
                                         </label>
-                                        <Listbox v-model="action.type">
+                                        <Listbox v-model="action.type" class="flex-1">
                                             <div class="relative">
                                                 <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
                                                     <span class="block truncate">
@@ -458,7 +456,7 @@
                             <!-- Add Action Button -->
                             <button
                                 @click="addAction"
-                                class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 bg-gray-50"
                                 :disabled="!canAddMoreActions"
                             >
                                 Add Another Action
@@ -628,28 +626,28 @@ const triggerTypes = [
     },
     {
         value: 'categories',
-        label: 'Categories',
-        description: 'Match emails assigned to specific categories'
+        label: '✨ AI category',
+        description: 'Match emails based on category detected by AI'
     },
     {
         value: 'priorities',
-        label: 'Priorities',
-        description: 'Match emails with specific priority levels'
+        label: '✨ AI priority',
+        description: 'Match emails based on priority level detected by AI'
     },
     {
         value: 'answers',
-        label: 'Answer Requirements',
-        description: 'Match emails based on their answer requirement status'
+        label: '✨ AI Answer Required',
+        description: 'Match emails based on if AI determines they need a response'
     },
     {
         value: 'relevances',
-        label: 'Relevance',
-        description: 'Match emails based on their relevance level'
+        label: '✨ AI Relevance',
+        description: 'Match emails based on importance level detected by AI'
     },
     {
         value: 'flags',
-        label: 'Flags',
-        description: 'Match emails with specific flags (spam, newsletter, etc.)'
+        label: '✨ AI Flags',
+        description: 'Match emails based on flags detected by AI (spam, newsletter, etc.)'
     },
 ];
 

@@ -1,146 +1,167 @@
-# Aomail Web Application
-Open source automated email management tool.
+# 📧 Aomail - Open Source Email Management
 
-Our discord server: https://discord.com/invite/JxbPZNDd (under construction)
+> An intelligent, open-source email management platform with AI capabilities. Use our [hosted version](https://app.aomail.ai) or self-host for complete control.
+>
+> 📧 Support: aomailaipro@gmail.com
+  
 
-Features:
-- **Replication on provider**: labels on Gmail & Outlook 
-- **Auto categorize emails**: with labels and categories and your own rules
-- **Compose and reply to emails**: with AI chat assistant
-- **AI short summary of emails**: with AI chat assistant
-- **Analytics**: see how your emails are being used
-- **Link multiple email accounts**: link multiple accounts to the same account
+<div align="center">
 
-Under development:
-- **AI Custom rules**: automatic forward, and smart reply with AI
-- **Discord & Slack integration**: Summary of immportant emails + what happened since last connection
-- **LLM choice**: support for other LLMs and choice in settings (OpenAI, Anthropic, Llama, Mistral)
+[![Discord](https://discord.com/api/guilds/1303091825900257341/widget.png?style=shield)](https://discord.com/invite/JxbPZNDd)
+[![License](https://img.shields.io/badge/license-Custom-blue.svg)](LICENSE)
+
+</div>
+
+## ✨ Features
+
+### Core Features
+- **📧 Email Provider Integration**
+  - Labels are replicated on Gmail & Outlook
+  - Link multiple accounts (premium plan)
+  
+- **🤖 AI-Powered Tools**
+  - Smart categorization with custom rules
+  - AI chat assistant for composition and replies
+  - Customizable AI agents
+  - Smart email categorization with summaries
+  - Search emails or ask AI questions (beta)
+
+- **📊 Analytics & Management**
+  - Usage analytics and insights
+  - Multi-account dashboard
 
 
+### 🚀 Coming Soon
+- **AI Custom Rules**: Automatic forwarding and smart replies
+- **Platform Integration**: Discord & Slack connectivity with smart summaries
+- **LLM Choice**: Support for OpenAI, Anthropic, Llama, Mistral
 
-## Getting started with self-hosting
+## 🛠 Self-Hosting Guide
 
-Disclaimer:
-We have tested the app with WSL 2 and Docker Desktop. As well as within a Debian server.
-It might work on other platforms, but we have not tested it.
+⚠️ **Compatibility Note**: Tested on WSL 2, Docker Desktop, and Debian servers. Other platforms may work but are untested.
 
-External services:
-- Gemini 
+### Prerequisites
+
+**Required Services:**
+- Gemini API
 - Google OAuth
 - Google PubSub
-Optional services:
-- Stripe
-- Microsoft Azure
 
- 
+**Optional Services:**
+- Microsoft Azure
+- Stripe
+
+### Quick Start
+
+1. **Clone and Install:**
 ```bash
 git clone https://github.com/aomail-ai/aomail-app
 cd aomail-app
 cd frontend && npm install
 cd .. && cp backend/.env.example backend/.env
 ```
-Fill the .env file with your API keys and secrets.
 
-required environment variables:
-# todo: putt all links to generate keys
-GEMINI_API_KEY
-for encryption keys: use ```python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'``` to generate a key 
-    SOCIAL_API_REFRESH_TOKEN_KEY
-    EMAIL_ONE_LINE_SUMMARY_KEY
-    EMAIL_SHORT_SUMMARY_KEY
-    EMAIL_HTML_CONTENT_KEY
-DJANGO_SECRET_KEY
-DJANGO_DB_USER
-DJANGO_DB_PASSWORD
+2. **Google Project Setup:**
 
-If you are using Gmail setup
-GOOGLE_TOPIC_NAME
-GOOGLE_PROJECT_ID
-GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET
-
-If you are using Microsoft Azure setup
-MICROSOFT_CLIENT_ID 
-MICROSOFT_CLIENT_SECRET 
-MICROSOFT_TENANT_ID= 
-MICROSOFT_CLIENT_STATE 
+    1 Generate a Gemini API key [here](https://console.cloud.google.com/apis/credentials). You also need to enable Gemini API [here](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com)
+    2 Create a [Google Cloud Console Project](https://console.cloud.google.com/projectcreate)
+    3 Configure [OAuth screen](https://console.cloud.google.com/apis/credentials) with scopes from `/backend/aomail/constants.py`
 
 
 
-Google OAuth config
+   3. Set authorized origins: `http://localhost`
+   4. Set redirect URIs:
+      - `http://localhost/signup-link`
+      - `http://localhost/settings`
 
-1) create a new project in google cloud console
-https://console.cloud.google.com/projectcreate
-
-2) Add all required scopes you can find them in /backend/aomail/constants.py
-Link for OAuth consent screen:
-https://console.cloud.google.com/projectselector2/auth/overview
-
-Authorized JavaScript origins:
-http://localhost
-
-Authorized redirect URIs
-http://localhost/signup-link
-http://localhost/settings
-
-3) Create a pubsub topic in google cloud console
+   5. **PubSub Setup** (Optional):
+      - **For Local Development**:
+        1. Install and run [Google Cloud PubSub emulator](https://cloud.google.com/pubsub/docs/emulator)
+        2. Configure local webhook endpoint
+      
+      - **For Production**:
+        1. Create a new PubSub topic in Google Cloud Console ([Create topic](https://console.cloud.google.com/cloudpubsub/topic/list))
+        2. Configure webhook URL: `https://your-domain/google/receive_mail_notifications/`
+        3. Set up push subscription with your webhook
 
 
+3. **Configure Environment:**
+Required variables in `.env`:
+```plaintext
+# LLM API KEYS
+GEMINI_API_KEY=""
 
-## Start the application
-update the variables in the start.sh 
-update the NODE_ENV variable to "development" or "production"
+# ENCRYPTION KEYS
+SOCIAL_API_REFRESH_TOKEN_KEY=""
+EMAIL_ONE_LINE_SUMMARY_KEY=""
+EMAIL_SHORT_SUMMARY_KEY=""
+EMAIL_HTML_CONTENT_KEY=""
+
+# DJANGO CREDENTIALS
+DJANGO_SECRET_KEY=""
+
+# Google Configuration (if using Gmail)
+GOOGLE_PROJECT_ID=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# Microsoft Configuration (if using Outlook)
+MICROSOFT_CLIENT_ID=""
+MICROSOFT_CLIENT_SECRET=""
+MICROSOFT_TENANT_ID=""
+MICROSOFT_CLIENT_STATE=""
+```
+
+4. **Launch Application:**
 ```bash
 chmod +x start.sh
-```
-
-```bash
 ./start.sh
 ```
+Access at [http://localhost:8090/](http://localhost:8090/)
 
-go to http://localhost:8090/
+## 🔧 Frequently Asked Questions & Troubleshooting
 
+### How do I get unlimited access to Aomail?
+You need to setup the admin dashboard to give yourself unlimited access. Check out our admin dashboard repository:
+https://github.com/aomail-ai/aomail-admin-dashboard
 
-
-
-
-
-
-# Debugging database migrations errors
+### How do I fix database migration issues?
+If you encounter database migration problems, run these commands:
 ```bash
 sudo rm -fr backend/aomail/migrations
 docker exec -it aomail_project-backend_dev-1 python manage.py makemigrations --empty aomail
 ./start.sh
 ```
 
-> Aomail does not start - port already used
-Make sure the ports are not used by other docker containers
-if you have tried to deploy to production, make sur to shutdown the dev containers or change the porduciton ports
+### Why isn't my app starting?
+Common port conflict issues:
+- Check for any running containers using the same ports
+- Look for conflicts between production/development containers
+- Try updating ports in `start.sh` if needed
 
+### How do I add a new subdomain?
+Follow these steps in order:
+1. Configure your DNS record
+2. Update the reverse proxy settings
+3. Open required port: `sudo ufw allow PORT_NUMBER`
+4. Add the subdomain to `ALLOWED_HOSTS` in start.sh
 
-# Adding a New Subdomain
-1) Add the subdomain in the DNS server.
-2) Add the subdomain to your reverse proxy server.
-3) Open the required port: `sudo ufw allow PORT_NUMBER` 
-4) Update vue.config.js: Add the new domain to the list of allowedHosts.
+ 
 
+## 🤝 Contributing
 
-# check this repo if you want to give yourself unlimited access to Aomail
-https://github.com/aomail-ai/aomail-admin-dashboard
-
-
-# Feature Requests
-Open an issue in the repo
-
-
-# Contributing
-
-(recommended) create a virtual environment and install the dependencies
+1. Set up development environment (recommended):
 ```bash
 python3 -m venv py_env
 source py_env/bin/activate
 pip install -r requirements.txt
 ```
 
-Fork the repo and create a new branch for your changes.
-Create a pull request to the main branch.
+2. Fork repository
+3. Create feature branch
+4. Submit pull request
+
+### Issue Reporting
+- **Features**: Create issue with `enhancement` + `backend`/`frontend` labels
+- **Bugs**: Create issue with `bug` + `backend`/`frontend` labels
+ 

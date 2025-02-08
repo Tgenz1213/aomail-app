@@ -34,7 +34,7 @@ BASE_URL = f"{SUB_DOMAIN}/"
 BASE_URL_API = (
     f"{BASE_URL}aomail/"
     if DOMAIN != "localhost"
-    else f"http://localhost:{BACKEND_PORT}"
+    else f"http://localhost:{BACKEND_PORT}/aomail/"
 )
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"

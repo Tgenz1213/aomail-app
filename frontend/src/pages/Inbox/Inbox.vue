@@ -54,17 +54,17 @@
                     </div>
                     <div
                         v-if="isFreeTrialExpired"
-                        class="bg-gray-50 border-b border-black shadow-sm border-opacity-10 overflow-hidden whitespace-nowrap"
+                        class="relative bg-gradient-to-r from-gray-800 via-gray-950 to-gray-800 bg-[length:200%_100%] animate-gradient border-b border-black shadow-sm border-opacity-10"
                     >
-                        <p class="animate-marquee">
+                        <div class="flex justify-center items-center py-3">
                             <button
                                 @click="goToSubscriptionSection"
-                                class="rounded-md bg-gray-800 p-2 m-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
+                                class="text-sm font-semibold text-white"
                             >
                                 {{ $t("constants.freeTrialExpired") }}
                                 {{ $t("constants.freeTrialExpiredDesc") }}
                             </button>
-                        </p>
+                        </div>
                     </div>
                     <Categories
                         :selected-category="selectedCategory"
@@ -919,5 +919,15 @@ onBeforeUnmount(() => {
 /* Hover Effect */
 .drag-wrapper:hover .separator {
     background-color: #aaa;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+    animation: gradient 4s ease-in-out infinite;
 }
 </style>

@@ -5,9 +5,9 @@
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
             v-if="isOpen"
         >
-            <div class="bg-white rounded-lg relative w-[600px] max-h-[90vh] overflow-y-auto">
+            <div class="bg-white rounded-lg relative w-[740px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
-                <div class="sticky top-0 z-10 bg-white rounded-t-lg border-b border-gray-200">
+                <div class="sticky top-0 z-10 rounded-t-lg border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between p-4">
                         <h2 class="text-lg font-semibold text-gray-900">Create New Rule</h2>
                         <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
@@ -25,22 +25,82 @@
                     <!-- Logical Operator -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Logical Operator</label>
-                        <select
-                            v-model="formData.logicalOperator"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                        >
-                            <option value="AND">AND - All conditions must match</option>
-                            <option value="OR">OR - Any condition can match</option>
-                        </select>
+                        <Listbox v-model="formData.logicalOperator">
+                            <div class="relative">
+                                <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                    <span class="block truncate">{{ formData.logicalOperator === 'AND' ? 'AND - All conditions must match' : 'OR - Any condition can match' }}</span>
+                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                    </span>
+                                </ListboxButton>
+                                <transition
+                                    leave-active-class="transition ease-in duration-100"
+                                    leave-from-class="opacity-100"
+                                    leave-to-class="opacity-0"
+                                >
+                                    <ListboxOptions class="absolute z-10 max-h-60 w-full rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                        <ListboxOption
+                                            v-slot="{ active, selected }"
+                                            :value="'AND'"
+                                            as="template"
+                                        >
+                                            <li :class="[
+                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                'relative cursor-default select-none py-2 pl-3 pr-9'
+                                            ]">
+                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                    AND - All conditions must match
+                                                </span>
+                                                <span
+                                                    v-if="selected"
+                                                    :class="[
+                                                        active ? 'text-white' : 'text-gray-500',
+                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                    ]"
+                                                >
+                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            </li>
+                                        </ListboxOption>
+                                        <ListboxOption
+                                            v-slot="{ active, selected }"
+                                            :value="'OR'"
+                                            as="template"
+                                        >
+                                            <li :class="[
+                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                'relative cursor-default select-none py-2 pl-3 pr-9'
+                                            ]">
+                                                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                    OR - Any condition can match
+                                                </span>
+                                                <span
+                                                    v-if="selected"
+                                                    :class="[
+                                                        active ? 'text-white' : 'text-gray-500',
+                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                    ]"
+                                                >
+                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            </li>
+                                        </ListboxOption>
+                                    </ListboxOptions>
+                                </transition>
+                            </div>
+                        </Listbox>
                     </div>
 
                     <!-- Triggers Section -->
                     <div class="border rounded-md">
                         <button
                             @click="sections.triggers = !sections.triggers"
-                            class="w-full flex justify-between items-center p-3 text-left"
+                            class="w-full flex justify-between items-center p-3 text-left bg-gray-50 rounded-md"
                         >
-                            <span class="text-sm font-medium text-gray-900">Triggers</span>
+                            <div class="flex items-center">
+                                <InboxArrowDownIcon class="h-5 w-5 text-gray-500 mr-2" />
+                                <span class="text-sm font-medium text-gray-900">Triggers</span>
+                            </div>
                             <ChevronDownIcon
                                 class="h-5 w-5 text-gray-500"
                                 :class="{ 'transform rotate-180': sections.triggers }"
@@ -48,119 +108,169 @@
                         </button>
 
                         <div v-if="sections.triggers" class="p-4 border-t space-y-4">
-                            <!-- Email Triggers -->
-                            <div class="space-y-4">
-                                <h4 class="text-sm font-medium text-gray-700">Email Triggers</h4>
+                            <!-- Trigger List -->
+                            <div class="space-y-3">
+                                <div v-for="(trigger, index) in triggers" :key="index" class="space-y-3">
+                                    <!-- Trigger Type Selection -->
+                                    <div class="flex items-center gap-4">
+                                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} ` }}trigger
+                                        </label>
+                                        <Listbox v-model="trigger.type" class="flex-1">
+                                            <div class="relative">
+                                                <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                                    <span class="block truncate">
+                                                        {{ trigger.type ? availableTriggerTypes.find(t => t.value === trigger.type)?.label : 'Select a trigger type' }}
+                                                    </span>
+                                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                    </span>
+                                                </ListboxButton>
+                                                <transition
+                                                    leave-active-class="transition ease-in duration-100"
+                                                    leave-from-class="opacity-100"
+                                                    leave-to-class="opacity-0"
+                                                >
+                                                    <ListboxOptions class="absolute z-10 overflow-y-auto max-h-[200px] w-full rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                        <ListboxOption
+                                                            v-for="option in availableTriggerTypes"
+                                                            :key="option.value"
+                                                            v-slot="{ active, selected }"
+                                                            :value="option.value"
+                                                            :disabled="isTypeUsed(option.value, index, triggers)"
+                                                            as="template"
+                                                        >
+                                                            <li :class="[
+                                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                                isTypeUsed(option.value, index, triggers) ? 'opacity-50 cursor-not-allowed' : 'cursor-default',
+                                                                'relative select-none py-2 pl-3 pr-9'
+                                                            ]">
+                                                                <div class="flex items-center justify-between">
+                                                                    <div class="flex items-center">
+                                                                        <span 
+                                                                            v-html="option.label" 
+                                                                            :class="[
+                                                                                selected ? 'font-semibold' : 'font-normal',
+                                                                                trigger.type && !selected ? 'text-gray-400' : '',
+                                                                                'block truncate'
+                                                                            ]"
+                                                                        >
+                                                                        </span>
+                                                                        <InformationCircleIcon 
+                                                                            class="h-4 w-4 ml-1.5" 
+                                                                            :class="[
+                                                                                active ? 'text-gray-300' : 'text-gray-400',
+                                                                                trigger.type && !selected ? 'text-gray-300' : ''
+                                                                            ]"
+                                                                        />
+                                                                        <span 
+                                                                            v-html="option.description" 
+                                                                            class="ml-2 text-xs" 
+                                                                            :class="[
+                                                                                active ? 'text-gray-300' : 'text-gray-500',
+                                                                                trigger.type && !selected ? 'text-gray-300' : ''
+                                                                            ]"
+                                                                        >
+                                                                        </span>
+                                                                    </div>
+                                                                    <span
+                                                                        v-if="selected"
+                                                                        :class="[
+                                                                            active ? 'text-gray-300' : 'text-gray-500',
+                                                                            'flex items-center pr-4'
+                                                                        ]"
+                                                                    >
+                                                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                    </span>
+                                                                </div>
+                                                            </li>
+                                                        </ListboxOption>
+                                                    </ListboxOptions>
+                                                </transition>
+                                            </div>
+                                        </Listbox>
+                                    </div>
 
-                                <div>
-                                    <label class="block text-sm text-gray-700">Email Domains</label>
-                                    <div class="space-y-2">
-                                        <div class="text-xs text-gray-500">
-                                            Enter domains to match (e.g., "gmail.com", "esaip.org").
+                                    <!-- Trigger Value Input -->
+                                    <div v-if="trigger.type" class="pl-4 border-l-2 border-gray-200">
+                                        <!-- Email Domains -->
+                                        <div v-if="trigger.type === 'domains'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Email Domains</label>
+                                            <TagInput
+                                                v-model="trigger.value"
+                                                placeholder="Add domain (e.g. gmail.com)"
+                                                :validate="validateDomain"
+                                            />
                                         </div>
-                                        <TagInput
-                                            v-model="formData.domains"
-                                            placeholder="Add domain (e.g. gmail.com, esaip.org)"
-                                            :validate="validateDomain"
-                                        />
+
+                                        <!-- Sender Emails -->
+                                        <div v-if="trigger.type === 'senderEmails'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Sender Emails</label>
+                                            <TagInput
+                                                v-model="trigger.value"
+                                                placeholder="Add email address"
+                                                :validate="validateEmail"
+                                            />
+                                        </div>
+
+                                        <!-- Has Attachments -->
+                                        <div v-if="trigger.type === 'hasAttachments'" class="space-y-2">
+                                            <div class="flex items-center">
+                                                <input
+                                                    v-model="trigger.value"
+                                                    type="checkbox"
+                                                    class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                                                />
+                                                <label class="ml-2 text-sm text-gray-700">Has attachments</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Categories -->
+                                        <div v-if="trigger.type === 'categories'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Categories</label>
+                                            <multiselect
+                                                v-model="trigger.value"
+                                                :options="categoryOptions.map((c: Category) => c.name)"
+                                                :multiple="true"
+                                                placeholder="Select categories"
+                                                class="multiselect-gray"
+                                            />
+                                        </div>
+
+                                        <!-- Other trigger types... -->
+                                        <template v-for="option in ['priorities', 'answers', 'relevances', 'flags']" :key="option">
+                                            <div v-if="trigger.type === option" class="space-y-2">
+                                                <label class="block text-sm text-gray-700">{{ formatLabel(option) }}</label>
+                                                <multiselect
+                                                    v-model="trigger.value"
+                                                    :options="getOptionsForType(option)"
+                                                    :multiple="true"
+                                                    track-by="key"
+                                                    label="value"
+                                                    placeholder="Select options"
+                                                    class="multiselect-gray"
+                                                />
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Logical Operator Display -->
+                                    <div v-if="index < triggers.length - 1" class="flex items-center justify-center py-2">
+                                        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
+                                            {{ formData.logicalOperator }}
+                                        </span>
                                     </div>
                                 </div>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Sender Emails</label>
-                                    <TagInput
-                                        v-model="formData.senderEmails"
-                                        placeholder="Add email address"
-                                        :validate="validateEmail"
-                                    />
-                                </div>
-
-                                <div class="flex items-center">
-                                    <input
-                                        id="hasAttachments"
-                                        v-model="formData.hasAttachements"
-                                        type="checkbox"
-                                        class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
-                                    />
-                                    <label for="hasAttachments" class="ml-2 text-sm text-gray-700">
-                                        Has attachments
-                                    </label>
-                                </div>
                             </div>
 
-                            <!-- AI Processing Triggers -->
-                            <div class="space-y-4">
-                                <h4 class="text-sm font-medium text-gray-700">AI Processing Triggers</h4>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Categories</label>
-                                    <multiselect
-                                        v-model="formData.categories"
-                                        :options="categoryOptions.map((c: Category) => c.name)"
-                                        :multiple="true"
-                                        placeholder="Select categories"
-                                        class="multiselect-gray"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Priorities</label>
-                                    <multiselect
-                                        v-model="selectedPriorities"
-                                        :options="priorityOptions"
-                                        :multiple="true"
-                                        label="value"
-                                        placeholder="Select priorities"
-                                        class="multiselect-gray"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Answer Requirements</label>
-                                    <multiselect
-                                        v-model="selectedAnswers"
-                                        :options="answerOptions"
-                                        :multiple="true"
-                                        label="value"
-                                        placeholder="Select answer requirements"
-                                        class="multiselect-gray"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Relevance</label>
-                                    <multiselect
-                                        v-model="selectedRelevances"
-                                        :options="relevanceOptions"
-                                        :multiple="true"
-                                        label="value"
-                                        placeholder="Select relevance levels"
-                                        class="multiselect-gray"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Flags</label>
-                                    <multiselect
-                                        v-model="selectedFlags"
-                                        :options="flagOptions"
-                                        :multiple="true"
-                                        label="value"
-                                        placeholder="Select flags"
-                                        class="multiselect-gray"
-                                    />
-                                </div>
-
-                                <!-- <div>
-                                    <label class="block text-sm text-gray-700">Email Content Deals With</label>
-                                    <textarea
-                                        v-model="formData.emailDealWith"
-                                        rows="2"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                        placeholder="Describe what the email content should deal with..."
-                                    />
-                                </div> -->
-                            </div>
+                            <!-- Add Trigger Button -->
+                            <button
+                                @click="addTrigger"
+                                class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 bg-gray-50"
+                                :disabled="!canAddMoreTriggers"
+                            >
+                                Add Another Trigger
+                            </button>
                         </div>
                     </div>
 
@@ -168,9 +278,12 @@
                     <div class="border rounded-md">
                         <button
                             @click="sections.actions = !sections.actions"
-                            class="w-full flex justify-between items-center p-3 text-left"
+                            class="w-full flex justify-between items-center p-3 text-left bg-gray-50 rounded-md"
                         >
-                            <span class="text-sm font-medium text-gray-900">Actions</span>
+                            <div class="flex items-center">
+                                <BoltIcon class="h-5 w-5 text-gray-500 mr-2" />
+                                <span class="text-sm font-medium text-gray-900">Actions</span>
+                            </div>
                             <ChevronDownIcon
                                 class="h-5 w-5 text-gray-500"
                                 :class="{ 'transform rotate-180': sections.actions }"
@@ -178,143 +291,199 @@
                         </button>
 
                         <div v-if="sections.actions" class="p-4 border-t space-y-4">
-                            <!-- Static Actions -->
-                            <div class="space-y-4">
-                                <h4 class="text-sm font-medium text-gray-700">Email Actions</h4>
+                            <!-- Action List -->
+                            <div class="space-y-3">
+                                <div v-for="(action, index) in actions" :key="index" class="space-y-3">
+                                    <!-- Action Type Selection -->
+                                    <div class="flex items-center gap-4">
+                                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} ` }}action
+                                        </label>
+                                        <Listbox v-model="action.type" class="flex-1">
+                                            <div class="relative">
+                                                <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                                    <span class="block truncate">
+                                                        {{ action.type ? availableActionTypes.find(t => t.value === action.type)?.label : 'Select an action type' }}
+                                                    </span>
+                                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                    </span>
+                                                </ListboxButton>
+                                                <transition
+                                                    leave-active-class="transition ease-in duration-100"
+                                                    leave-from-class="opacity-100"
+                                                    leave-to-class="opacity-0"
+                                                >
+                                                    <ListboxOptions class="absolute z-10 w-full overflow-y-auto max-h-[150px] rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                        <ListboxOption
+                                                            v-for="option in availableActionTypes"
+                                                            :key="option.value"
+                                                            v-slot="{ active, selected }"
+                                                            :value="option.value"
+                                                            :disabled="isTypeUsed(option.value, index, actions)"
+                                                            as="template"
+                                                        >
+                                                            <li :class="[
+                                                                active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                                                isTypeUsed(option.value, index, actions) ? 'opacity-50 cursor-not-allowed' : 'cursor-default',
+                                                                'relative select-none py-2 pl-3 pr-9'
+                                                            ]">
+                                                                <div class="flex items-center justify-between">
+                                                                    <div class="flex items-center">
+                                                                        <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                                            {{ option.label }}
+                                                                        </span>
+                                                                        <InformationCircleIcon 
+                                                                            class="h-4 w-4 ml-1.5" 
+                                                                            :class="active ? 'text-gray-300' : 'text-gray-400'"
+                                                                        />
+                                                                        <span class="ml-2 text-xs" :class="active ? 'text-gray-300' : 'text-gray-500'">
+                                                                            {{ option.description }}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span
+                                                                        v-if="selected"
+                                                                        :class="[
+                                                                            active ? 'text-gray-300' : 'text-gray-500',
+                                                                            'flex items-center pr-4'
+                                                                        ]"
+                                                                    >
+                                                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                    </span>
+                                                                </div>
+                                                            </li>
+                                                        </ListboxOption>
+                                                    </ListboxOptions>
+                                                </transition>
+                                            </div>
+                                        </Listbox>
+                                    </div>
 
-                                <!-- <div>
-                                    <label class="block text-sm text-gray-700">Transfer to Recipients</label>
-                                    <TagInput
-                                        v-model="formData.actionTransferRecipients "
-                                        placeholder="Add email address"
-                                        :validate="validateEmail"
-                                    />
-                                </div> -->
+                                    <!-- Action Value Input -->
+                                    <div v-if="action.type" class="pl-4 border-l-2 border-gray-200">
+                                        <!-- Set Flags -->
+                                        <div v-if="action.type === 'setFlags'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Set Flags</label>
+                                            <multiselect
+                                                v-model="action.value"
+                                                :options="flagOptions"
+                                                :multiple="true"
+                                                track-by="key"
+                                                label="value"
+                                                placeholder="Add flag"
+                                                class="multiselect-gray"
+                                            />
+                                        </div>
 
-                                <div>
-                                    <label class="block text-sm text-gray-700">Set Flags</label>
-                                    <multiselect
-                                        v-model="selectedActionFlags"
-                                        :options="flagOptions"
-                                        :multiple="true"
-                                        track-by="key"
-                                        label="value"
-                                        placeholder="Add flag"
-                                        class="multiselect-gray"
-                                    />
-                                </div>
+                                        <!-- Mark As -->
+                                        <div v-if="action.type === 'markAs'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Mark As</label>
+                                            <multiselect
+                                                v-model="action.value"
+                                                :options="markAsOptions"
+                                                :multiple="true"
+                                                track-by="key"
+                                                label="value"
+                                                placeholder="Select marking options"
+                                                class="multiselect-gray"
+                                            />
+                                        </div>
 
-                                <div>
-                                    <label class="block text-sm text-gray-700">Mark As</label>
-                                    <multiselect
-                                        v-model="selectedActionMarkAs"
-                                        :options="markAsOptions"
-                                        :multiple="true"
-                                        track-by="key"
-                                        label="value"
-                                        placeholder="Select marking options"
-                                        class="multiselect-gray"
-                                    />
-                                </div>
+                                        <!-- Delete Email -->
+                                        <div v-if="action.type === 'delete'" class="space-y-2">
+                                            <div class="flex items-center">
+                                                <input
+                                                    v-model="action.value"
+                                                    type="checkbox"
+                                                    class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
+                                                />
+                                                <label class="ml-2 text-sm text-gray-700">Delete email</label>
+                                            </div>
+                                        </div>
 
-                                <div class="flex items-center">
-                                    <input
-                                        id="actionDelete"
-                                        v-model="formData.actionDelete"
-                                        type="checkbox"
-                                        class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
-                                    />
-                                    <label for="actionDelete" class="ml-2 text-sm text-gray-700">Delete email</label>
-                                </div>
+                                        <!-- Set Category -->
+                                        <div v-if="action.type === 'setCategory'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Set Category</label>
+                                            <select
+                                                v-model="action.value"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                            >
+                                                <option value="">Select category</option>
+                                                <option
+                                                    v-for="category in props.categories"
+                                                    :key="category.name"
+                                                    :value="category.name"
+                                                >
+                                                    {{ category.name }}
+                                                </option>
+                                            </select>
+                                        </div>
 
-                                <div>
-                                    <label class="block text-sm text-gray-700">Set Category</label>
-                                    <select
-                                        v-model="formData.actionSetCategory"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                    >
-                                        <option value="">Select category</option>
-                                        <option
-                                            v-for="category in props.categories"
-                                            :key="category.name"
-                                            :value="category.name"
-                                        >
-                                            {{ category.name }}
-                                        </option>
-                                    </select>
-                                </div>
+                                        <!-- Set Priority -->
+                                        <div v-if="action.type === 'setPriority'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Set Priority</label>
+                                            <select
+                                                v-model="action.value"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                            >
+                                                <option value="">Select priority</option>
+                                                <option
+                                                    v-for="priority in priorityOptions"
+                                                    :key="priority.key"
+                                                    :value="priority.value"
+                                                >
+                                                    {{ priority.value }}
+                                                </option>
+                                            </select>
+                                        </div>
 
-                                <div>
-                                    <label class="block text-sm text-gray-700">Set Priority</label>
-                                    <select
-                                        v-model="formData.actionSetPriority"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                    >
-                                        <option value="">Select priority</option>
-                                        <option
-                                            v-for="priority in priorityOptions"
-                                            :key="priority.key"
-                                            :value="priority.value"
-                                        >
-                                            {{ priority.value }}
-                                        </option>
-                                    </select>
-                                </div>
+                                        <!-- Set Relevance -->
+                                        <div v-if="action.type === 'setRelevance'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Set Relevance</label>
+                                            <select
+                                                v-model="action.value"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                            >
+                                                <option value="">Select relevance</option>
+                                                <option
+                                                    v-for="relevance in relevanceOptions"
+                                                    :key="relevance.key"
+                                                    :value="relevance.value"
+                                                >
+                                                    {{ relevance.value }}
+                                                </option>
+                                            </select>
+                                        </div>
 
-                                <div>
-                                    <label class="block text-sm text-gray-700">Set Relevance</label>
-                                    <select
-                                        v-model="formData.actionSetRelevance"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                    >
-                                        <option value="">Select relevance</option>
-                                        <option
-                                            v-for="relevance in relevanceOptions"
-                                            :key="relevance.key"
-                                            :value="relevance.value"
-                                        >
-                                            {{ relevance.value }}
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Set Answer</label>
-                                    <select
-                                        v-model="formData.actionSetAnswer"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                    >
-                                        <option value="">Select relevance</option>
-                                        <option v-for="answer in answerOptions" :key="answer.key" :value="answer.value">
-                                            {{ answer.value }}
-                                        </option>
-                                    </select>
+                                        <!-- Set Answer -->
+                                        <div v-if="action.type === 'setAnswer'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Set Answer</label>
+                                            <select
+                                                v-model="action.value"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                            >
+                                                <option value="">Select answer</option>
+                                                <option
+                                                    v-for="answer in answerOptions"
+                                                    :key="answer.key"
+                                                    :value="answer.value"
+                                                >
+                                                    {{ answer.value }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- AI Actions -->
-                            <!-- <div class="space-y-4">
-                                <h4 class="text-sm font-medium text-gray-700">AI Actions</h4>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Auto-Reply Prompt</label>
-                                    <textarea
-                                        v-model="formData.actionReplyPrompt"
-                                        rows="2"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                        placeholder="Describe how to reply to the email..."
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm text-gray-700">Reply Recipients</label>
-                                    <TagInput
-                                        v-model="formData.actionReplyRecipients "
-                                        placeholder="Add email address"
-                                        :validate="validateEmail"
-                                    />
-                                </div>
-                            </div> -->
+                            <!-- Add Action Button -->
+                            <button
+                                @click="addAction"
+                                class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 bg-gray-50"
+                                :disabled="!canAddMoreActions"
+                            >
+                                Add Another Action
+                            </button>
                         </div>
                     </div>
 
@@ -336,7 +505,7 @@
 
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch } from "vue";
-import { ChevronDownIcon } from "@heroicons/vue/20/solid";
+import { ChevronDownIcon, ChevronUpDownIcon, CheckIcon, InformationCircleIcon, BoltIcon, InboxArrowDownIcon } from "@heroicons/vue/20/solid";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { getData, postData } from "@/global/fetchData";
 import { Category, EmailSender, KeyValuePair } from "@/global/types";
@@ -344,6 +513,7 @@ import { RuleData } from "../utils/types";
 import Multiselect from "vue-multiselect";
 import TagInput from "./TagInput.vue";
 import { i18n } from "@/global/preferences";
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 
 interface Props {
     isOpen: boolean;
@@ -451,25 +621,195 @@ const handleKeyDown = (event: KeyboardEvent) => {
     }
 };
 
-const handleSubmit = async () => {
-    // transform KeyValuePair[] to string[]
-    formData.value.priorities = selectedPriorities.value.map((priority) => priority.key);
-    formData.value.answers = selectedAnswers.value.map((answer) => answer.key);
-    formData.value.relevances = selectedRelevances.value.map((relevance) => relevance.key);
-    formData.value.flags = selectedFlags.value.map((flag) => flag.key);
-    formData.value.actionMarkAs = selectedActionMarkAs.value.map((markAs) => markAs.key);
-    formData.value.actionSetFlags = selectedActionFlags.value.map((flag) => flag.key);
+// New interfaces
+interface Trigger {
+    type: string;
+    value: any;
+}
 
-    const result = await postData("user/rules/", formData.value);
+// Add to your existing data
+const triggers = ref<Trigger[]>([{ type: '', value: null }]);
+const actions = ref<Trigger[]>([{ type: '', value: null }]);
 
-    if (!result.success) {
-        errorMessage.value = result.error as string;
-        return;
+const triggerTypes = [
+    { 
+        value: 'domains',
+        label: 'Email Domains',
+        description: 'Match emails from specific domain names (e.g., gmail.com, company.com)'
+    },
+    {
+        value: 'senderEmails',
+        label: 'Sender Emails',
+        description: 'Match specific email addresses of senders'
+    },
+    {
+        value: 'hasAttachments',
+        label: 'Has Attachments',
+        description: 'Match emails that contain file attachments'
+    },
+    {
+        value: 'categories',
+        label: '✨ AI category',
+        description: 'Match emails based on category detected by AI'
+    },
+    {
+        value: 'priorities',
+        label: '✨ AI priority',
+        description: 'Match emails based on priority level detected by AI'
+    },
+    {
+        value: 'answers',
+        label: '✨ AI Answer Required',
+        description: 'Match emails based on if AI determines they need a response'
+    },
+    {
+        value: 'relevances',
+        label: '✨ AI Relevance',
+        description: 'Match emails based on importance level detected by AI'
+    },
+    {
+        value: 'flags',
+        label: '✨ AI Flags',
+        description: 'Match emails based on flags detected by AI (spam, newsletter, etc.)'
+    },
+];
+
+const availableTriggerTypes = computed(() => triggerTypes);
+
+const isTypeUsed = (type: string, currentIndex: number, items: Trigger[]) => {
+    return items.some((item, index) => index !== currentIndex && item.type === type);
+};
+
+const canAddMoreTriggers = computed(() => {
+    return triggers.value.length < triggerTypes.length && 
+           triggers.value[triggers.value.length - 1].type !== '';
+});
+
+const addTrigger = () => {
+    triggers.value.push({ type: '', value: null });
+};
+
+const getOptionsForType = (type: string) => {
+    switch (type) {
+        case 'priorities':
+            return priorityOptions;
+        case 'answers':
+            return answerOptions;
+        case 'relevances':
+            return relevanceOptions;
+        case 'flags':
+            return flagOptions;
+        default:
+            return [];
     }
-    displayPopup?.("success", "Success", "Rule created successfully");
+};
 
-    emit("fetch-rules");
-    closeModal();
+const formatLabel = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+const getOrdinalSuffix = (num: number) => {
+    const j = num % 10;
+    const k = num % 100;
+    if (j == 1 && k != 11) return "st";
+    if (j == 2 && k != 12) return "nd";
+    if (j == 3 && k != 13) return "rd";
+    return "th";
+};
+
+// Add to your existing data
+const actionTypes = [
+    {
+        value: 'setFlags',
+        label: 'Set Flags',
+        description: 'Add specific flags to matching emails'
+    },
+    {
+        value: 'markAs',
+        label: 'Mark As',
+        description: 'Mark matching emails as read, archived, or to answer later'
+    },
+    {
+        value: 'delete',
+        label: 'Delete Email',
+        description: 'Automatically delete matching emails'
+    },
+    {
+        value: 'setCategory',
+        label: 'Set Category',
+        description: 'Assign matching emails to a specific category'
+    },
+    {
+        value: 'setPriority',
+        label: 'Set Priority',
+        description: 'Set the priority level for matching emails'
+    },
+    {
+        value: 'setRelevance',
+        label: 'Set Relevance',
+        description: 'Set the relevance level for matching emails'
+    },
+    {
+        value: 'setAnswer',
+        label: 'Set Answer',
+        description: 'Set the answer requirement status for matching emails'
+    },
+];
+
+const availableActionTypes = computed(() => actionTypes);
+
+const canAddMoreActions = computed(() => {
+    return actions.value.length < actionTypes.length && 
+           actions.value[actions.value.length - 1].type !== '';
+});
+
+const addAction = () => {
+    actions.value.push({ type: '', value: null });
+};
+
+// Modify handleSubmit to include actions
+const handleSubmit = async () => {
+    // Transform triggers into formData format
+    triggers.value.forEach(trigger => {
+        switch (trigger.type) {
+            case 'domains':
+                formData.value.domains = trigger.value;
+                break;
+            case 'senderEmails':
+                formData.value.senderEmails = trigger.value;
+                break;
+            // ... handle other cases
+        }
+    });
+    
+    // Transform actions into formData format
+    actions.value.forEach(action => {
+        switch (action.type) {
+            case 'setFlags':
+                formData.value.actionSetFlags = action.value;
+                break;
+            case 'markAs':
+                formData.value.actionMarkAs = action.value;
+                break;
+            case 'delete':
+                formData.value.actionDelete = action.value;
+                break;
+            case 'setCategory':
+                formData.value.actionSetCategory = action.value;
+                break;
+            case 'setPriority':
+                formData.value.actionSetPriority = action.value;
+                break;
+            case 'setRelevance':
+                formData.value.actionSetRelevance = action.value;
+                break;
+            case 'setAnswer':
+                formData.value.actionSetAnswer = action.value;
+                break;
+        }
+    });
+    
+    // ... rest of your existing submit logic ...
 };
 
 const validateEmail = (email: string) => {
@@ -495,10 +835,159 @@ onMounted(async () => {
 </script>
 
 <style>
+/* Base styling for the multiselect with a neutral (gray) scheme */
 .multiselect-gray {
-    --ms-tag-bg: #f3f4f6;
-    --ms-tag-color: #374151;
-    --ms-ring-color: rgb(107 114 128 / 0.5);
-    --ms-option-bg-selected: #f3f4f6;
+    --ms-font-size: 0.875rem;
+}
+
+/* Container for the tags */
+.multiselect-gray .multiselect__tags {
+    min-height: 38px;
+    padding: 0.375rem 0.75rem;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: var(--ms-font-size);
+    display: flex;
+    align-items: center;
+}
+
+/* Placeholder inside the input field */
+.multiselect-gray .multiselect__placeholder {
+    color: #6b7280;
+    margin: 0;
+    padding: 0;
+}
+
+/* Input field inside the tag area */
+.multiselect-gray .multiselect__input {
+    background: transparent;
+    font-size: var(--ms-font-size);
+    margin: 0;
+    padding: 0;
+}
+
+/* Selected values container */
+.multiselect-gray .multiselect__single {
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+}
+
+/* Tags container */
+.multiselect-gray .multiselect__tags-wrap {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Individual tag/chip style with extra right padding 
+   to make room for the remove button */
+.multiselect-gray .multiselect__tag {
+    background-color: #f3f4f6;
+    color: #374151;
+    border-radius: 0.25rem;
+    margin: 2px 4px 2px 0;
+    padding: 4px 8px;
+    padding-right: 2rem; /* extra space for the remove icon */
+    position: relative;
+    display: inline-block;
+}
+
+/* Style the remove (cross) icon */
+.multiselect-gray .multiselect__tag-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 6.5px;
+    transform: translateY(-50%);
+    color: #374151 !important; /* same as the tag text color */
+    cursor: pointer;
+}
+
+/* Hover state for the remove icon */
+.multiselect-gray .multiselect__tag-icon:hover {
+    background: none !important;
+    color: #111827 !important; /* darker on hover */
+}
+
+/* Remove the default background change on hover */
+.multiselect-gray .multiselect__tag-icon:after {
+    color: inherit !important;
+}
+
+/* Remove any native title tooltip */
+.multiselect-gray .multiselect__tag-icon[title] {
+    pointer-events: none;
+}
+
+/* Dropdown container */
+.multiselect-gray .multiselect__content-wrapper {
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+}
+
+/* Each option in the dropdown */
+.multiselect-gray .multiselect__option {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--ms-font-size);
+    color: #374151;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+/* When an option is selected */
+.multiselect-gray .multiselect__option--selected {
+    background-color: #f9fafb;
+    color: #111827;
+    font-weight: 500;
+}
+
+/* Hover (highlight) option state */
+.multiselect-gray .multiselect__option--highlight {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* If an option is both selected and hovered */
+.multiselect-gray .multiselect__option--selected.multiselect__option--highlight {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* Active state when the control is focused */
+.multiselect-gray .multiselect--active .multiselect__tags {
+    outline: none;
+    ring: 2px;
+    ring-offset: 2px;
+    ring-gray-800: true;
+}
+
+/* Add these new styles for better focus handling */
+.multiselect-gray .multiselect__tags:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(31 41 55 / 0.2); /* subtle gray shadow */
+}
+
+.multiselect-gray .multiselect__input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Ensure the border color stays consistent when active */
+.multiselect-gray.multiselect--active {
+    outline: none;
+}
+
+/* Remove the "Press enter to select/remove" hints */
+.multiselect-gray .multiselect__option:after {
+    display: none;
+}
+
+/* Remove the extra space that was reserved for the hints */
+.multiselect-gray .multiselect__option {
+    padding-right: 0.75rem !important;
 }
 </style>

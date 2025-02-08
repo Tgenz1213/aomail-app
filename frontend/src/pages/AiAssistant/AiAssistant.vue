@@ -19,7 +19,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12'
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8'
                                                 ]"
                                             >
                                                 <SparklesIcon class="w-4 h-4" />

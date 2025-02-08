@@ -515,8 +515,37 @@
       "answerRequirementDistribution": "Answer Requirement Distribution",
       "relevanceDistribution": "Relevance Distribution",
       "emailsReceivedPerDomain": "Emails Received per Domain",
-      "emailsReceivedPerSender": "Emails Received per Sender"
-    }
+      "emailsReceivedPerSender": "Emails Received per Sender",
+      "charts": {
+        "numberOfEmails": "Number of emails",
+        "percentageOfEmails": "Percentage of emails per category per importance",
+        "importance": {
+          "important": "Important",
+          "informative": "Informative",
+          "useless": "Useless"
+        },
+        "answerRequirement": {
+          "answerRequired": "Answer Required",
+          "mightRequireAnswer": "Might Require Answer",
+          "noAnswerRequired": "No Answer Required"
+        },
+        "relevance": {
+          "highlyRelevant": "Highly Relevant",
+          "possiblyRelevant": "Possibly Relevant",
+          "notRelevant": "Not Relevant"
+        }
+      }
+    },
+    "metrics": "Metrics",
+    "selectSince": "Select Since",
+    "selectPeriod": "Select Period",
+    "selectDataOptions": "Select Data Options",
+    "average": "Average",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "sinceStatistics": "Since Statistics",
+    "periodStatistics": "Period Statistics",
+    "failedToFetchStatistics": "Failed to fetch statistics"
   },
   "rulesPage": {
     "advancedFilters": "Advanced Filters",
@@ -750,7 +779,7 @@
     "title": "Email Organization Preferences",
     "subtitle": "Customize how AI understands and organizes your emails based on your professional needs.",
     "emailCategories": {
-      "button": "Email Categories",
+      "button": "Talk to configure",
       "tooltip": "Have a conversation with AI to explain how you want your emails organized. Perfect for unique workflows and specific preferences."
     },
     "rules": {
@@ -1190,6 +1219,28 @@
       "highlyRelevant": "Highly Relevant",
       "possiblyRelevant": "Possibly Relevant",
       "notRelevant": "Not Relevant"
+    }
+  },
+  "emailProvidersAdvancedTab": {
+    "viewMode": "View Mode",
+    "chart": "Chart",
+    "raw": "Raw",
+    "selectEmails": "Select Emails",
+    "addNewEmail": "Add new email",
+    "searchOrAddEmail": "Search or add an email",
+    "fetchData": "Fetch Data",
+    "statistics": {
+      "aomailTitle": "Aomail Statistics",
+      "emailProvidersTitle": "Email Providers Statistics",
+      "emailsReceived": "Emails Received",
+      "emailsRead": "Emails Read",
+      "emailsArchived": "Emails Archived",
+      "emailsReplyLater": "Emails Reply Later",
+      "emailsStarred": "Emails Starred",
+      "emailsSent": "Emails Sent"
+    },
+    "chart": {
+      "title": "Email Statistics"
     }
   }
 }

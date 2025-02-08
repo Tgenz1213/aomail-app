@@ -24,7 +24,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-12'
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
                                                 ]"
                                                 @click="() => router.push('/ai-assistant')"
                                             >

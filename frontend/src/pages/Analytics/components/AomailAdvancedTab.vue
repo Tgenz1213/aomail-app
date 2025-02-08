@@ -6,7 +6,7 @@
             <div class="w-full">
                 <label for="metric-select" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <i class="fas fa-chart-bar text-gray-900 mr-2"></i>
-                    Metrics
+                    {{ $t('analyticsPage.metrics') }}
                 </label>
                 <select
                     id="metric-select"
@@ -25,7 +25,7 @@
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                         <i class="fas fa-clock text-gray-900 mr-2"></i>
-                        Select Since
+                        {{ $t('analyticsPage.selectSince') }}
                     </label>
                     <div class="space-y-2">
                         <div v-for="sinceOption in sinceOptions" :key="sinceOption" class="flex items-center">
@@ -44,7 +44,7 @@
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                         <i class="fas fa-calendar-alt text-gray-900 mr-2"></i>
-                        Select Period
+                        {{ $t('analyticsPage.selectPeriod') }}
                     </label>
                     <div class="space-y-2">
                         <div v-for="periodOption in periodOptions" :key="periodOption" class="flex items-center">
@@ -63,7 +63,7 @@
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                         <i class="fas fa-database text-gray-900 mr-2"></i>
-                        Select Data Options
+                        {{ $t('analyticsPage.selectDataOptions') }}
                     </label>
                     <div class="space-y-2">
                         <label class="flex items-center">
@@ -72,7 +72,7 @@
                                 v-model="selectedDataOptions.avg"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">Average</span>
+                            <span class="text-sm">{{ $t('analyticsPage.average') }}</span>
                         </label>
                         <label class="flex items-center">
                             <input
@@ -80,7 +80,7 @@
                                 v-model="selectedDataOptions.min"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">Minimum</span>
+                            <span class="text-sm">{{ $t('analyticsPage.minimum') }}</span>
                         </label>
                         <label class="flex items-center">
                             <input
@@ -88,7 +88,7 @@
                                 v-model="selectedDataOptions.max"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">Maximum</span>
+                            <span class="text-sm">{{ $t('analyticsPage.maximum') }}</span>
                         </label>
                     </div>
                 </div>
@@ -102,7 +102,7 @@
                 <div class="p-4 flex flex-col">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
                         <i class="fas fa-chart-bar text-green-500 mr-2"></i>
-                        Since Statistics
+                        {{ $t('analyticsPage.sinceStatistics') }}
                     </h3>
                     <div class="flex-1 min-h-0">
                         <canvas id="sinceBarChart"></canvas>
@@ -113,7 +113,7 @@
                 <div class="p-4 flex flex-col">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
                         <i class="fas fa-chart-line text-green-500 mr-2"></i>
-                        Period Statistics
+                        {{ $t('analyticsPage.periodStatistics') }}
                     </h3>
                     <div class="flex-1 min-h-0">
                         <canvas id="periodsErrorBarChart"></canvas>
@@ -129,6 +129,7 @@ import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { postData } from "@/global/fetchData";
 import { inject } from "vue";
 import { Chart, registerables } from "chart.js";
+import { i18n } from "@/global/preferences";
 
 Chart.register(...registerables);
 
@@ -219,7 +220,7 @@ const fetchStatistics = async () => {
     });
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch statistics", result.error as string);
+        displayPopup?.("error", i18n.global.t('analyticsPage.failedToFetchStatistics'), result.error as string);
     } else {
         data.value = result.data.stats;
     }

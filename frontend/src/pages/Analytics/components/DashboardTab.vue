@@ -1,36 +1,42 @@
 <template>
     <!-- Email Provider Dashboard Section -->
     <section class="">
-        <div class="grid grid-cols-2 gap-4">
-            <div class="h-[300px]">
-                <div :id="chartIds.domainDistribution" class="w-full h-full"></div>
+        <div class="grid grid-cols-2 gap-10">
+            <div class="h-[34vh]">
+                <ChartTitle>
+                    {{ $t("analyticsPage.analytics.emailsReceivedPerDomain") }}
+                </ChartTitle>
+                <div :id="chartIds.domainDistribution" class="w-full h-full pt-6"></div>
             </div>
-            <div class="h-[300px]">
-                <div :id="chartIds.senderDistribution" class="w-full h-full"></div>
+            <div class="h-[34vh]">
+                <ChartTitle>
+                    {{ $t("analyticsPage.analytics.emailsReceivedPerSender") }}
+                </ChartTitle>
+                <div :id="chartIds.senderDistribution" class="w-full h-full pt-6"></div>
             </div>
         </div>
     </section>
 
     <!-- Aomail Dashboard Section -->
-    <section class="">
-        <div class="grid grid-cols-3 gap-6">
-            <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">
+    <section class="pt-12">
+        <div class="grid grid-cols-3 gap-10">
+            <div class="h-[43vh]">
+                <ChartTitle>
                     {{ $t("analyticsPage.analytics.importanceDistribution") }}
-                </h3>
-                <div :id="chartIds.importance" class="h-[400px]"></div>
+                </ChartTitle>
+                <div :id="chartIds.importance" class="w-full h-full pt-4"></div>
             </div>
-            <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">
+            <div class="h-[43vh]">
+                <ChartTitle>
                     {{ $t("analyticsPage.analytics.answerRequirementDistribution") }}
-                </h3>
-                <div :id="chartIds.answerRequirement" class="h-[400px]"></div>
+                </ChartTitle>
+                <div :id="chartIds.answerRequirement" class="w-full h-full pt-4"></div>
             </div>
-            <div class="bg-gray-50 rounded p-4">
-                <h3 class="text-sm font-medium text-gray-600 mb-2">
+            <div class="h-[43vh]">
+                <ChartTitle>
                     {{ $t("analyticsPage.analytics.relevanceDistribution") }}
-                </h3>
-                <div :id="chartIds.relevance" class="h-[400px]"></div>
+                </ChartTitle>
+                <div :id="chartIds.relevance" class="w-full h-full pt-4"></div>
             </div>
         </div>
     </section>
@@ -256,8 +262,8 @@ onMounted(async () => {
     const grid = {
         left: 100,
         right: 100,
-        top: 50,
-        bottom: 50,
+        top: 20,
+        bottom: 80,
     };
     const answerRequirementSeries = ["Answer Required", "Might Require Answer", "No Answer Required"].map(
         (name, sid) => ({
@@ -285,7 +291,7 @@ onMounted(async () => {
                 `${params.seriesName}: ${params.value * totalData[params.dataIndex]}`,
         },
         legend: {
-            title: "Percentage of emails per category per answer requirement",
+            bottom: 10,
             selectedMode: true,
         },
         grid,
@@ -309,6 +315,7 @@ onMounted(async () => {
         dataset: {
             source: relevanceData,
         },
+        grid,
         xAxis: { type: "category" },
         yAxis: { type: "value" },
         series: [
@@ -328,7 +335,7 @@ onMounted(async () => {
             },
         },
         grid: {
-            top: 40,
+            top: 20,
             bottom: 20,
             left: 100,
             right: 20,
@@ -374,7 +381,7 @@ onMounted(async () => {
             },
         },
         grid: {
-            top: 40,
+            top: 20,
             bottom: 20,
             left: 120,
             right: 20,

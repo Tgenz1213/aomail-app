@@ -34,7 +34,7 @@ from aomail.email_providers.google import webhook as webhook_google
 LOGGER = logging.getLogger(__name__)
 PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
-WEBHOOK_SECRET = os.getenv(ENV + "_webhook_secret")
+WEBHOOK_SECRET = os.getenv(ENV + "_webhook_secret") if ENV else ""
 PRODUCTS = {
     "start": {
         "monthly": "price_1QaFTRK8H3QtVm1pHDyJyrp5",

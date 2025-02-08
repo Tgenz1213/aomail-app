@@ -1,6 +1,6 @@
 export BACKEND_PORT=8010
 export FRONTEND_PORT=8090
-export SERVER_FRONTEND_PORT=8080
+export SERVER_FRONTEND_PORT=8080 # 8080 for dev, 80 for prod
 export DB_PORT=5490
 export ENV="aomail"
 export NODE_ENV="development" # "development" or "production"
@@ -8,7 +8,7 @@ export POSTGRES_USER="test"
 export POSTGRES_PASSWORD="test"
 export POSTGRES_DB="aomaildb"
 export ALLOWED_HOSTS="localhost:8010"
-export BASE_URL="http://localhost:8090/";
+export BASE_URL="http://localhost:8090/"; # 8090 for dev, 80 for prod
 export API_BASE_URL="http://localhost:8010/aomail/";
 
 if [ $NODE_ENV = "development" ]; then

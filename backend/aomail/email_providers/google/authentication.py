@@ -55,7 +55,7 @@ def generate_auth_url(request: HttpRequest) -> HttpResponseRedirect:
         ip = security.get_ip_with_port(request)
         LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
 
-        flow = Flow.from_client_secrets_file(
+        flow = Flow.from_client_config(
             GOOGLE_WEB_CONFIG, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
         )
         authorization_url, _ = flow.authorization_url(
@@ -83,7 +83,7 @@ def exchange_code_for_tokens(
         tuple: A tuple containing the access token and refresh token if successful,
                otherwise (None, None) if credentials are not obtained.
     """
-    flow = Flow.from_client_secrets_file(
+    flow = Flow.from_client_config(
         GOOGLE_WEB_CONFIG, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     flow.fetch_token(code=authorization_code)
@@ -121,7 +121,7 @@ def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
         ip = security.get_ip_with_port(request)
         LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
 
-        flow = Flow.from_client_secrets_file(
+        flow = Flow.from_client_config(
             GOOGLE_WEB_CONFIG,
             scopes=GOOGLE_SCOPES,
             redirect_uri=REDIRECT_URI_LINK_EMAIL,
@@ -202,7 +202,7 @@ def auth_url_regrant(request: HttpRequest) -> HttpResponseRedirect:
                 {"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        flow = Flow.from_client_secrets_file(
+        flow = Flow.from_client_config(
             GOOGLE_WEB_CONFIG,
             scopes=GOOGLE_SCOPES,
             redirect_uri=REDIRECT_URI_LINK_EMAIL,
@@ -243,7 +243,7 @@ def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, 
         tuple: A tuple containing the access token and refresh token if successful,
                otherwise (None, None) if credentials are not obtained.
     """
-    flow = Flow.from_client_secrets_file(
+    flow = Flow.from_client_config(
         GOOGLE_WEB_CONFIG, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
     )
     flow.fetch_token(code=authorization_code)

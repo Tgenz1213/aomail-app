@@ -4,6 +4,7 @@ File that stores all constants and computed paths
 
 import os
 import dotenv
+ 
 
 dotenv.load_dotenv()
 
@@ -21,8 +22,9 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BACKEND_DIR, "media")
 
 # ----------------------- URLS AND CORS -----------------------#
+# TODO: avoid hardcoding the port number
 DOMAIN = os.getenv("DOMAIN")
-SUB_DOMAIN = f"https://{ENV}.{DOMAIN}" if DOMAIN != "localhost" else "http://localhost"
+SUB_DOMAIN = f"https://{ENV}.{DOMAIN}" if DOMAIN != "localhost" else "http://localhost:8090"
 BASE_URL = f"{SUB_DOMAIN}/"
 BASE_URL_API = f"{BASE_URL}aomail/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup-link"

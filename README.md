@@ -2,6 +2,10 @@
 
 ## Getting started with self-hosting
 
+Disclaimer:
+We have tested the app with WSL 2 and Docker Desktop. As well as within a Debian server.
+It might work on other platforms, but we have not tested it.
+
 External services:
 - Gemini 
 - Google OAuth
@@ -83,9 +87,11 @@ chmod +x start.sh
 ./start.sh
 ```
 
-if in dev: go to http://localhost:8080/
+if in dev: go to http://localhost:8090/
 
-if in prod: go to http://localhost:4173/
+if in prod: go to http://localhost/
+
+
 
 
 
@@ -108,3 +114,15 @@ docker exec -it {username}_project-backend-1 python manage.py makemigrations --e
 
 # check this repo if you want to give yourself unlimited access to Aomail
 https://github.com/aomail-ai/aomail-admin-dashboard
+
+
+
+# Contributing
+
+(recommended) create a virtual environment and install the dependencies
+```bash
+python3 -m venv py_env
+source py_env/bin/activate
+pip install -r requirements.txt
+```
+

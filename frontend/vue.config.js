@@ -7,7 +7,7 @@ module.exports = defineConfig({
     devServer: {
         ...(process.env.NODE_ENV === "development" && {
             server: {
-                type: process.env.ALLOWED_HOSTS !== "localhost" ? "https" : "http",
+                type: process.env.ALLOWED_HOSTS.includes("localhost") ? "http" : "https",
             },
             headers: {
                 "Cross-Origin-Opener-Policy": "same-origin-allow-popups",

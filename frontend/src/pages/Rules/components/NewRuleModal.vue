@@ -147,13 +147,30 @@
                                                             ]">
                                                                 <div class="flex items-center justify-between">
                                                                     <div class="flex items-center">
-                                                                        <span v-html="option.label" :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                                                        <span 
+                                                                            v-html="option.label" 
+                                                                            :class="[
+                                                                                selected ? 'font-semibold' : 'font-normal',
+                                                                                trigger.type && !selected ? 'text-gray-400' : '',
+                                                                                'block truncate'
+                                                                            ]"
+                                                                        >
                                                                         </span>
                                                                         <InformationCircleIcon 
                                                                             class="h-4 w-4 ml-1.5" 
-                                                                            :class="active ? 'text-gray-300' : 'text-gray-400'"
+                                                                            :class="[
+                                                                                active ? 'text-gray-300' : 'text-gray-400',
+                                                                                trigger.type && !selected ? 'text-gray-300' : ''
+                                                                            ]"
                                                                         />
-                                                                        <span v-html="option.description" class="ml-2 text-xs" :class="active ? 'text-gray-300' : 'text-gray-500'">
+                                                                        <span 
+                                                                            v-html="option.description" 
+                                                                            class="ml-2 text-xs" 
+                                                                            :class="[
+                                                                                active ? 'text-gray-300' : 'text-gray-500',
+                                                                                trigger.type && !selected ? 'text-gray-300' : ''
+                                                                            ]"
+                                                                        >
                                                                         </span>
                                                                     </div>
                                                                     <span
@@ -818,10 +835,159 @@ onMounted(async () => {
 </script>
 
 <style>
+/* Base styling for the multiselect with a neutral (gray) scheme */
 .multiselect-gray {
-    --ms-tag-bg: #f3f4f6;
-    --ms-tag-color: #374151;
-    --ms-ring-color: rgb(107 114 128 / 0.5);
-    --ms-option-bg-selected: #f3f4f6;
+    --ms-font-size: 0.875rem;
+}
+
+/* Container for the tags */
+.multiselect-gray .multiselect__tags {
+    min-height: 38px;
+    padding: 0.375rem 0.75rem;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: var(--ms-font-size);
+    display: flex;
+    align-items: center;
+}
+
+/* Placeholder inside the input field */
+.multiselect-gray .multiselect__placeholder {
+    color: #6b7280;
+    margin: 0;
+    padding: 0;
+}
+
+/* Input field inside the tag area */
+.multiselect-gray .multiselect__input {
+    background: transparent;
+    font-size: var(--ms-font-size);
+    margin: 0;
+    padding: 0;
+}
+
+/* Selected values container */
+.multiselect-gray .multiselect__single {
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+}
+
+/* Tags container */
+.multiselect-gray .multiselect__tags-wrap {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Individual tag/chip style with extra right padding 
+   to make room for the remove button */
+.multiselect-gray .multiselect__tag {
+    background-color: #f3f4f6;
+    color: #374151;
+    border-radius: 0.25rem;
+    margin: 2px 4px 2px 0;
+    padding: 4px 8px;
+    padding-right: 2rem; /* extra space for the remove icon */
+    position: relative;
+    display: inline-block;
+}
+
+/* Style the remove (cross) icon */
+.multiselect-gray .multiselect__tag-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 6.5px;
+    transform: translateY(-50%);
+    color: #374151 !important; /* same as the tag text color */
+    cursor: pointer;
+}
+
+/* Hover state for the remove icon */
+.multiselect-gray .multiselect__tag-icon:hover {
+    background: none !important;
+    color: #111827 !important; /* darker on hover */
+}
+
+/* Remove the default background change on hover */
+.multiselect-gray .multiselect__tag-icon:after {
+    color: inherit !important;
+}
+
+/* Remove any native title tooltip */
+.multiselect-gray .multiselect__tag-icon[title] {
+    pointer-events: none;
+}
+
+/* Dropdown container */
+.multiselect-gray .multiselect__content-wrapper {
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+}
+
+/* Each option in the dropdown */
+.multiselect-gray .multiselect__option {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--ms-font-size);
+    color: #374151;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+/* When an option is selected */
+.multiselect-gray .multiselect__option--selected {
+    background-color: #f9fafb;
+    color: #111827;
+    font-weight: 500;
+}
+
+/* Hover (highlight) option state */
+.multiselect-gray .multiselect__option--highlight {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* If an option is both selected and hovered */
+.multiselect-gray .multiselect__option--selected.multiselect__option--highlight {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* Active state when the control is focused */
+.multiselect-gray .multiselect--active .multiselect__tags {
+    outline: none;
+    ring: 2px;
+    ring-offset: 2px;
+    ring-gray-800: true;
+}
+
+/* Add these new styles for better focus handling */
+.multiselect-gray .multiselect__tags:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(31 41 55 / 0.2); /* subtle gray shadow */
+}
+
+.multiselect-gray .multiselect__input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Ensure the border color stays consistent when active */
+.multiselect-gray.multiselect--active {
+    outline: none;
+}
+
+/* Remove the "Press enter to select/remove" hints */
+.multiselect-gray .multiselect__option:after {
+    display: none;
+}
+
+/* Remove the extra space that was reserved for the hints */
+.multiselect-gray .multiselect__option {
+    padding-right: 0.75rem !important;
 }
 </style>

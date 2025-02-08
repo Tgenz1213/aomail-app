@@ -3,7 +3,7 @@
         <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
             <!-- View Mode Toggle -->
             <div class="flex items-center justify-between mb-6 flex-shrink-0">
-                <span class="text-sm font-medium text-gray-700">View Mode</span>
+                <span class="text-sm font-medium text-gray-700">{{ $t('emailProvidersAdvancedTab.viewMode') }}</span>
                 <label class="flex items-center cursor-pointer">
                     <input type="checkbox" v-model="isChartView" class="hidden" />
                     <div
@@ -15,18 +15,18 @@
                             :class="{ 'translate-x-5': isChartView }"
                         ></div>
                     </div>
-                    <span class="ml-3 text-sm text-gray-600">{{ isChartView ? "Chart" : "Raw" }}</span>
+                    <span class="ml-3 text-sm text-gray-600">{{ isChartView ? $t('emailProvidersAdvancedTab.chart') : $t('emailProvidersAdvancedTab.raw') }}</span>
                 </label>
             </div>
 
             <!-- Email Selection and Fetch Data Container -->
             <div class="mb-6 flex-shrink-0">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Select Emails</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('emailProvidersAdvancedTab.selectEmails') }}</label>
                 <div class="flex gap-x-4">
                     <multiselect
                         v-model="selectedEmails"
-                        tag-placeholder="Add new email"
-                        placeholder="Search or add an email"
+                        :tag-placeholder="$t('emailProvidersAdvancedTab.addNewEmail')"
+                        :placeholder="$t('emailProvidersAdvancedTab.searchOrAddEmail')"
                         label="email"
                         track-by="email"
                         :options="emailsLinked"
@@ -41,7 +41,7 @@
                         class="bg-gray-700 rounded-lg px-6 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 2xl:px-7 2xl:text-lg"
                         style="height: 38px"
                     >
-                        Fetch Data
+                        {{ $t('emailProvidersAdvancedTab.fetchData') }}
                     </button>
                 </div>
             </div>
@@ -51,56 +51,50 @@
                 <div v-if="!isChartView" class="space-y-4">
                     <!-- Aomail Stats Card -->
                     <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h2 class="text-base font-semibold text-gray-900 mb-4">Aomail Statistics</h2>
+                        <h2 class="text-base font-semibold text-gray-900 mb-4">{{ $t('emailProvidersAdvancedTab.statistics.aomailTitle') }}</h2>
                         <div class="space-y-3">
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📩</span>
-                                <span>Emails Received: {{ combinedStatistics?.aomailData.nbEmailsReceived }}</span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsReceived') }}: {{ combinedStatistics?.aomailData.nbEmailsReceived }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📖</span>
-                                <span>Emails Read: {{ combinedStatistics?.aomailData.nbEmailsRead }}</span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsRead') }}: {{ combinedStatistics?.aomailData.nbEmailsRead }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📂</span>
-                                <span>Emails Archived: {{ combinedStatistics?.aomailData.nbEmailsArchived }}</span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsArchived') }}: {{ combinedStatistics?.aomailData.nbEmailsArchived }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">⏳</span>
-                                <span>Emails Reply Later: {{ combinedStatistics?.aomailData.nbEmailsReplyLater }}</span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsReplyLater') }}: {{ combinedStatistics?.aomailData.nbEmailsReplyLater }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Email Providers Stats Card -->
                     <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h2 class="text-base font-semibold text-gray-900 mb-4">Email Providers Statistics</h2>
+                        <h2 class="text-base font-semibold text-gray-900 mb-4">{{ $t('emailProvidersAdvancedTab.statistics.emailProvidersTitle') }}</h2>
                         <div class="space-y-3">
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📩</span>
-                                <span>
-                                    Emails Received: {{ combinedStatistics?.emailProvidersData.nbEmailsReceived }}
-                                </span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsReceived') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsReceived }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📖</span>
-                                <span>Emails Read: {{ combinedStatistics?.emailProvidersData.nbEmailsRead }}</span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsRead') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsRead }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📂</span>
-                                <span>
-                                    Emails Archived: {{ combinedStatistics?.emailProvidersData.nbEmailsArchived }}
-                                </span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsArchived') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsArchived }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">⭐</span>
-                                <span>
-                                    Emails Starred: {{ combinedStatistics?.emailProvidersData.nbEmailsStarred }}
-                                </span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsStarred') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsStarred }}</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📤</span>
-                                <span>Emails Sent: {{ combinedStatistics?.emailProvidersData.nbEmailsSent }}</span>
+                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsSent') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsSent }}</span>
                             </div>
                         </div>
                     </div>
@@ -219,7 +213,7 @@ const renderBarChart = () => {
 
     const options = {
         title: {
-            text: "Email Statistics",
+            text: i18n.global.t('emailProvidersAdvancedTab.chart.title'),
             left: "center",
             textStyle: {
                 fontSize: 18,

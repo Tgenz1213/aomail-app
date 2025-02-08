@@ -64,6 +64,27 @@ use([
     CanvasRenderer
 ]);
 
+const modernColorPalette = [
+    'rgba(59, 130, 246, 0.6)',   
+    'rgba(16, 185, 129, 0.6)',   
+    'rgba(245, 158, 11, 0.6)',   
+    'rgba(239, 68, 68, 0.6)',    
+    'rgba(139, 92, 246, 0.6)',   
+    'rgba(20, 184, 166, 0.6)',   
+    'rgba(249, 115, 22, 0.6)',   
+    'rgba(99, 102, 241, 0.6)',   
+    'rgba(236, 72, 153, 0.6)'   
+];
+
+const barSeriesDefaultOptions = {
+    type: 'bar',
+    itemStyle: {
+        borderColor: 'rgba(0, 0, 0, 0.2)',
+        borderWidth: 1,
+        borderRadius: 2,
+    }
+};
+
 let importanceChart: EChartsType;
 let answerRequirementChart: EChartsType;
 let relevanceChart: EChartsType;
@@ -140,9 +161,9 @@ const fetchDashboardData = async () => {
     importanceData = Object.entries(dashboardData.distribution).map(([category, data]) => ({
         name: category,
         children: [
-            { name: "Important", value: data.nbEmailsImportant },
-            { name: "Informative", value: data.nbEmailsInformative },
-            { name: "Useless", value: data.nbEmailsUseless },
+            { name: i18n.global.t("analyticsPage.analytics.charts.importance.important"), value: data.nbEmailsImportant },
+            { name: i18n.global.t("analyticsPage.analytics.charts.importance.informative"), value: data.nbEmailsInformative },
+            { name: i18n.global.t("analyticsPage.analytics.charts.importance.useless"), value: data.nbEmailsUseless },
         ],
     }));
 
@@ -202,6 +223,7 @@ onMounted(async () => {
         useDirtyRect: false,
     });
     importanceChart.setOption({
+        color: modernColorPalette,
         tooltip: {
             trigger: "item",
             formatter: "{b}: {c}",
@@ -216,11 +238,13 @@ onMounted(async () => {
             label: {
                 rotate: "radial",
                 minAngle: 10,
+                color: 'rgba(0, 0, 0, 0.75)', // Slightly softer black
+                fontWeight: '500' // Medium weight instead of bold
             },
         },
     });
 
-    ////// answer req part
+    // Answer Requirement Chart
     const totalData: number[] = [];
     for (let i = 0; i < answerRequiredData[0].length; ++i) {
         let sum = 0;
@@ -236,24 +260,29 @@ onMounted(async () => {
         bottom: 50,
     };
     const answerRequirementSeries = ["Answer Required", "Might Require Answer", "No Answer Required"].map(
-        (name, sid) => {
-            return {
-                name,
-                type: "bar",
-                stack: "total",
-                barWidth: "60%",
-                label: {
-                    show: true,
-                    formatter: (params: { value: number }) => Math.round(params.value * 1000) / 10 + "%",
-                },
-                data: answerRequiredData[sid].map((d, did) => (totalData[did] <= 0 ? 0 : d / totalData[did])),
-            };
-        }
+        (name, sid) => ({
+            ...barSeriesDefaultOptions,
+            name,
+            stack: "total",
+            barWidth: "60%",
+            label: {
+                show: true,
+                formatter: (params: { value: number }) =>
+                    Math.round(params.value * 1000) / 10 + "%",
+                color: 'rgba(0, 0, 0, 0.75)', // Slightly softer black
+                fontWeight: '500' // Medium weight instead of bold
+            },
+            data: answerRequiredData[sid].map((d, did) =>
+                totalData[did] <= 0 ? 0 : d / totalData[did]
+            ),
+        })
     );
     const answerRequirementChartOptions = {
+        color: modernColorPalette,
         tooltip: {
             trigger: "item",
-            formatter: (params: any) => `${params.seriesName}: ${params.value * totalData[params.dataIndex]}`,
+            formatter: (params: any) =>
+                `${params.seriesName}: ${params.value * totalData[params.dataIndex]}`,
         },
         legend: {
             title: "Percentage of emails per category per answer requirement",
@@ -269,10 +298,13 @@ onMounted(async () => {
         },
         series: answerRequirementSeries,
     };
-    //// reevance part
 
+    // Relevance Chart
     const relevanceChartOptions = {
-        legend: {},
+        color: modernColorPalette,
+        legend: {
+            bottom: 10,
+        },
         tooltip: {},
         dataset: {
             source: relevanceData,
@@ -280,22 +312,15 @@ onMounted(async () => {
         xAxis: { type: "category" },
         yAxis: { type: "value" },
         series: [
-            { type: "bar", name: "Highly Relevant" },
-            { type: "bar", name: "Possibly Relevant" },
-            { type: "bar", name: "Not Relevant" },
+            { ...barSeriesDefaultOptions, name: i18n.global.t("analyticsPage.analytics.charts.relevance.highlyRelevant") },
+            { ...barSeriesDefaultOptions, name: i18n.global.t("analyticsPage.analytics.charts.relevance.possiblyRelevant") },
+            { ...barSeriesDefaultOptions, name: i18n.global.t("analyticsPage.analytics.charts.relevance.notRelevant") },
         ],
     };
 
-    /// emails received daaa
-
+    // Domain Distribution Chart
     const domainDistributionOptions = {
-        title: {
-            text: i18n.global.t("analyticsPage.analytics.emailsReceivedPerDomain"),
-            textStyle: {
-                fontSize: 14,
-                fontWeight: "normal",
-            },
-        },
+        color: modernColorPalette,
         tooltip: {
             trigger: "axis",
             axisPointer: {
@@ -327,8 +352,8 @@ onMounted(async () => {
         },
         series: [
             {
+                ...barSeriesDefaultOptions,
                 name: "Number of emails",
-                type: "bar",
                 stack: "Total",
                 label: {
                     show: true,
@@ -339,14 +364,9 @@ onMounted(async () => {
         ],
     };
 
+    // Sender Distribution Chart
     const senderDistributionOptions = {
-        title: {
-            text: i18n.global.t("analyticsPage.analytics.emailsReceivedPerSender"),
-            textStyle: {
-                fontSize: 14,
-                fontWeight: "normal",
-            },
-        },
+        color: modernColorPalette,
         tooltip: {
             trigger: "axis",
             axisPointer: {
@@ -384,9 +404,8 @@ onMounted(async () => {
         },
         series: [
             {
-                color: "#4f46e5",
+                ...barSeriesDefaultOptions,
                 name: "Number of emails",
-                type: "bar",
                 stack: "Total",
                 label: {
                     show: true,

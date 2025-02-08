@@ -1,4 +1,22 @@
 # Aomail Web Application
+Open source automated email management tool.
+
+Our discord server: https://discord.com/invite/JxbPZNDd (under construction)
+
+Features:
+- **Replication on provider**: labels on Gmail & Outlook 
+- **Auto categorize emails**: with labels and categories and your own rules
+- **Compose and reply to emails**: with AI chat assistant
+- **AI short summary of emails**: with AI chat assistant
+- **Analytics**: see how your emails are being used
+- **Link multiple email accounts**: link multiple accounts to the same account
+
+Under development:
+- **AI Custom rules**: automatic forward, and smart reply with AI
+- **Discord & Slack integration**: Summary of immportant emails + what happened since last connection
+- **LLM choice**: support for other LLMs and choice in settings (OpenAI, Anthropic, Llama, Mistral)
+
+
 
 ## Getting started with self-hosting
 
@@ -18,10 +36,8 @@ Optional services:
 ```bash
 git clone https://github.com/aomail-ai/aomail-app
 cd aomail-app
-cd frontend 
-npm install
-cd .. 
-cp backend/.env.example backend/.env
+cd frontend && npm install
+cd .. && cp backend/.env.example backend/.env
 ```
 Fill the .env file with your API keys and secrets.
 
@@ -39,6 +55,7 @@ DJANGO_DB_PASSWORD
 
 If you are using Gmail setup
 GOOGLE_TOPIC_NAME
+GOOGLE_PROJECT_ID
 GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET
 
@@ -60,13 +77,7 @@ Link for OAuth consent screen:
 https://console.cloud.google.com/projectselector2/auth/overview
 
 Authorized JavaScript origins:
-http://localhost:8080
-
-Authorized redirect URIs
-http://localhost/signup-link
-http://localhost/settings
-Authorized JavaScript origins:
-http://localhost:8080
+http://localhost
 
 Authorized redirect URIs
 http://localhost/signup-link
@@ -87,9 +98,7 @@ chmod +x start.sh
 ./start.sh
 ```
 
-if in dev: go to http://localhost:8090/
-
-if in prod: go to http://localhost/
+go to http://localhost:8090/
 
 
 
@@ -100,9 +109,13 @@ if in prod: go to http://localhost/
 # Debugging database migrations errors
 ```bash
 sudo rm -fr backend/aomail/migrations
-docker exec -it {username}_project-backend-1 python manage.py makemigrations --empty aomail
-./start_{username}_dev.sh
+docker exec -it aomail_project-backend_dev-1 python manage.py makemigrations --empty aomail
+./start.sh
 ```
+
+> Aomail does not start - port already used
+Make sure the ports are not used by other docker containers
+if you have tried to deploy to production, make sur to shutdown the dev containers or change the porduciton ports
 
 
 # Adding a New Subdomain
@@ -116,6 +129,9 @@ docker exec -it {username}_project-backend-1 python manage.py makemigrations --e
 https://github.com/aomail-ai/aomail-admin-dashboard
 
 
+# Feature Requests
+Open an issue in the repo
+
 
 # Contributing
 
@@ -126,3 +142,5 @@ source py_env/bin/activate
 pip install -r requirements.txt
 ```
 
+Fork the repo and create a new branch for your changes.
+Create a pull request to the main branch.

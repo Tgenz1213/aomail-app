@@ -8,7 +8,7 @@ export POSTGRES_USER="test"
 export POSTGRES_PASSWORD="test"
 export POSTGRES_DB="aomaildb"
 export ALLOWED_HOSTS="localhost:8010"
-export BASE_URL="http://localhost:8090/"; # 8090 for dev, 80 for prod
+export BASE_URL="http://localhost:8090/";
 export API_BASE_URL="http://localhost:8010/aomail/";
 
 if [ $NODE_ENV = "development" ]; then

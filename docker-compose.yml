@@ -24,6 +24,7 @@ services:
       target: development
     environment:
       - FRONTEND_PORT=${FRONTEND_PORT}
+      - BACKEND_PORT=${BACKEND_PORT}
       - ENV=${ENV}
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
@@ -47,6 +48,7 @@ services:
       target: production
     environment:
       - FRONTEND_PORT=${FRONTEND_PORT}
+      - BACKEND_PORT=${BACKEND_PORT}
       - ENV=${ENV}
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
@@ -91,6 +93,8 @@ services:
       target: production
       args:
         VUE_APP_ENV: ${ENV}
+        VUE_APP_BASE_URL: ${BASE_URL}
+        VUE_APP_API_BASE_URL: ${API_BASE_URL}
     environment:
       - NODE_ENV=${NODE_ENV}
       - VUE_APP_ENV=${ENV}

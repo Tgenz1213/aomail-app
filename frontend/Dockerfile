@@ -13,6 +13,8 @@ CMD ["npm", "run", "serve"]
 # Production mode
 FROM base AS build
 ARG VUE_APP_ENV
+ARG VUE_APP_BASE_URL
+ARG VUE_APP_API_BASE_URL
 RUN npm run build
 
 FROM nginx:alpine AS production

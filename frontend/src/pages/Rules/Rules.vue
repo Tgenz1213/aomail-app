@@ -108,7 +108,7 @@
                                     />
                                 </svg>
                                 <span class="mt-2 block text-sm font-semibold text-gray-900">
-                                    {{ $t("constants.userActions.createARule") }}
+                                    {{ $t("rulesPage.createRule") }}
                                 </span>
                             </div>
                         </div>

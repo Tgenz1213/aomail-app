@@ -6,189 +6,270 @@
         <div class="flex-1 truncate">
             <!-- Triggers Section -->
             <div class="space-y-3">
-                <!-- Logical Operator -->
-                <div class="flex items-center gap-2">
-                    <AdjustmentsHorizontalIcon class="w-4 h-4" />
-                    <span class="text-sm font-medium">{{ rule.logicalOperator }}</span>
-                </div>
-                <!-- Email Triggers -->
-                <div v-if="hasEmailTriggers" class="space-y-2">
-                    <p class="text-sm font-medium text-gray-700">Email Triggers:</p>
+                <p class="text-sm font-medium text-gray-700">Email Triggers:</p>
+                <div class="flex flex-wrap items-center gap-2">
+                    <template v-if="hasEmailTriggers">
+                        <!-- Domains -->
+                        <div v-if="rule.domains?.length" class="flex flex-wrap gap-1">
+                            <span
+                                v-for="domain in rule.domains"
+                                :key="domain"
+                                class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
+                            >
+                                {{ domain }}
+                            </span>
+                        </div>
 
-                    <!-- Domains -->
-                    <div v-if="rule.domains?.length" class="flex flex-wrap gap-1">
-                        <span
-                            v-for="domain in rule.domains"
-                            :key="domain"
-                            class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
-                        >
-                            {{ domain }}
+                        <!-- Logical Operator after domains -->
+                        <span v-if="rule.domains?.length && hasNextTrigger('domains')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
                         </span>
-                    </div>
 
-                    <!-- Sender Emails -->
-                    <div v-if="rule.senderEmails?.length" class="flex flex-wrap gap-1">
-                        <span
-                            v-for="email in rule.senderEmails"
-                            :key="email"
-                            class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
-                        >
-                            {{ email }}
+                        <!-- Sender Emails -->
+                        <div v-if="rule.senderEmails?.length" class="flex flex-wrap gap-1">
+                            <span
+                                v-for="email in rule.senderEmails"
+                                :key="email"
+                                class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
+                            >
+                                {{ email }}
+                            </span>
+                        </div>
+
+                        <!-- Logical Operator after sender emails -->
+                        <span v-if="rule.senderEmails?.length && hasNextTrigger('senderEmails')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
                         </span>
-                    </div>
 
-                    <!-- Has Attachments -->
-                    <div v-if="rule.hasAttachements" class="flex items-center gap-1">
-                        <PaperClipIcon class="w-4 h-4" />
-                        <span class="text-xs">Has attachments</span>
-                    </div>
+                        <!-- Has Attachments -->
+                        <div v-if="rule.hasAttachements" class="flex items-center gap-1">
+                            <PaperClipIcon class="w-4 h-4" />
+                            <span class="text-xs">Has attachments</span>
+                        </div>
 
-                    <!-- Categories triggers -->
-                    <div v-if="rule.categories?.length" class="flex flex-wrap gap-1">
-                        <span
-                            v-for="category in rule.categories"
-                            :key="category"
-                            class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
-                        >
-                            {{ category }}
+                        <!-- Logical Operator after attachments -->
+                        <span v-if="rule.hasAttachements && hasNextTrigger('hasAttachements')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
                         </span>
-                    </div>
 
-                    <!-- Priorities triggers -->
-                    <div v-if="rule.priorities?.length" class="flex flex-wrap gap-1">
-                        <span
-                            v-for="priority in rule.priorities"
-                            :key="priority"
-                            :class="[
-                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-                                getPriorityClass(priority),
-                            ]"
-                        >
-                            {{ priority }}
+                        <!-- Categories -->
+                        <div v-if="rule.categories?.length" class="flex flex-wrap gap-1">
+                            <span
+                                v-for="category in rule.categories"
+                                :key="category"
+                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+                            >
+                                {{ category }}
+                            </span>
+                        </div>
+
+                        <!-- Logical Operator after categories -->
+                        <span v-if="rule.categories?.length && hasNextTrigger('categories')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
                         </span>
-                    </div>
 
-                    <!-- Answers triggers -->
-                    <div v-if="rule.answers?.length" class="flex flex-wrap gap-1">
-                        <span
-                            v-for="answer in rule.answers"
-                            :key="answer"
-                            class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
-                        >
-                            {{ answer }}
+                        <!-- Priorities -->
+                        <div v-if="rule.priorities?.length" class="flex flex-wrap gap-1">
+                            <span
+                                v-for="priority in rule.priorities"
+                                :key="priority"
+                                :class="[
+                                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                                    getPriorityClass(priority),
+                                ]"
+                            >
+                                {{ priority }}
+                            </span>
+                        </div>
+
+                        <!-- Logical Operator after priorities -->
+                        <span v-if="rule.priorities?.length && hasNextTrigger('priorities')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
                         </span>
-                    </div>
 
-                    <!-- Relevances triggers -->
-                    <div v-if="rule.relevances?.length" class="flex flex-wrap gap-1">
-                        <span
-                            v-for="relevance in rule.relevances"
-                            :key="relevance"
-                            class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
-                        >
-                            {{ relevance }}
+                        <!-- Answers -->
+                        <div v-if="rule.answers?.length" class="flex flex-wrap gap-1">
+                            <span
+                                v-for="answer in rule.answers"
+                                :key="answer"
+                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+                            >
+                                {{ answer }}
+                            </span>
+                        </div>
+
+                        <!-- Logical Operator after answers -->
+                        <span v-if="rule.answers?.length && hasNextTrigger('answers')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
                         </span>
-                    </div>
 
-                    <!-- Flags triggers -->
-                    <div v-if="rule.flags?.length" class="flex flex-wrap gap-1">
-                        <span
-                            v-for="flag in rule.flags"
-                            :key="flag"
-                            class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
-                        >
-                            {{ flag }}
+                        <!-- Relevances -->
+                        <div v-if="rule.relevances?.length" class="flex flex-wrap gap-1">
+                            <span
+                                v-for="relevance in rule.relevances"
+                                :key="relevance"
+                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+                            >
+                                {{ relevance }}
+                            </span>
+                        </div>
+
+                        <!-- Logical Operator after relevances -->
+                        <span v-if="rule.relevances?.length && hasNextTrigger('relevances')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
                         </span>
-                    </div>
 
-                    <!-- Email deal with triggers -->
-                    <div v-if="rule.emailDealWith" class="text-sm text-gray-600">"{{ rule.emailDealWith }}"</div>
+                        <!-- Flags -->
+                        <div v-if="rule.flags?.length" class="flex flex-wrap gap-1">
+                            <span
+                                v-for="flag in rule.flags"
+                                :key="flag"
+                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+                            >
+                                {{ flag }}
+                            </span>
+                        </div>
+
+                        <!-- Logical Operator after flags -->
+                        <span v-if="rule.flags?.length && hasNextTrigger('flags')" class="px-2 text-sm font-medium text-gray-500">
+                            {{ rule.logicalOperator }}
+                        </span>
+
+                        <!-- Email deal with -->
+                        <div v-if="rule.emailDealWith" class="text-sm text-gray-600">"{{ rule.emailDealWith }}"</div>
+                    </template>
                 </div>
             </div>
 
             <!-- Actions Section -->
             <div v-if="hasActions" class="mt-4 space-y-3">
                 <p class="text-sm font-medium text-gray-700">Actions:</p>
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Delete Action -->
+                    <div v-if="rule.actionDelete" class="flex items-center gap-1">
+                        <TrashIcon class="w-4 h-4 text-red-500" />
+                        <span class="text-xs text-red-600">Delete email</span>
+                    </div>
 
-                <!-- Delete Action -->
-                <div v-if="rule.actionDelete" class="flex items-center gap-1">
-                    <TrashIcon class="w-4 h-4 text-red-500" />
-                    <span class="text-xs text-red-600">Delete email</span>
-                </div>
-
-                <!-- Category Action -->
-                <div v-if="rule.actionSetCategory" class="flex items-center gap-1">
-                    <FolderIcon class="w-4 h-4" />
-                    <span class="text-xs">Move to {{ rule.actionSetCategory }}</span>
-                </div>
-
-                <!-- Priority Action -->
-                <div v-if="rule.actionSetPriority" class="flex items-center gap-1">
-                    <ExclamationCircleIcon class="w-4 h-4" />
-                    <span class="text-xs">Set priority to {{ rule.actionSetPriority }}</span>
-                </div>
-
-                <!-- Relevance Action -->
-                <div v-if="rule.actionSetRelevance" class="flex items-center gap-1">
-                    <SignalIcon class="w-4 h-4" />
-                    <span class="text-xs">Set relevance to {{ rule.actionSetRelevance }}</span>
-                </div>
-
-                <!-- Answer Action -->
-                <div v-if="rule.actionSetAnswer" class="flex items-center gap-1">
-                    <ChatBubbleLeftIcon class="w-4 h-4" />
-                    <span class="text-xs">Set answer status to {{ rule.actionSetAnswer }}</span>
-                </div>
-
-                <!-- Mark As Actions -->
-                <div v-if="rule.actionMarkAs?.length" class="flex flex-wrap gap-1">
-                    <span
-                        v-for="mark in rule.actionMarkAs"
-                        :key="mark"
-                        class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700"
-                    >
-                        Mark as {{ mark }}
+                    <!-- Logical Operator after delete -->
+                    <span v-if="rule.actionDelete && hasNextAction('actionDelete')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
                     </span>
-                </div>
 
-                <!-- Transfer Recipients -->
-                <div v-if="rule.actionTransferRecipients?.length" class="flex flex-col gap-1">
-                    <span class="text-xs">Transfer to:</span>
-                    <div class="flex flex-wrap gap-1">
+                    <!-- Category Action -->
+                    <div v-if="rule.actionSetCategory" class="flex items-center gap-1">
+                        <FolderIcon class="w-4 h-4" />
+                        <span class="text-xs">Move to {{ rule.actionSetCategory }}</span>
+                    </div>
+
+                    <!-- Logical Operator after category -->
+                    <span v-if="rule.actionSetCategory && hasNextAction('actionSetCategory')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
+                    </span>
+
+                    <!-- Priority Action -->
+                    <div v-if="rule.actionSetPriority" class="flex items-center gap-1">
+                        <ExclamationCircleIcon class="w-4 h-4" />
+                        <span class="text-xs">Set priority to {{ rule.actionSetPriority }}</span>
+                    </div>
+
+                    <!-- Logical Operator after priority -->
+                    <span v-if="rule.actionSetPriority && hasNextAction('actionSetPriority')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
+                    </span>
+
+                    <!-- Relevance Action -->
+                    <div v-if="rule.actionSetRelevance" class="flex items-center gap-1">
+                        <SignalIcon class="w-4 h-4" />
+                        <span class="text-xs">Set relevance to {{ rule.actionSetRelevance }}</span>
+                    </div>
+
+                    <!-- Logical Operator after relevance -->
+                    <span v-if="rule.actionSetRelevance && hasNextAction('actionSetRelevance')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
+                    </span>
+
+                    <!-- Answer Action -->
+                    <div v-if="rule.actionSetAnswer" class="flex items-center gap-1">
+                        <ChatBubbleLeftIcon class="w-4 h-4" />
+                        <span class="text-xs">Set answer status to {{ rule.actionSetAnswer }}</span>
+                    </div>
+
+                    <!-- Logical Operator after answer -->
+                    <span v-if="rule.actionSetAnswer && hasNextAction('actionSetAnswer')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
+                    </span>
+
+                    <!-- Mark As Actions -->
+                    <div v-if="rule.actionMarkAs?.length" class="flex flex-wrap gap-1">
                         <span
-                            v-for="recipient in rule.actionTransferRecipients"
-                            :key="recipient"
-                            class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700"
+                            v-for="mark in rule.actionMarkAs"
+                            :key="mark"
+                            class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700"
                         >
-                            {{ recipient }}
+                            Mark as {{ mark }}
                         </span>
                     </div>
-                </div>
 
-                <!-- Reply Actions -->
-                <div v-if="rule.actionReplyPrompt" class="flex flex-col gap-1">
-                    <span class="text-xs">Auto-reply:</span>
-                    <span class="text-xs text-gray-600">"{{ rule.actionReplyPrompt }}"</span>
+                    <!-- Logical Operator after mark as -->
+                    <span v-if="rule.actionMarkAs?.length && hasNextAction('actionMarkAs')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
+                    </span>
 
-                    <div v-if="rule.actionReplyRecipients?.length" class="flex flex-wrap gap-1 mt-1">
+                    <!-- Transfer Recipients -->
+                    <div v-if="rule.actionTransferRecipients?.length" class="flex flex-col gap-1">
+                        <span class="text-xs">Transfer to:</span>
+                        <div class="flex flex-wrap gap-1">
+                            <span
+                                v-for="recipient in rule.actionTransferRecipients"
+                                :key="recipient"
+                                class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700"
+                            >
+                                {{ recipient }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Logical Operator after transfer recipients -->
+                    <span v-if="rule.actionTransferRecipients?.length && hasNextAction('actionTransferRecipients')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
+                    </span>
+
+                    <!-- Reply Actions -->
+                    <div v-if="rule.actionReplyPrompt" class="flex flex-col gap-1">
+                        <span class="text-xs">Auto-reply:</span>
+                        <span class="text-xs text-gray-600">"{{ rule.actionReplyPrompt }}"</span>
+
+                        <div v-if="rule.actionReplyRecipients?.length" class="flex flex-wrap gap-1 mt-1">
+                            <span
+                                v-for="recipient in rule.actionReplyRecipients"
+                                :key="recipient"
+                                class="inline-flex items-center rounded-full bg-pink-50 px-2 py-0.5 text-xs font-medium text-pink-700"
+                            >
+                                {{ recipient }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Logical Operator after reply -->
+                    <span v-if="rule.actionReplyPrompt && hasNextAction('actionReplyPrompt')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
+                    </span>
+
+                    <!-- Tags/Flags -->
+                    <div v-if="rule.actionSetFlags?.length" class="flex flex-wrap gap-1">
                         <span
-                            v-for="recipient in rule.actionReplyRecipients"
-                            :key="recipient"
-                            class="inline-flex items-center rounded-full bg-pink-50 px-2 py-0.5 text-xs font-medium text-pink-700"
+                            v-for="tag in rule.actionSetFlags"
+                            :key="tag"
+                            class="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700"
                         >
-                            {{ recipient }}
+                            {{ tag }}
                         </span>
                     </div>
-                </div>
 
-                <!-- Tags/Flags -->
-                <div v-if="rule.actionSetFlags?.length" class="flex flex-wrap gap-1">
-                    <span
-                        v-for="tag in rule.actionSetFlags"
-                        :key="tag"
-                        class="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700"
-                    >
-                        {{ tag }}
+                    <!-- Logical Operator after tags -->
+                    <span v-if="rule.actionSetFlags?.length && hasNextAction('actionSetFlags')" class="px-2 text-sm font-medium text-gray-500">
+                        {{ rule.logicalOperator }}
                     </span>
                 </div>
             </div>
@@ -218,7 +299,6 @@ const emit = defineEmits<{
     (e: "edit", rule: RuleData): void;
 }>();
 
-// Computed helpers
 const hasEmailTriggers = computed(() => {
     return (
         props.rule.domains?.length ||
@@ -248,7 +328,6 @@ const hasActions = computed(() => {
     );
 });
 
-// Helper functions
 const getPriorityClass = (priority: string) => {
     switch (priority.toLowerCase()) {
         case "important":
@@ -262,5 +341,53 @@ const getPriorityClass = (priority: string) => {
 
 function editRule() {
     emit("edit", props.rule);
+}
+
+function hasNextTrigger(currentTrigger: keyof RuleData) {
+    const triggerOrder: (keyof RuleData)[] = [
+        'domains',
+        'senderEmails',
+        'hasAttachements',
+        'categories',
+        'priorities',
+        'answers',
+        'relevances',
+        'flags',
+        'emailDealWith'
+    ];
+    
+    const currentIndex = triggerOrder.indexOf(currentTrigger);
+    if (currentIndex === -1) return false;
+    
+    return triggerOrder.slice(currentIndex + 1).some(trigger => {
+        const value = props.rule[trigger];
+        if (trigger === 'hasAttachements')
+            return Boolean(value);
+        return Array.isArray(value) ? value.length > 0 : Boolean(value);
+    });
+}
+
+function hasNextAction(currentAction: keyof RuleData) {
+    const actionOrder: (keyof RuleData)[] = [
+        'actionDelete',
+        'actionSetCategory',
+        'actionSetPriority',
+        'actionSetRelevance',
+        'actionSetAnswer',
+        'actionMarkAs',
+        'actionTransferRecipients',
+        'actionReplyPrompt',
+        'actionSetFlags'
+    ];
+    
+    const currentIndex = actionOrder.indexOf(currentAction);
+    if (currentIndex === -1) return false;
+    
+    return actionOrder.slice(currentIndex + 1).some(action => {
+        const value = props.rule[action];
+        if (action === 'actionDelete' || action === 'actionReplyPrompt')
+            return Boolean(value);
+        return Array.isArray(value) ? value.length > 0 : Boolean(value);
+    });
 }
 </script>

@@ -735,6 +735,21 @@
   const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>(
     "displayPopup"
   );
+
+  watch(
+        triggers,
+        (newTriggers) => {
+            newTriggers.forEach((trigger) => {
+            if (
+                (trigger.type === 'domains' || trigger.type === 'senderEmails') &&
+                trigger.value === null
+            ) {
+                trigger.value = [];
+            }
+            });
+        },
+        { deep: true }
+    );
   
   // Watch prop changes for isOpen
   watch(

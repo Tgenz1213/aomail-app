@@ -813,7 +813,6 @@
         }
         triggers.value = newTriggers.length ? newTriggers : [{ type: "", value: null }];
   
-        // Initialize actions from rule values (if present)
         const newActions: Trigger[] = [];
         if (newVal.actionSetFlags && newVal.actionSetFlags.length) {
           newActions.push({

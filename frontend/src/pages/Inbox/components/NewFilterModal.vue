@@ -3,7 +3,7 @@
         <Modal
             v-if="props.isOpen"
             @click.self="closeModal"
-            class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            class="fixed z-[250] top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
         >
             <div class="bg-white rounded-lg relative w-[550px] max-h-[90vh] overflow-y-auto">
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">

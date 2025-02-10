@@ -43,6 +43,7 @@ CORS_ALLOWED_ORIGINS = [
     SUB_DOMAIN,
     f"https://admin.{DOMAIN}",
     f"http://localhost:{FRONTEND_PORT}",
+    "http://localhost:8085",
 ]
 
 # ----------------------- EMAIL CREDS -----------------------#

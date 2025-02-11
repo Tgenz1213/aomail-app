@@ -15,7 +15,7 @@
                         {{ filter.name }}
                     </span>
                 </button>
-                <div class="w-0 group-hover:w-6 overflow-hidden transition-all duration-200 flex items-center h-full">
+                <div class="w-0 group-hover:w-6 overflow-hidden transition-all duration-200 flex items-center h-full" v-if="filter.id !== 0">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

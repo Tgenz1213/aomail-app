@@ -63,7 +63,6 @@ urlpatterns = [
     path('user/rules_ids/', search_rules.get_user_rule_ids, name='get_user_rule_ids'),
     path('user/get_rules_data/', search_rules.get_rules_data, name='get_rules_data'),
     path('user/rules/', rules.handle_rules, name='handle_rules'),
-    path('user/emails/<int:email_id>/block_sender/', rules.set_rule_block_for_sender, name='set_rule_block_for_sender'),
     #----------------------- PREFERENCES -----------------------#
     path('user/preferences/update_username/', prefs.update_username, name='update_username'),
     path('user/preferences/update_password/', prefs.update_password, name='update_password'),

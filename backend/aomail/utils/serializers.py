@@ -245,12 +245,6 @@ class RuleSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class RuleBlockUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rule
-        fields = ("block",)
-
-
 class SenderSerializer(serializers.ModelSerializer):
     """Serializer for handling 'Sender' model data in API interactions."""
 

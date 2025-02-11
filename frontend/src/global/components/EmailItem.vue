@@ -458,9 +458,12 @@ const openEmail = async () => {
 async function setRuleBlockForSender() {
     localEmail.value.read = true;
 
-    const resultBlock = await postData(`user/emails/${localEmail.value.id}/block_sender/`, {});
-    if (!resultBlock.success) {
-        displayPopup?.("error", i18n.global.t("homepage.blockEmailAddressFailure"), resultBlock.error as string);
+    const result = await postData("user/rules/", {
+        senderEmails: [localEmail.value.sender.email],
+        actionDelete: true,
+    });
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.blockEmailAddressFailure"), result.error as string);
     }
 
     markEmailAsRead();

@@ -1,29 +1,46 @@
 <template>
+    <NotificationTimer
+        :showNotification="showNotification"
+        :notificationTitle="notificationTitle"
+        :notificationMessage="notificationMessage"
+        :backgroundColor="backgroundColor"
+        @dismissPopup="dismissPopup"
+    />
     <div class="h-full overflow-y-auto -mr-6">
         <div class="flex gap-6 h-full pr-4">
             <!-- Professional Templates -->
             <div class="w-2/5 bg-white rounded-lg p-4 overflow-y-auto max-h-full">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold">{{ $t('aiAssistantPage.professionalTemplates.title') }}</h2>
+                    <h2 class="text-lg font-semibold">{{ $t("aiAssistantPage.professionalTemplates.title") }}</h2>
                     <div class="relative">
-                        <input type="text" v-model="searchQuery"
+                        <input
+                            type="text"
+                            v-model="searchQuery"
                             :placeholder="$t('aiAssistantPage.professionalTemplates.searchPlaceholder')"
-                            class="w-48 px-3 py-1 border rounded-md text-sm" />
+                            class="w-48 px-3 py-1 border rounded-md text-sm"
+                        />
                         <MagnifyingGlassIcon class="absolute right-2 top-1.5 w-4 h-4 text-gray-400" />
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 mb-4">
-                    {{ $t('aiAssistantPage.professionalTemplates.subtitle') }}
+                    {{ $t("aiAssistantPage.professionalTemplates.subtitle") }}
                 </p>
                 <div class="space-y-4">
-                    <div v-if="filteredProfiles.length === 0"
-                        class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors">
-                        <h3 class="font-medium text-gray-900">{{
-                            $t('aiAssistantPage.professionalTemplates.noResult') }}</h3>
-                    </div>
-                    <div v-else v-for="profile in filteredProfiles" :key="profile.title"
+                    <div
+                        v-if="filteredProfiles.length === 0"
                         class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors"
-                        @click="applyProfile(profile)">
+                    >
+                        <h3 class="font-medium text-gray-900">
+                            {{ $t("aiAssistantPage.professionalTemplates.noResult") }}
+                        </h3>
+                    </div>
+                    <div
+                        v-else
+                        v-for="profile in filteredProfiles"
+                        :key="profile.title"
+                        class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                        @click="applyProfile(profile)"
+                    >
                         <h3 class="font-medium text-gray-900">{{ profile.title }}</h3>
                         <p class="text-sm text-gray-600 mt-1">{{ profile.description }}</p>
                     </div>
@@ -32,49 +49,61 @@
 
             <!-- Guidelines Form -->
             <div class="flex-1 bg-white rounded-lg p-4">
-                <h2 class="text-lg font-semibold mb-4">{{ $t('aiAssistantPage.detailedGuidelines.title') }}</h2>
+                <h2 class="text-lg font-semibold mb-4">{{ $t("aiAssistantPage.detailedGuidelines.title") }}</h2>
                 <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
                     <p class="text-sm text-blue-800">
-                        {{ $t('aiAssistantPage.detailedGuidelines.subtitle') }}
+                        {{ $t("aiAssistantPage.detailedGuidelines.subtitle") }}
                     </p>
                 </div>
                 <form @submit.prevent="saveGuidelines" class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{
-                            $t('aiAssistantPage.detailedGuidelines.important.label') }}</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ $t("aiAssistantPage.detailedGuidelines.important.label") }}
+                        </label>
                         <p class="text-xs text-gray-500 mb-2">
-                            {{ $t('aiAssistantPage.detailedGuidelines.important.description') }}
+                            {{ $t("aiAssistantPage.detailedGuidelines.important.description") }}
                         </p>
-                        <textarea v-model="guidelines.important" rows="4"
+                        <textarea
+                            v-model="guidelines.important"
+                            rows="4"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                            :placeholder="getPlaceholder('important')"></textarea>
+                            :placeholder="getPlaceholder('important')"
+                        ></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            {{ $t('aiAssistantPage.detailedGuidelines.informative.label') }}
+                            {{ $t("aiAssistantPage.detailedGuidelines.informative.label") }}
                         </label>
                         <p class="text-xs text-gray-500 mb-2">
-                            {{ $t('aiAssistantPage.detailedGuidelines.informative.description') }}
+                            {{ $t("aiAssistantPage.detailedGuidelines.informative.description") }}
                         </p>
-                        <textarea v-model="guidelines.informative" rows="4"
+                        <textarea
+                            v-model="guidelines.informative"
+                            rows="4"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                            :placeholder="getPlaceholder('informative')"></textarea>
+                            :placeholder="getPlaceholder('informative')"
+                        ></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            {{ $t('aiAssistantPage.detailedGuidelines.lowPriority.label') }}
+                            {{ $t("aiAssistantPage.detailedGuidelines.lowPriority.label") }}
                         </label>
                         <p class="text-xs text-gray-500 mb-2">
-                            {{ $t('aiAssistantPage.detailedGuidelines.lowPriority.description') }}
+                            {{ $t("aiAssistantPage.detailedGuidelines.lowPriority.description") }}
                         </p>
-                        <textarea v-model="guidelines.useless" rows="4"
+                        <textarea
+                            v-model="guidelines.useless"
+                            rows="4"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                            :placeholder="getPlaceholder('useless')"></textarea>
+                            :placeholder="getPlaceholder('useless')"
+                        ></textarea>
                     </div>
                     <div class="flex justify-end">
-                        <button type="submit"
-                            class="inline-flex justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
-                            {{ $t('aiAssistantPage.detailedGuidelines.saveButton') }}
+                        <button
+                            type="submit"
+                            class="inline-flex justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+                        >
+                            {{ $t("aiAssistantPage.detailedGuidelines.saveButton") }}
                         </button>
                     </div>
                 </form>
@@ -84,7 +113,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import { ref, computed, onMounted } from "vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { getPredefinedProfiles } from "../utils/jobs";
 import { getData, postData } from "@/global/fetchData";
@@ -185,5 +215,7 @@ async function saveGuidelines() {
     }
 }
 
-loadCurrentGuidelines();
-</script> 
+onMounted(() => {
+    loadCurrentGuidelines();
+});
+</script>

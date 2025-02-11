@@ -481,11 +481,25 @@ async function fetchCategoriesAndTotals() {
 }
 
 const fetchFiltersData = async (categoryName: string) => {
-    const response = await postData("user/filters/", { category: categoryName });
-    if (response.data.length > 0) {
-        response.data = [{ name: "All emails", id: 0 }, ...response.data];
+    try {
+        const response = await postData("user/filters/", { category: categoryName });
+        
+        if (!filters.value[categoryName]) {
+            filters.value[categoryName] = [];
+        }
+
+        if (response.success && Array.isArray(response.data)) {
+            filters.value[categoryName] = response.data.length > 0 
+                ? [{ name: "All emails", id: 0 }, ...response.data]
+                : response.data;
+        } else {
+            console.warn(`Failed to fetch filters for category ${categoryName}`);
+            filters.value[categoryName] = [];
+        }
+    } catch (error) {
+        console.error(`Error fetching filters for category ${categoryName}:`, error);
+        filters.value[categoryName] = [];
     }
-    filters.value[categoryName] = response.data;
 };
 
 const openNewFilterModal = () => {

@@ -158,14 +158,18 @@ def delete_filter(request: HttpRequest) -> Response:
     Delete a filter associated with the authenticated user.
 
     Args:
-        request (HttpRequest): The HTTP request object containing the following parameter in the body:
-            filter_id (int): The ID of the filter to be deleted.
+        request (HttpRequest): The HTTP request object containing the following parameters in the body:
+            filterName (str): The name of the filter to be deleted
+            category (int): The ID of the category the filter belongs to
 
     Returns:
         Response: JSON response indicating success or failure of deleting the filter.
     """
     data: dict = json.loads(request.body)
     current_name = data.get("filterName")
+    category_id = data.get("category")
+
+    LOGGER.info(f"Deleting filter: {current_name}, Category: {category_id}")
 
     if not current_name:
         return Response(
@@ -173,10 +177,15 @@ def delete_filter(request: HttpRequest) -> Response:
         )
 
     try:
-        filter = Filter.objects.get(name=current_name, user=request.user)
+        filter = Filter.objects.get(
+            name=current_name, 
+            user=request.user,
+            category_id=category_id
+        )
+        LOGGER.info(f"Deleting filter: ID: {filter.id}, Name: {filter.name}, Category: {filter.category.name}")
     except Filter.DoesNotExist:
         return Response(
-            {"error": "Filter not found"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Filter not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
     filter.delete()

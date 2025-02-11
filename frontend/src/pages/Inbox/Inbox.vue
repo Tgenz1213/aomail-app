@@ -227,11 +227,44 @@ watch(
     () => [activeFilters.value, selectedCategory.value],
     () => {
         const currentCategoryFilter = activeFilters.value[selectedCategory.value];
-        if (!currentCategoryFilter && filters.value[selectedCategory.value]?.length > 0) {
-            const allEmailsFilter = filters.value[selectedCategory.value].find(f => f.id === 0);
-            if (allEmailsFilter) {
-                activeFilters.value[selectedCategory.value] = allEmailsFilter;
-                selectedFilter.value = allEmailsFilter;
+        const categoryFilters = filters.value[selectedCategory.value];
+        
+        if (!currentCategoryFilter && categoryFilters?.length > 0) {
+            const storedFilters = localStorage.getItem("activeFilters");
+            if (storedFilters) {
+                const parsedFilters = JSON.parse(storedFilters);
+                activeFilters.value = { ...parsedFilters };
+                
+                if (!activeFilters.value[selectedCategory.value] && categoryFilters) {
+                    const storedFilter = parsedFilters[selectedCategory.value];
+                    if (storedFilter) {
+                        const matchingFilter = categoryFilters.find(f => f.name === storedFilter.name);
+                        if (matchingFilter) {
+                            activeFilters.value[selectedCategory.value] = matchingFilter;
+                            selectedFilter.value = matchingFilter;
+                        } else {
+                            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+                            if (allEmailsFilter) {
+                                activeFilters.value[selectedCategory.value] = allEmailsFilter;
+                                selectedFilter.value = allEmailsFilter;
+                            }
+                        }
+                    } else {
+                        const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+                        if (allEmailsFilter) {
+                            activeFilters.value[selectedCategory.value] = allEmailsFilter;
+                            selectedFilter.value = allEmailsFilter;
+                        }
+                    }
+                }
+                localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
+            } else {
+                const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+                if (allEmailsFilter) {
+                    activeFilters.value[selectedCategory.value] = allEmailsFilter;
+                    selectedFilter.value = allEmailsFilter;
+                    localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
+                }
             }
         } else {
             selectedFilter.value = currentCategoryFilter;
@@ -406,26 +439,31 @@ async function loadPage(pageNumber: number) {
 }
 
 const loadMoreEmails = async (pagesToLoad = 1) => {
-    if (isLoading.value) return;
+    if (isLoading.value || currentPage.value > totalPages.value) return;
+    
     isLoading.value = true;
+    console.log("Loading more emails...", currentPage.value, totalPages.value);
 
-    for (let i = 0; i < pagesToLoad; i++) {
-        if (currentPage.value <= totalPages.value) {
-            await loadPage(currentPage.value);
-            currentPage.value++;
-        } else {
-            break;
+    try {
+        for (let i = 0; i < pagesToLoad; i++) {
+            if (currentPage.value <= totalPages.value) {
+                await loadPage(currentPage.value);
+                currentPage.value++;
+            } else {
+                break;
+            }
         }
-    }
 
-    if (currentPage.value <= totalPages.value) {
-        loadPage(currentPage.value).catch((err) => {
-            console.error("Prefetch error:", err);
-        });
-        currentPage.value++;
+        if (currentPage.value <= totalPages.value) {
+            loadPage(currentPage.value).catch((err) => {
+                console.error("Prefetch error:", err);
+            });
+        }
+    } catch (error) {
+        console.error("Error loading more emails:", error);
+    } finally {
+        isLoading.value = false;
     }
-
-    isLoading.value = false;
 };
 
 function debounce(func: (...args: any[]) => void, wait: number) {
@@ -453,7 +491,10 @@ const handleScroll = debounce(() => {
     previousTime.value = now;
 
     const threshold = 800;
-    if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
+    const remainingScroll = scrollHeight - (scrollTop + clientHeight);
+    
+    if (remainingScroll <= threshold && !isLoading.value && currentPage.value <= totalPages.value) {
+        console.log("Triggering load more...", { remainingScroll, threshold, currentPage: currentPage.value, totalPages: totalPages.value });
         if (speed > 1.5) {
             loadMoreEmails(2);
         } else {
@@ -465,6 +506,7 @@ const handleScroll = debounce(() => {
 const scroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
+        container.removeEventListener("scroll", handleScroll);
         container.addEventListener("scroll", handleScroll);
     }
 };
@@ -498,16 +540,57 @@ const fetchFiltersData = async (categoryName: string) => {
         }
 
         if (response.success && Array.isArray(response.data)) {
-            filters.value[categoryName] = response.data.length > 0 
-                ? [{ name: "All emails", id: 0 }, ...response.data]
-                : response.data;
+            const allEmailsFilter = {
+                id: 0,
+                name: "All emails",
+                important: true,
+                informative: true,
+                useless: true,
+                read: true,
+                notification: true,
+                newsletter: true,
+                spam: true,
+                scam: true,
+                meeting: true,
+                category: categoryName
+            };
+
+            const customFilters = response.data.filter(f => f.id !== 0);
+            
+            filters.value[categoryName] = [allEmailsFilter, ...customFilters];
         } else {
             console.warn(`Failed to fetch filters for category ${categoryName}`);
-            filters.value[categoryName] = [];
+            filters.value[categoryName] = [{
+                id: 0,
+                name: "All emails",
+                important: true,
+                informative: true,
+                useless: true,
+                read: true,
+                notification: true,
+                newsletter: true,
+                spam: true,
+                scam: true,
+                meeting: true,
+                category: categoryName
+            }];
         }
     } catch (error) {
         console.error(`Error fetching filters for category ${categoryName}:`, error);
-        filters.value[categoryName] = [];
+        filters.value[categoryName] = [{
+            id: 0,
+            name: "All emails",
+            important: true,
+            informative: true,
+            useless: true,
+            read: true,
+            notification: true,
+            newsletter: true,
+            spam: true,
+            scam: true,
+            meeting: true,
+            category: categoryName
+        }];
     }
 };
 
@@ -650,6 +733,9 @@ provide("importantCount", importantCount);
 provide("informativeCount", informativeCount);
 provide("readCount", readCount);
 provide("loadMoreEmails", loadMoreEmails);
+provide("currentPage", currentPage);
+provide("allEmailIds", allEmailIds);
+provide("isLoading", isLoading);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({
@@ -892,7 +978,7 @@ const saveWidths = () => {
 
 onMounted(async () => {
     processFeedBackForm();
-    loadActiveFilters();
+    
     await fetchCategoriesAndTotals();
 
     const storedTopic = localStorage.getItem("selectedCategory");
@@ -902,14 +988,46 @@ onMounted(async () => {
         selectedCategory.value = DEFAULT_CATEGORY;
     }
 
-    await loadActiveFilters();
+    const loadFiltersPromises = categories.value.map(category => 
+        fetchFiltersData(category.name)
+    );
+    await Promise.all(loadFiltersPromises);
+
+    const storedFilters = localStorage.getItem("activeFilters");
+    if (storedFilters) {
+        const parsedFilters = JSON.parse(storedFilters);
+        activeFilters.value = { ...parsedFilters };
+        
+        for (const category of categories.value) {
+            const categoryFilters = filters.value[category.name];
+            if (categoryFilters) {
+                const storedFilter = parsedFilters[category.name];
+                if (storedFilter) {
+                    const matchingFilter = categoryFilters.find(f => f.name === storedFilter.name);
+                    if (matchingFilter) {
+                        activeFilters.value[category.name] = matchingFilter;
+                        if (category.name === selectedCategory.value) {
+                            selectedFilter.value = matchingFilter;
+                        }
+                    } else {
+                        const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+                        if (allEmailsFilter) {
+                            activeFilters.value[category.name] = allEmailsFilter;
+                            if (category.name === selectedCategory.value) {
+                                selectedFilter.value = allEmailsFilter;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
+    }
 
     await fetchEmailsData(selectedCategory.value);
-    await fetchFiltersData(selectedCategory.value);
     await fetchEmailCounts(selectedCategory.value);
 
     firstLoad.value = false;
-
     scroll();
 });
 

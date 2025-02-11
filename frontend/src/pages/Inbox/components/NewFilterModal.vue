@@ -253,7 +253,7 @@ import { Ref, ref, inject, onMounted, onUnmounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from "@heroicons/vue/20/solid";
 import { postData } from "@/global/fetchData";
-import { Filter } from "@/global/types";
+import { Filter, Email } from "@/global/types";
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter") {
@@ -295,6 +295,10 @@ const selectedCategory = inject("selectedCategory") as Ref<string>;
 const activeFilters = inject("activeFilters") as Ref<{
     [category: string]: Filter | undefined;
 }>;
+const currentPage = inject("currentPage") as Ref<number>;
+const emails = inject("emails") as Ref<Record<string, Record<string, Email[]>>>;
+const allEmailIds = inject("allEmailIds") as Ref<string[]>;
+const isLoading = inject("isLoading") as Ref<boolean>;
 
 const newFilter = ref<Filter>({
     name: "",
@@ -360,8 +364,12 @@ const addFilter = async () => {
     const response = await postData("create_filter/", newFilter.value);
     if (response.success) {
         selectedFilter.value = { ...response.data };
-        await fetchEmailsData(selectedCategory.value);
-
+        
+        currentPage.value = 1;
+        emails.value = {};
+        allEmailIds.value = [];
+        isLoading.value = false;
+        
         newFilter.value.category = response.data.category;
         filters.value[selectedCategory.value].push(newFilter.value);
 

@@ -226,7 +226,16 @@ let totalPages = computed(() => {
 watch(
     () => [activeFilters.value, selectedCategory.value],
     () => {
-        selectedFilter.value = activeFilters.value[selectedCategory.value];
+        const currentCategoryFilter = activeFilters.value[selectedCategory.value];
+        if (!currentCategoryFilter && filters.value[selectedCategory.value]?.length > 0) {
+            const allEmailsFilter = filters.value[selectedCategory.value].find(f => f.id === 0);
+            if (allEmailsFilter) {
+                activeFilters.value[selectedCategory.value] = allEmailsFilter;
+                selectedFilter.value = allEmailsFilter;
+            }
+        } else {
+            selectedFilter.value = currentCategoryFilter;
+        }
     },
     { immediate: true }
 );
@@ -703,13 +712,28 @@ const selectCategory = async (category: Category) => {
     toSearch.value = false;
     searchQuery.value = "";
 
-    await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
+
+    if (!activeFilters.value[category.name]) {
+        const categoryFilters = filters.value[category.name];
+        if (categoryFilters && categoryFilters.length > 0) {
+            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+            if (allEmailsFilter) {
+                activeFilters.value[category.name] = allEmailsFilter;
+                selectedFilter.value = allEmailsFilter;
+            }
+        }
+    } else {
+        selectedFilter.value = activeFilters.value[category.name];
+    }
+
+    await fetchEmailsData(selectedCategory.value);
     await fetchEmailCounts(selectedCategory.value);
+    
     localStorage.setItem("selectedCategory", category.name);
+    localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
 
     firstLoad.value = false;
-
     scroll();
 };
 
@@ -762,10 +786,16 @@ const loadActiveFilters = async () => {
         for (const category in parsedFilters) {
             await fetchFiltersData(category);
             const filterArray = filters.value[category];
-            if (filterArray && parsedFilters[category]) {
+            if (filterArray) {
                 const filter = filterArray.find((f) => f.name === parsedFilters[category].name);
                 if (filter) {
                     activeFilters.value[category] = filter;
+                } else {
+                    // If stored filter not found, set to "All emails" filter
+                    const allEmailsFilter = filterArray.find(f => f.id === 0);
+                    if (allEmailsFilter) {
+                        activeFilters.value[category] = allEmailsFilter;
+                    }
                 }
             }
         }

@@ -2,79 +2,23 @@
 Handles user rule operations, returns results to frontend, and saves to database.
 
 Endpoints:
-- ✅ set_rule_block_for_sender: Set a blocking rule for the sender of the specified email.
 - ✅ handle_rules: Handle Create, Update, Delete operations for rules.
 """
 
 import json
 import logging
 from django.http import HttpRequest
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import ALLOW_ALL
-from aomail.models import (
-    Email,
-    Rule,
-)
-from aomail.utils.serializers import (
-    RuleBlockUpdateSerializer,
-    RuleSerializer,
-)
-from django.db import models
+from aomail.models import Rule
+from aomail.utils.serializers import RuleSerializer
 
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
-
-
-@api_view(["POST"])
-@subscription(ALLOW_ALL)
-def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:
-    """
-    Sets a blocking rule for the sender of the specified email associated with the authenticated user.
-    If a rule already exists that blocks this sender's domain or email, no new rule is created.
-
-    Args:
-        request (HttpRequest): HTTP request object containing the authenticated user.
-        email_id (int): The ID of the email whose sender should be blocked.
-
-    Returns:
-        Response: A JSON response containing the updated rule data indicating the sender has been blocked.
-    """
-    user = request.user
-    email = get_object_or_404(Email, user=user, id=email_id)
-    sender_email = email.sender.email
-    sender_domain = sender_email.split("@")[1]
-
-    # Check if there's already a rule blocking this sender's domain or email
-    existing_rule = (
-        Rule.objects.filter(user=user)
-        .filter(
-            models.Q(domains__contains=[sender_domain])
-            | models.Q(sender_emails__contains=[sender_email])
-        )
-        .filter(action_delete=True)
-        .first()
-    )
-
-    if existing_rule:
-        # Rule already exists that blocks this sender
-        serializer = RuleBlockUpdateSerializer(existing_rule)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # Create new rule to block this sender
-    rule = Rule.objects.create(
-        user=user,
-        logical_operator="OR",
-        sender_emails=[sender_email],
-        action_delete=True,
-    )
-
-    serializer = RuleBlockUpdateSerializer(rule)
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST", "PUT", "DELETE"])

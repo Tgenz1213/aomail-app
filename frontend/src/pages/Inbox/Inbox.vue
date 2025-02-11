@@ -368,7 +368,6 @@ const fetchEmailsData = async (categoryName: string) => {
     }
 
     allEmailIds.value = response.data.ids;
-    console.log("allEmailIds", response.data.ids);
 
     await loadMoreEmails();
 };

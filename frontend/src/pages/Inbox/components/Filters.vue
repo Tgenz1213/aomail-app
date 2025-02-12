@@ -15,7 +15,7 @@
                         {{ filter.name }}
                     </span>
                 </button>
-                <div class="w-0 group-hover:w-6 overflow-hidden transition-all duration-200 flex items-center h-full">
+                <div class="w-0 group-hover:w-6 overflow-hidden transition-all duration-200 flex items-center h-full" v-if="filter.id !== 0">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -94,7 +94,7 @@
 </template>
 <script setup lang="ts">
 import { Ref, computed, ref, inject, watch } from "vue";
-import { Filter } from "@/global/types";
+import { Filter, Email } from "@/global/types";
 
 const openNewFilterModal = inject("openNewFilterModal") as () => void;
 const scroll = inject<() => void>("scroll");
@@ -109,6 +109,10 @@ const activeFilters = inject("activeFilters") as Ref<{
     [category: string]: Filter | undefined;
 }>;
 const showAllFiltersModal = ref(false);
+const currentPage = inject("currentPage") as Ref<number>;
+const emails = inject("emails") as Ref<Record<string, Record<string, Email[]>>>;
+const allEmailIds = inject("allEmailIds") as Ref<string[]>;
+const isLoading = inject("isLoading") as Ref<boolean>;
 
 const allFilters = computed((): Filter[] => {
     return filters.value[selectedCategory.value] || [];
@@ -136,16 +140,23 @@ const setActiveFilter = async (filterName: string) => {
         if (filter) {
             selectedFilter.value = filter;
             activeFilters.value[selectedCategory.value] = filter;
-
+            
+            currentPage.value = 1;
+            emails.value = {};
+            allEmailIds.value = [];
+            isLoading.value = false;
+            
             await fetchEmailsData(selectedCategory.value);
             
             const container = document.querySelector(".custom-scrollbar");
             if (container) {
                 container.scrollTop = 0;
+                if (handleScroll) {
+                    container.removeEventListener("scroll", handleScroll);
+                }
             }
 
             scroll?.();
-            handleScroll?.();
 
             localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
         } else {

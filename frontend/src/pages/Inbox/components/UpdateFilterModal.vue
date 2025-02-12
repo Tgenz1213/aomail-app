@@ -244,7 +244,7 @@ import { Ref, ref, watch, inject, onMounted, onUnmounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from "@heroicons/vue/20/solid";
 import { putData, deleteData } from "@/global/fetchData";
-import { Filter } from "@/global/types";
+import { Filter, Email } from "@/global/types";
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter") {
@@ -287,6 +287,11 @@ const selectedFilter = inject("selectedFilter") as Ref<Filter | undefined>;
 const activeFilters = inject("activeFilters") as Ref<{
     [category: string]: Filter | undefined;
 }>;
+const handleScroll = inject("handleScroll") as (() => void) | undefined;
+const currentPage = inject("currentPage") as Ref<number>;
+const emails = inject("emails") as Ref<Record<string, Record<string, Email[]>>>;
+const allEmailIds = inject("allEmailIds") as Ref<string[]>;
+const isLoading = inject("isLoading") as Ref<boolean>;
 
 const errorMessage = ref("");
 const filterData = ref<Filter>({
@@ -333,14 +338,32 @@ const updateFilter = async () => {
 
     if (response.success) {
         selectedFilter.value = { ...response.data };
-        await fetchEmailsData(selectedCategory.value);
+        activeFilters.value[selectedCategory.value] = { ...response.data };
+        
+        localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
+
+        currentPage.value = 1;
+        emails.value = {};
+        allEmailIds.value = [];
+        isLoading.value = false;
 
         const filterIndex = categoryFilters.findIndex((filter) => filter.name === props.filter?.name);
         if (filterIndex !== -1) {
-            categoryFilters[filterIndex] = { ...filterData.value };
+            categoryFilters[filterIndex] = { ...response.data };
         } else {
-            categoryFilters.push({ ...filterData.value });
+            categoryFilters.push({ ...response.data });
         }
+
+        await fetchEmailsData(selectedCategory.value);
+        const container = document.querySelector(".custom-scrollbar");
+        if (container) {
+            container.scrollTop = 0;
+            if (handleScroll) {
+                container.removeEventListener("scroll", handleScroll);
+                container.addEventListener("scroll", handleScroll);
+            }
+        }
+        scroll?.();
 
         closeModal();
         displayPopup?.(
@@ -363,17 +386,60 @@ const deleteFilter = async () => {
         return;
     }
 
-    const response = await deleteData(`delete_filter/`, { filterName: props.filter?.name });
+    const response = await deleteData(`delete_filter/`, { 
+        filterName: props.filter?.name,
+        category: filterData.value.category 
+    });
+    
     if (response.success) {
-        selectedFilter.value = undefined;
-        activeFilters.value = { [selectedCategory.value]: undefined };
-        localStorage.removeItem("activeFilters");
-        await fetchEmailsData(selectedCategory.value);
-
+        const allEmailsFilter: Filter = {
+            id: 0,
+            name: "All emails",
+            important: true,
+            informative: true,
+            useless: true,
+            read: true,
+            notification: true,
+            newsletter: true,
+            spam: true,
+            scam: true,
+            meeting: true,
+            category: filterData.value.category
+        };
+        
         const filterIndex = categoryFilters.findIndex((filter) => filter.name === props.filter?.name);
         if (filterIndex !== -1) {
             categoryFilters.splice(filterIndex, 1);
         }
+
+        const existingAllEmailsIndex = categoryFilters.findIndex(f => f.id === 0);
+        if (existingAllEmailsIndex !== -1) {
+            categoryFilters.splice(existingAllEmailsIndex, 1);
+        }
+        categoryFilters.unshift(allEmailsFilter);
+
+        selectedFilter.value = allEmailsFilter;
+        activeFilters.value[selectedCategory.value] = allEmailsFilter;
+        
+        localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
+
+        currentPage.value = 1;
+        emails.value = {};
+        allEmailIds.value = [];
+        isLoading.value = false;
+
+        filters.value = { ...filters.value };
+
+        await fetchEmailsData(selectedCategory.value);
+        const container = document.querySelector(".custom-scrollbar");
+        if (container) {
+            container.scrollTop = 0;
+            if (handleScroll) {
+                container.addEventListener("scroll", handleScroll);
+            }
+        }
+        scroll?.();
+
         closeModal();
         displayPopup?.(
             "success",

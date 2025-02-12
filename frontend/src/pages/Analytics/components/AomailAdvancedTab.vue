@@ -133,7 +133,7 @@ import { i18n } from "@/global/preferences";
 
 Chart.register(...registerables);
 
-type MetricKeys = keyof typeof metricLabelTranslations;
+type MetricKey = keyof typeof metricLabelTranslations;
 
 interface Metric {
     since?: Record<string, number>;
@@ -172,7 +172,7 @@ const metricLabelTranslations = {
     "5years": "5 years",
 } as const;
 
-const statisticsMetrics: MetricKeys[] = [
+const statisticsMetrics: MetricKey[] = [
     "nbEmailsReceived",
     "nbMightRequireAnswer",
     "nbAnswerRequired",
@@ -189,12 +189,12 @@ const statisticsMetrics: MetricKeys[] = [
     "nbNotification",
     "nbMeeting",
 ];
-const sinceOptions: MetricKeys[] = ["join", "today", "monday", "mtd", "ytd"];
-const periodOptions: MetricKeys[] = ["24Hours", "7Days", "30Days", "3Months", "6Months", "1year", "5years"];
+const sinceOptions: MetricKey[] = ["join", "today", "monday", "mtd", "ytd"];
+const periodOptions: MetricKey[] = ["24Hours", "7Days", "30Days", "3Months", "6Months", "1year", "5years"];
 const data = ref<Record<string, Metric>>({});
-const selectedMetric = ref<MetricKeys>(statisticsMetrics[0]);
-const selectedSinceOptions = ref<MetricKeys[]>(sinceOptions);
-const selectedPeriodOptions = ref<MetricKeys[]>(periodOptions);
+const selectedMetric = ref<MetricKey>(statisticsMetrics[0]);
+const selectedSinceOptions = ref<MetricKey[]>(sinceOptions);
+const selectedPeriodOptions = ref<MetricKey[]>(periodOptions);
 const selectedDataOptions = ref<{ avg?: boolean; min?: boolean; max?: boolean }>({
     avg: true,
     min: true,

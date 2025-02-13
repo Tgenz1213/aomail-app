@@ -82,7 +82,7 @@
                                     >
                                         <div class="flex items-center">
                                             <img
-                                                :src="`${API_BASE_URL}agent_icon/${selectedAgent.icon_name}`"
+                                                :src="`${API_BASE_URL}agent_icon/${agent.icon_name}`"
                                                 alt="Agent Icon"
                                                 class="w-5 h-5 rounded-full mr-2"
                                             />

@@ -174,7 +174,7 @@ def set_email_read(user: User, email: str, mail_id: str) -> dict:
     """
     service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
-        service["gmail"].users().messages().modify(
+        service.users().messages().modify(
             userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as read successfully!"}
@@ -197,7 +197,7 @@ def set_email_unread(user: User, email: str, mail_id: str) -> dict:
     """
     service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
-        service["gmail"].users().messages().modify(
+        service.users().messages().modify(
             userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as unread successfully!"}

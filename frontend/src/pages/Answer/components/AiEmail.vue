@@ -49,9 +49,9 @@
                             >
                                 <img
                                     v-if="selectedAgent.id"
-                                    :src="selectedAgent.picture"
+                                    :src="`${API_BASE_URL}agent_icon/${selectedAgent.icon_name}`"
                                     alt="Agent Icon"
-                                    class="w-6 h-6 rounded-full"
+                                    class="w-6 h-6 rounded-full mr-2"
                                 />
                                 <span>{{ selectedAgent.id ? selectedAgent.agent_name : "Select Agent" }}</span>
                                 <svg
@@ -82,7 +82,7 @@
                                     >
                                         <div class="flex items-center">
                                             <img
-                                                :src="agent.picture"
+                                                :src="`${API_BASE_URL}agent_icon/${agent.icon_name}`"
                                                 alt="Agent Icon"
                                                 class="w-5 h-5 rounded-full mr-2"
                                             />
@@ -145,6 +145,7 @@ import UpdateAgentModal from "@/global/components/UpdateAgentModal.vue";
 import { Agent, Recipient, AiRecipient } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import Quill from "quill";
+import { API_BASE_URL } from "@/global/const";
 
 const textareaValue = ref("");
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);

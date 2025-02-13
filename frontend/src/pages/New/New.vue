@@ -439,7 +439,6 @@ async function fetchAgents() {
                 ...agent,
                 picture: agent.picture || "/assets/default-agent.png",
             }));
-            console.log("======================================> tatata agents = ", agents.value);
         } else {
             throw new Error(response.error);
         }

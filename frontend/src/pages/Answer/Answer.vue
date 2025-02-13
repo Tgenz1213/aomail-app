@@ -127,7 +127,7 @@ const displayMessage = async (message: string, aiIcon: string) => {
     const messageHTML = `
       <div class="flex pb-6">
         <div class="mr-3 flex-shrink-0">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                 <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
         </div>
@@ -387,7 +387,7 @@ onMounted(async () => {
         const messageHTML = `
         <div class="flex pb-12">
           <div class="mr-4 flex flex-shrink-0">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                 <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
           </div>
@@ -528,7 +528,7 @@ function loading() {
       <div id="dynamicLoadingIndicator" class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                     <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
                 </span>
             </div>
@@ -581,7 +581,7 @@ function askContentAdvice() {
     const messageHTML = `
         <div class="flex pb-12">
           <div class="mr-4 flex-shrink-0">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                 <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
           </div>

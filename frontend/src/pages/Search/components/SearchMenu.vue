@@ -195,6 +195,7 @@ async function searchApiEmails() {
     scrollToBottom?.();
     closeFilters?.();
     emailList.value = [];
+    emailApiList.value = {};
 
     let result;
     if (
@@ -239,17 +240,19 @@ async function searchApiEmails() {
         });
     });
 
-    result = await postData(`user/get_api_emails_data/`, {
+    // Fetch email data immediately
+    const emailDataResult = await postData(`user/get_api_emails_data/`, {
         limitedApiIds,
     });
 
-    hideLoading?.();
-    if (!result.success) {
-        displayPopup?.("error", "Failed to fetch email details", result.error as string);
+    if (!emailDataResult.success) {
+        displayPopup?.("error", "Failed to fetch email details", emailDataResult.error as string);
+        hideLoading?.();
         return;
     }
 
-    emailApiList.value = result.data.data;
+    emailApiList.value = emailDataResult.data.data;
+    hideLoading?.();
 }
 
 async function searchAomailEmails() {

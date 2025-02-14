@@ -1,6 +1,27 @@
 <template>
     <div class="flex-1 flex flex-col py-2" id="emailList">
-        <div class="h-full overflow-y-auto">
+        <div class="h-full overflow-y-auto hide-scrollbar">
+            <template v-if="isLoading">
+                <div class="flex flex-col items-center justify-center h-full">
+                    <svg
+                        class="animate-spin h-12 w-12 text-black"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                        ></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <p class="mt-4 text-lg font-semibold">{{ $t("constants.loadingEmails") }}</p>
+                </div>
+            </template>
             <template v-if="sortedEmailList.length > 0">
                 <ul class="px-4">
                     <template v-for="(email, index) in sortedEmailList" :key="email.id">
@@ -68,6 +89,7 @@ import { EmailApiListType } from "../utils/types";
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailApiListType>({});
 let showEmailApiList = false;
+const isLoading = inject<Ref<boolean>>("isLoading") || ref(false);
 
 watch(emailApiList, (emailApiList) => {
     showEmailApiList = emailApiList.google !== undefined || emailApiList.microsoft !== undefined;
@@ -85,3 +107,14 @@ const sortedEmailList = computed(() => {
     });
 });
 </script>
+
+<style scoped>
+.hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;             /* Chrome, Safari and Opera */
+}
+</style>

@@ -137,7 +137,7 @@ async function handleAIClick() {
     loading();
 
     const result = await postData(`search_tree_knowledge/`, {
-        question: textareaValue.value,
+        question: textareaValueSave.value,
     });
 
     scrollToBottom();

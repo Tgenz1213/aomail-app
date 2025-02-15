@@ -184,7 +184,7 @@ function searchEmails() {
 }
 
 function mergeEmailData(
-    target: Record<string, Record<string, Record<string, any>>>, 
+    target: Record<string, Record<string, Record<string, any>>>,
     source: Record<string, Record<string, Record<string, any>>>
 ) {
     for (const provider in source) {
@@ -206,7 +206,6 @@ function mergeEmailData(
         }
     }
 }
-
 
 async function searchApiEmails() {
     loading?.();
@@ -263,7 +262,7 @@ async function searchApiEmails() {
 
         for (const [provider, emails] of Object.entries(limitedApiIds)) {
             slice[provider as EmailProvider] = {};
-            
+
             for (const [email, ids] of Object.entries(emails)) {
                 const currentSlice = ids.slice(start, start + count);
                 if (currentSlice.length > 0) {
@@ -293,9 +292,13 @@ async function searchApiEmails() {
     hideLoading?.();
 
     let currentIndex = 2;
-    while (true) {
+    let keepFetching = true;
+    while (keepFetching) {
         const nextSlice = getIdsSlice(currentIndex, 2);
-        if (!nextSlice) break;
+        if (!nextSlice) {
+            keepFetching = false;
+            break;
+        }
 
         const batchResult = await postData(`user/get_api_emails_data/`, {
             limitedApiIds: nextSlice,
@@ -307,8 +310,8 @@ async function searchApiEmails() {
         }
 
         currentIndex += 2;
-        await new Promise(resolve => setTimeout(resolve, 100))
-        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    }
 }
 
 async function searchAomailEmails() {

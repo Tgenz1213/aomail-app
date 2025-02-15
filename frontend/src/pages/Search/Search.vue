@@ -101,6 +101,7 @@ const initialContainerWidth = ref(0);
 const imageURL = ref<string>(userImage);
 const emailSelected = ref(localStorage.getItem("email") || "");
 const emailApiList = ref<EmailApiListType>({});
+const isLoading = ref(false);
 
 onMounted(() => {
     const storedManualWidth = localStorage.getItem("searchManualWidth");
@@ -147,6 +148,13 @@ provide("selectedSearchIn", selectedSearchIn);
 provide("emailIds", emailIds);
 provide("emailList", emailList);
 provide("emailApiList", emailApiList);
+provide("isLoading", isLoading);
+provide("loading", () => {
+    isLoading.value = true;
+});
+provide("hideLoading", () => {
+    isLoading.value = false;
+});
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

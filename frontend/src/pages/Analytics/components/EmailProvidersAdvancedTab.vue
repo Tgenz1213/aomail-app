@@ -213,7 +213,7 @@ const renderBarChart = () => {
 
     const options = {
         title: {
-            text: i18n.global.t('emailProvidersAdvancedTab.chart.title'),
+            text: i18n.global.t('emailProvidersAdvancedTab.chart_title'),
             left: "center",
             textStyle: {
                 fontSize: 18,

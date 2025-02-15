@@ -76,45 +76,55 @@ def get_api_emails_data(request: HttpRequest) -> Response:
                 result[provider][email] = {}
 
                 for id in list_ids:
-                    social_api = SocialAPI.objects.get(email=email, user=user)
-                    if provider == GOOGLE:
-                        email_data = email_operations_google.get_mail_to_db(
-                            social_api, id
-                        )
-                    elif provider == MICROSOFT:
-                        email_data = email_operations_microsoft.get_mail_to_db(
-                            social_api, id
-                        )
+                    try:
+                        social_api = SocialAPI.objects.get(email=email, user=user)
+                        if provider == GOOGLE:
+                            email_data = email_operations_google.get_mail_to_db(
+                                social_api, id
+                            )
+                        elif provider == MICROSOFT:
+                            email_data = email_operations_microsoft.get_mail_to_db(
+                                social_api, id
+                            )
 
-                    result[provider][email][id] = {
-                        "providerId": id,
-                        "subject": email_data["subject"],
-                        "sender": {
-                            "name": email_data["from_info"][0],
-                            "email": email_data["from_info"][1],
-                        },
-                        "hasAttachments": email_data["has_attachments"],
-                        "cc": (
-                            [
-                                {"name": cc[0], "email": cc[1]}
-                                for cc in email_data["cc_info"]
-                            ]
-                            if email_data.get("cc_info")
-                            else []
-                        ),
-                        "bcc": (
-                            [
-                                {"name": cc[0], "email": cc[1]}
-                                for cc in email_data["bcc_info"]
-                            ]
-                            if email_data.get("bcc_info")
-                            else []
-                        ),
-                        "attachments": email_data["attachments"],
-                        "sentDate": email_data["sent_date"].strftime("%Y-%m-%d"),
-                        "sentTime": email_data["sent_date"].strftime("%H:%M"),
-                    }
-
+                        if email_data:
+                            result[provider][email][id] = {
+                                "providerId": id,
+                                "subject": email_data["subject"],
+                                "sender": {
+                                    "name": email_data["from_info"][0],
+                                    "email": email_data["from_info"][1],
+                                },
+                                "hasAttachments": email_data["has_attachments"],
+                                "cc": (
+                                    [
+                                        {"name": cc[0], "email": cc[1]}
+                                        for cc in email_data["cc_info"]
+                                    ]
+                                    if email_data.get("cc_info")
+                                    else []
+                                ),
+                                "bcc": (
+                                    [
+                                        {"name": cc[0], "email": cc[1]}
+                                        for cc in email_data["bcc_info"]
+                                    ]
+                                    if email_data.get("bcc_info")
+                                    else []
+                                ),
+                                "attachments": email_data["attachments"],
+                                "sentDate": email_data["sent_date"].strftime("%Y-%m-%d"),
+                                "sentTime": email_data["sent_date"].strftime("%H:%M"),
+                            }
+                        else:
+                            LOGGER.error(f"No email data returned for ID: {id}")
+                            continue
+                    except SocialAPI.DoesNotExist:
+                        LOGGER.error(f"Social API not found for email: {email}")
+                        continue
+                    except Exception as e:
+                        LOGGER.error(f"Error processing email ID {id}: {str(e)}")
+                        continue
         return Response(
             {"data": result},
             status=status.HTTP_200_OK,

@@ -1224,6 +1224,7 @@
   "emailProvidersAdvancedTab": {
     "viewMode": "View Mode",
     "chart": "Chart",
+    "chart_title": "Email Statistics",
     "raw": "Raw",
     "selectEmails": "Select Emails",
     "addNewEmail": "Add new email",
@@ -1238,9 +1239,6 @@
       "emailsReplyLater": "Emails Reply Later",
       "emailsStarred": "Emails Starred",
       "emailsSent": "Emails Sent"
-    },
-    "chart": {
-      "title": "Email Statistics"
     }
   }
 }

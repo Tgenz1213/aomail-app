@@ -14,92 +14,93 @@
         @openAnswer="openAnswer"
         @transferEmail="transferEmail"
     />
-    <li class="group flex justify-between items-center py-2 email-item" @click="toggleShowShortSummary()">
-        <div class="flex flex-col justify-center">
-            <span class="font-semibold text-sm leading-6">
-                {{ localEmail.sender.name }}
-                - {{ localEmail.sender.email }}
-                <span class="font-normal ml-2 text-gray-600 text-xs">
-                    {{ formatSentDateAndTime(localEmail.sentDate, localEmail.sentTime) }}
+    <li class="py-4 hover:bg-gray-50 transition-colors duration-150" @click="toggleShowShortSummary()">
+        <div class="group flex px-2 justify-between items-center email-item">
+            <div class="flex flex-col justify-center">
+                <span class="font-semibold text-sm leading-6">
+                    {{ localEmail.sender.name }}
+                    - {{ localEmail.sender.email }}
+                    <span class="font-normal ml-2 text-gray-600 text-xs">
+                        {{ formatSentDateAndTime(localEmail.sentDate, localEmail.sentTime) }}
+                    </span>
                 </span>
-            </span>
-            <span class="text-sm gray-600">{{ localEmail.subject }} - {{ localEmail.oneLineSummary }}</span>
-            <div v-if="showShortSummary" class="py-1">
-                <p class="text-xs">{{ localEmail.shortSummary }}</p>
-            </div>
-            <div class="mt-1 flex space-x-2">
-                <div v-if="localEmail.priority">
+                <span class="text-sm gray-600">{{ localEmail.subject }} - {{ localEmail.oneLineSummary }}</span>
+                <div v-if="showShortSummary" class="py-1">
+                    <p class="text-xs">{{ localEmail.shortSummary }}</p>
+                </div>
+                <div class="mt-1 flex space-x-2">
+                    <div v-if="localEmail.priority">
+                        <span
+                            v-if="localEmail.priority === IMPORTANT"
+                            class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
+                        >
+                            {{ $t("constants.ruleModalConstants.important") }}
+                        </span>
+                        <span
+                            v-else-if="localEmail.priority === INFORMATIVE"
+                            class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                        >
+                            {{ $t("constants.ruleModalConstants.informative") }}
+                        </span>
+                        <span
+                            v-else
+                            class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+                        >
+                            {{ $t("constants.ruleModalConstants.useless") }}
+                        </span>
+                    </div>
                     <span
-                        v-if="localEmail.priority === IMPORTANT"
-                        class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
-                    >
-                        {{ $t("constants.ruleModalConstants.important") }}
-                    </span>
-                    <span
-                        v-else-if="localEmail.priority === INFORMATIVE"
-                        class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
-                    >
-                        {{ $t("constants.ruleModalConstants.informative") }}
-                    </span>
-                    <span
-                        v-else
+                        v-if="localEmail.category"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                     >
-                        {{ $t("constants.ruleModalConstants.useless") }}
+                        {{ localEmail.category }}
+                    </span>
+                    <span
+                        v-if="localEmail.read"
+                        class="inline-flex items-center rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-600 ring-1 ring-inset ring-stone-500/10"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="h-4 w-4 mr-1"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        {{ $t("searchPage.searchIn.read") }}
+                    </span>
+                    <span
+                        v-if="localEmail.shortSummary"
+                        v-bind:class="{
+                            'hidden group-hover:block px-1.5 shadow rounded-md inline-flex ring-1 ring-inset': true,
+                            'bg-orange-50 text-orange-700 ring-orange-600/10': localEmail.priority === IMPORTANT,
+                            'bg-blue-50 text-blue-700 ring-blue-700/10': localEmail.priority === INFORMATIVE,
+                            'bg-gray-50 text-gray-600 ring-gray-500/10':
+                                localEmail.priority !== IMPORTANT && localEmail.priority !== INFORMATIVE,
+                        }"
+                    >
+                        <div class="flex gap-x-1 items-center justify-center h-full">
+                            <SparklesIcon class="w-4 h-4"></SparklesIcon>
+                            <p class="text-xs">
+                                {{ $t("constants.userActions.clickToSeeTheSummary") }}
+                            </p>
+                        </div>
                     </span>
                 </div>
-                <span
-                    v-if="localEmail.category"
-                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
-                >
-                    {{ localEmail.category }}
-                </span>
-                <span
-                    v-if="localEmail.read"
-                    class="inline-flex items-center rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-600 ring-1 ring-inset ring-stone-500/10"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="h-4 w-4 mr-1"
+            </div>
+            <span class="isolate inline-flex items-center rounded-2xl pr-3">
+                <div class="relative group">
+                    <button
+                        @click.stop="openSeeMailModal()"
+                        class="hidden group-hover:flex text-gray-600 hover:text-gray-800 rounded-full p-2.5 hover:bg-gray-200/80 focus:outline-none items-center justify-center"
                     >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {{ $t("searchPage.searchIn.read") }}
-                </span>
-                <span
-                    v-if="localEmail.shortSummary"
-                    v-bind:class="{
-                        'hidden group-hover:block px-1.5 shadow rounded-md inline-flex ring-1 ring-inset': true,
-                        'bg-orange-50 text-orange-700 ring-orange-600/10': localEmail.priority === IMPORTANT,
-                        'bg-blue-50 text-blue-700 ring-blue-700/10': localEmail.priority === INFORMATIVE,
-                        'bg-gray-50 text-gray-600 ring-gray-500/10':
-                            localEmail.priority !== IMPORTANT && localEmail.priority !== INFORMATIVE,
-                    }"
-                >
-                    <div class="flex gap-x-1 items-center justify-center h-full">
-                        <SparklesIcon class="w-4 h-4"></SparklesIcon>
-                        <p class="text-xs">
-                            {{ $t("constants.userActions.clickToSeeTheSummary") }}
-                        </p>
-                    </div>
-                </span>
-            </div>
+                        <EyeIcon class="w-5 h-5" />
+                    </button>
+                </div>
+            </span>
         </div>
-        <span class="isolate inline-flex items-center rounded-2xl">
-            <div class="relative group">
-                <button
-                    @click.stop="openSeeMailModal()"
-                    class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center"
-                >
-                    <EyeIcon class="w-5 h-5" />
-                    {{ $t("constants.userActions.see") }}
-                </button>
-            </div>
-        </span>
     </li>
 </template>
 

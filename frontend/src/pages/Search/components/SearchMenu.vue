@@ -190,11 +190,36 @@ function searchEmails() {
     }
 }
 
+function mergeEmailData(
+    target: Record<string, Record<string, Record<string, any>>>,
+    source: Record<string, Record<string, Record<string, any>>>
+) {
+    for (const provider in source) {
+        if (!target[provider]) {
+            target[provider] = {}; // Create provider if missing
+        }
+
+        for (const email in source[provider]) {
+            if (!target[provider][email]) {
+                target[provider][email] = {}; // Create email entry if missing
+            }
+
+            for (const providerId in source[provider][email]) {
+                if (!target[provider][email][providerId]) {
+                    // Directly add if the providerId is new
+                    target[provider][email][providerId] = source[provider][email][providerId];
+                }
+            }
+        }
+    }
+}
+
 async function searchApiEmails() {
     loading?.();
     scrollToBottom?.();
     closeFilters?.();
     emailList.value = [];
+    emailApiList.value = {};
 
     let result;
     if (
@@ -227,7 +252,6 @@ async function searchApiEmails() {
 
     Object.entries(emailApiIds.value).forEach(([provider, dictEmails]) => {
         const typedProvider = provider as EmailProvider;
-
         Object.entries(dictEmails).forEach(([email, listIds]) => {
             if (nbLimitedApiIds < 50) {
                 if (!limitedApiIds[typedProvider]) {
@@ -239,17 +263,62 @@ async function searchApiEmails() {
         });
     });
 
-    result = await postData(`user/get_api_emails_data/`, {
-        limitedApiIds,
-    });
+    const getIdsSlice = (start: number, count: number): EmailApiIds | null => {
+        const slice: EmailApiIds = {};
+        let found = 0;
 
-    hideLoading?.();
-    if (!result.success) {
-        displayPopup?.("error", "Failed to fetch email details", result.error as string);
-        return;
+        for (const [provider, emails] of Object.entries(limitedApiIds)) {
+            slice[provider as EmailProvider] = {};
+
+            for (const [email, ids] of Object.entries(emails)) {
+                const currentSlice = ids.slice(start, start + count);
+                if (currentSlice.length > 0) {
+                    slice[provider as EmailProvider]![email] = currentSlice;
+                    found += currentSlice.length;
+                }
+            }
+
+            if (Object.keys(slice[provider as EmailProvider]!).length === 0) {
+                delete slice[provider as EmailProvider];
+            }
+        }
+
+        return found > 0 ? slice : null;
+    };
+
+    const firstSlice = getIdsSlice(0, 2);
+    if (firstSlice) {
+        const firstBatchResult = await postData(`user/get_api_emails_data/`, {
+            limitedApiIds: firstSlice,
+        });
+
+        if (firstBatchResult.success) {
+            emailApiList.value = firstBatchResult.data.data;
+        }
     }
+    hideLoading?.();
 
-    emailApiList.value = result.data.data;
+    let currentIndex = 2;
+    let keepFetching = true;
+    while (keepFetching) {
+        const nextSlice = getIdsSlice(currentIndex, 2);
+        if (!nextSlice) {
+            keepFetching = false;
+            break;
+        }
+
+        const batchResult = await postData(`user/get_api_emails_data/`, {
+            limitedApiIds: nextSlice,
+        });
+
+        if (batchResult.success) {
+            mergeEmailData(emailApiList.value, batchResult.data.data);
+            console.log(emailApiList.value);
+        }
+
+        currentIndex += 2;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    }
 }
 
 async function searchAomailEmails() {

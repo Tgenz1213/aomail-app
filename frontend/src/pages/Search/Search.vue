@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, provide } from "vue";
+import { ref, computed, onMounted, provide, watch, Ref } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { AttachmentType, Recipient, Email, EmailLinked } from "@/global/types";
@@ -68,6 +68,8 @@ import AiSearchMenu from "./components/AiSearchMenu.vue";
 import EmailList from "./components/EmailList.vue";
 import userImage from "@/assets/user.png";
 import { EmailApiListType } from "./utils/types";
+import { AOMAIL_SEARCH_KEY, API_SEARCH_KEY } from "@/global/const";
+import { KeyValuePair } from "@/global/types";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -102,6 +104,16 @@ const imageURL = ref<string>(userImage);
 const emailSelected = ref(localStorage.getItem("email") || "");
 const emailApiList = ref<EmailApiListType>({});
 const isLoading = ref(false);
+const searchModes: KeyValuePair[] = [
+    { key: AOMAIL_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.aomail") },
+    { key: API_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.allEmails") },
+];
+const selectedSearchMode = ref<KeyValuePair>({ key: AOMAIL_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.aomail") });
+
+watch(selectedSearchMode, (newMode) => {
+    console.log("Search mode changed to:", newMode.key);
+    selectedSearchMode.value = newMode;
+});
 
 onMounted(() => {
     const storedManualWidth = localStorage.getItem("searchManualWidth");
@@ -145,6 +157,7 @@ provide("selectedRecipients", selectedRecipients);
 provide("fromSelectedPerson", fromSelectedPerson);
 provide("selectedPerson", selectedPerson);
 provide("selectedSearchIn", selectedSearchIn);
+provide("selectedSearchMode", selectedSearchMode);
 provide("emailIds", emailIds);
 provide("emailList", emailList);
 provide("emailApiList", emailApiList);
@@ -155,6 +168,8 @@ provide("loading", () => {
 provide("hideLoading", () => {
     isLoading.value = false;
 });
+provide("searchModes", searchModes);
+provide("selectedSearchMode", selectedSearchMode);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

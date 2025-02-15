@@ -25,7 +25,10 @@
             <template v-if="sortedEmailList.length > 0">
                 <ul class="">
                     <template v-for="(email, index) in sortedEmailList" :key="email.id">
-                        <EmailItem :email="email" />
+                        <EmailItem
+                            :email="email"
+                            :searchMode="selectedSearchMode.key"
+                        />
                         <li v-if="index < sortedEmailList.length - 1" class="flex relative">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                 <div class="w-full border-t border-gray-200"></div>
@@ -66,7 +69,11 @@
                             </div>
                             <div class="pt-2">
                                 <div v-for="email in emailList" :key="email.providerId">
-                                    <EmailItem :email="email" />
+                                    <EmailItem
+                                        :email="email"
+                                        :provider_email="userEmail"
+                                        :searchMode="selectedSearchMode.key"
+                                    />
                                     <li class="flex relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-200"></div>
@@ -107,13 +114,14 @@
 
 <script setup lang="ts">
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
-import { Email } from "@/global/types";
+import { Email, KeyValuePair } from "@/global/types";
 import { computed, inject, Ref, ref, watch } from "vue";
 import EmailItem from "./EmailItem.vue";
 import { EmailApiListType } from "../utils/types";
 
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailApiListType>({});
+const selectedSearchMode = inject<Ref<KeyValuePair>>("selectedSearchMode")!;
 let showEmailApiList = false;
 const isLoading = inject<Ref<boolean>>("isLoading") || ref(false);
 

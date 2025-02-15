@@ -14,6 +14,12 @@
         @openAnswer="openAnswer"
         @transferEmail="transferEmail"
     />
+    <ApiEmailModal
+        v-if="isApiEmailOpen"
+        :isOpen="isApiEmailOpen"
+        :email="localEmail"
+        @closeModal="closeApiEmailModal"
+    />
     <li class="py-4 hover:bg-gray-50 transition-colors duration-150" @click="toggleShowShortSummary()">
         <div class="group flex px-2 justify-between items-center email-item">
             <div class="flex flex-col justify-center">
@@ -106,21 +112,25 @@
 
 <script setup lang="ts">
 import { deleteData, getData, postData, putData } from "@/global/fetchData";
-import { inject, Ref, ref, watch } from "vue";
+import { inject, Ref, ref, watch, computed } from "vue";
 import { EyeIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import router from "@/router/router";
 import { i18n } from "@/global/preferences";
 import { formatSentDateAndTime } from "@/global/formatters";
-import { INFORMATIVE, IMPORTANT } from "@/global/const";
+import { INFORMATIVE, IMPORTANT, API_SEARCH_KEY, AOMAIL_SEARCH_KEY } from "@/global/const";
+import ApiEmailModal from "./ApiEmailModal.vue";
 
 const props = defineProps<{
     email: Email;
+    searchMode: string;
+    provider_email?: string;
 }>();
 
 const showShortSummary = ref(false);
 const isSeeMailOpen = ref(false);
+const isApiEmailOpen = ref(false);
 const localEmail = ref({ ...props.email });
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
@@ -141,14 +151,31 @@ function closeSeeMailModal() {
     isSeeMailOpen.value = false;
 }
 
+function closeApiEmailModal() {
+    isApiEmailOpen.value = false;
+}
+
 async function openSeeMailModal() {
-    const result = await postData("user/get_email_content/", { id: props.email.id });
-    if (!result.success) {
-        displayPopup?.("error", "Failed to fetch email content", result.error as string);
-        return;
+    console.log(props.searchMode);
+    if (props.searchMode === AOMAIL_SEARCH_KEY) {
+        const result = await postData("user/get_email_content/", { id: props.email.id });
+        if (!result.success) {
+            displayPopup?.("error", "Failed to fetch email content", result.error as string);
+            return;
+        }
+        localEmail.value.htmlContent = result.data.content;
+        isSeeMailOpen.value = true;
+    } else {
+        console.log(props.email);
+        const result = await getData(`user/emails/content/?email_id=${props.email.providerId}&provider_email=${props.provider_email}`);
+        console.log(result);
+        if (!result.success) {
+            displayPopup?.("error", "Failed to fetch email content", result.error as string);
+            return;
+        }
+        localEmail.value.htmlContent = result.data.htmlContent;
+        isApiEmailOpen.value = true;
     }
-    localEmail.value.htmlContent = result.data.content;
-    isSeeMailOpen.value = true;
 }
 
 async function markEmailAsRead() {

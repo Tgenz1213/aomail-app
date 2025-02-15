@@ -117,9 +117,9 @@ import { MagnifyingGlassIcon, ChevronUpDownIcon } from "@heroicons/vue/24/outlin
 import { inject, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
 import AomailFilters from "./AomailFilters.vue";
 import ApiFilters from "./ApiFilters.vue";
-import { AOMAIL_SEARCH_KEY, API_SEARCH_KEY } from "@/global/const";
 import { EmailApiIds, EmailApiListType } from "../utils/types";
 import { i18n } from "@/global/preferences";
+import { AOMAIL_SEARCH_KEY } from "@/global/const";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -130,22 +130,15 @@ const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
 const emailApiIds = inject<Ref<EmailApiIds>>("emailApiIds") || ref<EmailApiIds>({});
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailApiListType>({});
+const selectedSearchMode = inject<Ref<KeyValuePair>>("selectedSearchMode")!;
+const searchModes = inject<Ref<KeyValuePair[]>>("searchModes")!;
+
 const inputValue = ref("");
 const isFocused = ref(false);
 const isAomailFiltersOpen = ref(false);
 const isApiFiltersOpen = ref(false);
 const aomailSearchFilters = ref<AomailSearchFilter>({});
 const apiSearchFilters = ref<ApiSearchFilter>({});
-
-provide("aomailSearchFilters", aomailSearchFilters);
-provide("apiSearchFilters", apiSearchFilters);
-
-const searchModes: KeyValuePair[] = [
-    { key: AOMAIL_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.aomail") },
-    { key: API_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.allEmails") },
-];
-const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
-
 const closeFilters = () => {
     isApiFiltersOpen.value = false;
     isAomailFiltersOpen.value = false;

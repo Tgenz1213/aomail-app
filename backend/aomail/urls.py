@@ -90,6 +90,7 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'),
     path('user/emails_counts/', search_emails.get_email_counts, name='get_email_counts'),
     path('user/answer_email_suggestion_ids/', emails.get_answer_email_suggestion_ids , name='get_answer_email_suggestion_ids'),
+    path('user/emails/content/', emails.get_email_content, name='get_email_content'), # for search api
     #----------------------- VIEWS -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'),
     path('agent_icon/<path:image_name>', views.serve_agent_icon, name='serve_agent_icon'),

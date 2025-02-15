@@ -10,6 +10,7 @@ Endpoints:
 - ✅ update_emails: Update the state of multiple emails (e.g., mark as read, unread, or for later reply).
 - ✅ get_answer_email_suggestion_ids: Returns email answer suggestions based on specific criteria.
 - ✅ get_simple_email_data: Retrieves detailed information for multiple emails based on provided email IDs.
+- ☑️ get_email_content: Retrieves the content of an email based on provider name and email ID.
 """
 
 import json
@@ -505,3 +506,93 @@ def get_answer_email_suggestion_ids(request: HttpRequest):
         },
         status=status.HTTP_200_OK,
     )
+
+
+@api_view(["GET"])
+@subscription(ALLOW_ALL)
+def get_email_content(request: HttpRequest) -> Response:
+    """
+    Retrieves the content of an email based on provider name and email ID.
+
+    Args:
+        request (HttpRequest): HTTP request containing:
+            - email_id (str): Provider-specific email ID
+            - provider_email (str): Email address associated with the provider
+
+    Returns:
+        Response: JSON containing email content and metadata
+    """
+    try:
+        email_id = request.GET.get("email_id")
+        provider_email = request.GET.get("provider_email")
+
+        if not email_id or not provider_email:
+            return Response(
+                {"error": "Missing required parameters"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        social_api = get_object_or_404(
+            SocialAPI,
+            user=request.user,
+            email=provider_email
+        )
+
+        if social_api.type_api == GOOGLE:
+            services = auth_google.authenticate_service(request.user, provider_email, ["gmail"])
+            subject, from_info, decoded_data, cc, bcc, attachments, date = (
+                email_operations_google.get_mail(services, None, email_id)
+            )
+        elif social_api.type_api == MICROSOFT:
+            access_token = auth_microsoft.refresh_access_token(social_api)
+            subject, from_info, decoded_data, cc, bcc, attachments, date = (
+                email_operations_microsoft.get_mail(access_token, None, email_id)
+            )
+        else:
+            return Response(
+                {"error": f"Unsupported provider type: {social_api.type_api}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if cc:
+            cc = tuple(item for item in cc if item is not None)
+        if bcc:
+            bcc = tuple(item for item in bcc if item is not None)
+
+        # Defensive check: Ensure attachments is a list of dictionaries.
+        # Sometimes attachments might be a JSON string.
+        if isinstance(attachments, str):
+            try:
+                import json
+                attachments = json.loads(attachments)
+            except Exception as json_err:
+                LOGGER.error(f"Failed to parse attachments as JSON: {json_err}")
+                attachments = []
+
+        # If attachments is still not a list, set it to an empty list.
+        if not isinstance(attachments, list):
+            attachments = []
+
+        return Response({
+            "subject": subject,
+            "from": {
+                "email": from_info[1],
+                "name": from_info[0]
+            },
+            "htmlContent": decoded_data,
+            "cc": [{"email": c[1], "name": c[0]} for c in cc] if cc else [],
+            "bcc": [{"email": b[1], "name": b[0]} for b in bcc] if bcc else [],
+            "date": date,
+            "hasAttachments": bool(attachments),
+            "attachments": [
+                {"name": att["name"], "id": att["id"]}
+                for att in attachments if isinstance(att, dict)
+            ]
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        LOGGER.error(f"Error in get_email_content: {str(e)}")
+        return Response(
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

@@ -90,14 +90,13 @@
                     </span>
                 </div>
             </div>
-            <span class="isolate inline-flex items-center rounded-2xl">
+            <span class="isolate inline-flex items-center rounded-2xl pr-3">
                 <div class="relative group">
                     <button
                         @click.stop="openSeeMailModal()"
-                        class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center"
+                        class="hidden group-hover:flex text-gray-600 hover:text-gray-800 rounded-full p-2.5 hover:bg-gray-200/80 focus:outline-none items-center justify-center"
                     >
                         <EyeIcon class="w-5 h-5" />
-                        {{ $t("constants.userActions.see") }}
                     </button>
                 </div>
             </span>

@@ -23,12 +23,12 @@
                 </div>
             </template>
             <template v-if="sortedEmailList.length > 0">
-                <ul class="px-4">
+                <ul class="">
                     <template v-for="(email, index) in sortedEmailList" :key="email.id">
                         <EmailItem :email="email" />
-                        <li v-if="index < sortedEmailList.length - 1" class="flex relative pb-6">
+                        <li v-if="index < sortedEmailList.length - 1" class="flex relative">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                <div class="w-full border-t border-gray-300"></div>
+                                <div class="w-full border-t border-gray-200"></div>
                             </div>
                         </li>
                     </template>

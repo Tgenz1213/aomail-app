@@ -24,7 +24,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/ai-assistant')"
                                             >
@@ -37,7 +37,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                             >
                                                 <ChatBubbleLeftRightIcon class="w-4 h-4" />
@@ -49,7 +49,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/rules')"
                                             >
@@ -83,7 +83,8 @@ import Navbar from "@/global/components/Navbar.vue";
 import ChatInput from "./components/ChatInput.vue";
 import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { Message } from "@/global/types";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
+import { i18n } from "@/global/preferences";
 
 const router = useRouter();
 
@@ -98,7 +99,7 @@ const userInputResolver = ref<((value: string) => void) | null>(null);
 const waitForButtonClick = ref(false);
 const messages = ref<Message[]>([
     {
-        textHtml: "Hello and welcome to the custom email categorization feature",
+        textHtml: i18n.global.t("customCategorization.welcome"),
         isUser: false,
     },
 ]);

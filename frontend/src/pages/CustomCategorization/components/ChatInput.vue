@@ -8,7 +8,7 @@
                         @keydown.enter="handleKeyDown"
                         @input="adjustHeight"
                         class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
-                        placeholder="Type your response..."
+                        :placeholder="$t('chatInput.typePlaceholder')"
                     ></textarea>
                     <div class="flex justify-start m-3 2xl:m-5">
                         <button
@@ -16,7 +16,7 @@
                             :disabled="!userInput.trim()"
                             class="2xl:w-[100px] w-[80px] rounded-md bg-zinc-800 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-700 disabled:bg-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
-                            Send
+                            {{ $t("constants.userActions.send") }}
                         </button>
                     </div>
                 </div>
@@ -35,15 +35,6 @@ onMounted(() => {
 const emit = defineEmits(["response"]);
 
 const userInput = ref("");
-const isFocused = ref(false);
-
-function focusIn() {
-    isFocused.value = true;
-}
-
-function focusOut() {
-    isFocused.value = false;
-}
 
 function submitResponse() {
     if (userInput.value.trim()) {
@@ -53,7 +44,7 @@ function submitResponse() {
 }
 
 function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Enter" && !event.shiftKey && isFocused.value) {
+    if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         submitResponse();
     }
@@ -61,7 +52,7 @@ function handleKeyDown(event: KeyboardEvent) {
 
 function adjustHeight(event: Event) {
     const textarea = event.target as HTMLTextAreaElement;
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
 }
 </script>

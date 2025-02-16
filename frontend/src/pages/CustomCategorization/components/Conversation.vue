@@ -99,21 +99,16 @@ const handleUserDescription = async (option: KeyValuePair) => {
     let aiGeneratedCategories;
     switch (option.key) {
         case "yes": {
-            displayAIMsg(
-                "Are you satisfied with the way I prioritize your emails according to their importance? Do I often assign the wrong level of importance to your emails?",
-                [
-                    { key: "yes", value: "Yes" },
-                    { key: "no", value: "No" },
-                ]
-            );
+            displayAIMsg(i18n.global.t("customCategorization.prioritizationQuestion"), [
+                { key: "yes", value: i18n.global.t("customCategorization.buttons.yes") },
+                { key: "no", value: i18n.global.t("customCategorization.buttons.no") },
+            ]);
             currentStep.value = "prioritization";
             break;
         }
         case "no": {
             await userDescriptionWorkflow();
-            displayAIMsg(
-                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-            );
+            displayAIMsg(i18n.global.t("customCategorization.listTopicsRequest"));
             const userInput = await waitForUserInput();
             aiGeneratedCategories = await generateCategoriesScratch(userInput);
             categoriesReview(aiGeneratedCategories);
@@ -158,28 +153,23 @@ const handleCategories = async (option: KeyValuePair) => {
                     await createDefaultFilters(category.name);
                 }
             });
-            displayAIMsg("Great! Categories have been updated.");
-            displayAIMsg(
-                "Are you satisfied with the way I prioritize your emails according to their importance? Do I often assign the wrong level of importance to your emails?",
-                [
-                    { key: "yes", value: "Yes" },
-                    { key: "no", value: "No" },
-                ]
-            );
+            displayAIMsg(i18n.global.t("customCategorization.categoriesUpdated"));
+            displayAIMsg(i18n.global.t("customCategorization.prioritizationQuestion"), [
+                { key: "yes", value: i18n.global.t("customCategorization.buttons.yes") },
+                { key: "no", value: i18n.global.t("customCategorization.buttons.no") },
+            ]);
             currentStep.value = "prioritization";
             break;
         }
         case "no": {
-            displayAIMsg(
-                "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category."
-            );
+            displayAIMsg(i18n.global.t("customCategorization.listTopicsRequest"));
             const userInputTopics = await waitForUserInput();
             aiGeneratedCategories = await generateCategoriesScratch(userInputTopics);
             categoriesReview(aiGeneratedCategories);
             break;
         }
         case "soso": {
-            displayAIMsg("OK, let's improve them. Please improve them according to my feedback.");
+            displayAIMsg(i18n.global.t("customCategorization.improveCategories"));
             const feedback = await waitForUserInput();
             aiGeneratedCategories = await generateCategoriesScratch(feedback, messages.value);
             categoriesReview(aiGeneratedCategories);
@@ -191,7 +181,7 @@ const handleCategories = async (option: KeyValuePair) => {
 const handlePrioritization = async (option: KeyValuePair) => {
     switch (option.key) {
         case "yes": {
-            displayAIMsg("Happy to hear that! Your email categorization is optimized. You can close this window");
+            displayAIMsg(i18n.global.t("customCategorization.optimizationComplete"));
             let payload: Guideline = { importantGuidelines: "", informativeGuidelines: "", uselessGuidelines: "" };
             if (guidelines.value.importantGuidelines) {
                 payload.importantGuidelines = guidelines.value.importantGuidelines;
@@ -206,20 +196,16 @@ const handlePrioritization = async (option: KeyValuePair) => {
             const result = await postData("user/preferences/prioritization/", payload);
 
             if (result.success) {
-                displayAIMsg("Prioritization guidelines updated successfully!");
+                displayAIMsg(i18n.global.t("customCategorization.prioritizationUpdated"));
             } else {
                 displayAIMsg(result.error as string);
             }
             break;
         }
         case "no": {
-            displayAIMsg("Got it! Let's improve your email prioritization together.");
-            displayAIMsg(
-                "What types of emails annoy you? How would you describe important emails? Please describe your own preferences in your response."
-            );
-            displayAIMsg(
-                "For example: Meetings and project-related emails for the AlphaPen site redesign are <strong>important</strong>. Marketing or auto-acknowledgement emails are <strong>useless</strong>. The rest is <strong>informative</strong>."
-            );
+            displayAIMsg(i18n.global.t("customCategorization.improvePrioritization"));
+            displayAIMsg(i18n.global.t("customCategorization.prioritizationExample"));
+            displayAIMsg(i18n.global.t("customCategorization.prioritizationExampleDetails"));
             prioritizationReview();
             break;
         }
@@ -239,29 +225,29 @@ async function prioritizationReview() {
         `<table class="rounded text-left border border-separate border-tools-table-outline border-black border-1">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th scope="col" class="px-6 py-3">Priority</th>
-                    <th scope="col" class="px-6 py-3">Description</th>
+                    <th scope="col" class="px-6 py-3">${i18n.global.t("customCategorization.table.priority")}</th>
+                    <th scope="col" class="px-6 py-3">${i18n.global.t("customCategorization.table.description")}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <td class="px-6 py-4">Important</td>
+                    <td class="px-6 py-4">${i18n.global.t("constants.ruleModalConstants.important")}</td>
                     <td class="px-6 py-4">${result.data.important}</td>
                 </tr>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <td class="px-6 py-4">Informative</td>
+                    <td class="px-6 py-4">${i18n.global.t("constants.ruleModalConstants.informative")}</td>
                     <td class="px-6 py-4">${result.data.informative}</td>
                 </tr>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <td class="px-6 py-4">Useless</td>
+                    <td class="px-6 py-4">${i18n.global.t("constants.ruleModalConstants.useless")}</td>
                     <td class="px-6 py-4">${result.data.useless}</td>
                 </tr>
             </tbody>
         </table>`
     );
-    displayAIMsg("Are you satisfied with my proposition of email prioritization?", [
-        { key: "yes", value: "Yes" },
-        { key: "no", value: "No" },
+    displayAIMsg(i18n.global.t("customCategorization.reviewCategories"), [
+        { key: "yes", value: i18n.global.t("customCategorization.buttons.yes") },
+        { key: "no", value: i18n.global.t("customCategorization.buttons.no") },
     ]);
 }
 
@@ -275,7 +261,7 @@ async function userDescriptionWorkflow() {
 
             while (!valid) {
                 displayAIMsg(
-                    `Please provide a description for this email: ${emailLinked.email}. It should be a short sentence.`
+                    i18n.global.t("customCategorization.emailDescriptionRequest", { email: emailLinked.email })
                 );
 
                 const userInput = await waitForUserInput();
@@ -289,9 +275,9 @@ async function userDescriptionWorkflow() {
                         userDescription: description,
                         email: emailLinked.email,
                     });
-                    displayAIMsg("I have updated your description to help me better categorize your emails.");
+                    displayAIMsg(i18n.global.t("customCategorization.descriptionUpdated"));
                 } else {
-                    displayAIMsg("The description is not valid, Improve it according to my feedback:");
+                    displayAIMsg(i18n.global.t("customCategorization.descriptionInvalid"));
                     displayAIMsg(validationResult.data.feedback);
                 }
             }
@@ -311,17 +297,17 @@ async function customCategorizationWorkflow() {
     // No categories have been created (only Others as default)
     if (categories.value.length === 1) {
         await userDescriptionWorkflow();
-        displayAIMsg("You currently have no categories. I can help you create some.");
-        displayAIMsg("Please list some topics to categorize your emails.");
+        displayAIMsg(i18n.global.t("customCategorization.noCategories"));
+        displayAIMsg(i18n.global.t("customCategorization.listTopics"));
         const userInput = await waitForUserInput();
         const aiGeneratedCategories = await generateCategoriesScratch(userInput);
         categoriesReview(aiGeneratedCategories);
     } else {
         waitForButtonClick.value = true;
-        displayAIMsg("Do you like your current email categorization?", [
-            { key: "yes", value: "Yes" },
-            { key: "no", value: "No" },
-            { key: "soso", value: "Needs Improvement" },
+        displayAIMsg(i18n.global.t("customCategorization.currentCategorization"), [
+            { key: "yes", value: i18n.global.t("customCategorization.buttons.yes") },
+            { key: "no", value: i18n.global.t("customCategorization.buttons.no") },
+            { key: "soso", value: i18n.global.t("customCategorization.buttons.needsImprovement") },
         ]);
     }
 }
@@ -350,9 +336,9 @@ async function categoriesReview(aiGeneratedCategories: CategoryByAI[]) {
         `<table class="rounded text-left border border-separate border-tools-table-outline border-black border-1">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th scope="col" class="px-6 py-3">Name</th>
-                    <th scope="col" class="px-6 py-3">Description</th>
-                    <th scope="col" class="px-6 py-3">Feedback</th>
+                    <th scope="col" class="px-6 py-3">${i18n.global.t("customCategorization.table.name")}</th>
+                    <th scope="col" class="px-6 py-3">${i18n.global.t("customCategorization.table.description")}</th>
+                    <th scope="col" class="px-6 py-3">${i18n.global.t("customCategorization.table.feedback")}</th>
                 </tr>
             </thead>
             <tbody>${aiGeneratedCategories
@@ -369,10 +355,10 @@ async function categoriesReview(aiGeneratedCategories: CategoryByAI[]) {
         </table>`
     );
     waitForButtonClick.value = true;
-    displayAIMsg("Please review the categories, do you want to keep them?", [
-        { key: "yes", value: "Yes" },
-        { key: "no", value: "No" },
-        { key: "soso", value: "Needs Improvement" },
+    displayAIMsg(i18n.global.t("customCategorization.reviewCategories"), [
+        { key: "yes", value: i18n.global.t("customCategorization.buttons.yes") },
+        { key: "no", value: i18n.global.t("customCategorization.buttons.no") },
+        { key: "soso", value: i18n.global.t("customCategorization.buttons.needsImprovement") },
     ]);
 }
 

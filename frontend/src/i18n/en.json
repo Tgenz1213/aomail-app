@@ -1467,5 +1467,38 @@
       "emailsStarred": "Emails Starred",
       "emailsSent": "Emails Sent"
     }
+  },
+  "chatInput": {
+    "typePlaceholder": "Type your response..."
+  },
+  "customCategorization": {
+    "welcome": "Hello and welcome to the custom email categorization feature",
+    "prioritizationQuestion": "Are you satisfied with the way I prioritize your emails according to their importance? Do I often assign the wrong level of importance to your emails?",
+    "listTopicsRequest": "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category.",
+    "categoriesUpdated": "Great! Categories have been updated.",
+    "improveCategories": "OK, let's improve them. Please improve them according to my feedback.",
+    "optimizationComplete": "Happy to hear that! Your email categorization is optimized. You can close this window",
+    "prioritizationUpdated": "Prioritization guidelines updated successfully!",
+    "improvePrioritization": "Got it! Let's improve your email prioritization together.",
+    "prioritizationExample": "What types of emails annoy you? How would you describe important emails? Please describe your own preferences in your response.",
+    "prioritizationExampleDetails": "For example: Meetings and project-related emails for the AlphaPen site redesign are <strong>important</strong>. Marketing or auto-acknowledgement emails are <strong>useless</strong>. The rest is <strong>informative</strong>.",
+    "emailDescriptionRequest": "Please provide a description for this email: {email}. It should be a short sentence.",
+    "descriptionUpdated": "I have updated your description to help me better categorize your emails.",
+    "descriptionInvalid": "The description is not valid, Improve it according to my feedback:",
+    "noCategories": "You currently have no categories. I can help you create some.",
+    "listTopics": "Please list some topics to categorize your emails.",
+    "currentCategorization": "Do you like your current email categorization?",
+    "reviewCategories": "Please review the categories, do you want to keep them?",
+    "buttons": {
+      "yes": "Yes",
+      "no": "No",
+      "needsImprovement": "Needs Improvement"
+    },
+    "table": {
+      "name": "Name",
+      "description": "Description",
+      "feedback": "Feedback",
+      "priority": "Priority"
+    }
   }
 }

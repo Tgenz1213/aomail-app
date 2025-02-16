@@ -1020,6 +1020,14 @@
       "button": "Rules",
       "tooltip": "Set up automated rules to handle specific emails, like always marking certain senders as important or moving newsletters to a separate category."
     },
+    "errorMessages": {
+      "failedToLoadGuidelines": "Failed to load current guidelines",
+      "failedToUpdateGuidelines": "Failed to update guidelines"
+    },
+    "successMessages": {
+      "success": "Success",
+      "guidelinesUpdated": "Guidelines updated successfully"
+    },
     "professionalTemplates": {
       "title": "Professional Templates",
       "subtitle": "Choose a template that matches your profession. These templates contain pre-configured guidelines based on common email patterns.",

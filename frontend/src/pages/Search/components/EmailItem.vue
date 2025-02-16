@@ -112,14 +112,14 @@
 
 <script setup lang="ts">
 import { deleteData, getData, postData, putData } from "@/global/fetchData";
-import { inject, Ref, ref, watch, computed } from "vue";
+import { inject, Ref, ref, watch } from "vue";
 import { EyeIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import router from "@/router/router";
 import { i18n } from "@/global/preferences";
 import { formatSentDateAndTime } from "@/global/formatters";
-import { INFORMATIVE, IMPORTANT, API_SEARCH_KEY, AOMAIL_SEARCH_KEY } from "@/global/const";
+import { INFORMATIVE, IMPORTANT, AOMAIL_SEARCH_KEY } from "@/global/const";
 import ApiEmailModal from "./ApiEmailModal.vue";
 
 const props = defineProps<{
@@ -160,7 +160,7 @@ async function openSeeMailModal() {
     if (props.searchMode === AOMAIL_SEARCH_KEY) {
         const result = await postData("user/get_email_content/", { id: props.email.id });
         if (!result.success) {
-            displayPopup?.("error", "Failed to fetch email content", result.error as string);
+            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"), result.error as string);
             return;
         }
         localEmail.value.htmlContent = result.data.content;
@@ -172,7 +172,7 @@ async function openSeeMailModal() {
         );
         console.log(result);
         if (!result.success) {
-            displayPopup?.("error", "Failed to fetch email content", result.error as string);
+            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"), result.error as string);
             return;
         }
         localEmail.value.htmlContent = result.data.htmlContent;

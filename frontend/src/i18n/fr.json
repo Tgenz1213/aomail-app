@@ -76,9 +76,9 @@
         "noEmailsToMark": "Aucun e-mail à marquer",
         "emailSendError": "Erreur d'envoi d'e-mail",
         "contactFetchError": "Erreur de récupération des contacts",
-        "pleaseEnterAnEmail": "Veuillez saisir un e-mail",
+        "pleaseEnterAnEmail": "Veuillez entrer un e-mail",
         "primaryEmailFetchError": "Erreur de récupération de l'e-mail principal",
-        "emailLinkedFetchError": "Erreur de récupération de l'e-mail",
+        "emailLinkedFetchError": "Erreur de récupération des e-mails",
         "invalidEmail": "E-mail invalide",
         "emailFormatIncorrect": "Format d'e-mail incorrect",
         "duplicateFile": "Fichier en double",
@@ -91,7 +91,7 @@
         "noHtmlContent": "Aucun contenu HTML reçu",
         "deleteEmailFailure": "Échec de la suppression de l'e-mail",
         "archiveEmailFailure": "Échec de l'archivage de l'e-mail",
-        "unarchiveEmailFailure": "Échec du désarchivage de l'e-mail",
+        "unarchiveEmailFailure": "Échec de la désarchivage de l'e-mail",
         "addCategoryError": "Erreur lors de l'ajout de la catégorie",
         "updateCategoryError": "Erreur lors de la mise à jour de la catégorie",
         "addFilterError": "Erreur lors de l'ajout du filtre",
@@ -103,20 +103,12 @@
         "openReplyPageFailure": "Échec de l'ouverture de la page de réponse",
         "openTransferPageFailure": "Échec de l'ouverture de la page de transfert",
         "errorMessageVerificationIdentifier": "Erreur de vérification de l'identifiant",
-        "pleaseEnterPassword": "Veuillez saisir un mot de passe",
+        "pleaseEnterPassword": "Veuillez entrer un mot de passe",
         "pleaseConfirmPassword": "Veuillez confirmer votre mot de passe",
         "passwordLengthShouldBeBetween8And32Characters": "La longueur du mot de passe doit être comprise entre 8 et 32 caractères",
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
-        "pleaseEnterAnIdentifier": "Veuillez saisir un identifiant",
+        "pleaseEnterAnIdentifier": "Veuillez entrer un identifiant",
         "recuperationRules": "Erreur lors de la récupération des règles",
-        "identifierMustNotContainSpaces": "L'identifiant ne doit pas contenir d'espaces",
-        "maxUsernameLength150Characters": "Longueur maximale du nom d'utilisateur : 150 caractères",
-        "identifierIsAlreadyInUse": "L'identifiant est déjà utilisé",
-        "invalidEmailFormat": "Veuillez saisir une adresse e-mail valide",
-        "createAgentError": "Échec de la création de l'agent",
-        "updateAgentError": "Échec de la mise à jour de l'agent",
-        "deleteAgentError": "Échec de la suppression de l'agent",
-        "emailIdNotFound": "ID de l'e-mail introuvable",
         "failedToFetchAttachment": "Échec de la récupération de la pièce jointe"
       },
       "successMessages": {
@@ -1029,6 +1021,14 @@
     "rules": {
       "button": "Règles",
       "tooltip": "Configurez des règles automatisées pour gérer des emails spécifiques, comme marquer certains expéditeurs comme importants ou déplacer les newsletters dans une catégorie distincte."
+    },
+    "errorMessages": {
+      "failedToLoadGuidelines": "Échec du chargement des directives actuelles",
+      "failedToUpdateGuidelines": "Échec de la mise à jour des directives"
+    },
+    "successMessages": {
+      "success": "Succès",
+      "guidelinesUpdated": "Directives mises à jour avec succès"
     },
     "professionalTemplates": {
       "title": "Modèles Professionnels",

@@ -1,11 +1,4 @@
 <template>
-    <NotificationTimer
-        :showNotification="showNotification"
-        :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage"
-        :backgroundColor="backgroundColor"
-        @dismissPopup="dismissPopup"
-    />
     <div class="h-full overflow-y-auto -mr-6">
         <div class="flex gap-6 h-full pr-4">
             <!-- Professional Templates -->
@@ -113,20 +106,14 @@
 </template>
 
 <script setup lang="ts">
-import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, inject } from "vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { getPredefinedProfiles } from "../utils/jobs";
 import { getData, postData } from "@/global/fetchData";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
+import { i18n } from "@/global/preferences";
 
 const searchQuery = ref("");
 const predefinedProfiles = ref(getPredefinedProfiles());
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
 
 const currentGuidelines = ref({
     importantGuidelines: "",
@@ -153,30 +140,15 @@ const filteredProfiles = computed(() => {
 
 function getPlaceholder(type: "important" | "informative" | "useless"): string {
     const defaultPlaceholders = {
-        important:
-            "Example: Urgent client requests, critical project deadlines, direct messages from your supervisor about immediate tasks...",
-        informative: "Example: Team updates, project progress reports, industry news relevant to your work...",
-        useless: "Example: Marketing newsletters, social media notifications, promotional offers...",
+        important: i18n.global.t("aiAssistantPage.detailedGuidelines.important.placeholder"),
+        informative: i18n.global.t("aiAssistantPage.detailedGuidelines.informative.placeholder"),
+        useless: i18n.global.t("aiAssistantPage.detailedGuidelines.lowPriority.placeholder"),
     };
 
     return currentGuidelines.value[`${type}Guidelines`] || defaultPlaceholders[type];
 }
 
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
-
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
-}
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 async function loadCurrentGuidelines() {
     const result = await getData("user/preferences/guidelines/");
@@ -188,7 +160,11 @@ async function loadCurrentGuidelines() {
             useless: result.data.uselessGuidelines,
         };
     } else {
-        displayPopup("error", "Failed to load current guidelines", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("aiAssistantPage.errorMessages.failedToLoadGuidelines"),
+            result.error as string
+        );
     }
 }
 
@@ -208,10 +184,18 @@ async function saveGuidelines() {
     });
 
     if (result.success) {
-        displayPopup("success", "Success", "Guidelines updated successfully");
+        displayPopup?.(
+            "success",
+            i18n.global.t("aiAssistantPage.successMessages.success"),
+            i18n.global.t("aiAssistantPage.successMessages.guidelinesUpdated")
+        );
         await loadCurrentGuidelines();
     } else {
-        displayPopup("error", "Failed to update guidelines", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("aiAssistantPage.errorMessages.failedToUpdateGuidelines"),
+            result.error as string
+        );
     }
 }
 

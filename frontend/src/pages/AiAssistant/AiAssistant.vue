@@ -1,10 +1,15 @@
 <template>
-    <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismissPopup="dismissPopup" />
+    <NotificationTimer
+        :showNotification="showNotification"
+        :notificationTitle="notificationTitle"
+        :notificationMessage="notificationMessage"
+        :backgroundColor="backgroundColor"
+        @dismissPopup="dismissPopup"
+    />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 ring-black ring-opacity-5">
                 <div class="flex flex-col h-full">
@@ -19,7 +24,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                             >
                                                 <SparklesIcon class="w-4 h-4" />
@@ -31,7 +36,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/custom-categorization')"
                                             >
@@ -44,7 +49,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8'
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/rules')"
                                             >
@@ -69,28 +74,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, provide } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { getData, postData } from "@/global/fetchData";
-import { getPredefinedProfiles } from "./utils/jobs";
+import { getData } from "@/global/fetchData";
 import PrioritizationGuidelines from "./components/PrioritizationGuidelines.vue";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
+import { i18n } from "@/global/preferences";
 
 const router = useRouter();
-
-const showTooltip = ref("");
-const searchQuery = ref("");
 const showNotification = ref(false);
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
-const predefinedProfiles = ref(getPredefinedProfiles());
-const activeSection = ref('assistant');
 
 const currentGuidelines = ref({
     importantGuidelines: "",
@@ -103,28 +103,6 @@ const guidelines = ref({
     informative: "",
     useless: "",
 });
-
-const filteredProfiles = computed(() => {
-    if (!searchQuery.value) return predefinedProfiles.value;
-    const query = searchQuery.value.toLowerCase();
-    return predefinedProfiles.value.filter(
-        (profile) =>
-            profile.title.toLowerCase().includes(query) ||
-            profile.description.toLowerCase().includes(query) ||
-            profile.keywords.some((keyword) => keyword.toLowerCase().includes(query))
-    );
-});
-
-function getPlaceholder(type: "important" | "informative" | "useless"): string {
-    const defaultPlaceholders = {
-        important:
-            "Example: Urgent client requests, critical project deadlines, direct messages from your supervisor about immediate tasks...",
-        informative: "Example: Team updates, project progress reports, industry news relevant to your work...",
-        useless: "Example: Marketing newsletters, social media notifications, promotional offers...",
-    };
-
-    return currentGuidelines.value[`${type}Guidelines`] || defaultPlaceholders[type];
-}
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
@@ -152,45 +130,15 @@ async function loadCurrentGuidelines() {
             useless: result.data.uselessGuidelines,
         };
     } else {
-        displayPopup("error", "Failed to load current guidelines", result.error as string);
+        displayPopup(
+            "error",
+            i18n.global.t("aiAssistantPage.errorMessages.failedToLoadGuidelines"),
+            result.error as string
+        );
     }
 }
 
-function applyProfile(profile: { important: string; informative: string; useless: string }) {
-    guidelines.value = {
-        important: profile.important,
-        informative: profile.informative,
-        useless: profile.useless,
-    };
-}
-
-async function saveGuidelines() {
-    const result = await postData("user/preferences/prioritization/", {
-        importantGuidelines: guidelines.value.important || currentGuidelines.value.importantGuidelines,
-        informativeGuidelines: guidelines.value.informative || currentGuidelines.value.informativeGuidelines,
-        uselessGuidelines: guidelines.value.useless || currentGuidelines.value.uselessGuidelines,
-    });
-
-    if (result.success) {
-        displayPopup("success", "Success", "Guidelines updated successfully");
-        await loadCurrentGuidelines();
-    } else {
-        displayPopup("error", "Failed to update guidelines", result.error as string);
-    }
-}
-
-const setActiveSection = (section: string) => {
-    activeSection.value = section;
-    if (section === 'categories') {
-        router.push('/custom-categorization');
-    } else if (section === 'rules') {
-        router.push('/rules');
-    }
-};
-
-const currentComponent = computed(() => {
-    return activeSection.value === 'assistant' ? PrioritizationGuidelines : null;
-});
+provide("displayPopup", displayPopup);
 
 onMounted(() => {
     loadCurrentGuidelines();

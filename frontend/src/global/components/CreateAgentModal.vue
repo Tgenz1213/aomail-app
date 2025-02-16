@@ -280,7 +280,6 @@ const createAgent = async () => {
     formData.append("language", i18n.global.locale);
     if (selectedFile.value) {
         formData.append("picture", selectedFile.value);
-        console.log("selectedFile.value?.name.toString()", selectedFile.value?.name.toString());
         formData.append("icon_name", selectedFile.value?.name.toString());
     }
 
@@ -291,10 +290,19 @@ const createAgent = async () => {
             ...result.data,
             pictureUrl: result.data.picture || "/assets/default-agent.png",
         };
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.agentCreated"),
+            i18n.global.t("constants.popUpConstants.successMessages.agentCreatedDesc")
+        );
         emit("created", newAgent);
         emit("close");
     } else {
-        alert(result.error || "Failed to create agent.");
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.createAgentError"),
+            result.error as string
+        );
     }
 };
 

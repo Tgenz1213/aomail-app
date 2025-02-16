@@ -111,7 +111,10 @@
         "identifierMustNotContainSpaces": "The identifier must not contain spaces",
         "maxUsernameLength150Characters": "Maximum username length: 150 characters",
         "identifierIsAlreadyInUse": "The identifier is already in use",
-        "invalidEmailFormat": "Please enter a valid email address"
+        "invalidEmailFormat": "Please enter a valid email address",
+        "createAgentError": "Failed to create agent",
+        "updateAgentError": "Failed to update agent",
+        "deleteAgentError": "Failed to delete agent"
       },
       "successMessages": {
         "success": "Success!",
@@ -126,7 +129,13 @@
         "emailsMarkedAsRead": "Emails Marked as Read",
         "emailsMarkedAsReadDescription": "All selected emails have been marked as read.",
         "emailsArchived": "Emails Archived",
-        "emailsArchivedDescription": "All selected emails have been archived."
+        "emailsArchivedDescription": "All selected emails have been archived.",
+        "agentCreated": "Agent created successfully",
+        "agentUpdated": "Agent updated successfully",
+        "agentDeleted": "Agent deleted successfully",
+        "agentCreatedDesc": "The new agent has been created successfully.",
+        "agentUpdatedDesc": "The agent has been updated successfully.",
+        "agentDeletedDesc": "The agent has been deleted successfully."
       }
     },
     "freeTrialExpired": "Free trial expired",

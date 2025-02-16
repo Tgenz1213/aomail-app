@@ -300,21 +300,26 @@ const updateAgent = async () => {
         formData.append("picture", selectedFile.value);
     }
 
-    console.log(props.agent.id);
-
     const result = await putData(`user/agents/${props.agent.id}/update/`, formData, true);
-
-    console.log(result);
 
     if (result.success) {
         const updatedAgent: Agent = {
             ...result.data,
             picture: result.data.picture || "/assets/default-agent.png",
         };
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.agentUpdated"),
+            i18n.global.t("constants.popUpConstants.successMessages.agentUpdatedDesc")
+        );
         emit("updated", updatedAgent);
         emit("close");
     } else {
-        alert(result.error || "Failed to update agent.");
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.updateAgentError"),
+            result.error as string
+        );
     }
 };
 
@@ -322,15 +327,17 @@ const deleteAgent = async () => {
     const result = await deleteData(`user/agents/${props.agent.id}/delete/`);
 
     if (result.success) {
-        displayPopup?.("success", "Agent deleted successfully", "The agent has been deleted successfully.");
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.agentDeleted"),
+            i18n.global.t("constants.popUpConstants.successMessages.agentDeletedDesc")
+        );
         emit("deleted", props.agent.id);
         emit("close");
     } else {
-        alert(result.error || "Failed to delete agent.");
         displayPopup?.(
             "error",
-            // i18n.global.t("constants.popUpConstants.errorMessages.addCategoryError"),
-            "Failed to delete agent.",
+            i18n.global.t("constants.popUpConstants.errorMessages.deleteAgentError"),
             result.error as string
         );
     }

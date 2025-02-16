@@ -2,7 +2,6 @@
 Handles email operations, returns results to frontend, and saves to the database.
 
 Endpoints:
-- ✅ delete_email: Delete an email.
 - ✅ delete_emails: Delete emails by priority or IDs.
 - ✅ get_first_email: Get the first email in the database.
 - ✅ get_mail_by_id: Retrieve email details by ID.
@@ -10,12 +9,13 @@ Endpoints:
 - ✅ update_emails: Update the state of multiple emails (e.g., mark as read, unread, or for later reply).
 - ✅ get_answer_email_suggestion_ids: Returns email answer suggestions based on specific criteria.
 - ✅ get_simple_email_data: Retrieves detailed information for multiple emails based on provided email IDs.
-- ☑️ get_email_content: Retrieves the content of an email based on provider name and email ID.
+- ✅ get_email_content: Retrieves the content of an email based on provider name and email ID.
 """
 
 import json
 import logging
 from datetime import timedelta
+import os
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -31,10 +31,11 @@ from aomail.constants import (
     GOOGLE,
     IMPORTANT,
     INFORMATIVE,
+    MEDIA_ROOT,
     MICROSOFT,
     MIGHT_REQUIRE_ANSWER,
 )
-from aomail.models import SocialAPI, Email
+from aomail.models import Label, Picture, SocialAPI, Email
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.email_providers.microsoft import (
@@ -216,9 +217,7 @@ def get_simple_email_data(request: HttpRequest) -> Response:
         )
 
 
-# TODO: delete this comment after front-end implementation
-# ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS
-@api_view(["POST"])
+@api_view(["DELETE"])
 @subscription(ALLOW_ALL)
 def delete_emails(request: HttpRequest) -> Response:
     """
@@ -237,88 +236,96 @@ def delete_emails(request: HttpRequest) -> Response:
     user = request.user
     priority: str = parameters.get("priority")
     clean: bool = parameters.get("clean")
+    email_ids: list[int] = parameters.get("emailIds", [])
 
-    if not priority:
-        return Response(
-            {"error": "No priority provided"}, status=status.HTTP_400_BAD_REQUEST
-        )
+    if not email_ids:
+        if not priority:
+            return Response(
+                {"error": "No priority provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-    if priority == READ_EMAILS_MARKER:
-        emails = Email.objects.filter(user=user, read=True)
-        for email in emails:
-            email.delete()
+        if priority == READ_EMAILS_MARKER:
+            emails = Email.objects.filter(user=user, read=True)
+            for email in emails:
+                email.delete()
 
-        return Response(
-            {"message": "Read emails deleted successfully"}, status=status.HTTP_200_OK
-        )
+            return Response(
+                {"message": "Read emails deleted successfully"},
+                status=status.HTTP_200_OK,
+            )
 
-    if clean:
-        emails = Email.objects.filter(user=user, priority=priority)
-        for email in emails:
-            email.delete()
+        if clean:
+            emails = Email.objects.filter(user=user, priority=priority)
+            for email in emails:
+                email.delete()
 
+        else:
+            email_ids: list[int] = parameters.get("emailIds", [])
+            for email_id in email_ids:
+                try:
+                    email = Email.objects.get(user=user, id=email_id)
+                    email.delete()
+                except Email.DoesNotExist:
+                    pass
     else:
-        email_ids: list[int] = parameters.get("emailIds", [])
         for email_id in email_ids:
             try:
                 email = Email.objects.get(user=user, id=email_id)
+                social_api = email.social_api
+                type_api = social_api.type_api
+                provider_id = email.provider_id
                 email.delete()
+
+                # delete images | labels from server (if applicable)
+                pictures = Picture.objects.filter(email=email)
+                for picture in pictures:
+                    picture_path = os.path.join(
+                        MEDIA_ROOT, "pictures", f"{picture.path}"
+                    )
+                    if os.path.exists(picture_path):
+                        os.remove(picture_path)
+
+                labels = Label.objects.filter(email=email)
+                for label in labels:
+                    pdf_file_path = os.path.join(
+                        MEDIA_ROOT, "labels", f"{label.label_name}"
+                    )
+                    if os.path.exists(pdf_file_path):
+                        os.remove(pdf_file_path)
+
+                if type_api == GOOGLE:
+                    result = email_operations_google.delete_email(
+                        user, social_api.email, provider_id
+                    )
+                elif type_api == MICROSOFT:
+                    result = email_operations_microsoft.delete_email(
+                        provider_id, social_api
+                    )
+
+                if result.get("message", "") == "Email moved to trash successfully!":
+                    return Response(
+                        {"message": "Email deleted successfully"},
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    return Response(
+                        {"error": result.get("error")},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
             except Email.DoesNotExist:
-                pass
+                return Response(
+                    {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+                )
+            except Exception as e:
+                LOGGER.error(f"Error when deleting email: {str(e)}")
+                return Response(
+                    {"error": "Internal server error"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
     return Response(
         {"message": "Emails deleted successfully"}, status=status.HTTP_200_OK
     )
-
-
-@api_view(["DELETE"])
-@subscription(ALLOW_ALL)
-def delete_email(request: HttpRequest, email_id: int) -> Response:
-    """
-    Deletes an email associated with the authenticated user.
-
-    Args:
-        request (HttpRequest): HTTP request object.
-        email_id (int): The ID of the email to delete.
-
-    Returns:
-        Response: {"message": "Email deleted successfully"} if the email is deleted successfully,
-                      or {"error": <error_message>} with status HTTP 500 Internal Server Error if there's an issue.
-    """
-    try:
-        user = request.user
-        email = Email.objects.get(user=user, id=email_id)
-        social_api = email.social_api
-        type_api = social_api.type_api
-        provider_id = email.provider_id
-        email.delete()
-
-        if type_api == GOOGLE:
-            result = email_operations_google.delete_email(
-                user, social_api.email, provider_id
-            )
-        elif type_api == MICROSOFT:
-            result = email_operations_microsoft.delete_email(provider_id, social_api)
-
-        if result.get("message", "") == "Email moved to trash successfully!":
-            return Response(
-                {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
-            )
-        else:
-            return Response(
-                {"error": result.get("error")},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-    except Email.DoesNotExist:
-        return Response(
-            {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
-        )
-    except Exception as e:
-        LOGGER.error(f"Error when deleting email: {str(e)}")
-        return Response(
-            {"error": "Internal server error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
 
 
 @api_view(["PUT"])
@@ -529,17 +536,17 @@ def get_email_content(request: HttpRequest) -> Response:
         if not email_id or not provider_email:
             return Response(
                 {"error": "Missing required parameters"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         social_api = get_object_or_404(
-            SocialAPI,
-            user=request.user,
-            email=provider_email
+            SocialAPI, user=request.user, email=provider_email
         )
 
         if social_api.type_api == GOOGLE:
-            services = auth_google.authenticate_service(request.user, provider_email, ["gmail"])
+            services = auth_google.authenticate_service(
+                request.user, provider_email, ["gmail"]
+            )
             subject, from_info, decoded_data, cc, bcc, attachments, date = (
                 email_operations_google.get_mail(services, None, email_id)
             )
@@ -551,7 +558,7 @@ def get_email_content(request: HttpRequest) -> Response:
         else:
             return Response(
                 {"error": f"Unsupported provider type: {social_api.type_api}"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         if cc:
@@ -564,6 +571,7 @@ def get_email_content(request: HttpRequest) -> Response:
         if isinstance(attachments, str):
             try:
                 import json
+
                 attachments = json.loads(attachments)
             except Exception as json_err:
                 LOGGER.error(f"Failed to parse attachments as JSON: {json_err}")
@@ -573,26 +581,27 @@ def get_email_content(request: HttpRequest) -> Response:
         if not isinstance(attachments, list):
             attachments = []
 
-        return Response({
-            "subject": subject,
-            "from": {
-                "email": from_info[1],
-                "name": from_info[0]
+        return Response(
+            {
+                "subject": subject,
+                "from": {"email": from_info[1], "name": from_info[0]},
+                "htmlContent": decoded_data,
+                "cc": [{"email": c[1], "name": c[0]} for c in cc] if cc else [],
+                "bcc": [{"email": b[1], "name": b[0]} for b in bcc] if bcc else [],
+                "date": date,
+                "hasAttachments": bool(attachments),
+                "attachments": [
+                    {"name": att["name"], "id": att["id"]}
+                    for att in attachments
+                    if isinstance(att, dict)
+                ],
             },
-            "htmlContent": decoded_data,
-            "cc": [{"email": c[1], "name": c[0]} for c in cc] if cc else [],
-            "bcc": [{"email": b[1], "name": b[0]} for b in bcc] if bcc else [],
-            "date": date,
-            "hasAttachments": bool(attachments),
-            "attachments": [
-                {"name": att["name"], "id": att["id"]}
-                for att in attachments if isinstance(att, dict)
-            ]
-        }, status=status.HTTP_200_OK)
+            status=status.HTTP_200_OK,
+        )
 
     except Exception as e:
         LOGGER.error(f"Error in get_email_content: {str(e)}")
         return Response(
             {"error": "Internal server error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

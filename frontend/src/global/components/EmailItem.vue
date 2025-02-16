@@ -607,7 +607,7 @@ async function deleteEmail() {
             }
         }
     }
-    const result = await deleteData(`user/emails/${localEmail.value.id}/delete/`);
+    const result = await deleteData(`user/emails/delete_emails/`, { emailIds: [localEmail.value.id] });
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), result.error as string);
     }

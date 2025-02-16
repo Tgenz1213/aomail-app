@@ -167,7 +167,9 @@ async function openSeeMailModal() {
         isSeeMailOpen.value = true;
     } else {
         console.log(props.email);
-        const result = await getData(`user/emails/content/?email_id=${props.email.providerId}&provider_email=${props.provider_email}`);
+        const result = await getData(
+            `user/emails/content/?email_id=${props.email.providerId}&provider_email=${props.provider_email}`
+        );
         console.log(result);
         if (!result.success) {
             displayPopup?.("error", "Failed to fetch email content", result.error as string);
@@ -232,7 +234,7 @@ async function deleteEmail() {
         return;
     }
 
-    const result = await deleteData(`user/emails/${localEmail.value.id}/delete/`);
+    const result = await deleteData(`user/emails/delete_emails/`, { emailIds: [localEmail.value.id] });
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), result.error as string);
     }

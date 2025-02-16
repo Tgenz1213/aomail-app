@@ -891,7 +891,7 @@
     "searchInSelectedInfos": "Sélectionnez les dossiers dans lesquels effectuer la recherche",
     "doesntContainPlaceholder": "Ne contient pas",
     "searchButton": "Rechercher",
-    "searchPlaceholder": "Recherche d'email",
+    "searchPlaceholder": "Rechercher...",
     "notEnoughDataToAnswer": "Vous n'avez pas suffisamment de données pour répondre à la question",
     "oneDataFound": "trouvé",
     "severalDataFound": "trouvés",
@@ -931,6 +931,22 @@
       "typeMessage": "Tapez un message...",
       "askQuestion": "Posez-moi une question sur vos e-mails...",
       "initialGreeting": "Bonjour ! Je suis là pour vous aider à rechercher dans vos e-mails. Que souhaitez-vous savoir ?"
+    },
+    "sortBy": "Trier par",
+    "orderBy": "Ordre",
+    "sortOptions": {
+      "platform": "Plateforme",
+      "itemName": "Nom de l'article",
+      "carrier": "Transporteur",
+      "postageDeadline": "Date limite d'affranchissement"
+    },
+    "orderOptions": {
+      "ascending": "Croissant",
+      "descending": "Décroissant"
+    },
+    "errors": {
+      "failedToFetchEmails": "Échec de la récupération des e-mails",
+      "failedToFetchEmailDetails": "Échec de la récupération des détails de l'e-mail"
     }
   },
   "newPage": {

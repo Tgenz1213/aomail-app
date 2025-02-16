@@ -887,7 +887,7 @@
     "searchInSelectedInfos": "Select the folders to search within",
     "doesntContainPlaceholder": "Doesn't contain",
     "searchButton": "Search",
-    "searchPlaceholder": "Email search",
+    "searchPlaceholder": "Search...",
     "notEnoughDataToAnswer": "You do not have enough data to answer the question",
     "onedataFound": "found",
     "severalDataFound": "found",
@@ -927,6 +927,18 @@
       "typeMessage": "Type a message...",
       "askQuestion": "Ask me a question about your emails...",
       "initialGreeting": "Hello! I'm here to help you search through your emails. What would you like to know?"
+    },
+    "sortBy": "Sort by",
+    "orderBy": "Order by",
+    "sortOptions": {
+      "platform": "Platform",
+      "itemName": "Item Name",
+      "carrier": "Carrier",
+      "postageDeadline": "Postage Deadline"
+    },
+    "orderOptions": {
+      "ascending": "Ascending",
+      "descending": "Descending"
     }
   },
   "newPage": {

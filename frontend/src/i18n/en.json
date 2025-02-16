@@ -114,7 +114,8 @@
         "invalidEmailFormat": "Please enter a valid email address",
         "createAgentError": "Failed to create agent",
         "updateAgentError": "Failed to update agent",
-        "deleteAgentError": "Failed to delete agent"
+        "deleteAgentError": "Failed to delete agent",
+        "emailIdNotFound": "Email id not found"
       },
       "successMessages": {
         "success": "Success!",

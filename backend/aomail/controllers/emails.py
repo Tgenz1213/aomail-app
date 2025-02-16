@@ -274,7 +274,6 @@ def delete_emails(request: HttpRequest) -> Response:
                 social_api = email.social_api
                 type_api = social_api.type_api
                 provider_id = email.provider_id
-                email.delete()
 
                 # delete images | labels from server (if applicable)
                 pictures = Picture.objects.filter(email=email)
@@ -294,24 +293,14 @@ def delete_emails(request: HttpRequest) -> Response:
                         os.remove(pdf_file_path)
 
                 if type_api == GOOGLE:
-                    result = email_operations_google.delete_email(
+                    email_operations_google.delete_email(
                         user, social_api.email, provider_id
                     )
                 elif type_api == MICROSOFT:
-                    result = email_operations_microsoft.delete_email(
-                        provider_id, social_api
-                    )
+                    email_operations_microsoft.delete_email(provider_id, social_api)
 
-                if result.get("message", "") == "Email moved to trash successfully!":
-                    return Response(
-                        {"message": "Email deleted successfully"},
-                        status=status.HTTP_200_OK,
-                    )
-                else:
-                    return Response(
-                        {"error": result.get("error")},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
+                email.delete()
+
             except Email.DoesNotExist:
                 return Response(
                     {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST

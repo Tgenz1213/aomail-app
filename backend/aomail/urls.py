@@ -77,7 +77,7 @@ urlpatterns = [
     path('user/preferences/prioritization/', prefs.prioritization, name='user_prioritization'),
     path('user/preferences/guidelines/', prefs.get_user_guidelines, name='get_user_guidelines'),
     #----------------------- EMAILS -----------------------#
-    path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'),
+    path('user/emails/delete_emails/', emails.delete_emails, name='delete_emails'),
     path('user/emails_ids/', search_emails.get_user_emails_ids, name='get_user_emails'),
     path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'),
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'),

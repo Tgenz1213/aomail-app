@@ -230,13 +230,21 @@ async function deleteEmail() {
     if (index !== -1) {
         emailList.value.splice(index, 1);
     } else {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), "Email id not found");
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.deleteEmailFailure"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailIdNotFound")
+        );
         return;
     }
 
     const result = await deleteData(`user/emails/delete_emails/`, { emailIds: [localEmail.value.id] });
     if (!result.success) {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.deleteEmailFailure"),
+            result.error as string
+        );
     }
 }
 

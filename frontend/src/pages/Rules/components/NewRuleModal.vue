@@ -5,7 +5,7 @@
             @click.self="closeModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
         >
-            <div class="bg-white rounded-lg relative w-[800px] max-h-[85vh] overflow-y-auto">
+            <div class="bg-white rounded-lg relative w-[850px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
                 <div class="sticky top-0 z-10 rounded-t-lg border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between p-4">

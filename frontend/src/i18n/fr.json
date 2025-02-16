@@ -110,7 +110,8 @@
         "pleaseEnterAnIdentifier": "Veuillez entrer un identifiant",
         "recuperationRules": "Erreur lors de la récupération des règles",
         "failedToFetchAttachment": "Échec de la récupération de la pièce jointe",
-        "failedToFetchDashboard": "Échec de la récupération des données du tableau de bord"
+        "failedToFetchDashboard": "Échec de la récupération des données du tableau de bord",
+        "failedToFetchCombinedStatistics": "Échec de la récupération des statistiques combinées"
       },
       "successMessages": {
         "success": "Succès !",

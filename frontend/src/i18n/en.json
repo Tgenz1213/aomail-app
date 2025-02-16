@@ -110,7 +110,8 @@
         "pleaseEnterAnIdentifier": "Please enter an identifier",
         "recuperationRules": "Error retrieving the rules",
         "failedToFetchAttachment": "Failed to fetch attachment",
-        "failedToFetchDashboard": "Failed to fetch dashboard data"
+        "failedToFetchDashboard": "Failed to fetch dashboard data",
+        "failedToFetchCombinedStatistics": "Failed to fetch combined statistics"
       },
       "successMessages": {
         "success": "Success!",

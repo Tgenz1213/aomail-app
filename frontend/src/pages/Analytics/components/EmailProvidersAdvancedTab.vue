@@ -3,7 +3,7 @@
         <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
             <!-- View Mode Toggle -->
             <div class="flex items-center justify-between mb-6 flex-shrink-0">
-                <span class="text-sm font-medium text-gray-700">{{ $t('emailProvidersAdvancedTab.viewMode') }}</span>
+                <span class="text-sm font-medium text-gray-700">{{ $t("emailProvidersAdvancedTab.viewMode") }}</span>
                 <label class="flex items-center cursor-pointer">
                     <input type="checkbox" v-model="isChartView" class="hidden" />
                     <div
@@ -15,13 +15,17 @@
                             :class="{ 'translate-x-5': isChartView }"
                         ></div>
                     </div>
-                    <span class="ml-3 text-sm text-gray-600">{{ isChartView ? $t('emailProvidersAdvancedTab.chart') : $t('emailProvidersAdvancedTab.raw') }}</span>
+                    <span class="ml-3 text-sm text-gray-600">
+                        {{ isChartView ? $t("emailProvidersAdvancedTab.chart") : $t("emailProvidersAdvancedTab.raw") }}
+                    </span>
                 </label>
             </div>
 
             <!-- Email Selection and Fetch Data Container -->
             <div class="mb-6 flex-shrink-0">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('emailProvidersAdvancedTab.selectEmails') }}</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ $t("emailProvidersAdvancedTab.selectEmails") }}
+                </label>
                 <div class="flex gap-x-4">
                     <multiselect
                         v-model="selectedEmails"
@@ -41,7 +45,7 @@
                         class="bg-gray-700 rounded-lg px-6 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 2xl:px-7 2xl:text-lg"
                         style="height: 38px"
                     >
-                        {{ $t('emailProvidersAdvancedTab.fetchData') }}
+                        {{ $t("emailProvidersAdvancedTab.fetchData") }}
                     </button>
                 </div>
             </div>
@@ -51,50 +55,81 @@
                 <div v-if="!isChartView" class="space-y-4">
                     <!-- Aomail Stats Card -->
                     <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h2 class="text-base font-semibold text-gray-900 mb-4">{{ $t('emailProvidersAdvancedTab.statistics.aomailTitle') }}</h2>
+                        <h2 class="text-base font-semibold text-gray-900 mb-4">
+                            {{ $t("emailProvidersAdvancedTab.statistics.aomailTitle") }}
+                        </h2>
                         <div class="space-y-3">
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📩</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsReceived') }}: {{ combinedStatistics?.aomailData.nbEmailsReceived }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsReceived") }}:
+                                    {{ combinedStatistics?.aomailData.nbEmailsReceived }}
+                                </span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📖</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsRead') }}: {{ combinedStatistics?.aomailData.nbEmailsRead }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsRead") }}:
+                                    {{ combinedStatistics?.aomailData.nbEmailsRead }}
+                                </span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📂</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsArchived') }}: {{ combinedStatistics?.aomailData.nbEmailsArchived }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsArchived") }}:
+                                    {{ combinedStatistics?.aomailData.nbEmailsArchived }}
+                                </span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">⏳</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsReplyLater') }}: {{ combinedStatistics?.aomailData.nbEmailsReplyLater }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsReplyLater") }}:
+                                    {{ combinedStatistics?.aomailData.nbEmailsReplyLater }}
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Email Providers Stats Card -->
                     <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h2 class="text-base font-semibold text-gray-900 mb-4">{{ $t('emailProvidersAdvancedTab.statistics.emailProvidersTitle') }}</h2>
+                        <h2 class="text-base font-semibold text-gray-900 mb-4">
+                            {{ $t("emailProvidersAdvancedTab.statistics.emailProvidersTitle") }}
+                        </h2>
                         <div class="space-y-3">
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📩</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsReceived') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsReceived }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsReceived") }}:
+                                    {{ combinedStatistics?.emailProvidersData.nbEmailsReceived }}
+                                </span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📖</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsRead') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsRead }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsRead") }}:
+                                    {{ combinedStatistics?.emailProvidersData.nbEmailsRead }}
+                                </span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📂</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsArchived') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsArchived }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsArchived") }}:
+                                    {{ combinedStatistics?.emailProvidersData.nbEmailsArchived }}
+                                </span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">⭐</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsStarred') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsStarred }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsStarred") }}:
+                                    {{ combinedStatistics?.emailProvidersData.nbEmailsStarred }}
+                                </span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <span class="mr-2">📤</span>
-                                <span>{{ $t('emailProvidersAdvancedTab.statistics.emailsSent') }}: {{ combinedStatistics?.emailProvidersData.nbEmailsSent }}</span>
+                                <span>
+                                    {{ $t("emailProvidersAdvancedTab.statistics.emailsSent") }}:
+                                    {{ combinedStatistics?.emailProvidersData.nbEmailsSent }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -113,12 +148,7 @@
 import { ref, onMounted, watch, nextTick, inject } from "vue";
 import { init } from "echarts/core";
 import { BarChart } from "echarts/charts";
-import {
-    TitleComponent,
-    TooltipComponent,
-    GridComponent,
-    LegendComponent,
-} from "echarts/components";
+import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import { use } from "echarts/core";
 import Multiselect from "vue-multiselect";
@@ -126,14 +156,7 @@ import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { EmailLinked } from "@/global/types";
 
-use([
-    TitleComponent,
-    TooltipComponent,
-    GridComponent,
-    LegendComponent,
-    BarChart,
-    CanvasRenderer
-]);
+use([TitleComponent, TooltipComponent, GridComponent, LegendComponent, BarChart, CanvasRenderer]);
 
 const emailsLinked = ref<EmailLinked[]>([]);
 const combinedStatistics = ref<CombinedStatistics | undefined>();
@@ -186,7 +209,11 @@ const fetchCombinedStatistics = async () => {
     });
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch combined statistics", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchCombinedStatistics"),
+            result.error as string
+        );
         return;
     }
 
@@ -200,7 +227,12 @@ const renderBarChart = () => {
     if (!combinedStatistics.value || !barChart.value) return;
 
     const chartData = {
-        categories: ["Read", "Archived", "Starred", "Sent"],
+        categories: [
+            i18n.global.t("emailProvidersAdvancedTab.statistics.emailsRead"),
+            i18n.global.t("emailProvidersAdvancedTab.statistics.emailsArchived"),
+            i18n.global.t("emailProvidersAdvancedTab.statistics.emailsStarred"),
+            i18n.global.t("emailProvidersAdvancedTab.statistics.emailsSent"),
+        ],
         values: [
             combinedStatistics.value.emailProvidersData.nbEmailsRead,
             combinedStatistics.value.emailProvidersData.nbEmailsArchived,
@@ -213,7 +245,7 @@ const renderBarChart = () => {
 
     const options = {
         title: {
-            text: i18n.global.t('emailProvidersAdvancedTab.chart_title'),
+            text: i18n.global.t("emailProvidersAdvancedTab.chart_title"),
             left: "center",
             textStyle: {
                 fontSize: 18,

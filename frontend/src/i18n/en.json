@@ -111,7 +111,9 @@
         "recuperationRules": "Error retrieving the rules",
         "failedToFetchAttachment": "Failed to fetch attachment",
         "failedToFetchDashboard": "Failed to fetch dashboard data",
-        "failedToFetchCombinedStatistics": "Failed to fetch combined statistics"
+        "failedToFetchCombinedStatistics": "Failed to fetch combined statistics",
+        "failedToFetchLabelIds": "Failed to fetch label IDs",
+        "failedToFetchLabelData": "Failed to fetch label data"
       },
       "successMessages": {
         "success": "Success!",
@@ -1536,5 +1538,13 @@
     "missedImportantEmails": "Hey, you have these important emails that you have not read and received more than 3 days ago:",
     "noPendingEmails": "You have no pending emails at the moment!",
     "noEmailsToShow": "No emails to show."
+  },
+  "labelsPage": {
+    "itemName": "Item Name",
+    "postageDeadline": "Postage Deadline",
+    "carrier": "Carrier",
+    "platform": "Platform",
+    "noLabelsFound": "No labels found.",
+    "loadingMoreLabels": "Loading more labels..."
   }
 }

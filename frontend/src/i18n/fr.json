@@ -111,7 +111,9 @@
         "recuperationRules": "Erreur lors de la récupération des règles",
         "failedToFetchAttachment": "Échec de la récupération de la pièce jointe",
         "failedToFetchDashboard": "Échec de la récupération des données du tableau de bord",
-        "failedToFetchCombinedStatistics": "Échec de la récupération des statistiques combinées"
+        "failedToFetchCombinedStatistics": "Échec de la récupération des statistiques combinées",
+        "failedToFetchLabelIds": "Échec de la récupération des identifiants d'étiquettes",
+        "failedToFetchLabelData": "Échec de la récupération des données d'étiquettes"
       },
       "successMessages": {
         "success": "Succès !",
@@ -1538,5 +1540,13 @@
     "missedImportantEmails": "Hey, vous avez ces e-mails importants que vous n'avez pas lus et reçus il y a plus de 3 jours :",
     "noPendingEmails": "Vous n'avez aucun e-mail en attente pour le moment !",
     "noEmailsToShow": "Aucun e-mail à afficher."
+  },
+  "labelsPage": {
+    "itemName": "Nom de l'article",
+    "postageDeadline": "Date limite d'affranchissement",
+    "carrier": "Transporteur",
+    "platform": "Plateforme",
+    "noLabelsFound": "Aucune étiquette trouvée.",
+    "loadingMoreLabels": "Chargement d'autres étiquettes..."
   }
 }

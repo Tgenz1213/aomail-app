@@ -53,7 +53,11 @@
                                     alt="Agent Icon"
                                     class="w-6 h-6 rounded-full mr-2"
                                 />
-                                <span>{{ selectedAgent.id ? selectedAgent.agent_name : "Select Agent" }}</span>
+                                <span>
+                                    {{
+                                        selectedAgent.id ? selectedAgent.agent_name : i18n.global.t("agent.selectAgent")
+                                    }}
+                                </span>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     class="w-4 h-4"
@@ -92,7 +96,7 @@
                                             @click.stop="openUpdateAgentModal(agent)"
                                             class="text-blue-500 hover:text-blue-700"
                                         >
-                                            Edit
+                                            {{ i18n.global.t("agent.edit") }}
                                         </button>
                                     </li>
                                     <li
@@ -113,7 +117,7 @@
                                                 d="M12 4v16m8-8H4"
                                             />
                                         </svg>
-                                        <span>Create New Agent</span>
+                                        <span>{{ i18n.global.t("agent.createNewAgent") }}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -177,7 +181,7 @@ const selectedAgent =
     inject<Ref<Agent>>("selectedAgent") ||
     ref({
         id: "",
-        agent_name: "Default Agent",
+        agent_name: i18n.global.t("agent.defaultAgent"),
         picture: "/assets/default-agent.png",
         ai_template: "",
         length: "",
@@ -384,7 +388,9 @@ function askChoiceRecipier(recipients: AiRecipient[], type: string) {
       <div class="flex pb-6">
         <div class="mr-3 flex-shrink-0">
           <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-            <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+            <img src="${API_BASE_URL}agent_icon/${
+        selectedAgent.value.icon_name
+    }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
           </span>
         </div>
         <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
@@ -597,7 +603,7 @@ function deleteAgent(agentId: string) {
     if (selectedAgent.value.id === agentId) {
         selectedAgent.value = {
             id: "",
-            agent_name: "Default Agent",
+            agent_name: i18n.global.t("agent.defaultAgent"),
             picture: "/assets/default-agent.png",
             ai_template: "",
             length: "",

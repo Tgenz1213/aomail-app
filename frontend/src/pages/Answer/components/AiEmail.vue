@@ -53,7 +53,11 @@
                                     alt="Agent Icon"
                                     class="w-6 h-6 rounded-full mr-2"
                                 />
-                                <span>{{ selectedAgent.id ? selectedAgent.agent_name : "Select Agent" }}</span>
+                                <span>
+                                    {{
+                                        selectedAgent.id ? selectedAgent.agent_name : i18n.global.t("agent.selectAgent")
+                                    }}
+                                </span>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     class="w-4 h-4"
@@ -92,7 +96,7 @@
                                             @click.stop="openUpdateAgentModal(agent)"
                                             class="text-blue-500 hover:text-blue-700"
                                         >
-                                            Edit
+                                            {{ i18n.global.t("agent.edit") }}
                                         </button>
                                     </li>
                                     <li
@@ -113,7 +117,7 @@
                                                 d="M12 4v16m8-8H4"
                                             />
                                         </svg>
-                                        <span>Create New Agent</span>
+                                        <span>{{ i18n.global.t("agent.createNewAgent") }}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -171,7 +175,7 @@ const selectedAgent =
     inject<Ref<Agent>>("selectedAgent") ||
     ref<Agent>({
         id: "",
-        agent_name: "Default Agent",
+        agent_name: i18n.global.t("agent.defaultAgent"),
         picture: "/assets/default-agent.png",
         ai_template: "",
         length: "",
@@ -332,7 +336,7 @@ function deleteAgent(agentId: string) {
     if (selectedAgent.value.id === agentId) {
         selectedAgent.value = {
             id: "",
-            agent_name: "Default Agent",
+            agent_name: i18n.global.t("agent.defaultAgent"),
             picture: "/assets/default-agent.png",
             ai_template: "",
             length: "",

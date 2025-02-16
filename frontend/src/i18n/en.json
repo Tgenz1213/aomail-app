@@ -66,7 +66,7 @@
       "multipleEmailsFoundForSomeRecipients": "I found multiple emails for some recipients, select the emails that correspond.",
       "pickSendingDateTime": "Pick a sending date and time",
       "selectTimeAndDate": "Please select a date and time.",
-      "sendScheduledEmail": "Send scheduled email"
+      "sendScheduledEmail": "Schedule send"
     },
     "popUpConstants": {
       "errorMessages": {

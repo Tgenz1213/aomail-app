@@ -66,7 +66,7 @@
       "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionnez les mails qui correspondent",
       "pickSendingDateTime": "Choisissez une date et une heure d'envoi",
       "selectTimeAndDate": "Veuillez sélectionner une date et une heure, s'il vous plaît.",
-      "sendScheduledEmail": "Envoyer l'email programmé"
+      "sendScheduledEmail": "Envoi programmé"
     },
     "popUpConstants": {
       "errorMessages": {

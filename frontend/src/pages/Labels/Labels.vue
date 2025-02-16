@@ -26,8 +26,12 @@
                         <Label v-for="label in labelsData" :key="label.id" :label="label" />
                     </div>
                 </div>
-                <div v-if="!loading && labelsData.length === 0" class="text-center mt-4">{{ $t("labelsPage.noLabelsFound") }}</div>
-                <div ref="loadingIndicator" class="text-center mt-4" v-if="loadingMore">{{ $t("labelsPage.loadingMoreLabels") }}</div>
+                <div v-if="!loading && labelsData.length === 0" class="text-center mt-4">
+                    {{ $t("labelsPage.noLabelsFound") }}
+                </div>
+                <div ref="loadingIndicator" class="text-center mt-4" v-if="loadingMore">
+                    {{ $t("labelsPage.loadingMoreLabels") }}
+                </div>
             </div>
         </div>
     </div>
@@ -97,8 +101,8 @@ const searchLabels = async () => {
 
     if (!resultIds.success) {
         displayPopup(
-            "error", 
-            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelIds"), 
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelIds"),
             resultIds.error as string
         );
         loading.value = false;
@@ -115,8 +119,8 @@ const searchLabels = async () => {
 
     if (!result.success) {
         displayPopup(
-            "error", 
-            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelData"), 
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelData"),
             resultIds.error as string
         );
         return;
@@ -196,8 +200,8 @@ const fetchMoreLabels = async () => {
 
     if (!result.success) {
         displayPopup(
-            "error", 
-            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelData"), 
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelData"),
             result.error as string
         );
         return;

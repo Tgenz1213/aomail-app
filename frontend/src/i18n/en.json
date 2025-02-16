@@ -128,7 +128,10 @@
         "noServerResponse": "No response received from the server while preparing the labels for printing.",
         "pdfFetchError": "Failed to fetch label PDF data: {error}",
         "unknownPdfError": "An unknown error occurred while fetching the PDF.",
-        "failedToDeleteLabel": "Failed to delete label"
+        "failedToDeleteLabel": "Failed to delete label",
+        "initializationError": "Initialization failed",
+        "lastUsedAgentError": "Failed to load last used agent",
+        "agentsFetchError": "Failed to fetch agents"
       },
       "successMessages": {
         "success": "Success!",
@@ -1021,9 +1024,24 @@
   },
   "answerPage": {
     "responseSentTitle": "Response sent!",
-    "chatSummarize": "Summary of the email :",
+    "chatSummarize": "Summary of the email:",
     "chatKeyWordIntroduction": "Here are suggested answers, how would you like to respond?",
-    "seeMail": "See email"
+    "seeMail": "See email",
+    "error": {
+      "title": "Error",
+      "fetchSignatures": "Failed to fetch signatures",
+      "lastUsedAgent": "Failed to load last used agent",
+      "initialization": "Failed to initialize application",
+      "containerNotFound": "AI Container not found",
+      "paragraphNotFound": "Animated paragraph not found",
+      "insertingSignature": "Error inserting signature",
+      "displayingAgentSelection": "Error displaying agent selection",
+      "checkingLastUsedAgent": "Error checking last used agent",
+      "fetchingAgents": "Error fetching agents",
+      "updatingAgentStatus": "Failed to update agent last used status",
+      "noAgentsAvailable": "No agents available",
+      "unknownError": "An unknown error occurred"
+    }
   },
   "errorWebPagesTemplates": {
     "error401Page": {

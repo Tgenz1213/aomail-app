@@ -550,7 +550,38 @@
     "maximum": "Maximum",
     "sinceStatistics": "Since Statistics",
     "periodStatistics": "Period Statistics",
-    "failedToFetchStatistics": "Failed to fetch statistics"
+    "failedToFetchStatistics": "Failed to fetch statistics",
+    "metricLabels": {
+      "nbMightRequireAnswer": "Number of emails that might require an answer",
+      "nbEmailsReceived": "Number of emails received",
+      "nbAnswerRequired": "Number of emails requiring an answer",
+      "nbNoAnswerRequired": "Number of emails not requiring an answer",
+      "nbHighlyRelevant": "Number of highly relevant emails",
+      "nbPossiblyRelevant": "Number of possibly relevant emails",
+      "nbNotRelevant": "Number of not relevant emails",
+      "nbEmailsImportant": "Number of important emails",
+      "nbEmailsInformative": "Number of informative emails",
+      "nbEmailsUseless": "Number of useless emails",
+      "nbScam": "Number of scam emails",
+      "nbSpam": "Number of spam emails",
+      "nbNewsletter": "Number of newsletters",
+      "nbNotification": "Number of notifications",
+      "nbMeeting": "Number of meeting-related emails"
+    },
+    "timeLabels": {
+      "join": "Since joining",
+      "today": "Today",
+      "monday": "Monday",
+      "mtd": "Month to date",
+      "ytd": "Year to date",
+      "24Hours": "24 hours",
+      "7Days": "7 days",
+      "30Days": "30 days",
+      "3Months": "3 months",
+      "6Months": "6 months",
+      "1year": "1 year",
+      "5years": "5 years"
+    }
   },
   "rulesPage": {
     "advancedFilters": "Advanced Filters",

@@ -550,7 +550,38 @@
     "maximum": "Maximum",
     "sinceStatistics": "Statistiques Depuis",
     "periodStatistics": "Statistiques par Période",
-    "failedToFetchStatistics": "Échec de la récupération des statistiques"
+    "failedToFetchStatistics": "Échec de la récupération des statistiques",
+    "metricLabels": {
+      "nbMightRequireAnswer": "Nombre d'emails qui pourraient nécessiter une réponse",
+      "nbEmailsReceived": "Nombre d'emails reçus",
+      "nbAnswerRequired": "Nombre d'emails nécessitant une réponse",
+      "nbNoAnswerRequired": "Nombre d'emails ne nécessitant pas de réponse",
+      "nbHighlyRelevant": "Nombre d'emails très pertinents",
+      "nbPossiblyRelevant": "Nombre d'emails possiblement pertinents",
+      "nbNotRelevant": "Nombre d'emails non pertinents",
+      "nbEmailsImportant": "Nombre d'emails importants",
+      "nbEmailsInformative": "Nombre d'emails informatifs",
+      "nbEmailsUseless": "Nombre d'emails inutiles",
+      "nbScam": "Nombre d'emails d'arnaque",
+      "nbSpam": "Nombre d'emails spam",
+      "nbNewsletter": "Nombre de newsletters",
+      "nbNotification": "Nombre de notifications",
+      "nbMeeting": "Nombre d'emails liés aux réunions"
+    },
+    "timeLabels": {
+      "join": "Depuis l'inscription",
+      "today": "Aujourd'hui",
+      "monday": "Lundi",
+      "mtd": "Depuis le début du mois",
+      "ytd": "Depuis le début de l'année",
+      "24Hours": "24 heures",
+      "7Days": "7 jours",
+      "30Days": "30 jours",
+      "3Months": "3 mois",
+      "6Months": "6 mois",
+      "1year": "1 an",
+      "5years": "5 ans"
+    }
   },
   "rulesPage": {
     "advancedFilters": "Filtres avancés",

@@ -14,7 +14,7 @@
                     class="p-3 border border-gray-300 rounded-lg w-full focus:ring-gray-900 focus:border-gray-900"
                 >
                     <option v-for="metric in statisticsMetrics" :key="metric" :value="metric">
-                        {{ metricLabelTranslations[metric] || metric }}
+                        {{ getMetricLabel(metric) }}
                     </option>
                 </select>
             </div>
@@ -35,7 +35,7 @@
                                 :value="sinceOption"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">{{ metricLabelTranslations[sinceOption] || sinceOption }}</span>
+                            <span class="text-sm">{{ getMetricLabel(sinceOption) }}</span>
                         </div>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                                 :value="periodOption"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">{{ metricLabelTranslations[periodOption] || periodOption }}</span>
+                            <span class="text-sm">{{ getMetricLabel(periodOption) }}</span>
                         </div>
                     </div>
                 </div>
@@ -133,7 +133,34 @@ import { i18n } from "@/global/preferences";
 
 Chart.register(...registerables);
 
-type MetricKey = keyof typeof metricLabelTranslations;
+type MetricKey = 
+    | "nbMightRequireAnswer"
+    | "nbEmailsReceived"
+    | "nbAnswerRequired"
+    | "nbNoAnswerRequired"
+    | "nbHighlyRelevant"
+    | "nbPossiblyRelevant"
+    | "nbNotRelevant"
+    | "nbEmailsImportant"
+    | "nbEmailsInformative"
+    | "nbEmailsUseless"
+    | "nbScam"
+    | "nbSpam"
+    | "nbNewsletter"
+    | "nbNotification"
+    | "nbMeeting"
+    | "join"
+    | "today"
+    | "monday"
+    | "mtd"
+    | "ytd"
+    | "24Hours"
+    | "7Days"
+    | "30Days"
+    | "3Months"
+    | "6Months"
+    | "1year"
+    | "5years";
 
 interface Metric {
     since?: Record<string, number>;
@@ -142,35 +169,12 @@ interface Metric {
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-const metricLabelTranslations = {
-    nbMightRequireAnswer: "Number of emails that might require an answer",
-    nbEmailsReceived: "Number of emails received",
-    nbAnswerRequired: "Number of emails requiring an answer",
-    nbNoAnswerRequired: "Number of emails not requiring an answer",
-    nbHighlyRelevant: "Number of highly relevant emails",
-    nbPossiblyRelevant: "Number of possibly relevant emails",
-    nbNotRelevant: "Number of not relevant emails",
-    nbEmailsImportant: "Number of important emails",
-    nbEmailsInformative: "Number of informative emails",
-    nbEmailsUseless: "Number of useless emails",
-    nbScam: "Number of scam emails",
-    nbSpam: "Number of spam emails",
-    nbNewsletter: "Number of newsletters",
-    nbNotification: "Number of notifications",
-    nbMeeting: "Number of meeting-related emails",
-    join: "Since joining",
-    today: "Today",
-    monday: "Monday",
-    mtd: "Month to date",
-    ytd: "Year to date",
-    "24Hours": "24 hours",
-    "7Days": "7 days",
-    "30Days": "30 days",
-    "3Months": "3 months",
-    "6Months": "6 months",
-    "1year": "1 year",
-    "5years": "5 years",
-} as const;
+const getMetricLabel = (key: MetricKey) => {
+    if (key.startsWith('nb')) {
+        return i18n.global.t(`analyticsPage.metricLabels.${key}`);
+    }
+    return i18n.global.t(`analyticsPage.timeLabels.${key}`);
+};
 
 const statisticsMetrics: MetricKey[] = [
     "nbEmailsReceived",
@@ -236,10 +240,10 @@ const renderSinceBarChart = () => {
     sinceChart = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: selectedSinceOptions.value.map((option) => metricLabelTranslations[option] || option),
+            labels: selectedSinceOptions.value.map((option) => getMetricLabel(option)),
             datasets: [
                 {
-                    label: "Since Data",
+                    label: i18n.global.t('analyticsPage.sinceStatistics'),
                     data: selectedSinceOptions.value.map(
                         (option) => data.value[selectedMetric.value]?.since?.[option] || 0
                     ),
@@ -269,7 +273,7 @@ const renderPeriodsErrorBarChart = () => {
     periodsChart = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: selectedPeriodOptions.value.map((option) => metricLabelTranslations[option] || option),
+            labels: selectedPeriodOptions.value.map((option) => getMetricLabel(option)),
             datasets: [
                 {
                     label: "Avg",

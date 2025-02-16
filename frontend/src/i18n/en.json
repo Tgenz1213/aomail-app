@@ -568,6 +568,28 @@
       "informative": "Informative",
       "useless": "Useless"
     },
+    "filters": {
+      "resetFilters": "Reset Filters",
+      "logicalOperator": "Logical Operator",
+      "logicalOperatorAnd": "AND - All conditions must match",
+      "logicalOperatorOr": "OR - Any condition can match",
+      "triggers": {
+        "title": "Triggers",
+        "emailTriggers": "Email Triggers",
+        "emailDomains": "Email Domains",
+        "emailDomainsHelp": "Enter domains to match (e.g., \"gmail.com\", \"esaip.org\").",
+        "senderEmails": "Sender Emails",
+        "hasAttachments": "Has attachments",
+        "aiProcessingTriggers": "AI Processing Triggers",
+        "categories": "Categories",
+        "priorities": "Priorities",
+        "answerRequirements": "Answer Requirements",
+        "relevance": "Relevance",
+        "flags": "Flags",
+        "emailContentDealsWith": "Email Content Deals With",
+        "emailContentPlaceholder": "Describe what the email content should deal with..."
+      }
+    },
     "modals": {
       "common": {
         "logicalOperator": "Logical Operator",

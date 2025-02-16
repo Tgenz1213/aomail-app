@@ -658,11 +658,16 @@ import {
     HIGHLY_RELEVANT,
     IMPORTANT,
     INFORMATIVE,
+    USELESS,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
     NOT_RELEVANT,
     POSSIBLY_RELEVANT,
-    USELESS,
+    SPAM,
+    SCAM,
+    NEWSLETTER,
+    NOTIFICATION,
+    MEETING,
 } from "@/global/const";
 
 interface Props {
@@ -871,11 +876,11 @@ const relevanceOptions: KeyValuePair[] = [
     { key: NOT_RELEVANT, value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.none") },
 ];
 const flagOptions: KeyValuePair[] = [
-    { key: "spam", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.spam") },
-    { key: "scam", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.scam") },
-    { key: "newsletter", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.newsletter") },
-    { key: "notification", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.notification") },
-    { key: "meeting", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.meeting") },
+    { key: SPAM, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.spam") },
+    { key: SCAM, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.scam") },
+    { key: NEWSLETTER, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.newsletter") },
+    { key: NOTIFICATION, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.notification") },
+    { key: MEETING, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.meeting") },
 ];
 const markAsOptions: KeyValuePair[] = [
     { key: "read", value: i18n.global.t("rulesPage.modals.common.actions.types.markAs.options.read") },

@@ -568,6 +568,28 @@
       "informative": "Informatif",
       "useless": "Inutile"
     },
+    "filters": {
+      "resetFilters": "Réinitialiser les filtres",
+      "logicalOperator": "Opérateur logique",
+      "logicalOperatorAnd": "ET - Toutes les conditions doivent correspondre",
+      "logicalOperatorOr": "OU - Une des conditions peut correspondre",
+      "triggers": {
+        "title": "Déclencheurs",
+        "emailTriggers": "Déclencheurs d'email",
+        "emailDomains": "Domaines d'email",
+        "emailDomainsHelp": "Entrez les domaines à rechercher (ex: \"gmail.com\", \"esaip.org\").",
+        "senderEmails": "Emails des expéditeurs",
+        "hasAttachments": "Contient des pièces jointes",
+        "aiProcessingTriggers": "Déclencheurs de traitement IA",
+        "categories": "Catégories",
+        "priorities": "Priorités",
+        "answerRequirements": "Exigences de réponse",
+        "relevance": "Pertinence",
+        "flags": "Indicateurs",
+        "emailContentDealsWith": "Le contenu de l'email traite de",
+        "emailContentPlaceholder": "Décrivez ce dont le contenu de l'email devrait traiter..."
+      }
+    },
     "modals": {
       "common": {
         "logicalOperator": "Opérateur logique",

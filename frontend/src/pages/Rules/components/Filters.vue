@@ -7,18 +7,20 @@
                     @click="resetFilters"
                     class="m-2 absolute top-0 right-0 bg-gray-700 px-8 2xl:px-10 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:text-lg rounded-md"
                 >
-                    Reset Filters
+                    {{ $t("rulesPage.filters.resetFilters") }}
                 </button>
 
                 <!-- Logical Operator -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Logical Operator</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        {{ $t("rulesPage.filters.logicalOperator") }}
+                    </label>
                     <select
                         v-model="logicalOperator"
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                     >
-                        <option value="AND">AND - All conditions must match</option>
-                        <option value="OR">OR - Any condition can match</option>
+                        <option value="AND">{{ $t("rulesPage.filters.logicalOperatorAnd") }}</option>
+                        <option value="OR">{{ $t("rulesPage.filters.logicalOperatorOr") }}</option>
                     </select>
                 </div>
 
@@ -30,7 +32,9 @@
                             @click="sections.triggers = !sections.triggers"
                             class="w-full flex justify-between items-center p-3 text-left"
                         >
-                            <span class="text-sm font-medium text-gray-900">Triggers</span>
+                            <span class="text-sm font-medium text-gray-900">
+                                {{ $t("rulesPage.filters.triggers.title") }}
+                            </span>
                             <ChevronDownIcon
                                 class="h-5 w-5 text-gray-500"
                                 :class="{ 'transform rotate-180': sections.triggers }"
@@ -40,27 +44,33 @@
                         <div v-if="sections.triggers" class="p-4 border-t space-y-4">
                             <!-- Email Triggers -->
                             <div class="space-y-4">
-                                <h4 class="text-sm font-medium text-gray-700">Email Triggers</h4>
+                                <h4 class="text-sm font-medium text-gray-700">
+                                    {{ $t("rulesPage.filters.triggers.emailTriggers") }}
+                                </h4>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Email Domains</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.emailDomains") }}
+                                    </label>
                                     <div class="space-y-2">
                                         <div class="text-xs text-gray-500">
-                                            Enter domains to match (e.g., "gmail.com", "esaip.org").
+                                            {{ $t("rulesPage.filters.triggers.emailDomainsHelp") }}
                                         </div>
                                         <TagInput
                                             v-model="domains"
-                                            placeholder="Add domain (e.g. gmail.com, esaip.org)"
+                                            :placeholder="$t('rulesPage.modals.common.addDomain')"
                                             :validate="validateDomain"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Sender Emails</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.senderEmails") }}
+                                    </label>
                                     <TagInput
                                         v-model="senderEmails"
-                                        placeholder="Add email address"
+                                        :placeholder="$t('rulesPage.modals.common.addEmailAddress')"
                                         :validate="validateEmail"
                                     />
                                 </div>
@@ -73,77 +83,99 @@
                                         class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                                     />
                                     <label for="hasAttachments" class="ml-2 text-sm text-gray-700">
-                                        Has attachments
+                                        {{ $t("rulesPage.filters.triggers.hasAttachments") }}
                                     </label>
                                 </div>
                             </div>
 
                             <!-- AI Processing Triggers -->
                             <div class="space-y-4">
-                                <h4 class="text-sm font-medium text-gray-700">AI Processing Triggers</h4>
+                                <h4 class="text-sm font-medium text-gray-700">
+                                    {{ $t("rulesPage.filters.triggers.aiProcessingTriggers") }}
+                                </h4>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Categories</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.categories") }}
+                                    </label>
                                     <multiselect
                                         v-model="selectedCategoriesNames"
                                         :options="categoryOptions.map((c: Category) => c.name)"
                                         :multiple="true"
-                                        placeholder="Select categories"
+                                        :placeholder="$t('rulesPage.modals.common.selectCategory')"
                                         class="multiselect-gray"
                                     />
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Priorities</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.priorities") }}
+                                    </label>
                                     <multiselect
                                         v-model="selectedPriorities"
                                         :options="priorityOptions"
                                         :multiple="true"
-                                        placeholder="Select priorities"
+                                        track-by="key"
+                                        label="value"
+                                        :placeholder="$t('rulesPage.modals.common.selectPriority')"
                                         class="multiselect-gray"
                                     />
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Answer Requirements</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.answerRequirements") }}
+                                    </label>
                                     <multiselect
                                         v-model="selectedAnswers"
                                         :options="answerOptions"
                                         :multiple="true"
-                                        placeholder="Select answer requirements"
+                                        track-by="key"
+                                        label="value"
+                                        :placeholder="$t('rulesPage.modals.common.selectOptions')"
                                         class="multiselect-gray"
                                     />
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Relevance</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.relevance") }}
+                                    </label>
                                     <multiselect
                                         v-model="selectedRelevance"
                                         :options="relevanceOptions"
                                         :multiple="true"
-                                        placeholder="Select relevance levels"
+                                        track-by="key"
+                                        label="value"
+                                        :placeholder="$t('rulesPage.modals.common.selectRelevance')"
                                         class="multiselect-gray"
                                     />
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Flags</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.flags") }}
+                                    </label>
                                     <multiselect
                                         v-model="selectedFlags"
                                         :options="flagOptions"
                                         :multiple="true"
-                                        placeholder="Select flags"
+                                        track-by="key"
+                                        label="value"
+                                        :placeholder="$t('rulesPage.modals.common.selectOptions')"
                                         class="multiselect-gray"
                                     />
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm text-gray-700">Email Content Deals With</label>
+                                    <label class="block text-sm text-gray-700">
+                                        {{ $t("rulesPage.filters.triggers.emailContentDealsWith") }}
+                                    </label>
                                     <textarea
                                         v-model="emailDealWith"
                                         rows="2"
                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                                        placeholder="Describe what the email content should deal with..."
+                                        :placeholder="$t('rulesPage.filters.triggers.emailContentPlaceholder')"
                                     />
                                 </div>
                             </div>
@@ -162,6 +194,23 @@ import Multiselect from "vue-multiselect";
 import TagInput from "./TagInput.vue";
 import { i18n } from "@/global/preferences";
 import { getData } from "@/global/fetchData";
+import { KeyValuePair } from "@/global/types";
+import {
+    ANSWER_REQUIRED,
+    HIGHLY_RELEVANT,
+    IMPORTANT,
+    INFORMATIVE,
+    USELESS,
+    MIGHT_REQUIRE_ANSWER,
+    NO_ANSWER_REQUIRED,
+    POSSIBLY_RELEVANT,
+    NOT_RELEVANT,
+    SPAM,
+    SCAM,
+    NEWSLETTER,
+    NOTIFICATION,
+    MEETING,
+} from "@/global/const";
 
 interface Category {
     id: number;
@@ -198,20 +247,57 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 
 // Options for dropdowns
 let categoryOptions: Category[] = [];
-const priorityOptions = ["Important", "Informative", "Useless"];
-const answerOptions = ["Answer Required", "Might Require Answer", "No Answer Required"];
-const relevanceOptions = ["Highly Relevant", "Possibly Relevant", "Not Relevant"];
-const flagOptions = ["Spam", "Scam", "Newsletter", "Notification", "Meeting"];
+const priorityOptions: KeyValuePair[] = [
+    { key: IMPORTANT, value: i18n.global.t("rulesPage.priorityRule.important") },
+    { key: INFORMATIVE, value: i18n.global.t("rulesPage.priorityRule.informative") },
+    { key: USELESS, value: i18n.global.t("rulesPage.priorityRule.useless") },
+];
+const answerOptions: KeyValuePair[] = [
+    { key: ANSWER_REQUIRED, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.required") },
+    { key: MIGHT_REQUIRE_ANSWER, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.might") },
+    { key: NO_ANSWER_REQUIRED, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.none") },
+];
+const relevanceOptions: KeyValuePair[] = [
+    { key: HIGHLY_RELEVANT, value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.high") },
+    {
+        key: POSSIBLY_RELEVANT,
+        value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.possible"),
+    },
+    { key: NOT_RELEVANT, value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.none") },
+];
+const flagOptions: KeyValuePair[] = [
+    { key: SPAM, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.spam") },
+    { key: SCAM, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.scam") },
+    { key: NEWSLETTER, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.newsletter") },
+    { key: NOTIFICATION, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.notification") },
+    { key: MEETING, value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.meeting") },
+];
 
 // Form state
 const logicalOperator = ref(props.initialFilters?.logicalOperator || "AND");
 const domains = ref<string[]>(props.initialFilters?.domains || []);
 const senderEmails = ref<string[]>(props.initialFilters?.senderEmails || []);
 const hasAttachments = ref(props.initialFilters?.hasAttachments || false);
-const selectedPriorities = ref<string[]>(props.initialFilters?.priorities || []);
-const selectedAnswers = ref<string[]>(props.initialFilters?.answers || []);
-const selectedRelevance = ref<string[]>(props.initialFilters?.relevance || []);
-const selectedFlags = ref<string[]>(props.initialFilters?.flags || []);
+const selectedPriorities = ref<KeyValuePair[]>(
+    (props.initialFilters?.priorities
+        ?.map((key) => priorityOptions.find((opt) => opt.key === key))
+        .filter(Boolean) as KeyValuePair[]) || []
+);
+const selectedAnswers = ref<KeyValuePair[]>(
+    (props.initialFilters?.answers
+        ?.map((key) => answerOptions.find((opt) => opt.key === key))
+        .filter(Boolean) as KeyValuePair[]) || []
+);
+const selectedRelevance = ref<KeyValuePair[]>(
+    (props.initialFilters?.relevance
+        ?.map((key) => relevanceOptions.find((opt) => opt.key === key))
+        .filter(Boolean) as KeyValuePair[]) || []
+);
+const selectedFlags = ref<KeyValuePair[]>(
+    (props.initialFilters?.flags
+        ?.map((key) => flagOptions.find((opt) => opt.key === key))
+        .filter(Boolean) as KeyValuePair[]) || []
+);
 const selectedCategoriesNames = ref<string[]>([]);
 const emailDealWith = ref(props.initialFilters?.emailDealWith || "");
 
@@ -236,10 +322,10 @@ watch(
             senderEmails: senderEmails.value,
             hasAttachments: hasAttachments.value,
             categories: selectedCategoriesNames.value,
-            priorities: selectedPriorities.value,
-            answers: selectedAnswers.value,
-            relevance: selectedRelevance.value,
-            flags: selectedFlags.value,
+            priorities: selectedPriorities.value.map((item) => item.key),
+            answers: selectedAnswers.value.map((item) => item.key),
+            relevance: selectedRelevance.value.map((item) => item.key),
+            flags: selectedFlags.value.map((item) => item.key),
             emailDealWith: emailDealWith.value,
         });
     },
@@ -247,6 +333,11 @@ watch(
 );
 
 const resetFilters = () => {
+    selectedCategoriesNames.value = [];
+    selectedPriorities.value = [];
+    selectedAnswers.value = [];
+    selectedRelevance.value = [];
+    selectedFlags.value = [];
     emit("update:filters", {});
     emit("fetchRules");
 };

@@ -9,6 +9,7 @@
       "send": "Send",
       "ask": "Ask",
       "print": "Print",
+      "submit": "Submit",
       "changeTheRule": "Change the rule",
       "createARule": "Create a rule",
       "transfer": "Transfer",
@@ -1572,5 +1573,23 @@
       "carrier": "Carrier",
       "postageDeadline": "Postage Deadline"
     }
+  },
+  "passwordReset": {
+    "title": "Reset Password",
+    "linkInstructions": "Please enter your email address below to receive a link to reset your password.",
+    "enterEmail": "Enter your email",
+    "newPasswordInstructions": "Please enter your new password below.",
+    "password": "Password:",
+    "confirmPassword": "Confirm Password:",
+    "checkMailbox": "Check your mailbox!",
+    "redirecting": "Redirecting...",
+    "invalidInput": "Invalid input",
+    "pleaseProvideEmail": "Please provide an email.",
+    "emailFormatIncorrect": "Email format is not correct.",
+    "errorSendingEmail": "Error sending password reset email",
+    "passwordLengthError": "Password length must be between 8 and 32 characters",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "resetSuccessful": "Password reset successful! Redirecting...",
+    "genericError": "An error occurred. Please try again."
   }
 }

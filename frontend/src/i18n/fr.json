@@ -28,7 +28,8 @@
       "login": "Connexion",
       "see": "Voir",
       "archive": "Archiver",
-      "unarchive": "Désarchiver"
+      "unarchive": "Désarchiver",
+      "submit": "Soumettre"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "Aucune catégorie définie",
@@ -1576,5 +1577,23 @@
       "carrier": "Transporteur",
       "postageDeadline": "Date limite d'envoi"
     }
+  },
+  "passwordReset": {
+    "title": "Réinitialisation du mot de passe",
+    "linkInstructions": "Veuillez saisir votre adresse e-mail ci-dessous pour recevoir un lien de réinitialisation du mot de passe.",
+    "enterEmail": "Entrez votre e-mail",
+    "newPasswordInstructions": "Veuillez saisir votre nouveau mot de passe ci-dessous.",
+    "password": "Mot de passe :",
+    "confirmPassword": "Confirmer le mot de passe :",
+    "checkMailbox": "Vérifiez votre boîte mail !",
+    "redirecting": "Redirection...",
+    "invalidInput": "Saisie invalide",
+    "pleaseProvideEmail": "Veuillez fournir un e-mail.",
+    "emailFormatIncorrect": "Le format de l'e-mail est incorrect.",
+    "errorSendingEmail": "Erreur lors de l'envoi de l'e-mail de réinitialisation",
+    "passwordLengthError": "La longueur du mot de passe doit être comprise entre 8 et 32 caractères",
+    "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+    "resetSuccessful": "Réinitialisation du mot de passe réussie ! Redirection...",
+    "genericError": "Une erreur s'est produite. Veuillez réessayer."
   }
 }

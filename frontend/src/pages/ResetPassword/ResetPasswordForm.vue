@@ -8,11 +8,11 @@
                 :backgroundColor="backgroundColor"
                 @dismissPopup="dismissPopup"
             />
-            <h1 class="text-2xl mb-6">Reset Password</h1>
-            <p class="text-lg mb-6">Please enter your new password below.</p>
+            <h1 class="text-2xl mb-6">{{ $t("passwordReset.title") }}</h1>
+            <p class="text-lg mb-6">{{ $t("passwordReset.newPasswordInstructions") }}</p>
             <form @submit.prevent="resetPassword">
                 <div class="mb-6">
-                    <label for="password" class="block font-bold mb-2">Password:</label>
+                    <label for="password" class="block font-bold mb-2">{{ $t("passwordReset.password") }}</label>
                     <div class="relative items-stretch mt-2 flex">
                         <input
                             ref="passwordInput"
@@ -67,7 +67,9 @@
                     </div>
                 </div>
                 <div class="mb-6">
-                    <label for="confirmPassword" class="block font-bold mb-2">Confirm Password:</label>
+                    <label for="confirmPassword" class="block font-bold mb-2">
+                        {{ $t("passwordReset.confirmPassword") }}
+                    </label>
                     <div class="relative items-stretch mt-2 flex">
                         <input
                             ref="confirmPasswordInput"
@@ -122,7 +124,7 @@
                     </div>
                 </div>
                 <button type="submit" class="w-full py-2 bg-black text-white rounded hover:bg-gray-800 transition">
-                    Submit
+                    {{ $t("constants.userActions.submit") }}
                 </button>
             </form>
         </div>
@@ -135,6 +137,7 @@ import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
+import { i18n } from "@/global/preferences";
 
 const isModalOpen = ref(true);
 const password = ref<string>("");
@@ -215,12 +218,20 @@ function displayPopup(type: "success" | "error", title: string, message: string)
 
 async function resetPassword() {
     if (password.value.length < 8 || password.value.length > 32) {
-        displayPopup("error", "Error", "Password length must be between 8 and 32 characters");
+        displayPopup(
+            "error",
+            i18n.global.t("passwordReset.invalidInput"),
+            i18n.global.t("passwordReset.passwordLengthError")
+        );
         return;
     }
 
     if (password.value !== confirmPassword.value) {
-        displayPopup("error", "Error", "Passwords do not match");
+        displayPopup(
+            "error",
+            i18n.global.t("passwordReset.invalidInput"),
+            i18n.global.t("passwordReset.passwordsDoNotMatch")
+        );
         return;
     }
 
@@ -234,16 +245,28 @@ async function resetPassword() {
         });
 
         if (response.ok) {
-            displayPopup("success", "Success", "Password reset successful! Redirecting...");
+            displayPopup(
+                "success",
+                i18n.global.t("constants.successMessages.success"),
+                i18n.global.t("passwordReset.resetSuccessful")
+            );
             setTimeout(() => {
                 router.push({ name: "login" });
             }, 3000);
         } else {
             const data = await response.json();
-            displayPopup("error", "Error", data.error || "An error occurred. Please try again.");
+            displayPopup(
+                "error",
+                i18n.global.t("passwordReset.invalidInput"),
+                data.error || i18n.global.t("passwordReset.genericError")
+            );
         }
     } catch (error) {
-        displayPopup("error", "Error", (error as Error).message || "An error occurred. Please try again.");
+        displayPopup(
+            "error",
+            i18n.global.t("passwordReset.invalidInput"),
+            (error as Error).message || i18n.global.t("passwordReset.genericError")
+        );
     }
 }
 </script>

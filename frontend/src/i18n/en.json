@@ -1564,6 +1564,13 @@
     "sortBy": "Sort by",
     "orderBy": "Order by",
     "ascending": "Ascending",
-    "descending": "Descending"
+    "descending": "Descending",
+    "filters": {
+      "title": "Advanced Filters",
+      "platform": "Platform",
+      "itemName": "Item Name",
+      "carrier": "Carrier",
+      "postageDeadline": "Postage Deadline"
+    }
   }
 }

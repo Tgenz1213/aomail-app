@@ -1568,6 +1568,13 @@
     "sortBy": "Trier par",
     "orderBy": "Ordre",
     "ascending": "Croissant",
-    "descending": "Décroissant"
+    "descending": "Décroissant",
+    "filters": {
+      "title": "Filtres avancés",
+      "platform": "Plateforme",
+      "itemName": "Nom de l'article",
+      "carrier": "Transporteur",
+      "postageDeadline": "Date limite d'envoi"
+    }
   }
 }

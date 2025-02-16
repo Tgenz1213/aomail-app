@@ -688,7 +688,11 @@ const downloadAttachment = async (emailId: number, attachmentName: string) => {
         link.click();
         document.body.removeChild(link);
     } else {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchAttachment"), response.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchAttachment"),
+            response.error as string
+        );
     }
 };
 </script>

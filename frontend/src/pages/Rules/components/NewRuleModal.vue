@@ -5,11 +5,13 @@
             @click.self="closeModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
         >
-            <div class="bg-white rounded-lg relative w-[740px] max-h-[85vh] overflow-y-auto">
+            <div class="bg-white rounded-lg relative w-[800px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
                 <div class="sticky top-0 z-10 rounded-t-lg border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between p-4">
-                        <h2 class="text-lg font-semibold text-gray-900">Create New Rule</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            {{ $t("rulesPage.modals.createRule.title") }}
+                        </h2>
                         <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
                             <XMarkIcon class="h-6 w-6" />
                         </button>
@@ -22,7 +24,9 @@
 
                     <!-- Logical Operator (Listbox) -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Logical Operator</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ $t("rulesPage.modals.common.logicalOperator") }}
+                        </label>
                         <Listbox v-model="formData.logicalOperator">
                             <div class="relative">
                                 <ListboxButton
@@ -31,8 +35,8 @@
                                     <span class="block truncate">
                                         {{
                                             formData.logicalOperator === "AND"
-                                                ? "AND - All conditions must match"
-                                                : "OR - Any condition can match"
+                                                ? $t("rulesPage.modals.common.andOperator")
+                                                : $t("rulesPage.modals.common.orOperator")
                                         }}
                                     </span>
                                     <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -60,7 +64,7 @@
                                                         'block truncate',
                                                     ]"
                                                 >
-                                                    AND - All conditions must match
+                                                    {{ $t("rulesPage.modals.common.andOperator") }}
                                                 </span>
                                                 <span
                                                     v-if="selected"
@@ -86,7 +90,7 @@
                                                         'block truncate',
                                                     ]"
                                                 >
-                                                    OR - Any condition can match
+                                                    {{ $t("rulesPage.modals.common.orOperator") }}
                                                 </span>
                                                 <span
                                                     v-if="selected"
@@ -113,7 +117,9 @@
                         >
                             <div class="flex items-center">
                                 <InboxArrowDownIcon class="h-5 w-5 text-gray-500 mr-2" />
-                                <span class="text-sm font-medium text-gray-900">Triggers</span>
+                                <span class="text-sm font-medium text-gray-900">
+                                    {{ $t("rulesPage.modals.common.triggers.title") }}
+                                </span>
                             </div>
                             <ChevronDownIcon
                                 class="h-5 w-5 text-gray-500"
@@ -127,7 +133,8 @@
                                     <!-- Trigger Type Selection (Listbox) -->
                                     <div class="flex items-center gap-4">
                                         <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} ` }}trigger
+                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} `
+                                            }}{{ $t("rulesPage.modals.common.triggers.title").toLowerCase() }}
                                         </label>
                                         <Listbox v-model="trigger.type" class="flex-1">
                                             <div class="relative">
@@ -137,10 +144,10 @@
                                                     <span class="block truncate">
                                                         {{
                                                             trigger.type
-                                                                ? availableTriggerTypes.find(
-                                                                      (t) => t.value === trigger.type
-                                                                  )?.label
-                                                                : "Select a trigger type"
+                                                                ? $t(
+                                                                      `rulesPage.modals.common.triggers.types.${trigger.type}.label`
+                                                                  )
+                                                                : $t("rulesPage.modals.common.selectTriggerType")
                                                         }}
                                                     </span>
                                                     <span
@@ -180,7 +187,6 @@
                                                                 <div class="flex items-center justify-between">
                                                                     <div class="flex items-center">
                                                                         <span
-                                                                            v-html="option.label"
                                                                             :class="[
                                                                                 selected
                                                                                     ? 'font-semibold'
@@ -190,7 +196,13 @@
                                                                                     : '',
                                                                                 'block truncate',
                                                                             ]"
-                                                                        ></span>
+                                                                        >
+                                                                            {{
+                                                                                $t(
+                                                                                    `rulesPage.modals.common.triggers.types.${option.value}.label`
+                                                                                )
+                                                                            }}
+                                                                        </span>
                                                                         <InformationCircleIcon
                                                                             class="h-4 w-4 ml-1.5"
                                                                             :class="[
@@ -203,7 +215,6 @@
                                                                             ]"
                                                                         />
                                                                         <span
-                                                                            v-html="option.description"
                                                                             class="ml-2 text-xs"
                                                                             :class="[
                                                                                 active
@@ -213,7 +224,13 @@
                                                                                     ? 'text-gray-300'
                                                                                     : '',
                                                                             ]"
-                                                                        ></span>
+                                                                        >
+                                                                            {{
+                                                                                $t(
+                                                                                    `rulesPage.modals.common.triggers.types.${option.value}.description`
+                                                                                )
+                                                                            }}
+                                                                        </span>
                                                                     </div>
                                                                     <span
                                                                         v-if="selected"
@@ -236,18 +253,22 @@
                                     <!-- Trigger Value Input -->
                                     <div v-if="trigger.type" class="pl-4 border-l-2 border-gray-200">
                                         <div v-if="trigger.type === 'domains'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Email Domains</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.emailDomains") }}
+                                            </label>
                                             <TagInput
                                                 v-model="trigger.value"
-                                                placeholder="Add domain (e.g. gmail.com)"
+                                                :placeholder="$t('rulesPage.modals.common.addDomain')"
                                                 :validate="validateDomain"
                                             />
                                         </div>
                                         <div v-if="trigger.type === 'senderEmails'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Sender Emails</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.senderEmails") }}
+                                            </label>
                                             <TagInput
                                                 v-model="trigger.value"
-                                                placeholder="Add email address"
+                                                :placeholder="$t('rulesPage.modals.common.addEmailAddress')"
                                                 :validate="validateEmail"
                                             />
                                         </div>
@@ -258,16 +279,24 @@
                                                     type="checkbox"
                                                     class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                                                 />
-                                                <label class="ml-2 text-sm text-gray-700">Has attachments</label>
+                                                <label class="ml-2 text-sm text-gray-700">
+                                                    {{
+                                                        $t(
+                                                            "rulesPage.modals.common.triggers.types.hasAttachments.label"
+                                                        )
+                                                    }}
+                                                </label>
                                             </div>
                                         </div>
                                         <div v-if="trigger.type === 'categories'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Categories</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("constants.category") }}
+                                            </label>
                                             <multiselect
                                                 v-model="trigger.value"
                                                 :options="categoryOptions.map((c) => c.name)"
                                                 :multiple="true"
-                                                placeholder="Select categories"
+                                                :placeholder="$t('rulesPage.modals.common.selectOptions')"
                                                 class="multiselect-gray"
                                             />
                                         </div>
@@ -285,7 +314,7 @@
                                                     :multiple="true"
                                                     track-by="key"
                                                     label="value"
-                                                    placeholder="Select options"
+                                                    :placeholder="$t('rulesPage.modals.common.selectOptions')"
                                                     class="multiselect-gray"
                                                 />
                                             </div>
@@ -311,7 +340,7 @@
                                 class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 bg-gray-50"
                                 :disabled="!canAddMoreTriggers"
                             >
-                                Add Another Trigger
+                                {{ $t("rulesPage.modals.common.triggers.addTrigger") }}
                             </button>
                         </div>
                     </div>
@@ -324,7 +353,9 @@
                         >
                             <div class="flex items-center">
                                 <BoltIcon class="h-5 w-5 text-gray-500 mr-2" />
-                                <span class="text-sm font-medium text-gray-900">Actions</span>
+                                <span class="text-sm font-medium text-gray-900">
+                                    {{ $t("rulesPage.modals.common.actions.title") }}
+                                </span>
                             </div>
                             <ChevronDownIcon
                                 class="h-5 w-5 text-gray-500"
@@ -338,7 +369,8 @@
                                     <!-- Action Type Selection (Listbox) -->
                                     <div class="flex items-center gap-4">
                                         <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} ` }}action
+                                            {{ `${index + 1}${getOrdinalSuffix(index + 1)} `
+                                            }}{{ $t("rulesPage.modals.common.actions.title").toLowerCase() }}
                                         </label>
                                         <Listbox v-model="action.type" class="flex-1">
                                             <div class="relative">
@@ -348,10 +380,10 @@
                                                     <span class="block truncate">
                                                         {{
                                                             action.type
-                                                                ? availableActionTypes.find(
-                                                                      (t) => t.value === action.type
-                                                                  )?.label
-                                                                : "Select an action type"
+                                                                ? $t(
+                                                                      `rulesPage.modals.common.actions.types.${action.type}.label`
+                                                                  )
+                                                                : $t("rulesPage.modals.common.selectActionType")
                                                         }}
                                                     </span>
                                                     <span
@@ -398,7 +430,11 @@
                                                                                 'block truncate',
                                                                             ]"
                                                                         >
-                                                                            {{ option.label }}
+                                                                            {{
+                                                                                $t(
+                                                                                    `rulesPage.modals.common.actions.types.${option.value}.label`
+                                                                                )
+                                                                            }}
                                                                         </span>
                                                                         <InformationCircleIcon
                                                                             class="h-4 w-4 ml-1.5"
@@ -416,7 +452,11 @@
                                                                                     : 'text-gray-500'
                                                                             "
                                                                         >
-                                                                            {{ option.description }}
+                                                                            {{
+                                                                                $t(
+                                                                                    `rulesPage.modals.common.actions.types.${option.value}.description`
+                                                                                )
+                                                                            }}
                                                                         </span>
                                                                     </div>
                                                                     <span
@@ -440,27 +480,31 @@
                                     <!-- Action Value Input -->
                                     <div v-if="action.type" class="pl-4 border-l-2 border-gray-200">
                                         <div v-if="action.type === 'setFlags'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Set Flags</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.actions.types.setFlags.label") }}
+                                            </label>
                                             <multiselect
                                                 v-model="action.value"
                                                 :options="flagOptions"
                                                 :multiple="true"
                                                 track-by="key"
                                                 label="value"
-                                                placeholder="Add flag"
+                                                :placeholder="$t('rulesPage.modals.common.selectOptions')"
                                                 class="multiselect-gray"
                                             />
                                         </div>
 
                                         <div v-if="action.type === 'markAs'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Mark As</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.actions.types.markAs.label") }}
+                                            </label>
                                             <multiselect
                                                 v-model="action.value"
                                                 :options="markAsOptions"
                                                 :multiple="true"
                                                 track-by="key"
                                                 label="value"
-                                                placeholder="Select marking options"
+                                                :placeholder="$t('rulesPage.modals.common.selectOptions')"
                                                 class="multiselect-gray"
                                             />
                                         </div>
@@ -472,17 +516,23 @@
                                                     type="checkbox"
                                                     class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                                                 />
-                                                <label class="ml-2 text-sm text-gray-700">Delete email</label>
+                                                <label class="ml-2 text-sm text-gray-700">
+                                                    {{ $t("rulesPage.modals.common.deleteEmail") }}
+                                                </label>
                                             </div>
                                         </div>
 
                                         <div v-if="action.type === 'setCategory'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Set Category</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.setCategory") }}
+                                            </label>
                                             <select
                                                 v-model="action.value"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                                             >
-                                                <option value="">Select category</option>
+                                                <option value="">
+                                                    {{ $t("rulesPage.modals.common.selectCategory") }}
+                                                </option>
                                                 <option
                                                     v-for="category in props.categories"
                                                     :key="category.name"
@@ -494,12 +544,16 @@
                                         </div>
 
                                         <div v-if="action.type === 'setPriority'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Set Priority</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.setPriority") }}
+                                            </label>
                                             <select
                                                 v-model="action.value"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                                             >
-                                                <option value="">Select priority</option>
+                                                <option value="">
+                                                    {{ $t("rulesPage.modals.common.selectPriority") }}
+                                                </option>
                                                 <option
                                                     v-for="priority in priorityOptions"
                                                     :key="priority.key"
@@ -511,12 +565,16 @@
                                         </div>
 
                                         <div v-if="action.type === 'setRelevance'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Set Relevance</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.setRelevance") }}
+                                            </label>
                                             <select
                                                 v-model="action.value"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                                             >
-                                                <option value="">Select relevance</option>
+                                                <option value="">
+                                                    {{ $t("rulesPage.modals.common.selectRelevance") }}
+                                                </option>
                                                 <option
                                                     v-for="relevance in relevanceOptions"
                                                     :key="relevance.key"
@@ -528,12 +586,16 @@
                                         </div>
 
                                         <div v-if="action.type === 'setAnswer'" class="space-y-2">
-                                            <label class="block text-sm text-gray-700">Set Answer</label>
+                                            <label class="block text-sm text-gray-700">
+                                                {{ $t("rulesPage.modals.common.actions.types.setAnswer.label") }}
+                                            </label>
                                             <select
                                                 v-model="action.value"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                                             >
-                                                <option value="">Select answer</option>
+                                                <option value="">
+                                                    {{ $t("rulesPage.modals.common.selectOptions") }}
+                                                </option>
                                                 <option
                                                     v-for="answer in answerOptions"
                                                     :key="answer.key"
@@ -552,7 +614,7 @@
                                 class="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 bg-gray-50"
                                 :disabled="!canAddMoreActions"
                             >
-                                Add Another Action
+                                {{ $t("rulesPage.modals.common.actions.addAction") }}
                             </button>
                         </div>
                     </div>
@@ -564,7 +626,7 @@
                             class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                             @click="handleSubmit"
                         >
-                            Create Rule
+                            {{ $t("rulesPage.modals.createRule.createButton") }}
                         </button>
                     </div>
                 </div>
@@ -584,7 +646,7 @@ import {
     InboxArrowDownIcon,
 } from "@heroicons/vue/20/solid";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
-import { getData, postData } from "@/global/fetchData";
+import { postData } from "@/global/fetchData";
 import { Category, EmailSender, KeyValuePair } from "@/global/types";
 import { RuleData } from "../utils/types";
 import Multiselect from "vue-multiselect";
@@ -663,83 +725,82 @@ const actions = ref<Trigger[]>([{ type: "", value: null }]);
 const triggerTypes = [
     {
         value: "domains",
-        label: "Email Domains",
-        description: "Match emails from specific domain names (e.g., gmail.com)",
+        label: i18n.global.t("rulesPage.modals.common.triggers.types.domains.label"),
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.domains.description"),
     },
     {
         value: "senderEmails",
-        label: "Sender Emails",
-        description: "Match specific email addresses of senders",
+        label: i18n.global.t("rulesPage.modals.common.triggers.types.senderEmails.label"),
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.senderEmails.description"),
     },
     {
         value: "hasAttachments",
-        label: "Has Attachments",
-        description: "Match emails that contain file attachments",
+        label: i18n.global.t("rulesPage.modals.common.triggers.types.hasAttachments.label"),
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.hasAttachments.description"),
     },
     {
         value: "categories",
-        label: "✨ Category",
-        description: "Match emails based on category detected by AI",
+        label: `✨ ${i18n.global.t("constants.category")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.categories.label"),
     },
     {
         value: "priorities",
-        label: "✨ Priority",
-        description: "Match emails based on priority level detected by AI",
+        label: `✨ ${i18n.global.t("constants.priority")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.priorities.label"),
     },
     {
         value: "answers",
-        label: "✨ Answer Required",
-        description: "Match emails based on if AI determines they need a response",
+        label: `✨ ${i18n.global.t("rulesPage.modals.common.triggers.types.answers.label")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.answers.description"),
     },
     {
         value: "relevances",
-        label: "✨ Relevance",
-        description: "Match emails based on importance level detected by AI",
+        label: `✨ ${i18n.global.t("rulesPage.modals.common.triggers.types.relevances.label")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.description"),
     },
     {
         value: "flags",
-        label: "✨ Flags",
-        description: "Match emails based on flags detected by AI (spam, newsletter, etc.)",
+        label: `✨ ${i18n.global.t("rulesPage.modals.common.triggers.types.flags.label")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.flags.description"),
     },
 ];
 const availableTriggerTypes = computed(() => triggerTypes);
 
-// Action types for Listbox
 const actionTypes = [
     {
         value: "setFlags",
-        label: "Set Flags",
-        description: "Add specific flags to matching emails",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.setFlags.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setFlags.description"),
     },
     {
         value: "markAs",
-        label: "Mark As",
-        description: "Mark matching emails as read, archived, or to answer later",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.markAs.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.markAs.description"),
     },
     {
         value: "delete",
-        label: "Delete Email",
-        description: "Automatically delete matching emails",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.delete.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.delete.description"),
     },
     {
         value: "setCategory",
-        label: "Set Category",
-        description: "Assign matching emails to a specific category",
+        label: i18n.global.t("rulesPage.modals.common.setCategory"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setCategory.description"),
     },
     {
         value: "setPriority",
-        label: "Set Priority",
-        description: "Set the priority level for matching emails",
+        label: i18n.global.t("rulesPage.modals.common.setPriority"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setPriority.description"),
     },
     {
         value: "setRelevance",
-        label: "Set Relevance",
-        description: "Set the relevance level for matching emails",
+        label: i18n.global.t("rulesPage.modals.common.setRelevance"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setRelevance.description"),
     },
     {
         value: "setAnswer",
-        label: "Set Answer",
-        description: "Set the answer requirement status for matching emails",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.setAnswer.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setAnswer.description"),
     },
 ];
 const availableActionTypes = computed(() => actionTypes);
@@ -792,31 +853,34 @@ const addAction = () => {
 };
 
 const priorityOptions: KeyValuePair[] = [
-    { key: IMPORTANT, value: "Important" },
-    { key: INFORMATIVE, value: "Informative" },
-    { key: USELESS, value: "Useless" },
+    { key: IMPORTANT, value: i18n.global.t("rulesPage.priorityRule.important") },
+    { key: INFORMATIVE, value: i18n.global.t("rulesPage.priorityRule.informative") },
+    { key: USELESS, value: i18n.global.t("rulesPage.priorityRule.useless") },
 ];
 const answerOptions: KeyValuePair[] = [
-    { key: ANSWER_REQUIRED, value: "Answer Required" },
-    { key: MIGHT_REQUIRE_ANSWER, value: "Might Require Answer" },
-    { key: NO_ANSWER_REQUIRED, value: "No Answer Required" },
+    { key: ANSWER_REQUIRED, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.required") },
+    { key: MIGHT_REQUIRE_ANSWER, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.might") },
+    { key: NO_ANSWER_REQUIRED, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.none") },
 ];
 const relevanceOptions: KeyValuePair[] = [
-    { key: HIGHLY_RELEVANT, value: "Highly Relevant" },
-    { key: POSSIBLY_RELEVANT, value: "Possibly Relevant" },
-    { key: NOT_RELEVANT, value: "Not Relevant" },
+    { key: HIGHLY_RELEVANT, value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.high") },
+    {
+        key: POSSIBLY_RELEVANT,
+        value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.possible"),
+    },
+    { key: NOT_RELEVANT, value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.none") },
 ];
 const flagOptions: KeyValuePair[] = [
-    { key: "spam", value: "spam" },
-    { key: "scam", value: "scam" },
-    { key: "newsletter", value: "newsletter" },
-    { key: "notification", value: "notification" },
-    { key: "meeting", value: "meeting" },
+    { key: "spam", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.spam") },
+    { key: "scam", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.scam") },
+    { key: "newsletter", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.newsletter") },
+    { key: "notification", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.notification") },
+    { key: "meeting", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.meeting") },
 ];
 const markAsOptions: KeyValuePair[] = [
-    { key: "read", value: "read" },
-    { key: "answerLater", value: "answer later" },
-    { key: "archive", value: "archive" },
+    { key: "read", value: i18n.global.t("rulesPage.modals.common.actions.types.markAs.options.read") },
+    { key: "answerLater", value: i18n.global.t("rulesPage.modals.common.actions.types.markAs.options.answerLater") },
+    { key: "archive", value: i18n.global.t("rulesPage.modals.common.actions.types.markAs.options.archive") },
 ];
 const categoryOptions = computed(() => props.categories);
 
@@ -914,7 +978,11 @@ const handleSubmit = async () => {
         errorMessage.value = result.error as string;
         return;
     }
-    displayPopup?.("success", "Success", "Rule created successfully");
+    displayPopup?.(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("rulesPage.popUpConstants.successMessages.ruleCreatedSuccessfully")
+    );
     emit("fetch-rules");
     closeModal();
 };

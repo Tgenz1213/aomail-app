@@ -555,12 +555,12 @@
     "selectPriority": "Sélectionnez la priorité associée à la règle",
     "senderName": "Nom de l'expéditeur",
     "senderEmail": "Email de l'expéditeur",
-    "search": "Recherche...",
+    "search": "Rechercher...",
     "assistantRules": "Règles de l'assistant",
     "contactField": "Contact",
     "categoryField": "Catégorie",
     "priorityField": "Priorité",
-    "blockedEmail": "E-mail bloqué",
+    "blockedEmail": "Email bloqué",
     "createRule": "Cliquez pour créer une règle",
     "noContactFound": "Aucun contact trouvé",
     "priorityRule": {
@@ -569,32 +569,203 @@
       "useless": "Inutile"
     },
     "modals": {
+      "common": {
+        "logicalOperator": "Opérateur logique",
+        "andOperator": "ET - Toutes les conditions doivent correspondre",
+        "orOperator": "OU - Une des conditions peut correspondre",
+        "selectTriggerType": "Sélectionner un type de déclencheur",
+        "selectActionType": "Sélectionner un type d'action",
+        "emailDomains": "Domaines d'email",
+        "addDomain": "Ajouter un domaine (ex: gmail.com)",
+        "senderEmails": "Emails des expéditeurs",
+        "addEmailAddress": "Ajouter une adresse email",
+        "selectOptions": "Sélectionner des options",
+        "setCategory": "Définir la catégorie",
+        "selectCategory": "Sélectionner une catégorie",
+        "setPriority": "Définir la priorité",
+        "selectPriority": "Sélectionner une priorité",
+        "setRelevance": "Définir la pertinence",
+        "selectRelevance": "Sélectionner la pertinence",
+        "deleteEmail": "Supprimer l'email",
+        "triggers": {
+          "title": "Déclencheurs",
+          "addTrigger": "Ajouter un déclencheur",
+          "types": {
+            "domains": {
+              "label": "Domaines d'email",
+              "description": "Correspond aux emails de domaines spécifiques (ex: gmail.com)",
+              "options": {
+                "gmail": "Gmail",
+                "outlook": "Outlook",
+                "yahoo": "Yahoo",
+                "apple": "Apple"
+              }
+            },
+            "senderEmails": {
+              "label": "Emails des expéditeurs",
+              "description": "Correspond aux adresses email spécifiques des expéditeurs",
+              "options": {
+                "gmail": "Gmail",
+                "outlook": "Outlook",
+                "yahoo": "Yahoo",
+                "apple": "Apple"
+              }
+            },
+            "hasAttachments": {
+              "label": "Contient des pièces jointes",
+              "description": "Correspond aux emails contenant des pièces jointes",
+              "options": {
+                "docx": "Document Word",
+                "xlsx": "Feuille de calcul Excel",
+                "pptx": "Présentation PowerPoint",
+                "pdf": "Document PDF",
+                "jpg": "Image JPEG",
+                "png": "Image PNG",
+                "gif": "Image GIF",
+                "txt": "Document texte",
+                "zip": "Archive ZIP",
+                "mp3": "Audio MP3",
+                "mp4": "Vidéo MP4",
+                "html": "Document HTML"
+              }
+            },
+            "categories": {
+              "label": "✨ Catégorie",
+              "description": "Correspond aux emails selon la catégorie détectée par l'IA",
+              "options": {
+                "category": "Sélectionnez la catégorie à rechercher"
+              }
+            },
+            "priorities": {
+              "label": "✨ Priorité",
+              "description": "Correspond aux emails selon le niveau de priorité détecté par l'IA",
+              "options": {
+                "important": "Important",
+                "informative": "Informatif",
+                "useless": "Inutile"
+              }
+            },
+            "answers": {
+              "label": "✨ Réponse requise",
+              "description": "Correspond aux emails selon si l'IA détermine qu'ils nécessitent une réponse",
+              "options": {
+                "required": "Réponse requise",
+                "might": "Pourrait nécessiter une réponse",
+                "none": "Pas de réponse requise"
+              }
+            },
+            "relevances": {
+              "label": "✨ Pertinence",
+              "description": "Correspond aux emails selon le niveau d'importance détecté par l'IA",
+              "options": {
+                "high": "Très pertinent",
+                "possible": "Potentiellement pertinent",
+                "none": "Non pertinent"
+              }
+            },
+            "flags": {
+              "label": "✨ Indicateurs",
+              "description": "Correspond aux emails selon les indicateurs détectés par l'IA (spam, newsletter, etc.)",
+              "options": {
+                "spam": "Spam",
+                "scam": "Arnaque",
+                "newsletter": "Newsletter",
+                "notification": "Notification",
+                "meeting": "Réunion"
+              }
+            }
+          }
+        },
+        "actions": {
+          "title": "Actions",
+          "addAction": "Ajouter une action",
+          "types": {
+            "setFlags": {
+              "label": "Définir les indicateurs",
+              "description": "Ajouter des indicateurs spécifiques aux emails correspondants",
+              "options": {
+                "spam": "Spam",
+                "scam": "Arnaque",
+                "newsletter": "Newsletter",
+                "notification": "Notification",
+                "meeting": "Réunion"
+              }
+            },
+            "markAs": {
+              "label": "Marquer comme",
+              "description": "Marquer les emails correspondants comme lus, archivés ou à répondre plus tard",
+              "options": {
+                "read": "Lu",
+                "answerLater": "Répondre plus tard",
+                "archive": "Archiver"
+              }
+            },
+            "delete": {
+              "label": "Supprimer l'email",
+              "description": "Supprimer automatiquement les emails correspondants"
+            },
+            "setCategory": {
+              "label": "Définir la catégorie",
+              "description": "Assigner les emails correspondants à une catégorie spécifique"
+            },
+            "setPriority": {
+              "label": "Définir la priorité",
+              "description": "Définir le niveau de priorité pour les emails correspondants",
+              "options": {
+                "important": "Important",
+                "informative": "Informatif",
+                "useless": "Inutile"
+              }
+            },
+            "setRelevance": {
+              "label": "Définir la pertinence",
+              "description": "Définir le niveau de pertinence pour les emails correspondants",
+              "options": {
+                "high": "Très pertinent",
+                "possible": "Potentiellement pertinent",
+                "none": "Non pertinent"
+              }
+            },
+            "setAnswer": {
+              "label": "Définir la réponse",
+              "description": "Définir le statut de réponse requise pour les emails correspondants",
+              "options": {
+                "required": "Réponse requise",
+                "might": "Pourrait nécessiter une réponse",
+                "none": "Pas de réponse requise"
+              }
+            }
+          }
+        }
+      },
       "createRule": {
-        "newRule": "Nouvelle règle"
+        "title": "Créer une nouvelle règle",
+        "createButton": "Créer la règle"
       },
       "updateRule": {
-        "modifyTheRule": "Modifier la règle"
+        "title": "Modifier la règle",
+        "updateButton": "Mettre à jour la règle"
       }
     },
     "popUpConstants": {
       "errorMessages": {
         "noSelectedEmailAddress": "Aucune adresse email sélectionnée",
         "emailFormatIncorrect": "Le format de l'email est incorrect",
-        "senderCreationError": "Erreur création de l'expéditeur",
-        "senderExistenceCheckError": "Erreur vérification expéditeur existe",
+        "senderCreationError": "Erreur lors de la création de l'expéditeur",
+        "senderExistenceCheckError": "Erreur lors de la vérification de l'existence de l'expéditeur",
         "ruleCreationError": "Erreur lors de la création de la règle",
         "ruleAlreadyExistsForSender": "Une règle existe déjà pour cet expéditeur",
-        "ruleIdRequiredForUpdate": "L'identifiant de règle est requis pour la mise à jour.",
+        "ruleIdRequiredForUpdate": "L'ID de la règle est requis pour la mise à jour",
         "ruleUpdateError": "Erreur lors de la mise à jour de la règle",
-        "ruleDeletionError": "Erreur lors de la suppression",
+        "ruleDeletionError": "Erreur lors de la suppression de la règle",
         "failedToFetchRules": "Échec de la récupération des règles",
-        "failedToFetchContacts": "Échec du chargement des contacts",
-        "failedToFetchCategories": "Échec du chargement des catégories",
-        "failedToFetchRuleById": "Échec du chargement de la règle par identifiant"
+        "failedToFetchContacts": "Échec de la récupération des contacts",
+        "failedToFetchCategories": "Échec de la récupération des catégories",
+        "failedToFetchRuleById": "Échec de la récupération de la règle par ID"
       },
       "successMessages": {
         "ruleCreatedSuccessfully": "Votre règle a été créée",
-        "ruleDeletedSuccessfully": "Votre règle a bien été supprimée",
+        "ruleDeletedSuccessfully": "Votre règle a été supprimée avec succès",
         "ruleUpdatedSuccessfully": "Votre règle a été mise à jour"
       }
     }

@@ -569,11 +569,180 @@
       "useless": "Useless"
     },
     "modals": {
+      "common": {
+        "logicalOperator": "Logical Operator",
+        "andOperator": "AND - All conditions must match",
+        "orOperator": "OR - Any condition can match",
+        "selectTriggerType": "Select a trigger type",
+        "selectActionType": "Select an action type",
+        "emailDomains": "Email Domains",
+        "addDomain": "Add domain (e.g. gmail.com)",
+        "senderEmails": "Sender Emails",
+        "addEmailAddress": "Add email address",
+        "selectOptions": "Select options",
+        "setCategory": "Set Category",
+        "selectCategory": "Select category",
+        "setPriority": "Set Priority",
+        "selectPriority": "Select priority",
+        "setRelevance": "Set Relevance",
+        "selectRelevance": "Select relevance",
+        "deleteEmail": "Delete email",
+        "triggers": {
+          "title": "Triggers",
+          "addTrigger": "Add Trigger",
+          "types": {
+            "domains": {
+              "label": "Email Domains",
+              "description": "Match emails from specific domain names (e.g., gmail.com)",
+              "options": {
+                "gmail": "Gmail",
+                "outlook": "Outlook",
+                "yahoo": "Yahoo",
+                "apple": "Apple"
+              }
+            },
+            "senderEmails": {
+              "label": "Sender Emails",
+              "description": "Match specific email addresses of senders"
+            },
+            "hasAttachments": {
+              "label": "Has Attachments",
+              "description": "Match emails that contain file attachments",
+              "options": {
+                "docx": "Word Document",
+                "xlsx": "Excel Spreadsheet",
+                "pptx": "PowerPoint Presentation",
+                "pdf": "PDF Document",
+                "jpg": "JPEG Image",
+                "png": "PNG Image",
+                "gif": "GIF Image",
+                "txt": "Text Document",
+                "zip": "ZIP Archive",
+                "mp3": "MP3 Audio",
+                "mp4": "MP4 Video",
+                "html": "HTML Document"
+              }
+            },
+            "categories": {
+              "label": "✨ Category",
+              "description": "Match emails based on category detected by AI",
+              "options": {
+                "category": "Select the category to search in"
+              }
+            },
+            "priorities": {
+              "label": "✨ Priority",
+              "description": "Match emails based on priority level detected by AI",
+              "options": {
+                "important": "Important",
+                "informative": "Informative",
+                "useless": "Useless"
+              }
+            },
+            "answers": {
+              "label": "✨ Answer Required",
+              "description": "Match emails based on if AI determines they need a response",
+              "options": {
+                "required": "Answer Required",
+                "might": "Might Require Answer",
+                "none": "No Answer Required"
+              }
+            },
+            "relevances": {
+              "label": "✨ Relevance",
+              "description": "Match emails based on importance level detected by AI",
+              "options": {
+                "high": "Highly Relevant",
+                "possible": "Possibly Relevant",
+                "none": "Not Relevant"
+              }
+            },
+            "flags": {
+              "label": "✨ Flags",
+              "description": "Match emails based on flags detected by AI (spam, newsletter, etc.)",
+              "options": {
+                "spam": "Spam",
+                "scam": "Scam",
+                "newsletter": "Newsletter",
+                "notification": "Notification",
+                "meeting": "Meeting"
+              }
+            }
+          },
+          "actions": {
+            "title": "Actions",
+            "addAction": "Add Action",
+            "types": {
+              "setFlags": {
+                "label": "Set Flags",
+                "description": "Add specific flags to matching emails",
+                "options": {
+                  "spam": "Spam",
+                  "scam": "Scam",
+                  "newsletter": "Newsletter",
+                  "notification": "Notification",
+                  "meeting": "Meeting"
+                }
+              },
+              "markAs": {
+                "label": "Mark As",
+                "description": "Mark matching emails as read, archived, or to answer later",
+                "options": {
+                  "read": "Read",
+                  "answerLater": "Answer Later",
+                  "archive": "Archive"
+                }
+              },
+              "delete": {
+                "label": "Delete Email",
+                "description": "Automatically delete matching emails"
+              },
+              "setCategory": {
+                "label": "Set Category",
+                "description": "Assign matching emails to a specific category"
+              },
+              "setPriority": {
+                "label": "Set Priority",
+                "description": "Set the priority level for matching emails",
+                "options": {
+                  "important": "Important",
+                  "informative": "Informative",
+                  "useless": "Useless"
+                }
+              },
+              "setRelevance": {
+                "label": "Set Relevance",
+                "description": "Set the relevance level for matching emails",
+                "options": {
+                  "high": "Highly Relevant",
+                  "possible": "Possibly Relevant",
+                  "none": "Not Relevant"
+                }
+              },
+              "setAnswer": {
+                "label": "Set Answer",
+                "description": "Set the answer requirement status for matching emails",
+                "options": {
+                  "required": "Answer Required",
+                  "might": "Might Require Answer",
+                  "none": "No Answer Required"
+                }
+              }
+            }
+          }
+        },
+        "actions": {
+          "title": "Actions",
+          "addAction": "Add Action"
+        }
+      },
       "createRule": {
-        "newRule": "New rule"
+        "title": "Create New Rule",
+        "createButton": "Create Rule"
       },
       "updateRule": {
-        "modifyTheRule": "Modify the rule"
+        "title": "Modify the rule",
+        "updateButton": "Update Rule"
       }
     },
     "popUpConstants": {

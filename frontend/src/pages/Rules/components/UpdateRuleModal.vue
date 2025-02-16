@@ -5,7 +5,7 @@
             @click.self="closeModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
         >
-            <div class="bg-white rounded-lg relative w-[740px] max-h-[85vh] overflow-y-auto">
+            <div class="bg-white rounded-lg relative w-[800px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
                 <div class="sticky top-0 z-10 rounded-t-lg border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between p-4">
@@ -688,43 +688,43 @@ const actions = ref<Trigger[]>([{ type: "", value: null }]);
 const triggerTypes = [
     {
         value: "domains",
-        label: "Email Domains",
-        description: "Match emails from specific domain names (e.g., gmail.com)",
+        label: i18n.global.t("rulesPage.modals.common.triggers.types.domains.label"),
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.domains.description"),
     },
     {
         value: "senderEmails",
-        label: "Sender Emails",
-        description: "Match specific email addresses of senders",
+        label: i18n.global.t("rulesPage.modals.common.triggers.types.senderEmails.label"),
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.senderEmails.description"),
     },
     {
         value: "hasAttachments",
-        label: "Has Attachments",
-        description: "Match emails that contain file attachments",
+        label: i18n.global.t("rulesPage.modals.common.triggers.types.hasAttachments.label"),
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.hasAttachments.description"),
     },
     {
         value: "categories",
-        label: "✨ Category",
-        description: "Match emails based on category detected by AI",
+        label: `✨ ${i18n.global.t("constants.category")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.categories.label"),
     },
     {
         value: "priorities",
-        label: "✨ Priority",
-        description: "Match emails based on priority level detected by AI",
+        label: `✨ ${i18n.global.t("constants.priority")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.priorities.label"),
     },
     {
         value: "answers",
-        label: "✨ Answer Required",
-        description: "Match emails based on if AI determines they need a response",
+        label: `✨ ${i18n.global.t("rulesPage.modals.common.triggers.types.answers.label")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.answers.description"),
     },
     {
         value: "relevances",
-        label: "✨ Relevance",
-        description: "Match emails based on importance level detected by AI",
+        label: `✨ ${i18n.global.t("rulesPage.modals.common.triggers.types.relevances.label")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.description"),
     },
     {
         value: "flags",
-        label: "✨ Flags",
-        description: "Match emails based on flags detected by AI (spam, newsletter, etc.)",
+        label: `✨ ${i18n.global.t("rulesPage.modals.common.triggers.types.flags.label")}`,
+        description: i18n.global.t("rulesPage.modals.common.triggers.types.flags.description"),
     },
 ];
 const availableTriggerTypes = computed(() => triggerTypes);
@@ -732,38 +732,38 @@ const availableTriggerTypes = computed(() => triggerTypes);
 const actionTypes = [
     {
         value: "setFlags",
-        label: "Set Flags",
-        description: "Add specific flags to matching emails",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.setFlags.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setFlags.description"),
     },
     {
         value: "markAs",
-        label: "Mark As",
-        description: "Mark matching emails as read, archived, or to answer later",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.markAs.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.markAs.description"),
     },
     {
         value: "delete",
-        label: "Delete Email",
-        description: "Automatically delete matching emails",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.delete.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.delete.description"),
     },
     {
         value: "setCategory",
-        label: "Set Category",
-        description: "Assign matching emails to a specific category",
+        label: i18n.global.t("rulesPage.modals.common.setCategory"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setCategory.description"),
     },
     {
         value: "setPriority",
-        label: "Set Priority",
-        description: "Set the priority level for matching emails",
+        label: i18n.global.t("rulesPage.modals.common.setPriority"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setPriority.description"),
     },
     {
         value: "setRelevance",
-        label: "Set Relevance",
-        description: "Set the relevance level for matching emails",
+        label: i18n.global.t("rulesPage.modals.common.setRelevance"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setRelevance.description"),
     },
     {
         value: "setAnswer",
-        label: "Set Answer",
-        description: "Set the answer requirement status for matching emails",
+        label: i18n.global.t("rulesPage.modals.common.actions.types.setAnswer.label"),
+        description: i18n.global.t("rulesPage.modals.common.actions.types.setAnswer.description"),
     },
 ];
 const availableActionTypes = computed(() => actionTypes);
@@ -816,31 +816,34 @@ const addAction = () => {
 };
 
 const priorityOptions: KeyValuePair[] = [
-    { key: IMPORTANT, value: "Important" },
-    { key: INFORMATIVE, value: "Informative" },
-    { key: USELESS, value: "Useless" },
+    { key: IMPORTANT, value: i18n.global.t("rulesPage.priorityRule.important") },
+    { key: INFORMATIVE, value: i18n.global.t("rulesPage.priorityRule.informative") },
+    { key: USELESS, value: i18n.global.t("rulesPage.priorityRule.useless") },
 ];
 const answerOptions: KeyValuePair[] = [
-    { key: ANSWER_REQUIRED, value: "Answer Required" },
-    { key: MIGHT_REQUIRE_ANSWER, value: "Might Require Answer" },
-    { key: NO_ANSWER_REQUIRED, value: "No Answer Required" },
+    { key: ANSWER_REQUIRED, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.required") },
+    { key: MIGHT_REQUIRE_ANSWER, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.might") },
+    { key: NO_ANSWER_REQUIRED, value: i18n.global.t("rulesPage.modals.common.triggers.types.answers.options.none") },
 ];
 const relevanceOptions: KeyValuePair[] = [
-    { key: HIGHLY_RELEVANT, value: "Highly Relevant" },
-    { key: POSSIBLY_RELEVANT, value: "Possibly Relevant" },
-    { key: NOT_RELEVANT, value: "Not Relevant" },
+    { key: HIGHLY_RELEVANT, value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.high") },
+    {
+        key: POSSIBLY_RELEVANT,
+        value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.possible"),
+    },
+    { key: NOT_RELEVANT, value: i18n.global.t("rulesPage.modals.common.triggers.types.relevances.options.none") },
 ];
 const flagOptions: KeyValuePair[] = [
-    { key: "spam", value: "spam" },
-    { key: "scam", value: "scam" },
-    { key: "newsletter", value: "newsletter" },
-    { key: "notification", value: "notification" },
-    { key: "meeting", value: "meeting" },
+    { key: "spam", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.spam") },
+    { key: "scam", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.scam") },
+    { key: "newsletter", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.newsletter") },
+    { key: "notification", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.notification") },
+    { key: "meeting", value: i18n.global.t("rulesPage.modals.common.triggers.types.flags.options.meeting") },
 ];
 const markAsOptions: KeyValuePair[] = [
-    { key: "read", value: "read" },
-    { key: "answerLater", value: "answer later" },
-    { key: "archive", value: "archive" },
+    { key: "read", value: i18n.global.t("rulesPage.modals.common.actions.types.markAs.options.read") },
+    { key: "answerLater", value: i18n.global.t("rulesPage.modals.common.actions.types.markAs.options.answerLater") },
+    { key: "archive", value: i18n.global.t("rulesPage.modals.common.actions.types.markAs.options.archive") },
 ];
 const categoryOptions = computed(() => props.categories);
 

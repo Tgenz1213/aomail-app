@@ -58,7 +58,7 @@ const selectedAgent =
     inject<Ref<Agent>>("selectedAgent") ||
     ref<Agent>({
         id: "",
-        agent_name: "Default Agent",
+        agent_name: i18n.global.t("agent.defaultAgent"),
         picture: "/assets/default-agent.png",
         ai_template: "",
         length: "",

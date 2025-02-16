@@ -88,6 +88,7 @@
         "emailSendErrorNoSubject": "No subject entered",
         "emailSendErrorNoObject": "No object entered",
         "emailSendErrorNoRecipient": "No recipient entered",
+        "noHtmlContent": "No HTML content received",
         "deleteEmailFailure": "Failed to delete email",
         "archiveEmailFailure": "Failed to archive email",
         "unarchiveEmailFailure": "Failed to unarchive email",
@@ -108,14 +109,7 @@
         "passwordsDoNotMatch": "Passwords do not match",
         "pleaseEnterAnIdentifier": "Please enter an identifier",
         "recuperationRules": "Error retrieving the rules",
-        "identifierMustNotContainSpaces": "The identifier must not contain spaces",
-        "maxUsernameLength150Characters": "Maximum username length: 150 characters",
-        "identifierIsAlreadyInUse": "The identifier is already in use",
-        "invalidEmailFormat": "Please enter a valid email address",
-        "createAgentError": "Failed to create agent",
-        "updateAgentError": "Failed to update agent",
-        "deleteAgentError": "Failed to delete agent",
-        "emailIdNotFound": "Email id not found"
+        "failedToFetchAttachment": "Failed to fetch attachment"
       },
       "successMessages": {
         "success": "Success!",
@@ -1513,5 +1507,24 @@
       "feedback": "Feedback",
       "priority": "Priority"
     }
+  },
+  "conversation": {
+    "emailSummary": "Summary of the email:",
+    "noEmailsToReview": "No emails to review in this category.",
+    "nextEmailsForReview": "Here are the next emails for review:",
+    "cleanInboxMessage": "Great! You've reviewed all emails. Enjoy your clean inbox",
+    "showMightRequireAnswerEmails": "Show emails that might require an answer",
+    "showMissedImportantEmails": "Show missed important emails",
+    "finishReviewingEmails": "Finish reviewing emails",
+    "viewEmail": "View Email",
+    "errorMessages": {
+      "failedToFetchEmailContent": "Failed to fetch email content",
+      "failedToFetchEmailData": "Failed to fetch email data"
+    },
+    "emailsToAnswer": "Hey, you might have forgotten to answer these emails:",
+    "emailsThatMightRequireAnswer": "Hey, you have these emails that might require an answer:",
+    "missedImportantEmails": "Hey, you have these important emails that you have not read and received more than 3 days ago:",
+    "noPendingEmails": "You have no pending emails at the moment!",
+    "noEmailsToShow": "No emails to show."
   }
 }

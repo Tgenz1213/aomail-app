@@ -824,10 +824,6 @@ const getOrdinalSuffix = (num: number) => {
     return "th";
 };
 
-const formatLabel = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
 const getOptionsForType = (type: string) => {
     switch (type) {
         case "priorities":

@@ -109,7 +109,8 @@
         "passwordsDoNotMatch": "Passwords do not match",
         "pleaseEnterAnIdentifier": "Please enter an identifier",
         "recuperationRules": "Error retrieving the rules",
-        "failedToFetchAttachment": "Failed to fetch attachment"
+        "failedToFetchAttachment": "Failed to fetch attachment",
+        "failedToFetchDashboard": "Failed to fetch dashboard data"
       },
       "successMessages": {
         "success": "Success!",

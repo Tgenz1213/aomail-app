@@ -70,15 +70,15 @@
     },
     "popUpConstants": {
       "errorMessages": {
-        "noEmailsToArchive": "Aucun e-mail à archiver",
+        "noEmailsToArchive": "Pas d'e-mails à archiver",
         "failedToArchive": "Échec de l'archivage des e-mails",
         "failedToMarkAsRead": "Échec du marquage des e-mails comme lus",
-        "noEmailsToMark": "Aucun e-mail à marquer",
+        "noEmailsToMark": "Pas d'e-mails à marquer",
         "emailSendError": "Erreur d'envoi d'e-mail",
         "contactFetchError": "Erreur de récupération des contacts",
         "pleaseEnterAnEmail": "Veuillez entrer un e-mail",
         "primaryEmailFetchError": "Erreur de récupération de l'e-mail principal",
-        "emailLinkedFetchError": "Erreur de récupération des e-mails",
+        "emailLinkedFetchError": "Erreur de récupération de l'e-mail",
         "invalidEmail": "E-mail invalide",
         "emailFormatIncorrect": "Format d'e-mail incorrect",
         "duplicateFile": "Fichier en double",
@@ -109,7 +109,8 @@
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
         "pleaseEnterAnIdentifier": "Veuillez entrer un identifiant",
         "recuperationRules": "Erreur lors de la récupération des règles",
-        "failedToFetchAttachment": "Échec de la récupération de la pièce jointe"
+        "failedToFetchAttachment": "Échec de la récupération de la pièce jointe",
+        "failedToFetchDashboard": "Échec de la récupération des données du tableau de bord"
       },
       "successMessages": {
         "success": "Succès !",

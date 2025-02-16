@@ -1559,10 +1559,15 @@
   },
   "labelsPage": {
     "itemName": "Nom de l'article",
-    "postageDeadline": "Date limite d'affranchissement",
+    "postageDeadline": "Date limite d'envoi",
     "carrier": "Transporteur",
     "platform": "Plateforme",
     "noLabelsFound": "Aucune étiquette trouvée.",
-    "loadingMoreLabels": "Chargement d'autres étiquettes..."
+    "loadingMoreLabels": "Chargement d'étiquettes supplémentaires...",
+    "searchLabel": "Rechercher une étiquette",
+    "sortBy": "Trier par",
+    "orderBy": "Ordre",
+    "ascending": "Croissant",
+    "descending": "Décroissant"
   }
 }

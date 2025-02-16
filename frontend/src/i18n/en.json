@@ -1559,6 +1559,11 @@
     "carrier": "Carrier",
     "platform": "Platform",
     "noLabelsFound": "No labels found.",
-    "loadingMoreLabels": "Loading more labels..."
+    "loadingMoreLabels": "Loading more labels...",
+    "searchLabel": "Search for a label",
+    "sortBy": "Sort by",
+    "orderBy": "Order by",
+    "ascending": "Ascending",
+    "descending": "Descending"
   }
 }

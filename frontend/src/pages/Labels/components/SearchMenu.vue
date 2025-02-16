@@ -12,7 +12,7 @@
                             for="search"
                             class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base"
                         >
-                            Labels search
+                            {{ $t("labelsPage.searchLabel") }}
                         </label>
                     </div>
                     <input
@@ -52,18 +52,18 @@
                 </button>
             </div>
             <div class="w-full h-full flex space-x-4 items-center">
-                <label class="font-medium text-gray-700">Sort by:</label>
+                <label class="font-medium text-gray-700">{{ $t("labelsPage.sortBy") }}:</label>
                 <select v-model="sort" class="border border-gray-300 rounded-md p-2 flex-grow">
-                    <option value="platform">Platform</option>
-                    <option value="itemName">Item Name</option>
-                    <option value="carrier">Carrier</option>
-                    <option value="postageDeadline">Postage Deadline</option>
+                    <option value="platform">{{ $t("labelsPage.platform") }}</option>
+                    <option value="itemName">{{ $t("labelsPage.itemName") }}</option>
+                    <option value="carrier">{{ $t("labelsPage.carrier") }}</option>
+                    <option value="postageDeadline">{{ $t("labelsPage.postageDeadline") }}</option>
                 </select>
 
-                <label class="font-medium text-gray-700">Order by:</label>
+                <label class="font-medium text-gray-700">{{ $t("labelsPage.orderBy") }}:</label>
                 <select v-model="order" class="border border-gray-300 rounded-md p-2 flex-grow">
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
+                    <option value="asc">{{ $t("labelsPage.ascending") }}</option>
+                    <option value="desc">{{ $t("labelsPage.descending") }}</option>
                 </select>
             </div>
         </div>

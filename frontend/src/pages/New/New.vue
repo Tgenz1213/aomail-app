@@ -229,12 +229,7 @@ onMounted(async () => {
 
         isInitialized.value = true;
     } catch (error) {
-        console.error("Error during initialization:", error);
-        displayPopup(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.initializationError"),
-            "Failed to initialize application"
-        );
+        displayPopup("error", i18n.global.t("newPage.error.title"), i18n.global.t("newPage.error.initialization"));
     } finally {
         isLoadingAgentSelection.value = false;
     }
@@ -443,11 +438,10 @@ async function fetchAgents() {
             throw new Error(response.error);
         }
     } catch (error) {
-        console.error("Error fetching agents:", error);
         displayPopup(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.agentsFetchError"),
-            error instanceof Error ? error.message : "Unknown error"
+            error instanceof Error ? error.message : i18n.global.t("answerPage.error.unknownError")
         );
         throw error;
     }
@@ -566,7 +560,9 @@ function askContentAdvice() {
         <div class="flex">
             <div class="mr-4">
                 <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                    <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                    <img src="${API_BASE_URL}agent_icon/${
+        selectedAgent.value.icon_name
+    }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
                 </span>
             </div>
             <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
@@ -644,7 +640,9 @@ async function checkSpelling() {
               <div class="flex pb-12">
                   <div class="mr-4 flex">
                       <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                        <img src="${API_BASE_URL}agent_icon/${
+        selectedAgent.value.icon_name
+    }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
                       </span>
                   </div>
                   <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
@@ -725,7 +723,9 @@ async function writeBetter() {
             <div class="flex pb-12">
                 <div class="mr-4 flex">
                     <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                        <img src="${API_BASE_URL}agent_icon/${
+        selectedAgent.value.icon_name
+    }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
                     </span>
                 </div>
                 <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200">
@@ -774,8 +774,12 @@ const displayAgentSelection = async () => {
           <h3 class="text-xl font-semibold text-left">${agent.agent_name}</h3>
           <p class="text-gray-600 mt-1 text-left">${agent.ai_template}</p>
           <div class="flex text-sm text-gray-500 mt-2">
-            <p class="mr-4"><span class="font-medium">Length:</span> ${capitalize(agent.length)}</p>
-            <p><span class="font-medium">Formality:</span> ${capitalize(agent.formality)}</p>
+            <p class="mr-4"><span class="font-medium">${i18n.global.t("newPage.length")}:</span> ${capitalize(
+                    agent.length
+                )}</p>
+            <p><span class="font-medium">${i18n.global.t("newPage.formality")}:</span> ${capitalize(
+                    agent.formality
+                )}</p>
           </div>
         </div>
       </button>
@@ -806,20 +810,26 @@ const displayAgentSelection = async () => {
             });
         }
     } catch (error) {
-        console.error("Error displaying agent selection:", error);
+        displayPopup(
+            "error",
+            i18n.global.t("newPage.error.title"),
+            i18n.global.t("newPage.error.displayingAgentSelection")
+        );
     }
 };
 
 const checkLastUsedAgent = async () => {
     try {
         if (!agents.value.length) {
-            console.warn("No agents available when checking last used agent");
+            displayPopup(
+                "error",
+                i18n.global.t("newPage.error.title"),
+                i18n.global.t("newPage.error.noAgentsAvailable")
+            );
             return;
         }
 
         const response = await getData("user/agents/check_last_used/");
-        console.log("Last used agent response:", response); // Debug log
-
         if (response.success && response.data.exists) {
             const selectedAgentData = agents.value.find((agent) => agent.id === response.data.agent_id);
             if (selectedAgentData) {
@@ -831,11 +841,10 @@ const checkLastUsedAgent = async () => {
             await displayAgentSelection();
         }
     } catch (error) {
-        console.error("Error checking last used agent:", error);
         displayPopup(
             "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.lastUsedAgentError"),
-            "Failed to load last used agent"
+            i18n.global.t("newPage.error.title"),
+            i18n.global.t("newPage.error.checkingLastUsedAgent")
         );
     }
 };
@@ -845,7 +854,7 @@ const fetchSignatures = async () => {
     if (result.success) {
         signatures.value = result.data;
     } else {
-        displayPopup("error", "Error", "Failed to fetch signatures");
+        displayPopup("error", i18n.global.t("newPage.error.title"), i18n.global.t("newPage.error.fetchSignatures"));
     }
 };
 
@@ -869,7 +878,7 @@ async function setAgentLastUsed(agent: Agent) {
     });
 
     if (!result.success) {
-        console.error("Failed to update agent last used status:", result.error);
+        displayPopup("error", i18n.global.t("newPage.error.title"), i18n.global.t("newPage.error.updatingAgentStatus"));
     }
 }
 

@@ -956,9 +956,9 @@
     "veryFormal": "Very formal",
     "subject": "Subject: ",
     "emailContent": "Email: ",
-    "correctSpelling": "Correct the spelling",
-    "checkCopywriting": "Check the copywriting",
-    "improveWriting": "Improve the writing",
+    "correctSpelling": "Check Spelling",
+    "checkCopywriting": "Check Copywriting",
+    "improveWriting": "Improve Writing",
     "forUser": "For user : ",
     "severalUser": "I found several users with this name, which one do you want to send the email to?",
     "emailGenerated": "Here is the email, are you satisfied?",
@@ -1020,6 +1020,19 @@
       "cancel": "Cancel",
       "update": "Update",
       "delete": "Delete"
+    },
+    "error": {
+      "title": "Error",
+      "containerNotFound": "AI Container not found",
+      "paragraphNotFound": "Animated paragraph not found",
+      "insertingSignature": "Error inserting signature",
+      "displayingAgentSelection": "Error displaying agent selection",
+      "checkingLastUsedAgent": "Error checking last used agent",
+      "fetchingAgents": "Error fetching agents",
+      "updatingAgentStatus": "Failed to update agent last used status",
+      "noAgentsAvailable": "No agents available",
+      "initialization": "Initialization failed",
+      "fetchSignatures": "Failed to fetch signatures"
     }
   },
   "answerPage": {

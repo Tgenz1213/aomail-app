@@ -919,6 +919,14 @@
     "searchModes": {
       "aomail": "Aomail",
       "allEmails": "Old emails"
+    },
+    "aiSearch": {
+      "instruction": "Type your instruction...",
+      "failedToFetchDetails": "Failed to fetch email details",
+      "loading": "Loading...",
+      "typeMessage": "Type a message...",
+      "askQuestion": "Ask me a question about your emails...",
+      "initialGreeting": "Hello! I'm here to help you search through your emails. What would you like to know?"
     }
   },
   "newPage": {

@@ -923,6 +923,14 @@
     "searchModes": {
       "aomail": "Aomail",
       "allEmails": "Ancien mails"
+    },
+    "aiSearch": {
+      "instruction": "Tapez votre instruction...",
+      "failedToFetchDetails": "Échec de la récupération des détails de l'e-mail",
+      "loading": "Chargement...",
+      "typeMessage": "Tapez un message...",
+      "askQuestion": "Posez-moi une question sur vos e-mails...",
+      "initialGreeting": "Bonjour ! Je suis là pour vous aider à rechercher dans vos e-mails. Que souhaitez-vous savoir ?"
     }
   },
   "newPage": {

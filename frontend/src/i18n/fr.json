@@ -163,13 +163,13 @@
     "underDevelopment": "En développement",
     "language": "Langue",
     "languagesList": {
-      "french": "Français 🇫🇷",
-      "american": "Américain 🇺🇸",
-      "german": "Allemand 🇩🇪",
-      "russian": "Russe 🇷🇺",
-      "spanish": "Espagnol 🇪🇸",
-      "chinese": "Chinois 🇨🇳",
-      "indian": "Hindi 🇮🇳"
+      "french": "Français",
+      "american": "American",
+      "german": "Deutsch",
+      "russian": "Русский",
+      "spanish": "Español",
+      "chinese": "中文",
+      "indian": "हिन्दी"
     },
     "theme": "Thème",
     "themeList": {

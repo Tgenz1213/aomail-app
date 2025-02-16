@@ -189,7 +189,10 @@
   },
   "agent": {
     "AiGreeting": "Hello, how can I assist you?",
-    "chooseAiAssistant": "Please choose or create an AI assistant before using this chat"
+    "chooseAiAssistant": "Please choose or create an AI assistant before using this chat",
+    "createNewAgent": "Create New Agent",
+    "edit": "Edit Agent",
+    "selectAgent": "Select an Agent"
   },
   "userLoginPage": {
     "loginError": "Error during login",

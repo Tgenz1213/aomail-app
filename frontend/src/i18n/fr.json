@@ -189,7 +189,10 @@
   },
   "agent": {
     "AiGreeting": "Bonjour, en quoi puis-je vous aider ?",
-    "chooseAiAssistant": "Veuillez choisir ou créer un assistant IA avant d'utiliser ce chat"
+    "chooseAiAssistant": "Veuillez choisir ou créer un assistant IA avant d'utiliser ce chat",
+    "createNewAgent": "Créer un Nouvel Agent",
+    "edit": "Modifier l'Agent",
+    "selectAgent": "Sélectionner un Agent"
   },
   "userLoginPage": {
     "loginError": "Erreur lors de la connexion",

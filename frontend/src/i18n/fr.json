@@ -368,7 +368,12 @@
       "updateSuccess": "Signature mise à jour avec succès.",
       "updateError": "Échec de la mise à jour de la signature.",
       "creationSuccess": "Signature créée avec succès.",
-      "creationError": "Échec de la création de la signature."
+      "creationError": "Échec de la création de la signature.",
+      "timeZoneSelection": {
+        "searchPlaceholder": "Rechercher des fuseaux horaires...",
+        "selectPlaceholder": "Sélectionnez un fuseau horaire",
+        "noResults": "Aucun résultat trouvé"
+      }
     },
     "subscriptionPage": {
       "freeTrialTitle": "Essai gratuit",

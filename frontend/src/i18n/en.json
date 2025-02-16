@@ -368,7 +368,12 @@
       "updateSuccess": "Signature updated successfully.",
       "updateError": "Failed to update signature.",
       "creationSuccess": "Signature created successfully.",
-      "creationError": "Failed to create signature."
+      "creationError": "Failed to create signature.",
+      "timeZoneSelection": {
+        "searchPlaceholder": "Search time zones...",
+        "selectPlaceholder": "Select a timezone",
+        "noResults": "No results found"
+      }
     },
     "subscriptionPage": {
       "freeTrialTitle": "Free Trial",

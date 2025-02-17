@@ -539,54 +539,35 @@ def get_email_content(request: HttpRequest) -> Response:
         )
 
         if social_api.type_api == GOOGLE:
-            services = auth_google.authenticate_service(request.user, provider_email, ["gmail"])
-            subject, from_info, decoded_data, cc, bcc, attachments, date = (
-                email_operations_google.get_mail(services, None, email_id)
-            )
+            email_data = email_operations_google.get_mail_to_db(social_api, email_id)
         elif social_api.type_api == MICROSOFT:
-            access_token = auth_microsoft.refresh_access_token(social_api)
-            subject, from_info, decoded_data, cc, bcc, attachments, date = (
-                email_operations_microsoft.get_mail(access_token, None, email_id)
-            )
+            email_data = email_operations_microsoft.get_mail_to_db(social_api, email_id)
         else:
             return Response(
                 {"error": f"Unsupported provider type: {social_api.type_api}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if cc:
-            cc = tuple(item for item in cc if item is not None)
-        if bcc:
-            bcc = tuple(item for item in bcc if item is not None)
-
-        # Defensive check: Ensure attachments is a list of dictionaries.
-        # Sometimes attachments might be a JSON string.
-        if isinstance(attachments, str):
-            try:
-                import json
-                attachments = json.loads(attachments)
-            except Exception as json_err:
-                LOGGER.error(f"Failed to parse attachments as JSON: {json_err}")
-                attachments = []
-
-        # If attachments is still not a list, set it to an empty list.
-        if not isinstance(attachments, list):
-            attachments = []
+        if not email_data:
+            return Response(
+                {"error": "Email not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         return Response({
-            "subject": subject,
+            "subject": email_data["subject"],
             "from": {
-                "email": from_info[1],
-                "name": from_info[0]
+                "email": email_data["from_info"][1],
+                "name": email_data["from_info"][0]
             },
-            "htmlContent": decoded_data,
-            "cc": [{"email": c[1], "name": c[0]} for c in cc] if cc else [],
-            "bcc": [{"email": b[1], "name": b[0]} for b in bcc] if bcc else [],
-            "date": date,
-            "hasAttachments": bool(attachments),
+            "htmlContent": email_data["safe_html"],
+            "cc": [{"email": c[1], "name": c[0]} for c in [email_data["cc_info"]] if c],
+            "bcc": [{"email": b[1], "name": b[0]} for b in [email_data["bcc_info"]] if b],
+            "date": email_data["sent_date"],
+            "hasAttachments": email_data["has_attachments"],
             "attachments": [
-                {"name": att["name"], "id": att["id"]}
-                for att in attachments if isinstance(att, dict)
+                {"name": att["attachmentName"], "id": att["attachmentId"]}
+                for att in email_data["attachments"]
             ]
         }, status=status.HTTP_200_OK)
 

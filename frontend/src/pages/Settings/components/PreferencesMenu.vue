@@ -13,7 +13,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="pt-6">
+                    <div class="pt-8">
                         <LanguageSelection />
                     </div>
 
@@ -28,7 +28,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="pt-6">
+                        <div class="pt-8">
                             <TimeZoneSelection />
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="pt-6">
+                        <div class="pt-8 flex justify-center">
                             <a href="/labels" class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
                                 Shipping Labels
                             </a>
@@ -63,7 +63,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="pt-6">
+                    <div class="pt-8">
                         <ThemeSelection />
                     </div>
 
@@ -78,7 +78,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="pt-6">
+                        <div class="pt-8">
                             <Listbox v-model="selectedSignatureId" @update:modelValue="loadSelectedSignature">
                                 <div class="relative mt-1">
                                     <ListboxButton

@@ -48,6 +48,8 @@ from aomail.constants import (
     MAX_RETRIES,
     MICROSOFT,
     MICROSOFT,
+    PASSWORD_MAX_LENGTH,
+    PASSWORD_MIN_LENGTH,
     PREMIUM_PLAN,
     SOCIAL_API_REFRESH_TOKEN_KEY,
 )
@@ -672,9 +674,9 @@ def reset_password(
         parameters: dict = json.loads(request.body)
         password = parameters["password"]
 
-        if not (8 <= len(password) <= 32):
+        if not (PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH):
             return Response(
-                {"error": "Password length must be between 8 and 32 characters"},
+                {"error": "Password length must be between 8 and 128 characters"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

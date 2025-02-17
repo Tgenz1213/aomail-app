@@ -28,7 +28,14 @@ from aomail.analytics.statistics import compute_statistics
 from aomail.utils.security import admin_access_required
 from aomail.models import Category, Email, Rule, SocialAPI, Statistics, Subscription
 from aomail.utils import security
-from aomail.constants import ALLOWED_PLANS, DEFAULT_CATEGORY, GOOGLE, MICROSOFT
+from aomail.constants import (
+    ALLOWED_PLANS,
+    DEFAULT_CATEGORY,
+    GOOGLE,
+    MICROSOFT,
+    PASSWORD_MAX_LENGTH,
+    PASSWORD_MIN_LENGTH,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -451,12 +458,12 @@ def update_admin_data(request: HttpRequest) -> Response:
         admin.username = username
 
     if password:
-        if not (8 <= len(password) <= 50):
+        if not (PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH):
             LOGGER.error(
                 f"Invalid password update attempt by admin {admin.username} (ID: {admin.id}) from IP: {ip}"
             )
             return Response(
-                {"error": "Password length must be between 8 and 50 characters."},
+                {"error": "Password length must be between 8 and 128 characters."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         admin.set_password(password)

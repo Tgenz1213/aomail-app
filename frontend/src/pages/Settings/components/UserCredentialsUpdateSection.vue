@@ -176,6 +176,7 @@ import { getData, postData } from "@/global/fetchData";
 import { inject, onMounted, onUnmounted, Ref, ref } from "vue";
 import { i18n } from "@/global/preferences";
 import { KeyIcon, EnvelopeIcon } from "@heroicons/vue/24/outline";
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/global/const";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const usernameInput = inject<Ref<string>>("usernameInput", ref(""));
@@ -278,12 +279,10 @@ async function handleSubmit() {
 
     // Handle password updates
     if (passwordChanged) {
-        if (newPassword.value.length < 8 || newPassword.value.length > 32) {
+        if (newPassword.value.length < PASSWORD_MIN_LENGTH || newPassword.value.length > PASSWORD_MAX_LENGTH) {
             displayPopup?.(
                 "error",
-                i18n.global.t(
-                    "settingsPage.preferencesPage.popUpConstants.errorMessages.passwordMustBeBetween8And32Characters"
-                ),
+                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.passwordLengthError"),
                 i18n.global.t(
                     "settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAPasswordWithTheAppropriateLength"
                 )

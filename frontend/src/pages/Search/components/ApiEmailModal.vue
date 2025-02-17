@@ -24,8 +24,8 @@
                         leave-from="opacity-100 scale-100"
                         leave-to="opacity-0 scale-95"
                     >
-                        <DialogPanel class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
-                            <div class="flex justify-between items-center mb-4">
+                        <DialogPanel class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white py-6 shadow-xl transition-all">
+                            <div class="flex justify-between items-center mb-4 px-6">
                                 <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
                                     {{ email.subject }}
                                 </DialogTitle>
@@ -38,23 +38,23 @@
                             </div>
 
                             <div class="space-y-4">
-                                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                <div class="flex items-center space-x-2 text-sm text-gray-500 px-6">
                                     <span class="font-semibold">{{ $t("transferPage.from") }}</span>
                                     <span>{{ email.sender.name }} ({{ email.sender.email }})</span>
                                 </div>
 
-                                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                <div class="flex items-center space-x-2 text-sm text-gray-500 px-6">
                                     <span class="font-semibold">{{ $t("transferPage.date") }}</span>
                                     <span>{{ formatSentDateAndTime(email.sentDate, email.sentTime) }}</span>
                                 </div>
 
-                                <div v-if="email.cc?.length" class="flex items-center space-x-2 text-sm text-gray-500">
+                                <div v-if="email.cc?.length" class="flex items-center space-x-2 text-sm text-gray-500 px-6">
                                     <span class="font-semibold">{{ $t("transferPage.cc") }}</span>
                                     <span>{{ formatCCRecipients(email.cc) }}</span>
                                 </div>
 
-                                <div class="mt-4 border-t pt-4">
-                                    <div v-html="email.htmlContent" class="prose max-w-none"></div>
+                                <div class="mt-4 border-t pt-4 max-h-[60vh] overflow-y-auto ">
+                                    <div v-html="email.htmlContent" class="prose max-w-none px-6 pr-0 mr-0 custom-email-content"></div>
                                 </div>
                             </div>
                         </DialogPanel>

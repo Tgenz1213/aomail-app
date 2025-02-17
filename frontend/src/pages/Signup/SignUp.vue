@@ -48,7 +48,7 @@ import { Category } from "@/global/types";
 import router from "@/router/router";
 import CredentialsForm from "./components/CredentialsForm.vue";
 import StepsTracker from "./components/StepsTracker.vue";
-import { API_BASE_URL } from "@/global/const";
+import { API_BASE_URL, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/global/const";
 
 const showNotification = ref<boolean>(false);
 const step = ref<number>(0);
@@ -84,19 +84,19 @@ onMounted(() => {
     sessionStorage.clear();
 
     const browserLanguage = navigator.language.toLowerCase();
-    const languageKey = browserLanguage.startsWith('fr') ? 'french' : 'american';
+    const languageKey = browserLanguage.startsWith("fr") ? "french" : "american";
 
-    if (!localStorage.getItem('language')) {
-        localStorage.setItem('language', languageKey);
+    if (!localStorage.getItem("language")) {
+        localStorage.setItem("language", languageKey);
         i18n.global.locale = languageKey;
     }
 
-    if (!localStorage.getItem('timezone')) {
+    if (!localStorage.getItem("timezone")) {
         try {
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            localStorage.setItem('timezone', timezone);
+            localStorage.setItem("timezone", timezone);
         } catch {
-            localStorage.setItem('timezone', 'UTC');
+            localStorage.setItem("timezone", "UTC");
         }
     }
 });
@@ -188,17 +188,14 @@ async function goStepLinkEmail() {
         return;
     }
 
-    const minLength = 8;
-    const maxLength = 32;
-
     if (!password.value.trim()) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseEnterPassword");
         return;
     } else if (!confirmPassword.value.trim()) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseConfirmPassword");
         return;
-    } else if (password.value.length < minLength || password.value.length > maxLength) {
-        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.passwordLengthShouldBeBetween8And32Characters");
+    } else if (password.value.length < PASSWORD_MIN_LENGTH || password.value.length > PASSWORD_MAX_LENGTH) {
+        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.passwordLengthError");
         return;
     } else if (password.value !== confirmPassword.value) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.passwordsDoNotMatch");

@@ -27,6 +27,8 @@ from aomail.constants import (
     GOOGLE,
     MICROSOFT,
     MICROSOFT,
+    PASSWORD_MAX_LENGTH,
+    PASSWORD_MIN_LENGTH,
     PREMIUM_PLAN,
     SOCIAL_API_REFRESH_TOKEN_KEY,
 )
@@ -549,8 +551,8 @@ def validate_signup_data(username: str, password: str, code: str) -> dict:
         return {"error": "Username already exists"}
     elif " " in username:
         return {"error": "Username must not contain spaces"}
-    elif not (8 <= len(password) <= 32):
-        return {"error": "Password length must be between 8 and 32 characters"}
+    elif not (PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH):
+        return {"error": "Password length must be between 8 and 128 characters"}
 
     return {"message": "User signup data validated successfully"}
 

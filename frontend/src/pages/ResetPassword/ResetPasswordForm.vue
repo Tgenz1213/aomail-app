@@ -134,7 +134,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { API_BASE_URL } from "@/global/const";
+import { API_BASE_URL, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
 import { i18n } from "@/global/preferences";
@@ -217,7 +217,7 @@ function displayPopup(type: "success" | "error", title: string, message: string)
 }
 
 async function resetPassword() {
-    if (password.value.length < 8 || password.value.length > 32) {
+    if (password.value.length < PASSWORD_MIN_LENGTH || password.value.length > PASSWORD_MAX_LENGTH) {
         displayPopup(
             "error",
             i18n.global.t("passwordReset.invalidInput"),

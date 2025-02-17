@@ -1,6 +1,8 @@
 export const VERSION = "v 1.3";
 export const BASE_URL = process.env.VUE_APP_BASE_URL;
 export const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
 export const MICROSOFT = "microsoft";
 export const GOOGLE = "google";
 export const YAHOO = "yahoo";

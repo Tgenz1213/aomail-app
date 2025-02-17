@@ -79,7 +79,7 @@
                             <MyAccountMenu />
                         </div>
 
-                        <div v-if="activeSection === 'preferences'" class="flex-1 section">
+                        <div v-if="activeSection === 'preferences'">
                             <PreferencesMenu />
                         </div>
                     </div>

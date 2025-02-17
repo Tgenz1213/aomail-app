@@ -10,7 +10,7 @@
                 </span>
             </div>
         </div>
-        <div class="pt-6 pb-10">
+        <div class="pt-8 pb-10">
             <div class="flex space-x-1 items-center">
                 <EnvelopeIcon class="w-4 h-4" />
                 <label class="block text-sm font-medium leading-6 text-gray-900">

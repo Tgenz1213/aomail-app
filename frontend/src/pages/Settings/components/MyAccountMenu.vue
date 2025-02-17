@@ -18,7 +18,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="pt-6">
+                        <div class="pt-8">
                             <div class="flex space-x-1 items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <input
@@ -66,7 +66,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="pt-[52px]">
+                    <div class="pt-[60px]">
                         <div class="overflow-y-auto w-full">
                             <div class="max-h-20 sm:max-h-24 md:max-h-32 lg:max-h-40 w-full">
                                 <ul role="list" class="space-y-1 w-full">
@@ -219,8 +219,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex-col flex-grow w-full pt-36 2xl:pt-44">
-                        <div class="relative w-full mt-auto">
+                    <div class="flex-col flex-grow w-full pt-[168px] 2xl:pt-44">
+                        <div class="relative w-full">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
@@ -230,7 +230,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="pt-6 flex flex-col items-center space-y-4">
+                        <div class="pt-8 flex flex-col items-center space-y-4">
                             <button
                                 @click="openTroubleshootingMenu"
                                 class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"

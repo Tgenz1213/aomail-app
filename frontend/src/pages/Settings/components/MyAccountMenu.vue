@@ -8,12 +8,12 @@
                 <div class="flex-1 flex-col h-full flex-grow px-4">
                     <UserCredentialsUpdateSection />
                     <div class="flex-col flex-grow w-full py-12 2xl:py-20">
-                        <div class="relative">
+                        <div class="relative w-full">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center">
-                                <span class="bg-white px-2 text-sm text-gray-500">
+                                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
                                     {{ $t("constants.userActions.delete") }}
                                 </span>
                             </div>
@@ -56,12 +56,12 @@
                     </div>
                 </div>
                 <div class="flex-1 flex-col h-full flex-grow px-4 py-6">
-                    <div class="relative">
+                    <div class="relative w-full">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                             <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                            <span class="bg-white px-2 text-sm text-gray-500">
+                            <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
                                 {{ $t("settingsPage.accountPage.linkANewEmailAddress") }}
                             </span>
                         </div>
@@ -81,16 +81,16 @@
                             </div>
                         </div>
                     </div>
-                    <div class="relative py-4">
+                    <!--<div class="relative w-full py-4">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                             <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                            <span class="bg-white px-2 text-sm text-gray-500">
+                            <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
                                 {{ $t("settingsPage.accountPage.chooseTheEmailServiceProvider") }}
                             </span>
                         </div>
-                    </div>
+                    </div>-->
                     <div class="flex gap-x-4 justify-center">
                         <div class="pt-4">
                             <div class="relative items-stretch mt-2 flex justify-center items-center">
@@ -219,13 +219,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex-col flex-grow w-full py-12 2xl:py-20">
-                        <div class="relative">
+                    <div class="flex-col flex-grow w-full pt-36 2xl:pt-44">
+                        <div class="relative w-full mt-auto">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center">
-                                <span class="bg-white px-2 text-sm text-gray-500">
+                                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
                                     {{ $t("settingsPage.accountPage.troubleshooting") }}
                                 </span>
                             </div>

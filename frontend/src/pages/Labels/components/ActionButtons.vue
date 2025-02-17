@@ -1,7 +1,7 @@
 <template>
     <div class="flex mt-4 space-x-2">
         <button @click="printLabels" class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-            Print
+            {{ i18n.global.t("constants.userActions.print") }}
         </button>
         <button @click="toggleSelectAll" class="w-2/5 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
             {{ selectAllText }}
@@ -36,6 +36,7 @@ import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
 import { PDFDocument } from "pdf-lib";
 import { LabelData } from "../utils/types";
+import { i18n } from "@/global/preferences";
 
 const selectedLabelIds = inject<Ref<number[]>>("selectedLabelIds") || ref([]);
 const ids = inject<Ref<number[]>>("ids") || ref([]);
@@ -44,7 +45,9 @@ const labelsData = inject<Ref<LabelData[]>>("labelsData") || ref<LabelData[]>([]
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const selectAllText = computed(() =>
-    selectedLabelIds.value.length !== labelsData.value.length ? "Select All" : "Unselect All"
+    selectedLabelIds.value.length !== labelsData.value.length
+        ? i18n.global.t("constants.userActions.selectAll")
+        : i18n.global.t("constants.userActions.unselectAll")
 );
 
 const toggleSelectAll = () => {
@@ -73,7 +76,11 @@ const printLabels = async () => {
         }
 
         if (totalPages === 0) {
-            displayPopup?.("error", "No labels to print", "No valid labels were found to print.");
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.noLabelsFound"),
+                i18n.global.t("constants.popUpConstants.errorMessages.noLabelsFoundDesc")
+            );
             return;
         }
 
@@ -87,10 +94,18 @@ const printLabels = async () => {
                 URL.revokeObjectURL(pdfUrl);
             };
         } else {
-            displayPopup?.("error", "Print error", "Unable to open print window. Please check your popup blocker.");
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.printError"),
+                i18n.global.t("constants.popUpConstants.errorMessages.printWindowError")
+            );
         }
     } catch (error) {
-        displayPopup?.("error", "Print error", "An error occurred while preparing the labels for printing.");
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.printError"),
+            i18n.global.t("constants.popUpConstants.errorMessages.printPreparationError")
+        );
     }
 };
 
@@ -109,8 +124,8 @@ const getLabelPdf = async (id: number) => {
         if (!response) {
             displayPopup?.(
                 "error",
-                "Print Error",
-                "No response received from the server while preparing the labels for printing."
+                i18n.global.t("constants.popUpConstants.errorMessages.printServerError"),
+                i18n.global.t("constants.popUpConstants.errorMessages.noServerResponse")
             );
             return null;
         }
@@ -120,14 +135,28 @@ const getLabelPdf = async (id: number) => {
             return pdfBlob;
         } else {
             const data = await response.json();
-            displayPopup?.("error", "Print Error", `Failed to fetch label PDF data: ${data.error || "Unknown error"}`);
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.printServerError"),
+                i18n.global.t("constants.popUpConstants.errorMessages.pdfFetchError", {
+                    error: data.error || "Unknown error",
+                })
+            );
             return null;
         }
     } catch (error) {
         if (error instanceof Error) {
-            displayPopup?.("error", "Print Error", `Error fetching PDF for label: ${error.message}`);
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.printServerError"),
+                i18n.global.t("constants.popUpConstants.errorMessages.pdfFetchError", { error: error.message })
+            );
         } else {
-            displayPopup?.("error", "Print Error", "An unknown error occurred while fetching the PDF.");
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.printServerError"),
+                i18n.global.t("constants.popUpConstants.errorMessages.unknownPdfError")
+            );
         }
         return null;
     }
@@ -135,7 +164,11 @@ const getLabelPdf = async (id: number) => {
 
 const deleteLabels = async () => {
     if (selectedLabelIds.value.length === 0) {
-        displayPopup?.("error", "No label selected", "Please select at least one label");
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.noLabelSelected"),
+            i18n.global.t("constants.popUpConstants.errorMessages.selectAtLeastOneLabel")
+        );
         return;
     }
 
@@ -150,7 +183,11 @@ const deleteLabels = async () => {
     const result = await deleteData("user/delete_labels", { ids: selectedLabelIds.value });
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to delete labels", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToDeleteLabels"),
+            result.error as string
+        );
     } else {
         selectedLabelIds.value = [];
     }

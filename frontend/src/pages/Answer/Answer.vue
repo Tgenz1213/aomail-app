@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, nextTick, provide, onBeforeUnmount } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -90,7 +90,7 @@ const isLoadingAgentSelection = ref(false);
 const agents = ref<Agent[]>([]);
 const selectedAgent = ref<Agent>({
     id: "",
-    agent_name: "Default Agent",
+    agent_name: i18n.global.t("agent.defaultAgent"),
     picture: "/assets/default-agent.png",
     ai_template: "",
     length: "",
@@ -145,7 +145,11 @@ const displayMessage = async (message: string, aiIcon: string) => {
         await animateText(message, animatedParagraph);
         await scrollToBottom();
     } else {
-        console.error("Could not find animated paragraph element");
+        displayPopup(
+            "error",
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.paragraphNotFound")
+        );
     }
 };
 
@@ -262,19 +266,26 @@ const displayAgentSelection = async () => {
             });
         }
     } catch (error) {
-        console.error("Error displaying agent selection:", error);
+        displayPopup(
+            "error",
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.displayingAgentSelection")
+        );
     }
 };
 
 const checkLastUsedAgent = async () => {
     try {
         if (!agents.value.length) {
-            console.warn("No agents available when checking last used agent");
+            displayPopup(
+                "error",
+                i18n.global.t("answerPage.error.title"),
+                i18n.global.t("answerPage.error.noAgentsAvailable")
+            );
             return;
         }
 
         const response = await getData("user/agents/check_last_used/");
-        console.log("Last used agent response:", response); // Debug log
 
         if (response.success && response.data.exists) {
             const selectedAgentData = agents.value.find((agent) => agent.id === response.data.agent_id);
@@ -286,11 +297,10 @@ const checkLastUsedAgent = async () => {
             await displayAgentSelection();
         }
     } catch (error) {
-        console.error("Error checking last used agent:", error);
         displayPopup(
             "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.lastUsedAgentError"),
-            "Failed to load last used agent"
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.checkingLastUsedAgent")
         );
     }
 };
@@ -307,11 +317,10 @@ async function fetchAgents() {
             throw new Error(response.error);
         }
     } catch (error) {
-        console.error("Error fetching agents:", error);
         displayPopup(
             "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.agentsFetchError"),
-            error instanceof Error ? error.message : "Unknown error"
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.fetchingAgents")
         );
         throw error;
     }
@@ -347,7 +356,11 @@ onMounted(async () => {
         // Initialize AIContainer first
         AIContainer.value = document.getElementById("AIContainer");
         if (!AIContainer.value) {
-            console.error("AIContainer element not found");
+            displayPopup(
+                "error",
+                i18n.global.t("answerPage.error.title"),
+                i18n.global.t("answerPage.error.containerNotFound")
+            );
             return;
         }
 
@@ -388,7 +401,9 @@ onMounted(async () => {
         <div class="flex pb-12">
           <div class="mr-4 flex flex-shrink-0">
             <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
-                <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                <img src="${API_BASE_URL}agent_icon/${
+            selectedAgent.value.icon_name
+        }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
           </div>
           <div class="flex flex-col space-y-1 bg-white rounded-lg p-4 border border-gray-200">
@@ -427,11 +442,10 @@ onMounted(async () => {
 
         fetchResponseKeywords();
     } catch (error) {
-        console.error("Error during initialization:", error);
         displayPopup(
             "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.initializationError"),
-            "Failed to initialize application"
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.initialization")
         );
     } finally {
         isLoadingAgentSelection.value = false;
@@ -697,7 +711,11 @@ function insertSignature(signatureContent: string) {
             quillInstance.setSelection(quillInstance.getLength(), 0);
         });
     } catch (error) {
-        console.error("Error inserting signature:", error);
+        displayPopup(
+            "error",
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.insertingSignature")
+        );
     }
 }
 
@@ -706,7 +724,11 @@ const fetchSignatures = async () => {
     if (result.success) {
         signatures.value = result.data;
     } else {
-        displayPopup("error", "Error", "Failed to fetch signatures");
+        displayPopup(
+            "error",
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.fetchSignatures")
+        );
     }
 };
 
@@ -730,7 +752,11 @@ async function setAgentLastUsed(agent: Agent) {
     });
 
     if (!result.success) {
-        console.error("Failed to update agent last used status:", result.error);
+        displayPopup(
+            "error",
+            i18n.global.t("answerPage.error.title"),
+            i18n.global.t("answerPage.error.updatingAgentStatus")
+        );
     }
 }
 

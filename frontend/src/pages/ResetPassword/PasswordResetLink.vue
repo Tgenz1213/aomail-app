@@ -8,12 +8,12 @@
                 :backgroundColor="backgroundColor"
                 @dismissPopup="dismissPopup"
             />
-            <h2 class="text-xl font-semibold mb-4">Reset Password</h2>
-            <p class="mb-4">Please enter your email address below to receive a link to reset your password.</p>
+            <h2 class="text-xl font-semibold mb-4">{{ $t("passwordReset.title") }}</h2>
+            <p class="mb-4">{{ $t("passwordReset.linkInstructions") }}</p>
             <input
                 type="email"
                 v-model="email"
-                placeholder="Enter your email"
+                :placeholder="$t('passwordReset.enterEmail')"
                 class="w-full p-2 border border-gray-300 rounded mb-4"
                 required
                 ref="emailInput"
@@ -22,7 +22,7 @@
                 @click="generateResetLink"
                 class="w-full py-2 bg-black text-white rounded hover:bg-gray-800 transition"
             >
-                Submit
+                {{ $t("constants.userActions.submit") }}
             </button>
         </div>
     </div>
@@ -34,6 +34,7 @@ import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
+import { i18n } from "@/global/preferences";
 
 const isModalOpen = ref(true);
 const email = ref("");
@@ -81,13 +82,21 @@ function displayPopup(type: "success" | "error", title: string, message: string)
 
 async function generateResetLink() {
     if (!email.value) {
-        displayPopup("error", "Invalid input", "Please provide an email.");
+        displayPopup(
+            "error",
+            i18n.global.t("passwordReset.invalidInput"),
+            i18n.global.t("passwordReset.pleaseProvideEmail")
+        );
         return;
     }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email.value)) {
-        displayPopup("error", "Invalid input", "Email format is not correct.");
+        displayPopup(
+            "error",
+            i18n.global.t("passwordReset.invalidInput"),
+            i18n.global.t("passwordReset.emailFormatIncorrect")
+        );
         return;
     }
     try {
@@ -100,16 +109,20 @@ async function generateResetLink() {
         });
 
         if (response.ok) {
-            displayPopup("success", "Check your mailbox!", "Redirecting...");
+            displayPopup(
+                "success",
+                i18n.global.t("passwordReset.checkMailbox"),
+                i18n.global.t("passwordReset.redirecting")
+            );
             timerId.value = setTimeout(() => {
                 router.push({ name: "login" });
             }, 3000);
         } else {
             const data = await response.json();
-            displayPopup("error", "Error sending password reset email", data.error);
+            displayPopup("error", i18n.global.t("passwordReset.errorSendingEmail"), data.error);
         }
     } catch (error) {
-        displayPopup("error", "Error sending password reset email", (error as Error).message);
+        displayPopup("error", i18n.global.t("passwordReset.errorSendingEmail"), (error as Error).message);
     }
 }
 </script>

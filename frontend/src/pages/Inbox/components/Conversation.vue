@@ -51,7 +51,7 @@ const selectedAgent =
     inject<Ref<Agent>>("selectedAgent") ||
     ref<Agent>({
         id: "",
-        agent_name: "Default Agent",
+        agent_name: i18n.global.t("agent.defaultAgent"),
         picture: "/assets/default-agent.png",
         ai_template: "",
         length: "",
@@ -78,7 +78,11 @@ async function openSeeMailModal(id: number) {
     selectedEmail.value = emailFetched;
     const result = await postData("user/get_email_content/", { id: id });
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch email content", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("conversation.errorMessages.failedToFetchEmailContent"),
+            result.error as string
+        );
         return;
     }
 
@@ -150,13 +154,21 @@ async function deleteEmail() {
     if (index !== -1) {
         emailList.value.splice(index, 1);
     } else {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), "Email id not found");
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.deleteEmailFailure"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailIdNotFound")
+        );
         return;
     }
 
-    const result = await deleteData(`user/emails/${selectedEmail?.value.id}/delete/`);
+    const result = await deleteData(`user/emails/delete_emails/`, { emailIds: [selectedEmail?.value.id] });
     if (!result.success) {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.deleteEmailFailure"),
+            result.error as string
+        );
     }
 }
 
@@ -259,7 +271,7 @@ const handleButtonClick = async (option: KeyValuePair, index: number) => {
             displayNextEmails("missedImportantEmails");
             break;
         case "finishReview":
-            displayAIMsg("Great! You've reviewed all emails. Enjoy your clean inbox");
+            displayAIMsg(i18n.global.t("conversation.cleanInboxMessage"));
             break;
         default:
             console.error("Unknown option key:", option.key);
@@ -277,7 +289,9 @@ function displayNextEmails(category: string) {
 
     const emailsToDisplay = categoryMap[category]?.value || [];
     const messageIntro =
-        emailsToDisplay.length > 0 ? "Here are the next emails for review:" : "No emails to review in this category.";
+        emailsToDisplay.length > 0
+            ? i18n.global.t("conversation.nextEmailsForReview")
+            : i18n.global.t("conversation.noEmailsToReview");
 
     const emailListHtml = emailsToDisplay
         .map(
@@ -295,17 +309,17 @@ function displayNextEmails(category: string) {
         `
         <p><strong>${messageIntro}</strong></p>
         <ul>
-            ${emailListHtml || "<li>No emails to show.</li>"}
+            ${emailListHtml || `<li>${i18n.global.t("conversation.noEmailsToShow")}</li>`}
         </ul>
     `,
         [
             {
                 key: "missedImportantEmailsNotRead",
-                value: "Show missed important emails",
+                value: i18n.global.t("conversation.showMissedImportantEmails"),
             },
             {
                 key: "finishReview",
-                value: "Finish reviewing emails",
+                value: i18n.global.t("conversation.finishReviewingEmails"),
             },
         ]
     );
@@ -338,16 +352,16 @@ async function fetchAiEmails() {
 
     if (answerRequiredEmails.value.length > 0) {
         emailsToDisplay = answerRequiredEmails.value;
-        messageIntro = "Hey, you might have forgotten to answer these emails:";
+        messageIntro = i18n.global.t("conversation.emailsToAnswer");
         addButtons = true; // Add buttons for "requiring an answer" emails
     } else if (mightRequireAnswerEmails.value.length > 0) {
         emailsToDisplay = mightRequireAnswerEmails.value;
-        messageIntro = "Hey, you have these emails that might require an answer:";
+        messageIntro = i18n.global.t("conversation.emailsThatMightRequireAnswer");
     } else if (missedImportantEmails.value.length > 0) {
         emailsToDisplay = missedImportantEmails.value;
-        messageIntro = "Hey, you have these important emails that you have not read and received more than 3 days ago:";
+        messageIntro = i18n.global.t("conversation.missedImportantEmails");
     } else {
-        messageIntro = "You have no pending emails at the moment!";
+        messageIntro = i18n.global.t("conversation.noPendingEmails");
     }
 
     // Generate the email list HTML
@@ -362,7 +376,7 @@ async function fetchAiEmails() {
                 addButtons
                     ? `<button type="button" id="responseKeywordButton${email.id}"
                         class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none">
-                        View Email
+                        ${i18n.global.t("conversation.viewEmail")}
                     </button>`
                     : ""
             }
@@ -376,12 +390,18 @@ async function fetchAiEmails() {
         `
         <p><strong>${messageIntro}</strong></p>
         <ul>
-            ${emailListHtml || "<li>No emails to show.</li>"}
+            ${emailListHtml || `<li>${i18n.global.t("conversation.noEmailsToShow")}</li>`}
         </ul>
     `,
         [
-            { key: "mightRequireAnswer", value: "Show emails that might require an answer" },
-            { key: "missedImportantEmailsNotRead", value: "Show missed important emails" },
+            {
+                key: "mightRequireAnswer",
+                value: i18n.global.t("conversation.showMightRequireAnswerEmails"),
+            },
+            {
+                key: "missedImportantEmailsNotRead",
+                value: i18n.global.t("conversation.showMissedImportantEmails"),
+            },
         ]
     );
 
@@ -404,7 +424,11 @@ async function fetchEmailData(id: number): Promise<Email | undefined> {
     const result = await postData("user/get_simple_email_data/", { ids: [id] });
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch email data", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("conversation.errorMessages.failedToFetchEmailData"),
+            result.error as string
+        );
         return;
     }
     return result.data.emailsData[0];

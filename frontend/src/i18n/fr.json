@@ -8,8 +8,11 @@
       "open": "Ouvrir",
       "send": "Envoyer",
       "ask": "Demander",
-      "changeTheRule": "Changer la règle",
+      "print": "Imprimer",
+      "changeTheRule": "Modifier la règle",
       "createARule": "Créer une règle",
+      "selectAll": "Tout sélectionner",
+      "unselectAll": "Tout désélectionner",
       "transfer": "Transférer",
       "reply": "Répondre",
       "search": "Recherche",
@@ -25,7 +28,8 @@
       "login": "Connexion",
       "see": "Voir",
       "archive": "Archiver",
-      "unarchive": "Désarchiver"
+      "unarchive": "Désarchiver",
+      "submit": "Soumettre"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "Aucune catégorie définie",
@@ -58,75 +62,96 @@
       "noDraftsEnteredPleaseTryAgain": "Vous n'avez saisi aucun brouillon, veuillez réessayer.",
       "emailFeedbackRequest": "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins.",
       "emailRecipientRequest": "Bonjour, à qui souhaitez-vous envoyer cet e-mail ?",
-      "draftEmailRequest": "N'hésitez pas à fournir un brouillon de l'email que vous souhaitez rédiger.",
+      "draftEmailRequest": "N'hésitez pas à fournir un brouillon de l'e-mail que vous souhaitez rédiger.",
       "emailCompositionAssistance": "Comment puis-je vous aider à rédiger votre e-mail ?",
-      "spellingCorrectionRequest": "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?",
-      "processingErrorApology": "Je m'excuse, j'ai fait une erreur de traitement.",
-      "copywritingCheckRequest": "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?",
-      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionnez les mails qui correspondent",
+      "spellingCorrectionRequest": "J'ai corrigé l'orthographe, souhaitez-vous autre chose ?",
+      "processingErrorApology": "Je m'excuse, une erreur de traitement s'est produite.",
+      "copywritingCheckRequest": "J'ai vérifié la rédaction, souhaitez-vous autre chose ?",
+      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs e-mails pour certains destinataires, sélectionnez les e-mails qui correspondent.",
       "pickSendingDateTime": "Choisissez une date et une heure d'envoi",
-      "selectTimeAndDate": "Veuillez sélectionner une date et une heure, s'il vous plaît.",
-      "sendScheduledEmail": "Envoyer l'email programmé"
+      "selectTimeAndDate": "Veuillez sélectionner une date et une heure.",
+      "sendScheduledEmail": "Programmer l'envoi"
     },
     "popUpConstants": {
       "errorMessages": {
-        "noEmailsToArchive": "Aucun e-mail à archiver",
+        "noEmailsToArchive": "Pas d'e-mails à archiver",
         "failedToArchive": "Échec de l'archivage des e-mails",
         "failedToMarkAsRead": "Échec du marquage des e-mails comme lus",
-        "noEmailsToMark": "Aucun e-mail à marquer",
-        "emailSendError": "Erreur d'envoi d'email",
-        "pleaseEnterAnEmail": "Veuillez saisir un email",
+        "noEmailsToMark": "Pas d'e-mails à marquer",
+        "emailSendError": "Erreur d'envoi d'e-mail",
         "contactFetchError": "Erreur de récupération des contacts",
-        "primaryEmailFetchError": "Erreur récupération de votre email primaire",
-        "emailLinkedFetchError": "Erreur récupération de vos emails",
-        "invalidEmail": "Email invalide",
-        "emailFormatIncorrect": "Le format de l'email est incorrect",
+        "pleaseEnterAnEmail": "Veuillez entrer un e-mail",
+        "primaryEmailFetchError": "Erreur de récupération de l'e-mail principal",
+        "emailLinkedFetchError": "Erreur de récupération de l'e-mail",
+        "invalidEmail": "E-mail invalide",
+        "emailFormatIncorrect": "Format d'e-mail incorrect",
         "duplicateFile": "Fichier en double",
-        "fileAlreadyInserted": "Vous avez déjà inséré ce fichier",
+        "fileAlreadyInserted": "Fichier déjà inséré",
         "fileTooLarge": "Fichier trop volumineux",
-        "fileSizeExceedsLimit": "La taille du fichier dépasse la limite de Gmail",
-        "emailSendErrorNoSubject": "Aucun sujet n'a été saisi",
-        "emailSendErrorNoObject": "Aucun objet n'a été saisi",
-        "emailSendErrorNoRecipient": "Aucun destinataire n'a été saisi",
-        "deleteEmailFailure": "Échec de suppression d'email",
-        "archiveEmailFailure": "Échec de l'archivage de l'email",
-        "unarchiveEmailFailure": "Échec du désarchivage de l'email",
+        "fileSizeExceedsLimit": "La taille du fichier dépasse la limite Gmail",
+        "emailSendErrorNoSubject": "Aucun sujet saisi",
+        "emailSendErrorNoObject": "Aucun objet saisi",
+        "emailSendErrorNoRecipient": "Aucun destinataire saisi",
+        "noHtmlContent": "Aucun contenu HTML reçu",
+        "deleteEmailFailure": "Échec de la suppression de l'e-mail",
+        "archiveEmailFailure": "Échec de l'archivage de l'e-mail",
+        "unarchiveEmailFailure": "Échec de la désarchivage de l'e-mail",
         "addCategoryError": "Erreur lors de l'ajout de la catégorie",
         "updateCategoryError": "Erreur lors de la mise à jour de la catégorie",
         "addFilterError": "Erreur lors de l'ajout du filtre",
         "updateFilterError": "Erreur lors de la mise à jour du filtre",
-        "deleteFilterError": "Erreur lors de la supression du filtre",
+        "deleteFilterError": "Erreur lors de la suppression du filtre",
         "emptyCategoryNameError": "Le nom de la catégorie ne peut pas être vide",
         "deleteCategoryError": "Erreur lors de la suppression de la catégorie",
-        "retrieveAssociatedRulesError": "Erreur récupération des règles associées",
-        "openReplyPageFailure": "Échec d'ouverture de la page de réponse",
-        "openTransferPageFailure": "Échec d'ouverture de la page de transfert",
-        "errorMessageVerificationIdentifier": "Erreur vérification identifiant",
-        "pleaseEnterPassword": "Veuillez saisir un mot de passe",
+        "retrieveAssociatedRulesError": "Erreur lors de la récupération des règles associées",
+        "openReplyPageFailure": "Échec de l'ouverture de la page de réponse",
+        "openTransferPageFailure": "Échec de l'ouverture de la page de transfert",
+        "errorMessageVerificationIdentifier": "Erreur de vérification de l'identifiant",
+        "pleaseEnterPassword": "Veuillez entrer un mot de passe",
         "pleaseConfirmPassword": "Veuillez confirmer votre mot de passe",
-        "passwordLengthShouldBeBetween8And32Characters": "La longueur du mot de passe doit être entre 8 et 32 caractères",
+        "passwordLengthShouldBeBetween8And32Characters": "La longueur du mot de passe doit être comprise entre 8 et 32 caractères",
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
-        "pleaseEnterAnIdentifier": "Veuillez saisir un identifiant",
+        "pleaseEnterAnIdentifier": "Veuillez entrer un identifiant",
         "recuperationRules": "Erreur lors de la récupération des règles",
-        "identifierMustNotContainSpaces": "L'identifiant ne doit pas contenir d'espaces",
-        "maxUsernameLength150Characters": "Longueur max nom d'utilisateur : 150 caractères",
-        "identifierIsAlreadyInUse": "L'identifiant est déjà utilisé",
-        "invalidEmailFormat": "Veuillez entrer un email valide"
+        "failedToFetchAttachment": "Échec de la récupération de la pièce jointe",
+        "failedToFetchDashboard": "Échec de la récupération des données du tableau de bord",
+        "failedToFetchCombinedStatistics": "Échec de la récupération des statistiques combinées",
+        "failedToFetchLabelIds": "Échec de la récupération des identifiants d'étiquettes",
+        "failedToFetchLabelData": "Échec de la récupération des données d'étiquettes",
+        "noLabelSelected": "Aucune étiquette sélectionnée",
+        "selectAtLeastOneLabel": "Veuillez sélectionner au moins une étiquette",
+        "failedToDeleteLabels": "Échec de la suppression des étiquettes",
+        "printError": "Erreur d'impression",
+        "printWindowError": "Impossible d'ouvrir la fenêtre d'impression. Veuillez vérifier votre bloqueur de popups.",
+        "printPreparationError": "Une erreur s'est produite lors de la préparation des étiquettes pour l'impression.",
+        "noLabelsFound": "Aucune étiquette à imprimer",
+        "noLabelsFoundDesc": "Aucune étiquette valide n'a été trouvée pour l'impression.",
+        "printServerError": "Erreur d'impression",
+        "noServerResponse": "Aucune réponse reçue du serveur lors de la préparation des étiquettes pour l'impression.",
+        "pdfFetchError": "Échec de la récupération des données PDF de l'étiquette : {error}",
+        "unknownPdfError": "Une erreur inconnue s'est produite lors de la récupération du PDF.",
+        "failedToDeleteLabel": "Échec de la suppression de l'étiquette"
       },
       "successMessages": {
         "success": "Succès !",
-        "emailSuccessfullySent": "Votre email a été envoyé avec succès.",
+        "emailSuccessfullySent": "Votre e-mail a été envoyé avec succès.",
         "updateCategorySuccess": "La catégorie a été mise à jour",
         "categoryAddedSuccess": "La catégorie a été ajoutée",
         "deleteCategorySuccess": "Votre catégorie a été supprimée",
         "updateFilterSuccess": "Le filtre a été mis à jour",
-        "filterAddedSuccess": "Le filtre a été ajoutée",
-        "deleteFilterSuccess": "Le filtre a été supprimée",
-        "emailScheduledSuccessfully": "Votre email a été programmé et sera envoyé à temps.",
-        "emailsMarkedAsRead": "Emails marqués comme lus",
+        "filterAddedSuccess": "Le filtre a été ajouté",
+        "deleteFilterSuccess": "Votre filtre a été supprimé",
+        "emailScheduledSuccessfully": "Votre e-mail a été programmé et sera envoyé à l'heure prévue",
+        "emailsMarkedAsRead": "E-mails marqués comme lus",
         "emailsMarkedAsReadDescription": "Tous les e-mails sélectionnés ont été marqués comme lus.",
-        "emailsArchived": "Emails archivés",
-        "emailsArchivedDescription": "Tous les e-mails sélectionnés ont été archivés."
+        "emailsArchived": "E-mails archivés",
+        "emailsArchivedDescription": "Tous les e-mails sélectionnés ont été archivés.",
+        "agentCreated": "Agent créé avec succès",
+        "agentUpdated": "Agent mis à jour avec succès",
+        "agentDeleted": "Agent supprimé avec succès",
+        "agentCreatedDesc": "Le nouvel agent a été créé avec succès.",
+        "agentUpdatedDesc": "L'agent a été mis à jour avec succès.",
+        "agentDeletedDesc": "L'agent a été supprimé avec succès."
       }
     },
     "freeTrialExpired": "Essai gratuit expiré",
@@ -135,9 +160,9 @@
     "and": "et",
     "rule": "règle",
     "rules": "règles",
-    "email": " e-mail.",
-    "emailUppercase": "Email",
-    "emails": " e-mails.",
+    "email": "e-mail",
+    "emailUppercase": "E-mail",
+    "emails": "e-mails",
     "redirectionInProgress": "Redirection en cours...",
     "inboxNavbar": "Boîte de réception",
     "AiNavbar": "Assistant IA",
@@ -163,13 +188,13 @@
     "underDevelopment": "En développement",
     "language": "Langue",
     "languagesList": {
-      "french": "Français 🇫🇷",
-      "american": "Américain 🇺🇸",
-      "german": "Allemand 🇩🇪",
-      "russian": "Russe 🇷🇺",
-      "spanish": "Espagnol 🇪🇸",
-      "chinese": "Chinois 🇨🇳",
-      "indian": "Hindi 🇮🇳"
+      "french": "Français",
+      "american": "American",
+      "german": "Deutsch",
+      "russian": "Русский",
+      "spanish": "Español",
+      "chinese": "中文",
+      "indian": "हिन्दी"
     },
     "theme": "Thème",
     "themeList": {
@@ -180,7 +205,10 @@
   },
   "agent": {
     "AiGreeting": "Bonjour, en quoi puis-je vous aider ?",
-    "chooseAiAssistant": "Veuillez choisir ou créer un assistant IA avant d'utiliser ce chat"
+    "chooseAiAssistant": "Veuillez choisir ou créer un assistant IA avant d'utiliser ce chat",
+    "createNewAgent": "Créer un Nouvel Agent",
+    "edit": "Modifier l'Agent",
+    "selectAgent": "Sélectionner un Agent"
   },
   "userLoginPage": {
     "loginError": "Erreur lors de la connexion",
@@ -368,7 +396,12 @@
       "updateSuccess": "Signature mise à jour avec succès.",
       "updateError": "Échec de la mise à jour de la signature.",
       "creationSuccess": "Signature créée avec succès.",
-      "creationError": "Échec de la création de la signature."
+      "creationError": "Échec de la création de la signature.",
+      "timeZoneSelection": {
+        "searchPlaceholder": "Rechercher des fuseaux horaires...",
+        "selectPlaceholder": "Sélectionnez un fuseau horaire",
+        "noResults": "Aucun résultat trouvé"
+      }
     },
     "subscriptionPage": {
       "freeTrialTitle": "Essai gratuit",
@@ -430,22 +463,22 @@
       "emailLinkingFailure": "Échec de liaison d'email",
       "confirmationRequired": "Confirmation nécessaire",
       "checkBoxApprovalDeletion": "Cochez la case pour approuver la suppression",
-      "errorRetrievingDescription": "Erreur récupération de votre description",
-      "emailDescriptionUpdated": "Description email mise à jour",
+      "errorRetrievingDescription": "Erreur lors de la récupération de votre description",
+      "emailDescriptionUpdated": "Description de l'e-mail mise à jour",
       "errorUpdatingDescription": "Erreur mise à jour description",
-      "errorRetrievingUsername": "Erreur récupération de votre identifiant",
-      "usernameCheckError": "Erreur vérification nom d'utilisateur",
-      "usernameAlreadyExists": "Nom d'utilisateur déjà existant",
+      "errorRetrievingUsername": "Erreur lors de la récupération de votre nom d'utilisateur",
+      "usernameCheckError": "Erreur lors de la vérification du nom d'utilisateur",
+      "usernameAlreadyExists": "Le nom d'utilisateur existe déjà",
       "failedToCheckUsernameValidity": "Échec de la vérification de la validité du nom d'utilisateur",
-      "pleaseChooseDifferentUsername": "Veuillez choisir un autre nom",
-      "credentialsUpdated": "Vos identifiant et mot de passe ont été modifiés",
-      "usernameUpdatedSuccess": "Votre identifiant a bien été mis à jour",
-      "errorUpdatingUsername": "Erreur mise à jour identifiant",
-      "passwordUpdatedSuccess": "Votre mot de passe a bien été modifié",
-      "credentialsUpdatedSuccess": "Vos identifiants et mot de passe ont été mis à jour",
-      "errorUpdatingPassword": "Erreur mise à jour mot de passe",
-      "accountDeletedSuccess": "Votre compte a bien été supprimé",
-      "errorDeletingAccount": "Erreur suppression de votre compte",
+      "pleaseChooseDifferentUsername": "Veuillez choisir un nom d'utilisateur différent",
+      "credentialsUpdated": "Vos identifiants ont été mis à jour",
+      "usernameUpdatedSuccess": "Votre nom d'utilisateur a été mis à jour avec succès",
+      "errorUpdatingUsername": "Erreur lors de la mise à jour du nom d'utilisateur",
+      "passwordUpdatedSuccess": "Votre mot de passe a été mis à jour avec succès",
+      "credentialsUpdatedSuccess": "Votre nom d'utilisateur et votre mot de passe ont été mis à jour",
+      "errorUpdatingPassword": "Erreur lors de la mise à jour du mot de passe",
+      "accountDeletedSuccess": "Votre compte a été supprimé avec succès",
+      "errorDeletingAccount": "Erreur lors de la suppression de votre compte",
       "optionalDescription": "Description (optionnelle)",
       "securelyLinkGmailAccount": "Lier de manière sécurisée mon compte Gmail avec OAuth2.0",
       "securelyLinkOutlookAccount": "Lier de manière sécurisée mon compte Outlook avec OAuth2.0",
@@ -545,7 +578,38 @@
     "maximum": "Maximum",
     "sinceStatistics": "Statistiques Depuis",
     "periodStatistics": "Statistiques par Période",
-    "failedToFetchStatistics": "Échec de la récupération des statistiques"
+    "failedToFetchStatistics": "Échec de la récupération des statistiques",
+    "metricLabels": {
+      "nbMightRequireAnswer": "Nombre d'emails qui pourraient nécessiter une réponse",
+      "nbEmailsReceived": "Nombre d'emails reçus",
+      "nbAnswerRequired": "Nombre d'emails nécessitant une réponse",
+      "nbNoAnswerRequired": "Nombre d'emails ne nécessitant pas de réponse",
+      "nbHighlyRelevant": "Nombre d'emails très pertinents",
+      "nbPossiblyRelevant": "Nombre d'emails possiblement pertinents",
+      "nbNotRelevant": "Nombre d'emails non pertinents",
+      "nbEmailsImportant": "Nombre d'emails importants",
+      "nbEmailsInformative": "Nombre d'emails informatifs",
+      "nbEmailsUseless": "Nombre d'emails inutiles",
+      "nbScam": "Nombre d'emails d'arnaque",
+      "nbSpam": "Nombre d'emails spam",
+      "nbNewsletter": "Nombre de newsletters",
+      "nbNotification": "Nombre de notifications",
+      "nbMeeting": "Nombre d'emails liés aux réunions"
+    },
+    "timeLabels": {
+      "join": "Depuis l'inscription",
+      "today": "Aujourd'hui",
+      "monday": "Lundi",
+      "mtd": "Depuis le début du mois",
+      "ytd": "Depuis le début de l'année",
+      "24Hours": "24 heures",
+      "7Days": "7 jours",
+      "30Days": "30 jours",
+      "3Months": "3 mois",
+      "6Months": "6 mois",
+      "1year": "1 an",
+      "5years": "5 ans"
+    }
   },
   "rulesPage": {
     "advancedFilters": "Filtres avancés",
@@ -555,12 +619,12 @@
     "selectPriority": "Sélectionnez la priorité associée à la règle",
     "senderName": "Nom de l'expéditeur",
     "senderEmail": "Email de l'expéditeur",
-    "search": "Recherche...",
+    "search": "Rechercher...",
     "assistantRules": "Règles de l'assistant",
     "contactField": "Contact",
     "categoryField": "Catégorie",
     "priorityField": "Priorité",
-    "blockedEmail": "E-mail bloqué",
+    "blockedEmail": "Email bloqué",
     "createRule": "Cliquez pour créer une règle",
     "noContactFound": "Aucun contact trouvé",
     "priorityRule": {
@@ -568,33 +632,226 @@
       "informative": "Informatif",
       "useless": "Inutile"
     },
+    "filters": {
+      "resetFilters": "Réinitialiser les filtres",
+      "logicalOperator": "Opérateur logique",
+      "logicalOperatorAnd": "ET - Toutes les conditions doivent correspondre",
+      "logicalOperatorOr": "OU - Une des conditions peut correspondre",
+      "triggers": {
+        "title": "Déclencheurs",
+        "emailTriggers": "Déclencheurs d'email",
+        "emailDomains": "Domaines d'email",
+        "emailDomainsHelp": "Entrez les domaines à rechercher (ex: \"gmail.com\", \"esaip.org\").",
+        "senderEmails": "Emails des expéditeurs",
+        "hasAttachments": "Contient des pièces jointes",
+        "aiProcessingTriggers": "Déclencheurs de traitement IA",
+        "categories": "Catégories",
+        "priorities": "Priorités",
+        "answerRequirements": "Exigences de réponse",
+        "relevance": "Pertinence",
+        "flags": "Indicateurs",
+        "emailContentDealsWith": "Le contenu de l'email traite de",
+        "emailContentPlaceholder": "Décrivez ce dont le contenu de l'email devrait traiter..."
+      }
+    },
     "modals": {
+      "common": {
+        "logicalOperator": "Opérateur logique",
+        "andOperator": "ET - Toutes les conditions doivent correspondre",
+        "orOperator": "OU - Une des conditions peut correspondre",
+        "selectTriggerType": "Sélectionner un type de déclencheur",
+        "selectActionType": "Sélectionner un type d'action",
+        "emailDomains": "Domaines d'email",
+        "addDomain": "Ajouter un domaine (ex: gmail.com)",
+        "senderEmails": "Emails des expéditeurs",
+        "addEmailAddress": "Ajouter une adresse email",
+        "selectOptions": "Sélectionner des options",
+        "setCategory": "Définir la catégorie",
+        "selectCategory": "Sélectionner une catégorie",
+        "setPriority": "Définir la priorité",
+        "selectPriority": "Sélectionner une priorité",
+        "setRelevance": "Définir la pertinence",
+        "selectRelevance": "Sélectionner la pertinence",
+        "deleteEmail": "Supprimer l'email",
+        "triggers": {
+          "title": "Déclencheurs",
+          "addTrigger": "Ajouter un déclencheur",
+          "types": {
+            "domains": {
+              "label": "Domaines d'email",
+              "description": "Correspond aux emails de domaines spécifiques (ex: gmail.com)",
+              "options": {
+                "gmail": "Gmail",
+                "outlook": "Outlook",
+                "yahoo": "Yahoo",
+                "apple": "Apple"
+              }
+            },
+            "senderEmails": {
+              "label": "Emails des expéditeurs",
+              "description": "Correspond aux adresses email spécifiques des expéditeurs",
+              "options": {
+                "gmail": "Gmail",
+                "outlook": "Outlook",
+                "yahoo": "Yahoo",
+                "apple": "Apple"
+              }
+            },
+            "hasAttachments": {
+              "label": "Contient des pièces jointes",
+              "description": "Correspond aux emails contenant des pièces jointes",
+              "options": {
+                "docx": "Document Word",
+                "xlsx": "Feuille de calcul Excel",
+                "pptx": "Présentation PowerPoint",
+                "pdf": "Document PDF",
+                "jpg": "Image JPEG",
+                "png": "Image PNG",
+                "gif": "Image GIF",
+                "txt": "Document texte",
+                "zip": "Archive ZIP",
+                "mp3": "Audio MP3",
+                "mp4": "Vidéo MP4",
+                "html": "Document HTML"
+              }
+            },
+            "categories": {
+              "label": "✨ Catégorie",
+              "description": "Correspond aux emails selon la catégorie détectée par l'IA",
+              "options": {
+                "category": "Sélectionnez la catégorie à rechercher"
+              }
+            },
+            "priorities": {
+              "label": "✨ Priorité",
+              "description": "Correspond aux emails selon le niveau de priorité détecté par l'IA",
+              "options": {
+                "important": "Important",
+                "informative": "Informatif",
+                "useless": "Inutile"
+              }
+            },
+            "answers": {
+              "label": "✨ Réponse requise",
+              "description": "Correspond aux emails selon si l'IA détermine qu'ils nécessitent une réponse",
+              "options": {
+                "required": "Réponse requise",
+                "might": "Pourrait nécessiter une réponse",
+                "none": "Pas de réponse requise"
+              }
+            },
+            "relevances": {
+              "label": "✨ Pertinence",
+              "description": "Correspond aux emails selon le niveau d'importance détecté par l'IA",
+              "options": {
+                "high": "Très pertinent",
+                "possible": "Potentiellement pertinent",
+                "none": "Non pertinent"
+              }
+            },
+            "flags": {
+              "label": "✨ Indicateurs",
+              "description": "Correspond aux emails selon les indicateurs détectés par l'IA (spam, newsletter, etc.)",
+              "options": {
+                "spam": "Spam",
+                "scam": "Arnaque",
+                "newsletter": "Newsletter",
+                "notification": "Notification",
+                "meeting": "Réunion"
+              }
+            }
+          }
+        },
+        "actions": {
+          "title": "Actions",
+          "addAction": "Ajouter une action",
+          "types": {
+            "setFlags": {
+              "label": "Définir les indicateurs",
+              "description": "Ajouter des indicateurs spécifiques aux emails correspondants",
+              "options": {
+                "spam": "Spam",
+                "scam": "Arnaque",
+                "newsletter": "Newsletter",
+                "notification": "Notification",
+                "meeting": "Réunion"
+              }
+            },
+            "markAs": {
+              "label": "Marquer comme",
+              "description": "Marquer les emails correspondants comme lus, archivés ou à répondre plus tard",
+              "options": {
+                "read": "Lu",
+                "answerLater": "Répondre plus tard",
+                "archive": "Archiver"
+              }
+            },
+            "delete": {
+              "label": "Supprimer l'email",
+              "description": "Supprimer automatiquement les emails correspondants"
+            },
+            "setCategory": {
+              "label": "Définir la catégorie",
+              "description": "Assigner les emails correspondants à une catégorie spécifique"
+            },
+            "setPriority": {
+              "label": "Définir la priorité",
+              "description": "Définir le niveau de priorité pour les emails correspondants",
+              "options": {
+                "important": "Important",
+                "informative": "Informatif",
+                "useless": "Inutile"
+              }
+            },
+            "setRelevance": {
+              "label": "Définir la pertinence",
+              "description": "Définir le niveau de pertinence pour les emails correspondants",
+              "options": {
+                "high": "Très pertinent",
+                "possible": "Potentiellement pertinent",
+                "none": "Non pertinent"
+              }
+            },
+            "setAnswer": {
+              "label": "Définir la réponse",
+              "description": "Définir le statut de réponse requise pour les emails correspondants",
+              "options": {
+                "required": "Réponse requise",
+                "might": "Pourrait nécessiter une réponse",
+                "none": "Pas de réponse requise"
+              }
+            }
+          }
+        }
+      },
       "createRule": {
-        "newRule": "Nouvelle règle"
+        "title": "Créer une nouvelle règle",
+        "createButton": "Créer la règle"
       },
       "updateRule": {
-        "modifyTheRule": "Modifier la règle"
+        "title": "Modifier la règle",
+        "updateButton": "Mettre à jour la règle"
       }
     },
     "popUpConstants": {
       "errorMessages": {
         "noSelectedEmailAddress": "Aucune adresse email sélectionnée",
         "emailFormatIncorrect": "Le format de l'email est incorrect",
-        "senderCreationError": "Erreur création de l'expéditeur",
-        "senderExistenceCheckError": "Erreur vérification expéditeur existe",
+        "senderCreationError": "Erreur lors de la création de l'expéditeur",
+        "senderExistenceCheckError": "Erreur lors de la vérification de l'existence de l'expéditeur",
         "ruleCreationError": "Erreur lors de la création de la règle",
         "ruleAlreadyExistsForSender": "Une règle existe déjà pour cet expéditeur",
-        "ruleIdRequiredForUpdate": "L'identifiant de règle est requis pour la mise à jour.",
+        "ruleIdRequiredForUpdate": "L'ID de la règle est requis pour la mise à jour",
         "ruleUpdateError": "Erreur lors de la mise à jour de la règle",
-        "ruleDeletionError": "Erreur lors de la suppression",
+        "ruleDeletionError": "Erreur lors de la suppression de la règle",
         "failedToFetchRules": "Échec de la récupération des règles",
-        "failedToFetchContacts": "Échec du chargement des contacts",
-        "failedToFetchCategories": "Échec du chargement des catégories",
-        "failedToFetchRuleById": "Échec du chargement de la règle par identifiant"
+        "failedToFetchContacts": "Échec de la récupération des contacts",
+        "failedToFetchCategories": "Échec de la récupération des catégories",
+        "failedToFetchRuleById": "Échec de la récupération de la règle par ID"
       },
       "successMessages": {
         "ruleCreatedSuccessfully": "Votre règle a été créée",
-        "ruleDeletedSuccessfully": "Votre règle a bien été supprimée",
+        "ruleDeletedSuccessfully": "Votre règle a été supprimée avec succès",
         "ruleUpdatedSuccessfully": "Votre règle a été mise à jour"
       }
     }
@@ -634,7 +891,7 @@
     "searchInSelectedInfos": "Sélectionnez les dossiers dans lesquels effectuer la recherche",
     "doesntContainPlaceholder": "Ne contient pas",
     "searchButton": "Rechercher",
-    "searchPlaceholder": "Recherche d'email",
+    "searchPlaceholder": "Rechercher...",
     "notEnoughDataToAnswer": "Vous n'avez pas suffisamment de données pour répondre à la question",
     "oneDataFound": "trouvé",
     "severalDataFound": "trouvés",
@@ -666,6 +923,30 @@
     "searchModes": {
       "aomail": "Aomail",
       "allEmails": "Ancien mails"
+    },
+    "aiSearch": {
+      "instruction": "Tapez votre instruction...",
+      "failedToFetchDetails": "Échec de la récupération des détails de l'e-mail",
+      "loading": "Chargement...",
+      "typeMessage": "Tapez un message...",
+      "askQuestion": "Posez-moi une question sur vos e-mails...",
+      "initialGreeting": "Bonjour ! Je suis là pour vous aider à rechercher dans vos e-mails. Que souhaitez-vous savoir ?"
+    },
+    "sortBy": "Trier par",
+    "orderBy": "Ordre",
+    "sortOptions": {
+      "platform": "Plateforme",
+      "itemName": "Nom de l'article",
+      "carrier": "Transporteur",
+      "postageDeadline": "Date limite d'affranchissement"
+    },
+    "orderOptions": {
+      "ascending": "Croissant",
+      "descending": "Décroissant"
+    },
+    "errors": {
+      "failedToFetchEmails": "Échec de la récupération des e-mails",
+      "failedToFetchEmailDetails": "Échec de la récupération des détails de l'e-mail"
     }
   },
   "newPage": {
@@ -678,11 +959,11 @@
     "informal": "Informel",
     "formal": "Formel",
     "veryFormal": "Très formel",
-    "subject": "Sujet: ",
-    "emailContent": "Email: ",
-    "correctSpelling": "Corrige l'orthographe",
-    "checkCopywriting": "Vérifie le copywriting",
-    "improveWriting": "Améliore l'écriture",
+    "subject": "Sujet :",
+    "emailContent": "Contenu de l'email :",
+    "correctSpelling": "Vérifier l'orthographe",
+    "checkCopywriting": "Vérifier la rédaction",
+    "improveWriting": "Améliorer l'écriture",
     "forUser": "Pour l'utilisateur : ",
     "severalUser": "J'ai trouvé plusieurs utilisateurs avec ce nom, à qui souhaitez-vous envoyer l'email ?",
     "emailGenerated": "Voici le mail, êtes-vous satisfait ?",
@@ -744,13 +1025,19 @@
       "cancel": "Annuler",
       "update": "Mettre à jour",
       "delete": "Supprimer"
+    },
+    "error": {
+      "title": "Erreur",
+      "containerNotFound": "Conteneur AI introuvable",
+      "paragraphNotFound": "Paragraphe animé introuvable",
+      "insertingSignature": "Erreur lors de l'insertion de la signature",
+      "displayingAgentSelection": "Erreur lors de l'affichage de la sélection d'agent",
+      "checkingLastUsedAgent": "Erreur lors de la vérification du dernier agent utilisé",
+      "fetchingAgents": "Erreur lors de la récupération des agents",
+      "updatingAgentStatus": "Échec de la mise à jour du statut du dernier agent",
+      "noAgentsAvailable": "Aucun agent disponible",
+      "unknownError": "Une erreur inconnue s'est produite"
     }
-  },
-  "answerPage": {
-    "responseSentTitle": "Réponse envoyée !",
-    "chatSummarize": "Résumé du mail :",
-    "chatKeyWordIntroduction": "Voici des suggestions de réponses, comment souhaitez vous répondre ?",
-    "seeMail": "Voir le mail"
   },
   "errorWebPagesTemplates": {
     "error401Page": {
@@ -785,6 +1072,14 @@
     "rules": {
       "button": "Règles",
       "tooltip": "Configurez des règles automatisées pour gérer des emails spécifiques, comme marquer certains expéditeurs comme importants ou déplacer les newsletters dans une catégorie distincte."
+    },
+    "errorMessages": {
+      "failedToLoadGuidelines": "Échec du chargement des directives actuelles",
+      "failedToUpdateGuidelines": "Échec de la mise à jour des directives"
+    },
+    "successMessages": {
+      "success": "Succès",
+      "guidelinesUpdated": "Directives mises à jour avec succès"
     },
     "professionalTemplates": {
       "title": "Modèles Professionnels",
@@ -1240,5 +1535,95 @@
       "emailsStarred": "Emails favoris",
       "emailsSent": "Emails envoyés"
     }
+  },
+  "chatInput": {
+    "typePlaceholder": "Tapez votre réponse..."
+  },
+  "customCategorization": {
+    "welcome": "Bonjour et bienvenue dans la fonctionnalité de catégorisation personnalisée des emails",
+    "prioritizationQuestion": "Êtes-vous satisfait de la façon dont je priorise vos emails selon leur importance ? Est-ce que j'attribue souvent un mauvais niveau d'importance à vos emails ?",
+    "listTopicsRequest": "Veuillez lister les sujets courants dans lesquels vous souhaitez classer vos emails. Pour chaque sujet, fournissez une description et des exemples d'emails qui entreraient dans cette catégorie.",
+    "categoriesUpdated": "Parfait ! Les catégories ont été mises à jour.",
+    "improveCategories": "D'accord, améliorons-les. Veuillez les améliorer selon mes commentaires.",
+    "optimizationComplete": "Ravi de l'entendre ! Votre catégorisation d'emails est optimisée. Vous pouvez fermer cette fenêtre",
+    "prioritizationUpdated": "Les directives de priorisation ont été mises à jour avec succès !",
+    "improvePrioritization": "Compris ! Améliorons ensemble votre priorisation d'emails.",
+    "prioritizationExample": "Quels types d'emails vous dérangent ? Comment décririez-vous les emails importants ? Veuillez décrire vos préférences personnelles dans votre réponse.",
+    "prioritizationExampleDetails": "Par exemple : Les emails de réunions et liés au projet de refonte du site AlphaPen sont <strong>importants</strong>. Les emails marketing ou de confirmation automatique sont <strong>inutiles</strong>. Le reste est <strong>informatif</strong>.",
+    "emailDescriptionRequest": "Veuillez fournir une description pour cet email : {email}. Cela devrait être une courte phrase.",
+    "descriptionUpdated": "J'ai mis à jour votre description pour m'aider à mieux catégoriser vos emails.",
+    "descriptionInvalid": "La description n'est pas valide, améliorez-la selon mes commentaires :",
+    "noCategories": "Vous n'avez actuellement aucune catégorie. Je peux vous aider à en créer.",
+    "listTopics": "Veuillez lister les sujets pour catégoriser vos emails.",
+    "currentCategorization": "Aimez-vous votre catégorisation actuelle des emails ?",
+    "reviewCategories": "Veuillez examiner les catégories, voulez-vous les conserver ?",
+    "buttons": {
+      "yes": "Oui",
+      "no": "Non",
+      "needsImprovement": "À améliorer"
+    },
+    "table": {
+      "name": "Nom",
+      "description": "Description",
+      "feedback": "Commentaire",
+      "priority": "Priorité"
+    }
+  },
+  "conversation": {
+    "emailSummary": "Résumé de l'e-mail :",
+    "noEmailsToReview": "Aucun e-mail à examiner dans cette catégorie.",
+    "nextEmailsForReview": "Voici les prochains e-mails à examiner :",
+    "cleanInboxMessage": "Super ! Vous avez examiné tous les e-mails. Profitez de votre boîte de réception propre",
+    "showMightRequireAnswerEmails": "Afficher les e-mails qui pourraient nécessiter une réponse",
+    "showMissedImportantEmails": "Afficher les e-mails importants manqués",
+    "finishReviewingEmails": "Terminer l'examen des e-mails",
+    "viewEmail": "Voir l'e-mail",
+    "errorMessages": {
+      "failedToFetchEmailContent": "Échec de la récupération du contenu de l'e-mail",
+      "failedToFetchEmailData": "Échec de la récupération des données de l'e-mail"
+    },
+    "emailsToAnswer": "Hey, vous avez peut-être oublié de répondre à ces e-mails :",
+    "emailsThatMightRequireAnswer": "Hey, vous avez ces e-mails qui pourraient nécessiter une réponse :",
+    "missedImportantEmails": "Hey, vous avez ces e-mails importants que vous n'avez pas lus et reçus il y a plus de 3 jours :",
+    "noPendingEmails": "Vous n'avez aucun e-mail en attente pour le moment !",
+    "noEmailsToShow": "Aucun e-mail à afficher."
+  },
+  "labelsPage": {
+    "itemName": "Nom de l'article",
+    "postageDeadline": "Date limite d'envoi",
+    "carrier": "Transporteur",
+    "platform": "Plateforme",
+    "noLabelsFound": "Aucune étiquette trouvée.",
+    "loadingMoreLabels": "Chargement d'étiquettes supplémentaires...",
+    "searchLabel": "Rechercher une étiquette",
+    "sortBy": "Trier par",
+    "orderBy": "Ordre",
+    "ascending": "Croissant",
+    "descending": "Décroissant",
+    "filters": {
+      "title": "Filtres avancés",
+      "platform": "Plateforme",
+      "itemName": "Nom de l'article",
+      "carrier": "Transporteur",
+      "postageDeadline": "Date limite d'envoi"
+    }
+  },
+  "passwordReset": {
+    "title": "Réinitialisation du mot de passe",
+    "linkInstructions": "Veuillez saisir votre adresse e-mail ci-dessous pour recevoir un lien de réinitialisation du mot de passe.",
+    "enterEmail": "Entrez votre e-mail",
+    "newPasswordInstructions": "Veuillez saisir votre nouveau mot de passe ci-dessous.",
+    "password": "Mot de passe :",
+    "confirmPassword": "Confirmer le mot de passe :",
+    "checkMailbox": "Vérifiez votre boîte mail !",
+    "redirecting": "Redirection...",
+    "invalidInput": "Saisie invalide",
+    "pleaseProvideEmail": "Veuillez fournir un e-mail.",
+    "emailFormatIncorrect": "Le format de l'e-mail est incorrect.",
+    "errorSendingEmail": "Erreur lors de l'envoi de l'e-mail de réinitialisation",
+    "passwordLengthError": "La longueur du mot de passe doit être comprise entre 8 et 32 caractères",
+    "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+    "resetSuccessful": "Réinitialisation du mot de passe réussie ! Redirection...",
+    "genericError": "Une erreur s'est produite. Veuillez réessayer."
   }
 }

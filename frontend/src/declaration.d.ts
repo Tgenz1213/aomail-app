@@ -31,3 +31,5 @@ declare module "vue3-timepicker" {
     const TimePicker: Component;
     export default TimePicker;
 }
+
+declare module "vue-flag-icon";

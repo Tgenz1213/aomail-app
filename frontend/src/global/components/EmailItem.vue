@@ -451,7 +451,11 @@ const openEmail = async () => {
         updatedEmail.value = { ...props.email, htmlContent: result.data.content };
         isSeeMailModalVisible.value = true;
     } else {
-        displayPopup?.("error", "No HTML content received", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"),
+            result.error as string
+        );
     }
 };
 
@@ -607,9 +611,13 @@ async function deleteEmail() {
             }
         }
     }
-    const result = await deleteData(`user/emails/${localEmail.value.id}/delete/`);
+    const result = await deleteData(`user/emails/delete_emails/`, { emailIds: [localEmail.value.id] });
     if (!result.success) {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.deleteEmailFailure"),
+            result.error as string
+        );
     }
 }
 
@@ -680,7 +688,11 @@ const downloadAttachment = async (emailId: number, attachmentName: string) => {
         link.click();
         document.body.removeChild(link);
     } else {
-        displayPopup?.("error", "Failed to fetch attachment", response.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchAttachment"),
+            response.error as string
+        );
     }
 };
 </script>

@@ -34,6 +34,7 @@
 import { inject, Ref, ref, computed } from "vue";
 import { LabelData } from "../utils/types";
 import { deleteData } from "@/global/fetchData";
+import { i18n } from "@/global/preferences";
 
 const selectedLabelIds = inject<Ref<number[]>>("selectedLabelIds") || ref([]);
 const labelsData = inject<Ref<LabelData[]>>("labelsData") || ref<LabelData[]>([]);
@@ -71,7 +72,11 @@ const deleteLabel = async () => {
     const result = await deleteData("user/delete_labels", { ids: [props.label.id] });
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to delete label", result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToDeleteLabel"),
+            result.error as string
+        );
     }
 };
 </script>

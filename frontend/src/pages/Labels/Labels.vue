@@ -14,20 +14,24 @@
             <div class="flex-grow p-4 border border-gray-200 flex flex-col">
                 <SearchMenu />
                 <ActionButtons />
-                <div v-if="loading" class="text-center mt-4">Loading...</div>
+                <div v-if="loading" class="text-center mt-4">{{ $t("constants.loadingEmails") }}</div>
                 <div v-if="labelsData.length > 0" class="mt-4 flex flex-col flex-grow overflow-hidden">
                     <div class="flex grid grid-cols-4 items-center text-center mb-2 p-2 bg-gray-100 rounded">
-                        <span class="font-bold text-lg">Item Name</span>
-                        <span class="font-bold text-lg">Postage Deadline</span>
-                        <span class="font-bold text-lg">Carrier</span>
-                        <span class="font-bold text-lg">Platform</span>
+                        <span class="font-bold text-lg">{{ $t("labelsPage.itemName") }}</span>
+                        <span class="font-bold text-lg">{{ $t("labelsPage.postageDeadline") }}</span>
+                        <span class="font-bold text-lg">{{ $t("labelsPage.carrier") }}</span>
+                        <span class="font-bold text-lg">{{ $t("labelsPage.platform") }}</span>
                     </div>
                     <div class="overflow-y-auto">
                         <Label v-for="label in labelsData" :key="label.id" :label="label" />
                     </div>
                 </div>
-                <div v-if="!loading && labelsData.length === 0" class="text-center mt-4">No labels found.</div>
-                <div ref="loadingIndicator" class="text-center mt-4" v-if="loadingMore">Loading more labels...</div>
+                <div v-if="!loading && labelsData.length === 0" class="text-center mt-4">
+                    {{ $t("labelsPage.noLabelsFound") }}
+                </div>
+                <div ref="loadingIndicator" class="text-center mt-4" v-if="loadingMore">
+                    {{ $t("labelsPage.loadingMoreLabels") }}
+                </div>
             </div>
         </div>
     </div>
@@ -43,6 +47,7 @@ import ActionButtons from "./components/ActionButtons.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import { LabelData } from "./utils/types";
 import Navbar from "@/global/components/Navbar.vue";
+import { i18n } from "@/global/preferences";
 
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const showNotification = ref<boolean>(false);
@@ -95,7 +100,11 @@ const searchLabels = async () => {
     const resultIds = await postData("user/label_ids", payload);
 
     if (!resultIds.success) {
-        displayPopup("error", "Failed to fetch label IDs", resultIds.error as string);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelIds"),
+            resultIds.error as string
+        );
         loading.value = false;
         return;
     }
@@ -109,7 +118,11 @@ const searchLabels = async () => {
     loading.value = false;
 
     if (!result.success) {
-        displayPopup("error", "Failed to fetch label data", resultIds.error as string);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelData"),
+            resultIds.error as string
+        );
         return;
     }
 
@@ -186,7 +199,11 @@ const fetchMoreLabels = async () => {
     loadingMore.value = false;
 
     if (!result.success) {
-        displayPopup("error", "Failed to fetch label data", result.error as string);
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.failedToFetchLabelData"),
+            result.error as string
+        );
         return;
     }
 

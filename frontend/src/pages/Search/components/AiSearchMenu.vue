@@ -36,7 +36,7 @@
                 @blur="handleBlur"
                 v-model="textareaValue"
                 class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
-                placeholder="Instruction"
+                :placeholder="$t('searchPage.aiSearch.instruction')"
             ></textarea>
             <div class="flex justify-between items-center mt-2 space-x-2 pb-3 2xl:pb-5">
                 <div class="flex space-x-2 mx-3 2xl:mx-5">
@@ -58,7 +58,6 @@ import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Email, EmailDetails } from "@/global/types";
 import { inject, nextTick, onMounted, Ref, ref } from "vue";
-import userImage from "@/assets/user.png";
 
 const textareaValue = ref("");
 const textareaValueSave = ref("");
@@ -144,13 +143,9 @@ async function handleAIClick() {
 
     let message = "";
     if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("searchPage.popUpConstants.successMessages.smartSearchError"),
-            result.error as string
-        );
+        displayPopup?.("error", i18n.global.t("searchPage.aiSearch.failedToFetchDetails"), result.error as string);
     } else if (result.data.message) {
-        message = i18n.global.t("searchPage.notEnoughDataToAnswer");
+        message = i18n.global.t("searchPage.aiSearch.typeMessage");
     } else {
         const { answer, ids } = result.data.answer;
         message = answer;
@@ -162,7 +157,11 @@ async function handleAIClick() {
         });
 
         if (!resultEmailsData.success) {
-            displayPopup?.("error", "Failed to fetch email details", resultEmailsData.error as string);
+            displayPopup?.(
+                "error",
+                i18n.global.t("searchPage.aiSearch.failedToFetchDetails"),
+                resultEmailsData.error as string
+            );
             hideLoading?.();
             return;
         }
@@ -295,11 +294,10 @@ async function animateText(text: string, target: Element | null) {
 }
 
 async function askQueryUser() {
-    const message = i18n.global.t("searchPage.searchInfoPrompt");
+    const message = i18n.global.t("searchPage.aiSearch.initialGreeting");
     const aiIcon =
         '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
     await displayMessage(message, aiIcon);
-
     await waitForAIWriting();
 }
 </script>

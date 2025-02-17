@@ -4,7 +4,10 @@
             <ListboxButton
                 class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6"
             >
-                <span class="block truncate">{{ $t(selectedLanguage.value) }}</span>
+                <span class="block truncate">
+                    <flag :iso="selectedLanguage.iso" />
+                    {{ $t(selectedLanguage.value) }}
+                </span>
                 <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                     <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
@@ -31,6 +34,7 @@
                             ]"
                         >
                             <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                <flag :iso="language.iso" />
                                 {{ $t(language.value) }}
                             </span>
                             <span
@@ -60,22 +64,26 @@ import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 import { AllowedLanguageType } from "@/global/const";
 
-const languages: KeyValuePair[] = [
-    { key: "french", value: i18n.global.t("constants.languagesList.french") },
-    { key: "american", value: i18n.global.t("constants.languagesList.american") },
-    { key: "german", value: i18n.global.t("constants.languagesList.german") },
-    { key: "russian", value: i18n.global.t("constants.languagesList.russian") },
-    { key: "spanish", value: i18n.global.t("constants.languagesList.spanish") },
-    { key: "chinese", value: i18n.global.t("constants.languagesList.chinese") },
-    { key: "indian", value: i18n.global.t("constants.languagesList.indian") },
+interface Language extends KeyValuePair {
+    iso: string;
+}
+
+const languages: Language[] = [
+    { key: "french", value: i18n.global.t("constants.languagesList.french"), iso: "fr" },
+    { key: "american", value: i18n.global.t("constants.languagesList.american"), iso: "us" },
+    { key: "german", value: i18n.global.t("constants.languagesList.german"), iso: "de" },
+    { key: "russian", value: i18n.global.t("constants.languagesList.russian"), iso: "ru" },
+    { key: "spanish", value: i18n.global.t("constants.languagesList.spanish"), iso: "es" },
+    { key: "chinese", value: i18n.global.t("constants.languagesList.chinese"), iso: "cn" },
+    { key: "indian", value: i18n.global.t("constants.languagesList.indian"), iso: "in" },
 ];
 const storedLanguageKey = localStorage.getItem("language");
 const initialLanguage = languages.find((lang) => lang.key === storedLanguageKey) || languages[1];
-const selectedLanguage = ref<KeyValuePair>(initialLanguage);
+const selectedLanguage = ref<Language>(initialLanguage);
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
+const updateLanguageSelection = async (newLanguage: Language) => {
     selectedLanguage.value = newLanguage;
     const newLanguageKey = newLanguage.key as AllowedLanguageType;
     const currentLanguage = localStorage.getItem("language");

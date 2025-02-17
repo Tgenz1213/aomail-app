@@ -109,9 +109,23 @@ provide("displayPopup", displayPopup);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+        displayErrorPopup(
+            showNotification,
+            notificationTitle,
+            notificationMessage,
+            backgroundColor,
+            i18n.global.t(title),
+            i18n.global.t(message)
+        );
     } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+        displaySuccessPopup(
+            showNotification,
+            notificationTitle,
+            notificationMessage,
+            backgroundColor,
+            i18n.global.t(title),
+            i18n.global.t(message)
+        );
     }
     timerId.value = setTimeout(dismissPopup, 4000);
 }

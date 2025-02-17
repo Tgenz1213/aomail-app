@@ -112,14 +112,14 @@
 
 <script setup lang="ts">
 import { deleteData, getData, postData, putData } from "@/global/fetchData";
-import { inject, Ref, ref, watch, computed } from "vue";
+import { inject, Ref, ref, watch } from "vue";
 import { EyeIcon, SparklesIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import router from "@/router/router";
 import { i18n } from "@/global/preferences";
 import { formatSentDateAndTime } from "@/global/formatters";
-import { INFORMATIVE, IMPORTANT, API_SEARCH_KEY, AOMAIL_SEARCH_KEY } from "@/global/const";
+import { INFORMATIVE, IMPORTANT, AOMAIL_SEARCH_KEY } from "@/global/const";
 import ApiEmailModal from "./ApiEmailModal.vue";
 
 const props = defineProps<{
@@ -160,17 +160,19 @@ async function openSeeMailModal() {
     if (props.searchMode === AOMAIL_SEARCH_KEY) {
         const result = await postData("user/get_email_content/", { id: props.email.id });
         if (!result.success) {
-            displayPopup?.("error", "Failed to fetch email content", result.error as string);
+            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"), result.error as string);
             return;
         }
         localEmail.value.htmlContent = result.data.content;
         isSeeMailOpen.value = true;
     } else {
         console.log(props.email);
-        const result = await getData(`user/emails/content/?email_id=${props.email.providerId}&provider_email=${props.provider_email}`);
+        const result = await getData(
+            `user/emails/content/?email_id=${props.email.providerId}&provider_email=${props.provider_email}`
+        );
         console.log(result);
         if (!result.success) {
-            displayPopup?.("error", "Failed to fetch email content", result.error as string);
+            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"), result.error as string);
             return;
         }
         localEmail.value.htmlContent = result.data.htmlContent;
@@ -228,13 +230,21 @@ async function deleteEmail() {
     if (index !== -1) {
         emailList.value.splice(index, 1);
     } else {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), "Email id not found");
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.deleteEmailFailure"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailIdNotFound")
+        );
         return;
     }
 
-    const result = await deleteData(`user/emails/${localEmail.value.id}/delete/`);
+    const result = await deleteData(`user/emails/delete_emails/`, { emailIds: [localEmail.value.id] });
     if (!result.success) {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.deleteEmailFailure"), result.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.deleteEmailFailure"),
+            result.error as string
+        );
     }
 }
 

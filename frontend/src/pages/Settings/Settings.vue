@@ -152,7 +152,7 @@ onMounted(() => {
 async function getUserPlan() {
     const result = await getData("user/preferences/plan/");
     if (!result.success) {
-        displayPopup("error", "Failed to fetch plan", result.error as string);
+        displayPopup("error", i18n.global.t("settingsPage.accountPage.failedToFetchPlan"), result.error as string);
     } else {
         userPlan.value = result.data;
     }

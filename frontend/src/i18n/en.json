@@ -8,6 +8,8 @@
       "open": "Open",
       "send": "Send",
       "ask": "Ask",
+      "print": "Print",
+      "submit": "Submit",
       "changeTheRule": "Change the rule",
       "createARule": "Create a rule",
       "transfer": "Transfer",
@@ -66,7 +68,7 @@
       "multipleEmailsFoundForSomeRecipients": "I found multiple emails for some recipients, select the emails that correspond.",
       "pickSendingDateTime": "Pick a sending date and time",
       "selectTimeAndDate": "Please select a date and time.",
-      "sendScheduledEmail": "Send scheduled email"
+      "sendScheduledEmail": "Schedule send"
     },
     "popUpConstants": {
       "errorMessages": {
@@ -88,6 +90,7 @@
         "emailSendErrorNoSubject": "No subject entered",
         "emailSendErrorNoObject": "No object entered",
         "emailSendErrorNoRecipient": "No recipient entered",
+        "noHtmlContent": "No HTML content received",
         "deleteEmailFailure": "Failed to delete email",
         "archiveEmailFailure": "Failed to archive email",
         "unarchiveEmailFailure": "Failed to unarchive email",
@@ -108,10 +111,27 @@
         "passwordsDoNotMatch": "Passwords do not match",
         "pleaseEnterAnIdentifier": "Please enter an identifier",
         "recuperationRules": "Error retrieving the rules",
-        "identifierMustNotContainSpaces": "The identifier must not contain spaces",
-        "maxUsernameLength150Characters": "Maximum username length: 150 characters",
-        "identifierIsAlreadyInUse": "The identifier is already in use",
-        "invalidEmailFormat": "Please enter a valid email address"
+        "failedToFetchAttachment": "Failed to fetch attachment",
+        "failedToFetchDashboard": "Failed to fetch dashboard data",
+        "failedToFetchCombinedStatistics": "Failed to fetch combined statistics",
+        "failedToFetchLabelIds": "Failed to fetch label IDs",
+        "failedToFetchLabelData": "Failed to fetch label data",
+        "noLabelSelected": "No label selected",
+        "selectAtLeastOneLabel": "Please select at least one label",
+        "failedToDeleteLabels": "Failed to delete labels",
+        "printError": "Print error",
+        "printWindowError": "Unable to open print window. Please check your popup blocker.",
+        "printPreparationError": "An error occurred while preparing the labels for printing.",
+        "noLabelsFound": "No labels to print",
+        "noLabelsFoundDesc": "No valid labels were found to print.",
+        "printServerError": "Print Error",
+        "noServerResponse": "No response received from the server while preparing the labels for printing.",
+        "pdfFetchError": "Failed to fetch label PDF data: {error}",
+        "unknownPdfError": "An unknown error occurred while fetching the PDF.",
+        "failedToDeleteLabel": "Failed to delete label",
+        "initializationError": "Initialization failed",
+        "lastUsedAgentError": "Failed to load last used agent",
+        "agentsFetchError": "Failed to fetch agents"
       },
       "successMessages": {
         "success": "Success!",
@@ -126,7 +146,13 @@
         "emailsMarkedAsRead": "Emails Marked as Read",
         "emailsMarkedAsReadDescription": "All selected emails have been marked as read.",
         "emailsArchived": "Emails Archived",
-        "emailsArchivedDescription": "All selected emails have been archived."
+        "emailsArchivedDescription": "All selected emails have been archived.",
+        "agentCreated": "Agent created successfully",
+        "agentUpdated": "Agent updated successfully",
+        "agentDeleted": "Agent deleted successfully",
+        "agentCreatedDesc": "The new agent has been created successfully.",
+        "agentUpdatedDesc": "The agent has been updated successfully.",
+        "agentDeletedDesc": "The agent has been deleted successfully."
       }
     },
     "freeTrialExpired": "Free trial expired",
@@ -163,13 +189,13 @@
     "underDevelopment": "Under Development",
     "language": "Language",
     "languagesList": {
-      "french": "French 🇫🇷",
-      "american": "American 🇺🇸",
-      "german": "German 🇩🇪",
-      "russian": "Russian 🇷🇺",
-      "spanish": "Spanish 🇪🇸",
-      "chinese": "Chinese 🇨🇳",
-      "indian": "Hindi 🇮🇳"
+      "french": "Français",
+      "american": "American",
+      "german": "Deutsch",
+      "russian": "Русский",
+      "spanish": "Español",
+      "chinese": "中文",
+      "indian": "हिन्दी"
     },
     "theme": "Theme",
     "themeList": {
@@ -180,7 +206,10 @@
   },
   "agent": {
     "AiGreeting": "Hello, how can I assist you?",
-    "chooseAiAssistant": "Please choose or create an AI assistant before using this chat"
+    "chooseAiAssistant": "Please choose or create an AI assistant before using this chat",
+    "createNewAgent": "Create New Agent",
+    "edit": "Edit Agent",
+    "selectAgent": "Select an Agent"
   },
   "userLoginPage": {
     "loginError": "Error during login",
@@ -368,7 +397,12 @@
       "updateSuccess": "Signature updated successfully.",
       "updateError": "Failed to update signature.",
       "creationSuccess": "Signature created successfully.",
-      "creationError": "Failed to create signature."
+      "creationError": "Failed to create signature.",
+      "timeZoneSelection": {
+        "searchPlaceholder": "Search time zones...",
+        "selectPlaceholder": "Select a timezone",
+        "noResults": "No results found"
+      }
     },
     "subscriptionPage": {
       "freeTrialTitle": "Free Trial",
@@ -545,7 +579,38 @@
     "maximum": "Maximum",
     "sinceStatistics": "Since Statistics",
     "periodStatistics": "Period Statistics",
-    "failedToFetchStatistics": "Failed to fetch statistics"
+    "failedToFetchStatistics": "Failed to fetch statistics",
+    "metricLabels": {
+      "nbMightRequireAnswer": "Number of emails that might require an answer",
+      "nbEmailsReceived": "Number of emails received",
+      "nbAnswerRequired": "Number of emails requiring an answer",
+      "nbNoAnswerRequired": "Number of emails not requiring an answer",
+      "nbHighlyRelevant": "Number of highly relevant emails",
+      "nbPossiblyRelevant": "Number of possibly relevant emails",
+      "nbNotRelevant": "Number of not relevant emails",
+      "nbEmailsImportant": "Number of important emails",
+      "nbEmailsInformative": "Number of informative emails",
+      "nbEmailsUseless": "Number of useless emails",
+      "nbScam": "Number of scam emails",
+      "nbSpam": "Number of spam emails",
+      "nbNewsletter": "Number of newsletters",
+      "nbNotification": "Number of notifications",
+      "nbMeeting": "Number of meeting-related emails"
+    },
+    "timeLabels": {
+      "join": "Since joining",
+      "today": "Today",
+      "monday": "Monday",
+      "mtd": "Month to date",
+      "ytd": "Year to date",
+      "24Hours": "24 hours",
+      "7Days": "7 days",
+      "30Days": "30 days",
+      "3Months": "3 months",
+      "6Months": "6 months",
+      "1year": "1 year",
+      "5years": "5 years"
+    }
   },
   "rulesPage": {
     "advancedFilters": "Advanced Filters",
@@ -568,12 +633,203 @@
       "informative": "Informative",
       "useless": "Useless"
     },
+    "filters": {
+      "resetFilters": "Reset Filters",
+      "logicalOperator": "Logical Operator",
+      "logicalOperatorAnd": "AND - All conditions must match",
+      "logicalOperatorOr": "OR - Any condition can match",
+      "triggers": {
+        "title": "Triggers",
+        "emailTriggers": "Email Triggers",
+        "emailDomains": "Email Domains",
+        "emailDomainsHelp": "Enter domains to match (e.g., \"gmail.com\", \"esaip.org\").",
+        "senderEmails": "Sender Emails",
+        "hasAttachments": "Has attachments",
+        "aiProcessingTriggers": "AI Processing Triggers",
+        "categories": "Categories",
+        "priorities": "Priorities",
+        "answerRequirements": "Answer Requirements",
+        "relevance": "Relevance",
+        "flags": "Flags",
+        "emailContentDealsWith": "Email Content Deals With",
+        "emailContentPlaceholder": "Describe what the email content should deal with..."
+      }
+    },
     "modals": {
+      "common": {
+        "logicalOperator": "Logical Operator",
+        "andOperator": "AND - All conditions must match",
+        "orOperator": "OR - Any condition can match",
+        "selectTriggerType": "Select a trigger type",
+        "selectActionType": "Select an action type",
+        "emailDomains": "Email Domains",
+        "addDomain": "Add domain (e.g. gmail.com)",
+        "senderEmails": "Sender Emails",
+        "addEmailAddress": "Add email address",
+        "selectOptions": "Select options",
+        "setCategory": "Set Category",
+        "selectCategory": "Select category",
+        "setPriority": "Set Priority",
+        "selectPriority": "Select priority",
+        "setRelevance": "Set Relevance",
+        "selectRelevance": "Select relevance",
+        "deleteEmail": "Delete email",
+        "triggers": {
+          "title": "Triggers",
+          "addTrigger": "Add Trigger",
+          "types": {
+            "domains": {
+              "label": "Email Domains",
+              "description": "Match emails from specific domain names (e.g., gmail.com)",
+              "options": {
+                "gmail": "Gmail",
+                "outlook": "Outlook",
+                "yahoo": "Yahoo",
+                "apple": "Apple"
+              }
+            },
+            "senderEmails": {
+              "label": "Sender Emails",
+              "description": "Match specific email addresses of senders"
+            },
+            "hasAttachments": {
+              "label": "Has Attachments",
+              "description": "Match emails that contain file attachments",
+              "options": {
+                "docx": "Word Document",
+                "xlsx": "Excel Spreadsheet",
+                "pptx": "PowerPoint Presentation",
+                "pdf": "PDF Document",
+                "jpg": "JPEG Image",
+                "png": "PNG Image",
+                "gif": "GIF Image",
+                "txt": "Text Document",
+                "zip": "ZIP Archive",
+                "mp3": "MP3 Audio",
+                "mp4": "MP4 Video",
+                "html": "HTML Document"
+              }
+            },
+            "categories": {
+              "label": "✨ Category",
+              "description": "Match emails based on category detected by AI",
+              "options": {
+                "category": "Select the category to search in"
+              }
+            },
+            "priorities": {
+              "label": "✨ Priority",
+              "description": "Match emails based on priority level detected by AI",
+              "options": {
+                "important": "Important",
+                "informative": "Informative",
+                "useless": "Useless"
+              }
+            },
+            "answers": {
+              "label": "✨ Answer Required",
+              "description": "Match emails based on if AI determines they need a response",
+              "options": {
+                "required": "Answer Required",
+                "might": "Might Require Answer",
+                "none": "No Answer Required"
+              }
+            },
+            "relevances": {
+              "label": "✨ Relevance",
+              "description": "Match emails based on importance level detected by AI",
+              "options": {
+                "high": "Highly Relevant",
+                "possible": "Possibly Relevant",
+                "none": "Not Relevant"
+              }
+            },
+            "flags": {
+              "label": "✨ Flags",
+              "description": "Match emails based on flags detected by AI (spam, newsletter, etc.)",
+              "options": {
+                "spam": "Spam",
+                "scam": "Scam",
+                "newsletter": "Newsletter",
+                "notification": "Notification",
+                "meeting": "Meeting"
+              }
+            }
+          },
+          "actions": {
+            "title": "Actions",
+            "addAction": "Add Action",
+            "types": {
+              "setFlags": {
+                "label": "Set Flags",
+                "description": "Add specific flags to matching emails",
+                "options": {
+                  "spam": "Spam",
+                  "scam": "Scam",
+                  "newsletter": "Newsletter",
+                  "notification": "Notification",
+                  "meeting": "Meeting"
+                }
+              },
+              "markAs": {
+                "label": "Mark As",
+                "description": "Mark matching emails as read, archived, or to answer later",
+                "options": {
+                  "read": "Read",
+                  "answerLater": "Answer Later",
+                  "archive": "Archive"
+                }
+              },
+              "delete": {
+                "label": "Delete Email",
+                "description": "Automatically delete matching emails"
+              },
+              "setCategory": {
+                "label": "Set Category",
+                "description": "Assign matching emails to a specific category"
+              },
+              "setPriority": {
+                "label": "Set Priority",
+                "description": "Set the priority level for matching emails",
+                "options": {
+                  "important": "Important",
+                  "informative": "Informative",
+                  "useless": "Useless"
+                }
+              },
+              "setRelevance": {
+                "label": "Set Relevance",
+                "description": "Set the relevance level for matching emails",
+                "options": {
+                  "high": "Highly Relevant",
+                  "possible": "Possibly Relevant",
+                  "none": "Not Relevant"
+                }
+              },
+              "setAnswer": {
+                "label": "Set Answer",
+                "description": "Set the answer requirement status for matching emails",
+                "options": {
+                  "required": "Answer Required",
+                  "might": "Might Require Answer",
+                  "none": "No Answer Required"
+                }
+              }
+            }
+          }
+        },
+        "actions": {
+          "title": "Actions",
+          "addAction": "Add Action"
+        }
+      },
       "createRule": {
-        "newRule": "New rule"
+        "title": "Create New Rule",
+        "createButton": "Create Rule"
       },
       "updateRule": {
-        "modifyTheRule": "Modify the rule"
+        "title": "Modify the rule",
+        "updateButton": "Update Rule"
       }
     },
     "popUpConstants": {
@@ -634,7 +890,7 @@
     "searchInSelectedInfos": "Select the folders to search within",
     "doesntContainPlaceholder": "Doesn't contain",
     "searchButton": "Search",
-    "searchPlaceholder": "Email search",
+    "searchPlaceholder": "Search...",
     "notEnoughDataToAnswer": "You do not have enough data to answer the question",
     "onedataFound": "found",
     "severalDataFound": "found",
@@ -666,6 +922,26 @@
     "searchModes": {
       "aomail": "Aomail",
       "allEmails": "Old emails"
+    },
+    "aiSearch": {
+      "instruction": "Type your instruction...",
+      "failedToFetchDetails": "Failed to fetch email details",
+      "loading": "Loading...",
+      "typeMessage": "Type a message...",
+      "askQuestion": "Ask me a question about your emails...",
+      "initialGreeting": "Hello! I'm here to help you search through your emails. What would you like to know?"
+    },
+    "sortBy": "Sort by",
+    "orderBy": "Order by",
+    "sortOptions": {
+      "platform": "Platform",
+      "itemName": "Item Name",
+      "carrier": "Carrier",
+      "postageDeadline": "Postage Deadline"
+    },
+    "orderOptions": {
+      "ascending": "Ascending",
+      "descending": "Descending"
     }
   },
   "newPage": {
@@ -680,9 +956,9 @@
     "veryFormal": "Very formal",
     "subject": "Subject: ",
     "emailContent": "Email: ",
-    "correctSpelling": "Correct the spelling",
-    "checkCopywriting": "Check the copywriting",
-    "improveWriting": "Improve the writing",
+    "correctSpelling": "Check Spelling",
+    "checkCopywriting": "Check Copywriting",
+    "improveWriting": "Improve Writing",
     "forUser": "For user : ",
     "severalUser": "I found several users with this name, which one do you want to send the email to?",
     "emailGenerated": "Here is the email, are you satisfied?",
@@ -744,13 +1020,41 @@
       "cancel": "Cancel",
       "update": "Update",
       "delete": "Delete"
+    },
+    "error": {
+      "title": "Error",
+      "containerNotFound": "AI Container not found",
+      "paragraphNotFound": "Animated paragraph not found",
+      "insertingSignature": "Error inserting signature",
+      "displayingAgentSelection": "Error displaying agent selection",
+      "checkingLastUsedAgent": "Error checking last used agent",
+      "fetchingAgents": "Error fetching agents",
+      "updatingAgentStatus": "Failed to update agent last used status",
+      "noAgentsAvailable": "No agents available",
+      "initialization": "Initialization failed",
+      "fetchSignatures": "Failed to fetch signatures"
     }
   },
   "answerPage": {
     "responseSentTitle": "Response sent!",
-    "chatSummarize": "Summary of the email :",
+    "chatSummarize": "Summary of the email:",
     "chatKeyWordIntroduction": "Here are suggested answers, how would you like to respond?",
-    "seeMail": "See email"
+    "seeMail": "See email",
+    "error": {
+      "title": "Error",
+      "fetchSignatures": "Failed to fetch signatures",
+      "lastUsedAgent": "Failed to load last used agent",
+      "initialization": "Failed to initialize application",
+      "containerNotFound": "AI Container not found",
+      "paragraphNotFound": "Animated paragraph not found",
+      "insertingSignature": "Error inserting signature",
+      "displayingAgentSelection": "Error displaying agent selection",
+      "checkingLastUsedAgent": "Error checking last used agent",
+      "fetchingAgents": "Error fetching agents",
+      "updatingAgentStatus": "Failed to update agent last used status",
+      "noAgentsAvailable": "No agents available",
+      "unknownError": "An unknown error occurred"
+    }
   },
   "errorWebPagesTemplates": {
     "error401Page": {
@@ -785,6 +1089,14 @@
     "rules": {
       "button": "Rules",
       "tooltip": "Set up automated rules to handle specific emails, like always marking certain senders as important or moving newsletters to a separate category."
+    },
+    "errorMessages": {
+      "failedToLoadGuidelines": "Failed to load current guidelines",
+      "failedToUpdateGuidelines": "Failed to update guidelines"
+    },
+    "successMessages": {
+      "success": "Success",
+      "guidelinesUpdated": "Guidelines updated successfully"
     },
     "professionalTemplates": {
       "title": "Professional Templates",
@@ -1240,5 +1552,95 @@
       "emailsStarred": "Emails Starred",
       "emailsSent": "Emails Sent"
     }
+  },
+  "chatInput": {
+    "typePlaceholder": "Type your response..."
+  },
+  "customCategorization": {
+    "welcome": "Hello and welcome to the custom email categorization feature",
+    "prioritizationQuestion": "Are you satisfied with the way I prioritize your emails according to their importance? Do I often assign the wrong level of importance to your emails?",
+    "listTopicsRequest": "Please list some common topics you would like to categorize your emails into. For each topic, provide a description and examples of emails that would fall into that category.",
+    "categoriesUpdated": "Great! Categories have been updated.",
+    "improveCategories": "OK, let's improve them. Please improve them according to my feedback.",
+    "optimizationComplete": "Happy to hear that! Your email categorization is optimized. You can close this window",
+    "prioritizationUpdated": "Prioritization guidelines updated successfully!",
+    "improvePrioritization": "Got it! Let's improve your email prioritization together.",
+    "prioritizationExample": "What types of emails annoy you? How would you describe important emails? Please describe your own preferences in your response.",
+    "prioritizationExampleDetails": "For example: Meetings and project-related emails for the AlphaPen site redesign are <strong>important</strong>. Marketing or auto-acknowledgement emails are <strong>useless</strong>. The rest is <strong>informative</strong>.",
+    "emailDescriptionRequest": "Please provide a description for this email: {email}. It should be a short sentence.",
+    "descriptionUpdated": "I have updated your description to help me better categorize your emails.",
+    "descriptionInvalid": "The description is not valid, Improve it according to my feedback:",
+    "noCategories": "You currently have no categories. I can help you create some.",
+    "listTopics": "Please list some topics to categorize your emails.",
+    "currentCategorization": "Do you like your current email categorization?",
+    "reviewCategories": "Please review the categories, do you want to keep them?",
+    "buttons": {
+      "yes": "Yes",
+      "no": "No",
+      "needsImprovement": "Needs Improvement"
+    },
+    "table": {
+      "name": "Name",
+      "description": "Description",
+      "feedback": "Feedback",
+      "priority": "Priority"
+    }
+  },
+  "conversation": {
+    "emailSummary": "Summary of the email:",
+    "noEmailsToReview": "No emails to review in this category.",
+    "nextEmailsForReview": "Here are the next emails for review:",
+    "cleanInboxMessage": "Great! You've reviewed all emails. Enjoy your clean inbox",
+    "showMightRequireAnswerEmails": "Show emails that might require an answer",
+    "showMissedImportantEmails": "Show missed important emails",
+    "finishReviewingEmails": "Finish reviewing emails",
+    "viewEmail": "View Email",
+    "errorMessages": {
+      "failedToFetchEmailContent": "Failed to fetch email content",
+      "failedToFetchEmailData": "Failed to fetch email data"
+    },
+    "emailsToAnswer": "Hey, you might have forgotten to answer these emails:",
+    "emailsThatMightRequireAnswer": "Hey, you have these emails that might require an answer:",
+    "missedImportantEmails": "Hey, you have these important emails that you have not read and received more than 3 days ago:",
+    "noPendingEmails": "You have no pending emails at the moment!",
+    "noEmailsToShow": "No emails to show."
+  },
+  "labelsPage": {
+    "itemName": "Item Name",
+    "postageDeadline": "Postage Deadline",
+    "carrier": "Carrier",
+    "platform": "Platform",
+    "noLabelsFound": "No labels found.",
+    "loadingMoreLabels": "Loading more labels...",
+    "searchLabel": "Search for a label",
+    "sortBy": "Sort by",
+    "orderBy": "Order by",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "filters": {
+      "title": "Advanced Filters",
+      "platform": "Platform",
+      "itemName": "Item Name",
+      "carrier": "Carrier",
+      "postageDeadline": "Postage Deadline"
+    }
+  },
+  "passwordReset": {
+    "title": "Reset Password",
+    "linkInstructions": "Please enter your email address below to receive a link to reset your password.",
+    "enterEmail": "Enter your email",
+    "newPasswordInstructions": "Please enter your new password below.",
+    "password": "Password:",
+    "confirmPassword": "Confirm Password:",
+    "checkMailbox": "Check your mailbox!",
+    "redirecting": "Redirecting...",
+    "invalidInput": "Invalid input",
+    "pleaseProvideEmail": "Please provide an email.",
+    "emailFormatIncorrect": "Email format is not correct.",
+    "errorSendingEmail": "Error sending password reset email",
+    "passwordLengthError": "Password length must be between 8 and 32 characters",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "resetSuccessful": "Password reset successful! Redirecting...",
+    "genericError": "An error occurred. Please try again."
   }
 }

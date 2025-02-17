@@ -234,7 +234,7 @@ async function searchApiEmails() {
     }
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch emails", result.error as string);
+        displayPopup?.("error", i18n.global.t("searchPage.errors.failedToFetchEmails"), result.error as string);
         hideLoading?.();
         return;
     }
@@ -351,7 +351,7 @@ async function searchAomailEmails() {
     }
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch emails", result.error as string);
+        displayPopup?.("error", i18n.global.t("searchPage.errors.failedToFetchEmails"), result.error as string);
         hideLoading?.();
         return;
     }
@@ -364,7 +364,11 @@ async function searchAomailEmails() {
 
     hideLoading?.();
     if (!resultEmailsData.success) {
-        displayPopup?.("error", "Failed to fetch email details", resultEmailsData.error as string);
+        displayPopup?.(
+            "error",
+            i18n.global.t("searchPage.errors.failedToFetchEmailDetails"),
+            resultEmailsData.error as string
+        );
         return;
     }
 

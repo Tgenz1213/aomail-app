@@ -636,9 +636,18 @@ const markCategoryAsRead = async (category: "important" | "informative" | "usele
         const result = await putData("user/emails/update/", { ids, action: "read" });
 
         if (result.success) {
+            // Update email data and counts
             await fetchEmailsData(selectedCategory.value);
             await fetchFiltersData(selectedCategory.value);
             await fetchEmailCounts(selectedCategory.value);
+            await fetchCategoriesAndTotals();
+
+            const container = document.querySelector(".custom-scrollbar");
+            if (container) {
+                container.scrollTop = 0;
+                container.removeEventListener("scroll", handleScroll);
+                container.addEventListener("scroll", handleScroll);
+            }
 
             displayPopup?.(
                 "success",

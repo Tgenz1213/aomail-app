@@ -487,7 +487,7 @@ async function markEmailAsRead() {
     isMarking.value = true;
 
     try {
-        props.email.read = true;
+        localEmail.value.read = true;
         readCount.value++;
 
         for (const category in emails.value) {
@@ -508,7 +508,7 @@ async function markEmailAsRead() {
         });
 
         if (!result.success) {
-            props.email.read = false;
+            localEmail.value.read = false;
             readCount.value--;
             for (const category in emails.value) {
                 for (const subCategory in emails.value[category]) {
@@ -542,7 +542,7 @@ async function markEmailAsUnread() {
     isMarking.value = true;
 
     try {
-        props.email.read = false;
+        localEmail.value.read = false;
         readCount.value--;
 
         for (const category in emails.value) {
@@ -563,7 +563,7 @@ async function markEmailAsUnread() {
         });
 
         if (!result.success) {
-            props.email.read = true;
+            localEmail.value.read = true;
             readCount.value++;
             for (const category in emails.value) {
                 for (const subCategory in emails.value[category]) {

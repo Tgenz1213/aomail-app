@@ -103,7 +103,6 @@ const handleClickOutside = (event: MouseEvent) => {
     }
 };
 
-
 async function sendEmail() {
     const quillInstance = getQuill?.();
     if (!AIContainer.value || !quillInstance) return;
@@ -140,25 +139,26 @@ async function sendEmail() {
 
     const formData = new FormData();
 
-    formData.append('subject', emailSubject);
-    formData.append('message', emailBody);
+    const formattedBody = emailBody.replace(/\n/g, "<br>");
+    formData.append("subject", emailSubject);
+    formData.append("message", formattedBody);
 
-    fileObjects.value.forEach(file => formData.append('attachments', file));
+    fileObjects.value.forEach((file) => formData.append("attachments", file));
 
-    selectedPeople.value.forEach(person => formData.append('to', person.email));
+    selectedPeople.value.forEach((person) => formData.append("to", person.email));
 
     if (selectedCC.value.length > 0) {
-        selectedCC.value.forEach(person => formData.append('cc', person.email));
+        selectedCC.value.forEach((person) => formData.append("cc", person.email));
     }
 
     if (selectedBCC.value.length > 0) {
-        selectedBCC.value.forEach(person => formData.append('bcc', person.email));
+        selectedBCC.value.forEach((person) => formData.append("bcc", person.email));
     }
 
-    formData.append('email', emailSelected.value);
+    formData.append("email", emailSelected.value);
 
     try {
-        const result = await postData('user/social_api/send_email/', formData, true);
+        const result = await postData("user/social_api/send_email/", formData, true);
 
         if (!result.success) {
             displayPopup?.(
@@ -188,7 +188,6 @@ async function sendEmail() {
 
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
         displayMessage?.(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), ai_icon);
-
     } catch (error) {
         displayPopup?.(
             "error",
@@ -197,7 +196,6 @@ async function sendEmail() {
         );
     }
 }
-
 
 function validateScheduledSend(): boolean {
     const quillInstance = getQuill?.();

@@ -9,7 +9,7 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['bg-white ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div
                 id="firstMainColumn"
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, provide, onUnmounted } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -68,7 +68,7 @@ const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
 const imageURL = ref<string>(userImage);
-const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -78,7 +78,7 @@ const scrollToBottom = async () => {
 };
 
 function getQuill() {
-  return quill;
+    return quill;
 }
 
 provide("imageURL", imageURL);
@@ -135,7 +135,7 @@ onMounted(async () => {
     window.addEventListener("beforeunload", handleBeforeUnload);
     localStorage.removeItem("uploadedFiles");
 
-    fetchRecipients();
+    await fetchRecipients();
     await fetchSelectedEmailData();
 
     subject.value = JSON.parse(sessionStorage.getItem("subject") || "");

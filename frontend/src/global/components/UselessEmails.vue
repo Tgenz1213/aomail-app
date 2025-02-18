@@ -1,6 +1,13 @@
 <template>
     <div v-if="hasEmails">
-        <div class="sticky top-[48.5px] 2xl:top-[56.5px] z-[50] bg-white">
+        <div 
+            class="sticky bg-white z-[50]"
+            :class="[
+                replyLater 
+                    ? 'top-[0px]' 
+                    : 'top-[48.5px] 2xl:top-[56.5px]'
+            ]"
+        >
             <div class="py-6 mr-6 ml-6">
                 <div class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md">
                     <div class="flex px-3 py-2">
@@ -79,8 +86,15 @@
             </div>
         </div>
         <div v-if="showEmailDescriptions">
-            <div v-for="(emailsByDate, date) in groupedEmails" :key="date">
-                <div class="sticky top-[137px] 2xl:top-[146px] z-[30] bg-white">
+            <div v-for="(emailsByDate, date) in groupedEmails" :key="date" class="px-4">
+                <div 
+                    class="sticky bg-white z-[30]"
+                    :class="[
+                        replyLater 
+                            ? 'top-[80px] 2xl:top-[90px]' 
+                            : 'top-[137px] 2xl:top-[146px]'
+                    ]"
+                >
                     <div class="mx-4">
                         <div class="relative">
                             <div class="absolute inset-0 z-0 flex items-center px-6" aria-hidden="true">

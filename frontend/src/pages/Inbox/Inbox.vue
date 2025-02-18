@@ -981,10 +981,18 @@ onMounted(async () => {
     await fetchCategoriesAndTotals();
 
     const storedTopic = localStorage.getItem("selectedCategory");
-    if (storedTopic) {
+    if (storedTopic && categories.value.some(cat => cat.name === storedTopic)) {
         selectedCategory.value = storedTopic;
     } else {
         selectedCategory.value = DEFAULT_CATEGORY;
+        localStorage.setItem("selectedCategory", DEFAULT_CATEGORY);
+        if (storedTopic) {
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.invalidCategory"),
+                i18n.global.t("constants.popUpConstants.errorMessages.categoryNotFound")
+            );
+        }
     }
 
     const loadFiltersPromises = categories.value.map(category => 

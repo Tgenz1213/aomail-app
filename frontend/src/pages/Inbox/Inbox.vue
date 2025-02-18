@@ -555,11 +555,14 @@ const fetchFiltersData = async (categoryName: string) => {
             };
 
             const customFilters = response.data.filter(f => f.id !== 0);
-            
             filters.value[categoryName] = [allEmailsFilter, ...customFilters];
         } else {
+            localStorage.removeItem("activeFilters");
+            activeFilters.value = {};
+            selectedCategory.value = DEFAULT_CATEGORY;
+            
             console.warn(`Failed to fetch filters for category ${categoryName}`);
-            filters.value[categoryName] = [{
+            filters.value[selectedCategory.value] = [{
                 id: 0,
                 name: "All emails",
                 important: true,
@@ -571,12 +574,16 @@ const fetchFiltersData = async (categoryName: string) => {
                 spam: true,
                 scam: true,
                 meeting: true,
-                category: categoryName
+                category: selectedCategory.value
             }];
         }
     } catch (error) {
+        localStorage.removeItem("activeFilters");
+        activeFilters.value = {};
+        selectedCategory.value = DEFAULT_CATEGORY;
+        
         console.error(`Error fetching filters for category ${categoryName}:`, error);
-        filters.value[categoryName] = [{
+        filters.value[selectedCategory.value] = [{
             id: 0,
             name: "All emails",
             important: true,
@@ -588,7 +595,7 @@ const fetchFiltersData = async (categoryName: string) => {
             spam: true,
             scam: true,
             meeting: true,
-            category: categoryName
+            category: selectedCategory.value
         }];
     }
 };

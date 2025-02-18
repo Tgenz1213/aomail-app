@@ -5,12 +5,12 @@
                 <div class="w-full border-t border-gray-300"></div>
             </div>
             <div class="relative flex justify-center">
-                <span class="bg-white px-2 text-sm text-gray-500">
+                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
                     {{ $t("settingsPage.accountPage.changeMyUsernameOrMyPassword") }}
                 </span>
             </div>
         </div>
-        <div class="pt-6 pb-10">
+        <div class="pt-8 pb-10">
             <div class="flex space-x-1 items-center">
                 <EnvelopeIcon class="w-4 h-4" />
                 <label class="block text-sm font-medium leading-6 text-gray-900">

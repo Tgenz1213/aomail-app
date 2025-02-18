@@ -58,6 +58,7 @@ import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Email, EmailDetails } from "@/global/types";
 import { inject, nextTick, onMounted, Ref, ref } from "vue";
+import { API_BASE_URL } from "@/global/const";
 
 const textareaValue = ref("");
 const textareaValueSave = ref("");
@@ -143,7 +144,10 @@ async function handleAIClick() {
 
     let message = "";
     if (!result.success) {
+        hideLoading();
         displayPopup?.("error", i18n.global.t("searchPage.aiSearch.failedToFetchDetails"), result.error as string);
+        isWriting.value = false;
+        return;
     } else if (result.data.message) {
         message = i18n.global.t("searchPage.aiSearch.typeMessage");
     } else {
@@ -157,15 +161,15 @@ async function handleAIClick() {
         });
 
         if (!resultEmailsData.success) {
+            hideLoading();
             displayPopup?.(
                 "error",
                 i18n.global.t("searchPage.aiSearch.failedToFetchDetails"),
                 resultEmailsData.error as string
             );
-            hideLoading?.();
+            isWriting.value = false;
             return;
         }
-        hideLoading?.();
 
         const emailDetails: EmailDetails = resultEmailsData.data;
 
@@ -185,8 +189,8 @@ async function handleAIClick() {
         }
     }
 
-    await displayMessage(message, aiIcon);
     hideLoading();
+    await displayMessage(message, aiIcon);
 }
 
 async function scrollToBottom() {
@@ -221,12 +225,8 @@ function loading() {
         <div id="dynamicLoadingIndicator" class="pb-12">
           <div class="flex">
               <div class="mr-4">
-                  <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900">
-                      <span class="text-lg font-medium leading-none text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-                        </svg>
-                      </span>
+                  <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
+                      <img src="${API_BASE_URL}agent_icon/default-agent.png" alt="Default Agent Icon" class="h-12 w-12 rounded-full object-cover">
                   </span>
               </div>
               <div>
@@ -253,10 +253,8 @@ async function displayMessage(message: string, aiIcon: string) {
     const messageHTML = `
         <div class="flex pb-12">
           <div class="mr-4 flex">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                ${aiIcon}
-              </svg>
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
+              <img src="${API_BASE_URL}agent_icon/default-agent.png" alt="Default Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>   
           </div>
           <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">

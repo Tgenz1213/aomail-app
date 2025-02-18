@@ -555,11 +555,14 @@ const fetchFiltersData = async (categoryName: string) => {
             };
 
             const customFilters = response.data.filter(f => f.id !== 0);
-            
             filters.value[categoryName] = [allEmailsFilter, ...customFilters];
         } else {
+            localStorage.removeItem("activeFilters");
+            activeFilters.value = {};
+            selectedCategory.value = DEFAULT_CATEGORY;
+            
             console.warn(`Failed to fetch filters for category ${categoryName}`);
-            filters.value[categoryName] = [{
+            filters.value[selectedCategory.value] = [{
                 id: 0,
                 name: "All emails",
                 important: true,
@@ -571,12 +574,16 @@ const fetchFiltersData = async (categoryName: string) => {
                 spam: true,
                 scam: true,
                 meeting: true,
-                category: categoryName
+                category: selectedCategory.value
             }];
         }
     } catch (error) {
+        localStorage.removeItem("activeFilters");
+        activeFilters.value = {};
+        selectedCategory.value = DEFAULT_CATEGORY;
+        
         console.error(`Error fetching filters for category ${categoryName}:`, error);
-        filters.value[categoryName] = [{
+        filters.value[selectedCategory.value] = [{
             id: 0,
             name: "All emails",
             important: true,
@@ -588,7 +595,7 @@ const fetchFiltersData = async (categoryName: string) => {
             spam: true,
             scam: true,
             meeting: true,
-            category: categoryName
+            category: selectedCategory.value
         }];
     }
 };
@@ -629,9 +636,18 @@ const markCategoryAsRead = async (category: "important" | "informative" | "usele
         const result = await putData("user/emails/update/", { ids, action: "read" });
 
         if (result.success) {
+            // Update email data and counts
             await fetchEmailsData(selectedCategory.value);
             await fetchFiltersData(selectedCategory.value);
             await fetchEmailCounts(selectedCategory.value);
+            await fetchCategoriesAndTotals();
+
+            const container = document.querySelector(".custom-scrollbar");
+            if (container) {
+                container.scrollTop = 0;
+                container.removeEventListener("scroll", handleScroll);
+                container.addEventListener("scroll", handleScroll);
+            }
 
             displayPopup?.(
                 "success",
@@ -981,10 +997,18 @@ onMounted(async () => {
     await fetchCategoriesAndTotals();
 
     const storedTopic = localStorage.getItem("selectedCategory");
-    if (storedTopic) {
+    if (storedTopic && categories.value.some(cat => cat.name === storedTopic)) {
         selectedCategory.value = storedTopic;
     } else {
         selectedCategory.value = DEFAULT_CATEGORY;
+        localStorage.setItem("selectedCategory", DEFAULT_CATEGORY);
+        if (storedTopic) {
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.invalidCategory"),
+                i18n.global.t("constants.popUpConstants.errorMessages.categoryNotFound")
+            );
+        }
     }
 
     const loadFiltersPromises = categories.value.map(category => 

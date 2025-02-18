@@ -131,7 +131,9 @@
         "failedToDeleteLabel": "Failed to delete label",
         "initializationError": "Initialization failed",
         "lastUsedAgentError": "Failed to load last used agent",
-        "agentsFetchError": "Failed to fetch agents"
+        "agentsFetchError": "Failed to fetch agents",
+        "invalidCategory": "Invalid Category",
+        "categoryNotFound": "The selected category was not found. Redirecting to default category."
       },
       "successMessages": {
         "success": "Success!",

@@ -130,7 +130,9 @@
         "noServerResponse": "Aucune réponse reçue du serveur lors de la préparation des étiquettes pour l'impression.",
         "pdfFetchError": "Échec de la récupération des données PDF de l'étiquette : {error}",
         "unknownPdfError": "Une erreur inconnue s'est produite lors de la récupération du PDF.",
-        "failedToDeleteLabel": "Échec de la suppression de l'étiquette"
+        "failedToDeleteLabel": "Échec de la suppression de l'étiquette",
+        "invalidCategory": "Catégorie invalide",
+        "categoryNotFound": "La catégorie sélectionnée n'a pas été trouvée. Redirection vers la catégorie par défaut."
       },
       "successMessages": {
         "success": "Succès !",

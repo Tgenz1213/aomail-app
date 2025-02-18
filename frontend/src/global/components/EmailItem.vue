@@ -93,7 +93,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-span-2 z-10">
+        <div class="col-span-2">
             <div class="flex justify-center">
                 <span class="isolate inline-flex rounded-2xl">
                     <div v-show="isHovered" class="group action-buttons">
@@ -221,26 +221,28 @@
                             >
                                 {{ $t("constants.additionalActions") }}
                             </div>
-                            <Menu as="div" class="relative inline-block text-left">
+                            <Menu as="div" class="relative">
                                 <MenuButton
                                     @click="toggleMenu"
-                                    :class="`relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-${color}-400 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`"
+                                    @mouseenter="isHovered = true"
+                                    @mouseleave="handleButtonMouseLeave"
+                                    :class="`relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-${color}-400 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300`"
                                 >
                                     <ellipsis-horizontal-icon
                                         :class="`w-5 h-5 group-hover:text-white text-${color}-400 group-active:text-${color}-400 group-focus:text-${color} focus:text-${color}-400`"
                                     />
                                 </MenuButton>
-                                <transition
-                                    enter-active-class="transition ease-out duration-100"
-                                    enter-from-class="transform opacity-0 scale-95"
-                                    enter-to-class="transform opacity-100 scale-100"
-                                    leave-active-class="transition ease-in duration-75"
-                                    leave-from-class="transform opacity-100 scale-100"
-                                    leave-to-class="transform opacity-0 scale-95"
-                                >
+
+                                <Teleport to="body">
                                     <MenuItems
                                         v-show="isMenuOpen"
-                                        class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer"
+                                        @mouseenter="isHovered = true"
+                                        @mouseleave="handleMenuMouseLeave"
+                                        class="fixed z-[100] mt-1 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer"
+                                        :style="{
+                                            top: `${menuPosition.y}px`,
+                                            left: `${menuPosition.x}px`
+                                        }"
                                     >
                                         <div class="py-1">
                                             <MenuItem v-slot="{ active }">
@@ -381,7 +383,7 @@
                                             </MenuItem>
                                         </div>
                                     </MenuItems>
-                                </transition>
+                                </Teleport>
                             </Menu>
                         </div>
                     </div>
@@ -432,6 +434,8 @@ const isMenuOpen = ref(false);
 const isShortSummaryVisible = ref(false);
 const isSeeMailModalVisible = ref(false);
 const updatedEmail = ref<Email | undefined>(undefined);
+const isMarking = ref(false);
+const menuPosition = ref({ x: 0, y: 0 });
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
@@ -479,44 +483,112 @@ const closeSeeMailModal = () => {
 };
 
 async function markEmailAsRead() {
-    for (const category in emails.value) {
-        for (const subCategory in emails.value[category]) {
-            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
-            if (index !== -1) {
-                emails.value[category][subCategory][index].read = true;
-                if (emails.value[category][subCategory][index].priority === "useless") {
-                    uselessCount.value--;
+    if (isMarking.value) return;
+    isMarking.value = true;
+
+    try {
+        localEmail.value.read = true;
+        readCount.value++;
+
+        for (const category in emails.value) {
+            for (const subCategory in emails.value[category]) {
+                const index = emails.value[category][subCategory].findIndex(
+                    (email) => email.id === props.email.id
+                );
+                if (index !== -1) {
+                    emails.value[category][subCategory][index].read = true;
+                    break;
                 }
-                break;
             }
         }
-    }
-    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "read" });
-    fetchCategoriesAndTotals();
-    readCount.value++;
-    if (!result.success) {
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+
+        const result = await putData("user/emails/update/", { 
+            ids: [props.email.id], 
+            action: "read" 
+        });
+
+        if (!result.success) {
+            localEmail.value.read = false;
+            readCount.value--;
+            for (const category in emails.value) {
+                for (const subCategory in emails.value[category]) {
+                    const index = emails.value[category][subCategory].findIndex(
+                        (email) => email.id === props.email.id
+                    );
+                    if (index !== -1) {
+                        emails.value[category][subCategory][index].read = false;
+                        break;
+                    }
+                }
+            }
+            throw new Error(result.error);
+        }
+
+        fetchCategoriesAndTotals?.();
+        
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("homepage.markEmailReadFailure"),
+            error as string
+        );
+    } finally {
+        isMarking.value = false;
     }
 }
 
 async function markEmailAsUnread() {
-    for (const category in emails.value) {
-        for (const subCategory in emails.value[category]) {
-            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
-            if (index !== -1) {
-                emails.value[category][subCategory][index].read = false;
-                if (emails.value[category][subCategory][index].priority === "useless") {
-                    uselessCount.value++;
+    if (isMarking.value) return;
+    isMarking.value = true;
+
+    try {
+        localEmail.value.read = false;
+        readCount.value--;
+
+        for (const category in emails.value) {
+            for (const subCategory in emails.value[category]) {
+                const index = emails.value[category][subCategory].findIndex(
+                    (email) => email.id === props.email.id
+                );
+                if (index !== -1) {
+                    emails.value[category][subCategory][index].read = false;
+                    break;
                 }
-                break;
             }
         }
-    }
-    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unread" });
-    fetchCategoriesAndTotals();
-    readCount.value--;
-    if (!result.success) {
-        displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);
+
+        const result = await putData("user/emails/update/", { 
+            ids: [props.email.id], 
+            action: "unread" 
+        });
+
+        if (!result.success) {
+            localEmail.value.read = true;
+            readCount.value++;
+            for (const category in emails.value) {
+                for (const subCategory in emails.value[category]) {
+                    const index = emails.value[category][subCategory].findIndex(
+                        (email) => email.id === props.email.id
+                    );
+                    if (index !== -1) {
+                        emails.value[category][subCategory][index].read = true;
+                        break;
+                    }
+                }
+            }
+            throw new Error(result.error);
+        }
+
+        fetchCategoriesAndTotals?.();
+        
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("homepage.markEmailUnreadFailure"),
+            error as string
+        );
+    } finally {
+        isMarking.value = false;
     }
 }
 
@@ -660,9 +732,35 @@ async function unarchiveEmail() {
     }
 }
 
-const toggleMenu = () => {
+function toggleMenu(event: MouseEvent) {
+    if (!isMenuOpen.value) {
+        const target = event.target as HTMLElement;
+        const button = target?.closest('button');
+        if (!button) return;
+        
+        const rect = button.getBoundingClientRect();
+        
+        menuPosition.value = {
+            x: rect.right - 192,
+            y: rect.bottom + window.scrollY
+        };
+    }
     isMenuOpen.value = !isMenuOpen.value;
-};
+}
+
+function handleButtonMouseLeave(event: MouseEvent) {
+    const relatedTarget = event.relatedTarget as HTMLElement;
+    if (!relatedTarget?.closest('.fixed.z-\\[100\\]')) {
+        isHovered.value = false;
+    }
+}
+
+function handleMenuMouseLeave(event: MouseEvent) {
+    const relatedTarget = event.relatedTarget as HTMLElement;
+    if (!relatedTarget?.closest('button')) {
+        isHovered.value = false;
+    }
+}
 
 const getIconComponent = (fileName: string) => {
     const extension = fileName.split(".").pop()?.toLowerCase();

@@ -432,6 +432,7 @@ const isMenuOpen = ref(false);
 const isShortSummaryVisible = ref(false);
 const isSeeMailModalVisible = ref(false);
 const updatedEmail = ref<Email | undefined>(undefined);
+const isMarking = ref(false);
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
@@ -479,44 +480,112 @@ const closeSeeMailModal = () => {
 };
 
 async function markEmailAsRead() {
-    for (const category in emails.value) {
-        for (const subCategory in emails.value[category]) {
-            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
-            if (index !== -1) {
-                emails.value[category][subCategory][index].read = true;
-                if (emails.value[category][subCategory][index].priority === "useless") {
-                    uselessCount.value--;
+    if (isMarking.value) return;
+    isMarking.value = true;
+
+    try {
+        props.email.read = true;
+        readCount.value++;
+
+        for (const category in emails.value) {
+            for (const subCategory in emails.value[category]) {
+                const index = emails.value[category][subCategory].findIndex(
+                    (email) => email.id === props.email.id
+                );
+                if (index !== -1) {
+                    emails.value[category][subCategory][index].read = true;
+                    break;
                 }
-                break;
             }
         }
-    }
-    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "read" });
-    fetchCategoriesAndTotals();
-    readCount.value++;
-    if (!result.success) {
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+
+        const result = await putData("user/emails/update/", { 
+            ids: [props.email.id], 
+            action: "read" 
+        });
+
+        if (!result.success) {
+            props.email.read = false;
+            readCount.value--;
+            for (const category in emails.value) {
+                for (const subCategory in emails.value[category]) {
+                    const index = emails.value[category][subCategory].findIndex(
+                        (email) => email.id === props.email.id
+                    );
+                    if (index !== -1) {
+                        emails.value[category][subCategory][index].read = false;
+                        break;
+                    }
+                }
+            }
+            throw new Error(result.error);
+        }
+
+        fetchCategoriesAndTotals?.();
+        
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("homepage.markEmailReadFailure"),
+            error as string
+        );
+    } finally {
+        isMarking.value = false;
     }
 }
 
 async function markEmailAsUnread() {
-    for (const category in emails.value) {
-        for (const subCategory in emails.value[category]) {
-            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
-            if (index !== -1) {
-                emails.value[category][subCategory][index].read = false;
-                if (emails.value[category][subCategory][index].priority === "useless") {
-                    uselessCount.value++;
+    if (isMarking.value) return;
+    isMarking.value = true;
+
+    try {
+        props.email.read = false;
+        readCount.value--;
+
+        for (const category in emails.value) {
+            for (const subCategory in emails.value[category]) {
+                const index = emails.value[category][subCategory].findIndex(
+                    (email) => email.id === props.email.id
+                );
+                if (index !== -1) {
+                    emails.value[category][subCategory][index].read = false;
+                    break;
                 }
-                break;
             }
         }
-    }
-    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unread" });
-    fetchCategoriesAndTotals();
-    readCount.value--;
-    if (!result.success) {
-        displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), result.error as string);
+
+        const result = await putData("user/emails/update/", { 
+            ids: [props.email.id], 
+            action: "unread" 
+        });
+
+        if (!result.success) {
+            props.email.read = true;
+            readCount.value++;
+            for (const category in emails.value) {
+                for (const subCategory in emails.value[category]) {
+                    const index = emails.value[category][subCategory].findIndex(
+                        (email) => email.id === props.email.id
+                    );
+                    if (index !== -1) {
+                        emails.value[category][subCategory][index].read = true;
+                        break;
+                    }
+                }
+            }
+            throw new Error(result.error);
+        }
+
+        fetchCategoriesAndTotals?.();
+        
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("homepage.markEmailUnreadFailure"),
+            error as string
+        );
+    } finally {
+        isMarking.value = false;
     }
 }
 

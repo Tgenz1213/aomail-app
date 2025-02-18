@@ -144,7 +144,10 @@ async function handleAIClick() {
 
     let message = "";
     if (!result.success) {
+        hideLoading();
         displayPopup?.("error", i18n.global.t("searchPage.aiSearch.failedToFetchDetails"), result.error as string);
+        isWriting.value = false;
+        return;
     } else if (result.data.message) {
         message = i18n.global.t("searchPage.aiSearch.typeMessage");
     } else {
@@ -158,15 +161,15 @@ async function handleAIClick() {
         });
 
         if (!resultEmailsData.success) {
+            hideLoading();
             displayPopup?.(
                 "error",
                 i18n.global.t("searchPage.aiSearch.failedToFetchDetails"),
                 resultEmailsData.error as string
             );
-            hideLoading?.();
+            isWriting.value = false;
             return;
         }
-        hideLoading?.();
 
         const emailDetails: EmailDetails = resultEmailsData.data;
 
@@ -186,8 +189,8 @@ async function handleAIClick() {
         }
     }
 
-    await displayMessage(message, aiIcon);
     hideLoading();
+    await displayMessage(message, aiIcon);
 }
 
 async function scrollToBottom() {

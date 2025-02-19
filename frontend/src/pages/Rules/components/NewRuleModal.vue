@@ -136,7 +136,11 @@
                                             {{ `${index + 1}${getOrdinalSuffix(index + 1)} `
                                             }}{{ $t("rulesPage.modals.common.triggers.title").toLowerCase() }}
                                         </label>
-                                        <Listbox v-model="trigger.type" class="flex-1">
+                                        <Listbox
+                                            v-model="trigger.type"
+                                            class="flex-1"
+                                            @click="handleTriggerTypeChange(trigger)"
+                                        >
                                             <div class="relative">
                                                 <ListboxButton
                                                     class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6"
@@ -372,7 +376,11 @@
                                             {{ `${index + 1}${getOrdinalSuffix(index + 1)} `
                                             }}{{ $t("rulesPage.modals.common.actions.title").toLowerCase() }}
                                         </label>
-                                        <Listbox v-model="action.type" class="flex-1">
+                                        <Listbox
+                                            v-model="action.type"
+                                            class="flex-1"
+                                            @click="handleActionTypeChange(action)"
+                                        >
                                             <div class="relative">
                                                 <ListboxButton
                                                     class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6"
@@ -726,6 +734,14 @@ interface Trigger {
 }
 const triggers = ref<Trigger[]>([{ type: "", value: null }]);
 const actions = ref<Trigger[]>([{ type: "", value: null }]);
+
+const handleActionTypeChange = (action: Trigger) => {
+    action.value = null;
+};
+
+const handleTriggerTypeChange = (trigger: Trigger) => {
+    trigger.value = null;
+};
 
 const triggerTypes = [
     {

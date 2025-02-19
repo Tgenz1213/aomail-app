@@ -31,53 +31,42 @@
       </div>
     </div>
   </div>
+  <div class="bg-white py-1 sticky z-[25]"
+            :class="[
+                replyLater 
+                    ? 'top-[80px] 2xl:top-[90px]' 
+                    : 'top-[137px] 2xl:top-[146px]'
+            ]"
+        ></div>
   <div v-for="(emailsByDate, date) in groupedEmails" :key="date" class="px-4">
     <div 
-      class="sticky bg-white z-[30]"
+      class="sticky z-[30] bg-transparent"
       :class="[
         replyLater 
           ? 'top-[80px] 2xl:top-[90px]' 
           : 'top-[137px] 2xl:top-[146px]'
       ]"
     >
-      <div class="mx-4">
+      <div class="mx-4 relative z-[40]">
         <div class="relative">
           <div class="absolute inset-0 z-0 flex items-center" aria-hidden="true">
             <div class="w-full border-t border-gray-200"></div>
           </div>
-          <div class="relative flex justify-center">
-            <span class="bg-white px-2 text-xs text-gray-500">{{ formatSentDate(date) }}</span>
+          <div class="relative flex justify-center z-[40]">
+            <span class="bg-white px-2 text-xs text-gray-500 relative z-[40]">{{ formatSentDate(date) }}</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="flex px-4 py-4">
-      <div class="flex">
-        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6 text-blue-500"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z"
-            />
-          </svg>
-        </span>
-      </div>
-      <div class="ml-6 flex-grow">
-        <div class="overflow-hidden border-l-4 border-blue-200 hover:rounded-l-xl" style="overflow: visible">
-          <ul role="list" class="divide-y divide-gray-200">
-            <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
+    <div class="flex px-4 -my-[7.5px]">
+      <div class="w-full">
+        <ul role="list" class="divide-y divide-gray-200">
+          <li v-for="email in emailsByDate" :key="email.id" class="pl-5 relative hover:bg-gray-50 transition-colors duration-150">
+            <div class="py-6">
               <EmailItem :email="email" color="blue" :replyLater="replyLater" />
-            </li>
-          </ul>
-        </div>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

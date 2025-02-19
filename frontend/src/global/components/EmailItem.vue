@@ -793,4 +793,8 @@ const downloadAttachment = async (emailId: number, attachmentName: string) => {
         );
     }
 };
+
+defineEmits<{
+    'hover-change': [isHovered: boolean]
+}>();
 </script>

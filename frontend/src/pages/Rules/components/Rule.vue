@@ -222,7 +222,7 @@
                             :key="mark"
                             class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700"
                         >
-                            {{ $t("rulesPage.modals.common.actions.types.markAs.label") }} {{ mark }}
+                            {{ $t(`rulesPage.modals.common.actions.types.markAs.options.${mark}`) }}
                         </span>
                     </div>
 

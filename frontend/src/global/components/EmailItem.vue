@@ -73,7 +73,7 @@
                         🚫 {{ $t("homePage.flag.spam") }}
                     </span>
                 </div>
-                <!-- AI message with flags -->
+                <!-- AI message with flags and attachments -->
                 <div v-show="isShortSummaryVisible">
                     <div class="flex mt-3">
                         <div class="mr-3 flex-shrink-0">
@@ -83,7 +83,33 @@
                         </div>
                         <div class="flex flex-col bg-white rounded-lg p-4 max-w-xl border border-gray-200">
                             <p class="text-gray-800">{{ email.shortSummary }}</p>
-                            <div class="flex gap-x-2 mt-3 justify-end">
+                            <div
+                                v-if="email.hasAttachments"
+                                class="attachments-container overflow-y-auto max-h-32 flex flex-wrap gap-x-2 mt-3"
+                            >
+                                <div
+                                    v-for="attachment in email.attachments"
+                                    :key="attachment.attachmentId"
+                                    class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
+                                    @click.prevent="downloadAttachment(email.id as number, attachment.attachmentName)"
+                                >
+                                    <component
+                                        :is="getIconComponent(attachment.attachmentName)"
+                                        class="w-5 h-5 text-gray-600 group-hover:text-white"
+                                    />
+                                    <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
+                                </div>
+                            </div>
+                            <div 
+                                class="flex gap-x-2 justify-end"
+                                :class="{
+                                    'pt-2': email?.flags?.meeting || 
+                                            email?.flags?.newsletter || 
+                                            email?.flags?.notification || 
+                                            email?.flags?.scam || 
+                                            email?.flags?.spam
+                                }"
+                            >
                                 <span
                                     v-if="email?.flags?.meeting"
                                     class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
@@ -119,8 +145,9 @@
                     </div>
                 </div>
             </div>
+            <!-- Attachments outside summary -->
             <div
-                v-if="email.hasAttachments"
+                v-if="email.hasAttachments && !isShortSummaryVisible"
                 class="attachments-container overflow-y-auto max-h-32 flex flex-wrap gap-x-2 pt-2.5"
             >
                 <div

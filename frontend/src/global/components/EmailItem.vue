@@ -20,10 +20,10 @@
                 <div class="flex-auto group">
                     <div class="flex gap-x-4">
                         <div class="flex items-center">
-                            <p :class="`text-sm font-semibold leading-6 text-${color}-900 mr-2`">
+                            <p class="text-sm font-semibold leading-6 text-gray-800 mr-2">
                                 {{ email.sender.name }}
                             </p>
-                            <p :class="`text-sm leading-6 text-${color}-700 mr-2`">
+                            <p class="text-sm leading-6 text-gray-700 mr-2">
                                 {{ formatSentTime(email.sentDate, email.sentTime) }}
                             </p>
                         </div>

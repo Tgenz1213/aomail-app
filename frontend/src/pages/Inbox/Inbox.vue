@@ -152,7 +152,7 @@
 import { ref, computed, provide, onMounted, onUnmounted, watch, onBeforeUnmount } from "vue";
 import { getData, postData, putData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult, Filter } from "@/global/types";
-import { DEFAULT_CATEGORY } from "@/global/const";
+import { DEFAULT_CATEGORY, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
@@ -293,13 +293,13 @@ const fetchEmailCounts = async (categoryName: string) => {
     } else if (selectedFilter.value) {
         const priorities = [];
         if (selectedFilter.value?.important) {
-            priorities.push("important");
+            priorities.push(IMPORTANT);
         }
         if (selectedFilter.value?.informative) {
-            priorities.push("informative");
+            priorities.push(INFORMATIVE);
         }
         if (selectedFilter.value?.useless) {
-            priorities.push("useless");
+            priorities.push(USELESS);
         }
 
         if (toSearch.value) {
@@ -363,13 +363,13 @@ const fetchEmailsData = async (categoryName: string) => {
     } else if (selectedFilter.value) {
         const priorities = [];
         if (selectedFilter.value?.important) {
-            priorities.push("important");
+            priorities.push(IMPORTANT);
         }
         if (selectedFilter.value?.informative) {
-            priorities.push("informative");
+            priorities.push(INFORMATIVE);
         }
         if (selectedFilter.value?.useless) {
-            priorities.push("useless");
+            priorities.push(USELESS);
         }
 
         if (toSearch.value) {
@@ -609,19 +609,19 @@ const openUpdateFilterModal = (filter: Filter) => {
     isModalUpdateFilterOpen.value = true;
 };
 
-const markCategoryAsRead = async (category: "important" | "informative" | "useless") => {
+const markCategoryAsRead = async (category: typeof IMPORTANT | typeof INFORMATIVE | typeof USELESS) => {
     isMarking.value[category] = true;
 
     try {
         let ids: number[] = [];
         switch (category) {
-            case "important":
+            case IMPORTANT:
                 ids = importantIds.value;
                 break;
-            case "informative":
+            case INFORMATIVE:
                 ids = informativeIds.value;
                 break;
-            case "useless":
+            case USELESS:
                 ids = uselessIds.value;
                 break;
             default:

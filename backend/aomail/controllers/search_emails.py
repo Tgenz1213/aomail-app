@@ -21,6 +21,9 @@ from aomail.constants import (
     EMAIL_HTML_CONTENT_KEY,
     EMAIL_ONE_LINE_SUMMARY_KEY,
     EMAIL_SHORT_SUMMARY_KEY,
+    IMPORTANT,
+    INFORMATIVE,
+    USELESS,
 )
 from aomail.models import Category, SocialAPI, Email
 from aomail.utils.security import subscription, decrypt_text
@@ -317,7 +320,7 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
             email_count (int): Total number of emails in the queryset.
             email_ids (list): List of email IDs from the queryset.
     """
-    priority_order = ["important", "informative", "useless"]
+    priority_order = [IMPORTANT, INFORMATIVE, USELESS]
     email_ids = []
 
     for priority in priority_order:
@@ -483,9 +486,9 @@ def get_email_counts(request: HttpRequest) -> Response:
             queryset = queryset.filter(or_filters_search)
 
         # Fetch email querysets for each category
-        useless_emails = queryset.filter(priority="useless", read=False)
-        important_emails = queryset.filter(priority="important", read=False)
-        informative_emails = queryset.filter(priority="informative", read=False)
+        useless_emails = queryset.filter(priority=USELESS, read=False)
+        important_emails = queryset.filter(priority=IMPORTANT, read=False)
+        informative_emails = queryset.filter(priority=INFORMATIVE, read=False)
         read_emails = queryset.filter(read=True, archive=False)
 
         counts = {

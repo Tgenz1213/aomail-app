@@ -111,6 +111,7 @@ import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { getPredefinedProfiles } from "../utils/jobs";
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
+import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 
 const searchQuery = ref("");
 const predefinedProfiles = ref(getPredefinedProfiles());
@@ -138,7 +139,7 @@ const filteredProfiles = computed(() => {
     );
 });
 
-function getPlaceholder(type: "important" | "informative" | "useless"): string {
+function getPlaceholder(type: typeof IMPORTANT | typeof INFORMATIVE | typeof USELESS): string {
     const defaultPlaceholders = {
         important: i18n.global.t("aiAssistantPage.detailedGuidelines.important.placeholder"),
         informative: i18n.global.t("aiAssistantPage.detailedGuidelines.informative.placeholder"),

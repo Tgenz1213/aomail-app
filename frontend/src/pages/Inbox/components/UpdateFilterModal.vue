@@ -52,11 +52,11 @@
                             <div class="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    id="important"
+                                    :id="IMPORTANT"
                                     v-model="filterData.important"
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
-                                <label for="important" class="flex items-center">
+                                <label :for="IMPORTANT" class="flex items-center">
                                     <span
                                         class="bg-orange-100 text-orange-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
                                     >
@@ -68,11 +68,11 @@
                             <div class="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    id="informative"
+                                    :id="INFORMATIVE"
                                     v-model="filterData.informative"
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
-                                <label for="informative" class="flex items-center">
+                                <label :for="INFORMATIVE" class="flex items-center">
                                     <span
                                         class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
                                     >
@@ -84,11 +84,11 @@
                             <div class="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    id="useless"
+                                    :id="USELESS"
                                     v-model="filterData.useless"
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
-                                <label for="useless" class="flex items-center">
+                                <label :for="USELESS" class="flex items-center">
                                     <span
                                         class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
                                     >
@@ -245,6 +245,7 @@ import { i18n } from "@/global/preferences";
 import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from "@heroicons/vue/20/solid";
 import { putData, deleteData } from "@/global/fetchData";
 import { Filter, Email } from "@/global/types";
+import { USELESS, INFORMATIVE, IMPORTANT } from "@/global/const";
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter") {

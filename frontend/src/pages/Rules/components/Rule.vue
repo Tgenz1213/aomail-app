@@ -284,6 +284,7 @@ import {
     ChatBubbleLeftIcon,
 } from "@heroicons/vue/24/outline";
 import { RuleData } from "../utils/types";
+import { IMPORTANT, INFORMATIVE } from "@/global/const";
 
 const props = defineProps<{
     rule: RuleData;
@@ -324,9 +325,9 @@ const hasActions = computed(() => {
 
 const getPriorityClass = (priority: string) => {
     switch (priority.toLowerCase()) {
-        case "important":
+        case IMPORTANT:
             return "bg-red-50 text-red-700";
-        case "informative":
+        case INFORMATIVE:
             return "bg-blue-50 text-blue-700";
         default:
             return "bg-gray-50 text-gray-700";

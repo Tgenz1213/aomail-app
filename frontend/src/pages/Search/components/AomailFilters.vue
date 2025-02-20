@@ -156,12 +156,12 @@
                             <div class="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    id="important"
+                                    :id="IMPORTANT"
                                     v-model="priorities"
                                     :value="IMPORTANT"
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
-                                <label for="important" class="flex items-center">
+                                <label :for="IMPORTANT" class="flex items-center">
                                     <span class="bg-orange-100 text-orange-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                                         <ExclamationCircleIcon class="h-4 w-4 items-center inline mr-1" />
                                         {{ t('aomailFilters.priority.important.badge') }}
@@ -171,12 +171,12 @@
                             <div class="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    id="informative"
+                                    :id="INFORMATIVE"
                                     v-model="priorities"
                                     :value="INFORMATIVE"
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
-                                <label for="informative" class="flex items-center">
+                                <label :for="INFORMATIVE" class="flex items-center">
                                     <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                                         <InformationCircleIcon class="h-4 w-4 inline mr-1" />
                                         {{ t('aomailFilters.priority.informative.badge') }}
@@ -186,12 +186,12 @@
                             <div class="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    id="useless"
+                                    :id="USELESS"
                                     v-model="priorities"
                                     :value="USELESS"
                                     class="rounded text-gray-600 focus:ring-gray-500"
                                 />
-                                <label for="useless" class="flex items-center">
+                                <label :for="USELESS" class="flex items-center">
                                     <span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                                         <TrashIcon class="h-4 w-4 inline mr-1" />
                                         {{ t('aomailFilters.priority.useless.badge') }}

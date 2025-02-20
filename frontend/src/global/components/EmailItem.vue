@@ -686,18 +686,26 @@ const toggleMenu = (event: MouseEvent) => {
             y: rect.bottom + window.scrollY
         }
     }
-    isMenuOpen.value = !isMenuOpen.value
+    if (!isMenuOpen.value) {
+        isMenuOpen.value = true
+    }
 }
 
 const handleButtonMouseLeave = () => {
-    if (!isMenuOpen.value) {
-        isHovered.value = false
-    }
+    setTimeout(() => {
+        if (!isHovered.value) {
+            isMenuOpen.value = false
+        }
+    }, 100)
 }
 
 const handleMenuMouseLeave = () => {
     isHovered.value = false
-    isMenuOpen.value = false
+    setTimeout(() => {
+        if (!isHovered.value) {
+            isMenuOpen.value = false
+        }
+    }, 100)
 }
 
 const getIconComponent = (fileName: string) => {

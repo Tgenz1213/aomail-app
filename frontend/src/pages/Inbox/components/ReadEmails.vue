@@ -153,6 +153,7 @@ watch(
 
 const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
+    
     localEmails.value.forEach((email) => {
         if (email.read) {
             const sentDate = email.sentDate || "Unknown Date";
@@ -162,7 +163,27 @@ const groupedEmails = computed(() => {
             grouped[sentDate].push(email);
         }
     });
-    return grouped;
+
+    Object.values(grouped).forEach(emails => {
+        emails.sort((a, b) => {
+            const dateTimeA = new Date(`${a.sentDate} ${a.sentTime}`).getTime();
+            const dateTimeB = new Date(`${b.sentDate} ${b.sentTime}`).getTime();
+            return dateTimeB - dateTimeA;  
+        });
+    });
+
+    const sortedDates = Object.keys(grouped).sort((a, b) => {
+        if (a === "Unknown Date") return 1;
+        if (b === "Unknown Date") return -1;
+        return new Date(b).getTime() - new Date(a).getTime();  
+    });
+
+    const orderedGrouped: Record<string, Email[]> = {};
+    sortedDates.forEach(date => {
+        orderedGrouped[date] = grouped[date];
+    });
+
+    return orderedGrouped;
 });
 
 const hasEmails = computed(() => {

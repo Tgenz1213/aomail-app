@@ -1,5 +1,6 @@
 <template>
     <SeeMailModal
+        v-if="updatedEmail"
         :isOpen="isSeeMailModalVisible"
         :email="updatedEmail"
         @closeModal="closeSeeMailModal"

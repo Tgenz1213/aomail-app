@@ -34,7 +34,7 @@
         <div class="bg-white py-1 sticky z-[25]"
             :class="[
                 replyLater 
-                    ? 'top-[80px] 2xl:top-[90px]' 
+                    ? 'top-[85px] 2xl:top-[90px]' 
                     : 'top-[137px] 2xl:top-[146px]'
             ]"
         ></div>
@@ -43,7 +43,7 @@
                 class="sticky z-[30] bg-transparent"
                 :class="[
                     replyLater 
-                        ? 'top-[80px] 2xl:top-[90px]' 
+                        ? 'top-[85px] 2xl:top-[90px]' 
                         : 'top-[137px] 2xl:top-[146px]'
                 ]"
             >

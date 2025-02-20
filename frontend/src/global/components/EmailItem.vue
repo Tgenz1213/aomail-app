@@ -40,10 +40,8 @@
                     </div>
                     <p class="mt-1 text-md text-gray-700 leading-relaxed">{{ email.oneLineSummary }}</p>
                 </div>
-                <div v-show="isShortSummaryVisible">
-                    <p class="text-black text-sm/6 pt-1.5">{{ email.shortSummary }}</p>
-                </div>
-                <div class="flex gap-x-2 pt-1.5">
+                <!-- Flags outside summary -->
+                <div v-show="!isShortSummaryVisible" class="flex gap-x-2 pt-1.5">
                     <span
                         v-if="email?.flags?.meeting"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
@@ -74,6 +72,51 @@
                     >
                         🚫 {{ $t("homePage.flag.spam") }}
                     </span>
+                </div>
+                <!-- AI message with flags -->
+                <div v-show="isShortSummaryVisible">
+                    <div class="flex mt-3">
+                        <div class="mr-3 flex-shrink-0">
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
+                                <img :src="`${API_BASE_URL}agent_icon/default-agent.png`" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                            </span>
+                        </div>
+                        <div class="flex flex-col bg-white rounded-lg p-4 max-w-xl border border-gray-200">
+                            <p class="text-gray-800">{{ email.shortSummary }}</p>
+                            <div class="flex gap-x-2 mt-3 justify-end">
+                                <span
+                                    v-if="email?.flags?.meeting"
+                                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
+                                >
+                                    📅 {{ $t("homePage.flag.meeting") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.newsletter"
+                                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
+                                >
+                                    📰 {{ $t("homePage.flag.newsletter") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.notification"
+                                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
+                                >
+                                    🔔 {{ $t("homePage.flag.notification") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.scam"
+                                    class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
+                                >
+                                    🚨 {{ $t("homePage.flag.scam") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.spam"
+                                    class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
+                                >
+                                    🚫 {{ $t("homePage.flag.spam") }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div
@@ -358,6 +401,7 @@ import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
 import { formatSentTime } from "@/global/formatters";
 import { Teleport } from "vue";
+import { API_BASE_URL } from '@/global/const';
 
 const props = withDefaults(
     defineProps<{

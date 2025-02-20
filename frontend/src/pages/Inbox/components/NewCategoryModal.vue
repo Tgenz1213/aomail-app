@@ -122,6 +122,9 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Promise<void>;
+const fetchFiltersData = inject("fetchFiltersData") as (category: string) => Promise<void>;
+const fetchEmailsData = inject("fetchEmailsData") as (category: string) => Promise<void>;
 const categories = inject("categories") as Ref<Category[]>;
 const selectedCategory = inject("selectedCategory") as Ref<string>;
 
@@ -180,6 +183,10 @@ const addCategory = async () => {
         });
 
         await createDefaultFilters(categoryName.value);
+        
+        await fetchCategoriesAndTotals();
+        await fetchFiltersData(categoryName.value);
+        await fetchEmailsData(categoryName.value);
 
         closeModal();
         displayPopup?.(

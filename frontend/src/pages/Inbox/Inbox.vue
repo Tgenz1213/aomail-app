@@ -432,7 +432,12 @@ async function loadPage(pageNumber: number) {
             if (!emails.value[category][type]) {
                 emails.value[category][type] = [];
             }
-            emails.value[category][type].push(...newEmails[category][type]);
+            const existingIds = new Set(emails.value[category][type].map((email: Email) => email.id));
+            const uniqueNewEmails = newEmails[category][type].filter((email: Email) => !existingIds.has(email.id));
+            
+            if (uniqueNewEmails.length > 0) {
+                emails.value[category][type].push(...uniqueNewEmails);
+            }
         }
     }
 }

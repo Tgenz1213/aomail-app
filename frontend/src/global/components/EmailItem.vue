@@ -13,6 +13,7 @@
         @markEmailAsUnreplyLater="markEmailAsUnreplyLater"
         @openAnswer="openAnswer"
         @transferEmail="transferEmail"
+        @createRuleForSender="createRuleForSender"
     />
     <div class="grid grid-cols-10 gap-4 items-center" @mouseenter="isHovered = true" @mouseleave="isHovered = false">
         <div class="col-span-8 cursor-pointer">

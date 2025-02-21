@@ -66,6 +66,16 @@
                                             </button>
                                         </div>
 
+                                        <!-- Create Rule Button -->
+                                        <div class="relative group">
+                                            <button
+                                                @click="createRuleForSender"
+                                                class="flex text-gray-600 hover:text-gray-800 rounded-full p-2.5 hover:bg-gray-200/80 focus:outline-none items-center justify-center"
+                                            >
+                                                <SparklesIcon class="w-5 h-5" />
+                                            </button>
+                                        </div>
+
                                         <!-- More Actions Menu -->
                                         <Menu as="div" class="relative">
                                             <MenuButton
@@ -199,6 +209,7 @@ import {
     TrashIcon,
     ClockIcon,
     ArrowPathRoundedSquareIcon,
+    SparklesIcon,
 } from '@heroicons/vue/24/outline';
 import { Email } from '@/global/types';
 import { formatSentDateAndTime } from '@/global/formatters';
@@ -219,6 +230,7 @@ const emit = defineEmits<{
     (e: 'markEmailAsUnreplyLater'): void;
     (e: 'openAnswer'): void;
     (e: 'transferEmail'): void;
+    (e: 'createRuleForSender'): void;
 }>();
 
 const closeModal = () => {
@@ -267,6 +279,11 @@ const openAnswer = () => {
 
 const transferEmail = () => {
     emit('transferEmail');
+    closeModal();
+};
+
+const createRuleForSender = () => {
+    emit('createRuleForSender');
     closeModal();
 };
 

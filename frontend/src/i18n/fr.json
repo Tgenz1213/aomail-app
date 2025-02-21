@@ -1091,7 +1091,7 @@
     },
     "detailedGuidelines": {
       "title": "Directives Détaillées",
-      "subtitle": "Ces directives aident l'IA à comprendre comment catégoriser vos emails. Soyez précis et incluez des exemples qui reflètent vos habitudes de messagerie.",
+      "subtitle": "Ces directives aident l'IA à comprendre comment prioriser vos emails. Soyez précis et incluez des exemples qui reflètent vos habitudes de messagerie.",
       "important": {
         "label": "Emails Importants",
         "description": "Décrivez les emails qui nécessitent une attention immédiate ou sont cruciaux pour votre travail",

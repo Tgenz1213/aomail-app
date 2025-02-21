@@ -234,6 +234,19 @@
                             </div>
                         </div>
 
+                        <!-- Add Rule Button -->
+                        <div class="relative group">
+                            <button
+                                @click="createRuleForSender"
+                                class="flex text-gray-600 hover:text-gray-800 rounded-full p-2.5 hover:bg-gray-200/80 focus:outline-none items-center justify-center"
+                            >
+                                <sparkles-icon class="w-5 h-5" />
+                            </button>
+                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                {{ $t("constants.userActions.createARule") }}
+                            </div>
+                        </div>
+
                         <!-- More Actions Menu -->
                         <Menu as="div" class="relative">
                             <MenuButton
@@ -416,10 +429,6 @@ import {
     CameraIcon,
     HandRaisedIcon,
     SparklesIcon,
-    ArchiveBoxIcon,
-    TrashIcon,
-    ClockIcon,
-    ArrowPathRoundedSquareIcon,
 } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import { getData, getDataRawResponse, postData, deleteData, putData } from "@/global/fetchData";
@@ -810,5 +819,15 @@ const downloadAttachment = async (emailId: number, attachmentName: string) => {
             response.error as string
         );
     }
+};
+
+const createRuleForSender = () => {
+    router.push({
+        name: 'rules',
+        query: { 
+            createRule: 'true',
+            senderEmail: localEmail.value.sender.email
+        }
+    });
 };
 </script>

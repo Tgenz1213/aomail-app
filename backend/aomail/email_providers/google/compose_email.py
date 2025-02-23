@@ -1,6 +1,5 @@
 """
-TODO: one line description
-This module is the stuff that defines how to send and treansfer emails usign gmail api
+Handles email composition and transfer operations using the Gmail API.
 
 Endpoints:
 - ✅ send_email: Sends an email using the Gmail API. 
@@ -21,8 +20,9 @@ from aomail.constants import ALLOW_ALL
 from aomail.email_providers.google.authentication import (
     authenticate_service,
 )
+from aomail.email_providers.google.email_operations import get_mail_to_db
 from aomail.utils import email_processing
-from aomail.models import Email
+from aomail.models import SocialAPI
 from base64 import urlsafe_b64encode
 
 
@@ -109,8 +109,82 @@ def send_email(request: HttpRequest) -> Response:
         )
 
 
-def transfer_email(email_entry: Email, recipients: list[str]):
+def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) -> bool:
     """
-    Transfer an email to a list of recipients
+    Transfers an existing email to new recipients using the Gmail API.
+
+    Args:
+        email_id (str): The ID of the email to transfer
+        social_api (SocialAPI): The social API instance containing user and authentication info
+        recipients (list[str]): List of email addresses to send the email to
+
+    Returns:
+        bool: True if transfer was successful, False otherwise
     """
-    pass
+    try:
+        LOGGER.info(
+            f"Initiating email transfer - ID: {email_id} to recipients: {', '.join(recipients)}"
+        )
+        user = social_api.user
+
+        email_data = get_mail_to_db(social_api, email_id)
+
+        email = social_api.email
+        subject = email_data["subject"]
+        message = email_data["cleaned_html"]
+        to = recipients
+        cc = []
+        bcc = []
+        attachments = email_data["attachments"]
+
+        if not email or not subject or not message or not to:
+            LOGGER.error("Email transfer failed: Missing required parameters")
+            return False
+
+        service = authenticate_service(user, email, ["gmail"])["gmail"]
+
+        multipart_message = MIMEMultipart()
+        multipart_message["subject"] = subject
+        multipart_message["from"] = "me"
+        multipart_message["to"] = ", ".join(to)
+
+        all_recipients = to
+
+        if cc:
+            multipart_message["cc"] = ", ".join(cc)
+            all_recipients += cc
+        if bcc:
+            multipart_message["bcc"] = ", ".join(bcc)
+            all_recipients += bcc
+
+        multipart_message.attach(MIMEText(message, "html"))
+
+        if attachments:
+            for uploaded_file in attachments:
+                file_content = uploaded_file.read()
+                part = MIMEApplication(file_content)
+                part.add_header(
+                    "Content-Disposition", "attachment", filename=uploaded_file.name
+                )
+                multipart_message.attach(part)
+
+        raw_message = urlsafe_b64encode(
+            multipart_message.as_string().encode("UTF-8")
+        ).decode()
+
+        body = {"raw": raw_message}
+        service.users().messages().send(userId="me", body=body).execute()
+
+        threading.Thread(
+            target=email_processing.save_contacts,
+            args=(user, all_recipients),
+        ).start()
+
+        LOGGER.info(
+            f"Email transfer completed successfully - ID: {email_id} sent to {len(recipients)} recipients"
+        )
+        return True
+
+    except Exception as e:
+        LOGGER.error(f"Email transfer failed - ID: {email_id} - Error: {str(e)}")
+        return False

@@ -595,6 +595,17 @@
                                                 </option>
                                             </select>
                                         </div>
+
+                                        <div v-if="action.type === 'setTransferRecipients'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">
+                                                Transfer recipients emails
+                                            </label>
+                                            <TagInput
+                                                v-model="action.value"
+                                                :placeholder="$t('rulesPage.modals.common.addEmailAddress')"
+                                                :validate="validateEmail"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -828,6 +839,21 @@ const actionTypes = [
         label: i18n.global.t("rulesPage.modals.common.actions.types.setAnswer.label"),
         description: i18n.global.t("rulesPage.modals.common.actions.types.setAnswer.description"),
     },
+    {
+        value: "setTransferRecipients",
+        label: "Transfer to",
+        description: "Define the transfer recipients",
+    },
+    {
+        value: "setReplyPrompt",
+        label: "Prompt for AI",
+        description: "Define how the AI should reply",
+    },
+    {
+        value: "setReplyRecipients",
+        label: "Reply to",
+        description: "Define how the AI should reply",
+    },
 ];
 const availableActionTypes = computed(() => actionTypes);
 
@@ -919,6 +945,18 @@ watch(
     { deep: true }
 );
 
+watch(
+    actions,
+    (newActions) => {
+        newActions.forEach((action) => {
+            if (action.type === "setTransferRecipients" && action.value === null) {
+                action.value = [];
+            }
+        });
+    },
+    { deep: true }
+);
+
 // When the rule prop changes, update formData and initialize triggers/actions accordingly.
 watch(
     () => props.rule,
@@ -993,6 +1031,10 @@ watch(
             if (newVal.actionSetAnswer) {
                 newActions.push({ type: "setAnswer", value: newVal.actionSetAnswer });
             }
+            if (newVal.actionTransferRecipients) {
+                newActions.push({ type: "setTransferRecipients", value: newVal.actionTransferRecipients });
+            }
+
             actions.value = newActions.length ? newActions : [{ type: "", value: null }];
         }
     },
@@ -1090,6 +1132,8 @@ async function updateUserRule() {
             case "setAnswer":
                 formData.value.actionSetAnswer = action.value;
                 break;
+            case "setTransferRecipients":
+                formData.value.actionTransferRecipients = action.value;
         }
     });
 

@@ -163,7 +163,7 @@ def delete_email(social_api: SocialAPI, email_data: dict, user: User):
             )
 
 
-def apply_rules(processed_email: dict, user: User, email_entry: Email) -> bool:
+def apply_rules(processed_email: dict, user: User, email_entry: Email):
     rules = Rule.objects.filter(user=user)
     for rule in rules:
         if rule.logical_operator == "AND":
@@ -186,6 +186,8 @@ def apply_rules(processed_email: dict, user: User, email_entry: Email) -> bool:
                 defined_conditions.append("relevances")
             if rule.flags:
                 defined_conditions.append("flags")
+            if rule.action_transfer_recipients:
+                defined_conditions.append("transfer_recipients")
 
             # now check if all the conditions are met
             if all(
@@ -244,6 +246,8 @@ def apply_rules(processed_email: dict, user: User, email_entry: Email) -> bool:
                 rule.flags and processed_email["email_processed"]["flags"] in rule.flags
             ):
                 apply_rule_actions(rule, email_entry)
+            elif rule.action_transfer_recipients:
+                apply_rule_actions(rule, email_entry)
 
 
 def verify_condition(condition: str, processed_email: dict, rule: Rule) -> bool:
@@ -269,6 +273,8 @@ def verify_condition(condition: str, processed_email: dict, rule: Rule) -> bool:
         return any(
             processed_email["email_processed"]["flags"][flag] for flag in rule.flags
         )
+    elif condition == "transfer_recipients":
+        return True
     else:
         return False
 
@@ -291,6 +297,9 @@ def apply_rule_actions(rule: Rule, email_entry: Email):
     if rule.action_set_flags:
         for flag in rule.action_set_flags:
             process_email["email_processed"]["flags"][camel_to_snake(flag)] = True
+    if rule.action_transfer_recipients:
+        # TODO
+        ...
 
 
 def get_email_data(social_api: SocialAPI, email_id: str = None) -> dict:

@@ -64,13 +64,13 @@ def get_profile_image(request: Request):
 @api_view(["POST"])
 @subscription(ALLOW_ALL)
 def send_email(request: Request):
-    return forward_request(request._request, "email_operations", "send_email")
+    return forward_request(request._request, "compose_email", "send_email")
 
 
 @api_view(["POST"])
 @subscription(ALLOW_ALL)
 def send_schedule_email(request: Request):
-    return forward_request(request._request, "email_operations", "send_schedule_email")
+    return forward_request(request._request, "compose_email", "send_schedule_email")
 
 
 @api_view(["POST"])

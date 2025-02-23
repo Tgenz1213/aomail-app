@@ -123,6 +123,8 @@
     <NewRuleModal
         :isOpen="showModal"
         :emailSenders="emailSenders"
+        :initialData="initialRuleData"
+        :initialSections="initialSections"
         @update:isOpen="updateModalStatus"
         :categories="categories"
         @fetch-rules="fetchRules"
@@ -150,10 +152,11 @@ import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { FilterPayload, RuleData } from "./utils/types";
 import { i18n } from "@/global/preferences";
 import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { EmailSender } from "@/global/types";
 
 const router = useRouter();
+const route = useRoute();
 
 const emailSenders = ref<EmailSender[]>([]);
 const showModal = ref(false);
@@ -183,6 +186,9 @@ const searchInput = ref("");
 const debounceTimer = ref<number | undefined>(undefined);
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
+const initialRuleData = ref<RuleData | undefined>(undefined);
+const initialSections = ref<{ triggers: boolean; actions: boolean; } | undefined>(undefined);
+
 onMounted(async () => {
     await Promise.all([fetchRules(), fetchCategories(), fetchEmailSenders()]);
 
@@ -205,6 +211,43 @@ onMounted(async () => {
     if (container) {
         container.addEventListener("scroll", handleScroll);
     }
+
+    watch(
+        () => route.query,
+        (query) => {
+            if (query.createRule === 'true' && query.senderEmail) {
+                showModal.value = true;
+                const senderEmail = query.senderEmail as string;
+                initialRuleData.value = {
+                    senderEmails: [senderEmail],
+                    logicalOperator: 'AND',
+                    domains: [],
+                    hasAttachements: false,
+                    categories: [],
+                    priorities: [],
+                    answers: [],
+                    relevances: [],
+                    flags: [],
+                    emailDealWith: '',
+                    actionTransferRecipients: [],
+                    actionSetFlags: [],
+                    actionMarkAs: [],
+                    actionDelete: false,
+                    actionSetCategory: '',
+                    actionSetPriority: '',
+                    actionSetRelevance: '',
+                    actionSetAnswer: '',
+                    actionReplyPrompt: '',
+                    actionReplyRecipients: [],
+                } as RuleData;
+                initialSections.value = {
+                    triggers: true,
+                    actions: false
+                };
+            }
+        },
+        { immediate: true }
+    );
 });
 
 onUnmounted(() => {

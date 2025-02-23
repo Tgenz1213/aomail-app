@@ -693,6 +693,11 @@ interface Props {
     isOpen: boolean;
     categories: Category[];
     emailSenders: EmailSender[];
+    initialData?: RuleData;
+    initialSections?: { 
+        triggers: boolean;
+        actions: boolean;
+    };
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -1062,6 +1067,33 @@ const validateDomain = (domain: string) => {
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
 });
+
+// Add to watch section
+watch(
+    () => props.initialData,
+    (newVal) => {
+        if (newVal) {
+            if (newVal.senderEmails?.length) {
+                triggers.value = [{ 
+                    type: 'senderEmails', 
+                    value: newVal.senderEmails 
+                }];
+            }
+        }
+    },
+    { immediate: true }
+);
+
+// Add watch for initialSections
+watch(
+    () => props.initialSections,
+    (newVal) => {
+        if (newVal) {
+            sections.value = { ...newVal };
+        }
+    },
+    { immediate: true }
+);
 </script>
 
 <style>

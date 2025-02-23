@@ -1032,7 +1032,7 @@
     },
     "detailedGuidelines": {
       "title": "Detailed Guidelines",
-      "subtitle": "These guidelines help AI understand how to categorize your emails. Be specific and include examples that reflect your actual email patterns.",
+      "subtitle": "These guidelines help AI understand how to prioritize your emails. Be specific and include examples that reflect your actual email patterns.",
       "important": {
         "label": "Important Emails",
         "description": "Describe emails that need immediate attention or are crucial for your work",

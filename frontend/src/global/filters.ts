@@ -4,7 +4,7 @@ import { i18n } from "@/global/preferences";
 
 export async function createDefaultFilters(categoryName: string) {
     const ImportantEmailsFilter: Filter = {
-        name: i18n.global.t("constants.ruleModalConstants.important"),
+        name: "🚨 " + i18n.global.t("constants.ruleModalConstants.important"),
         important: true,
         informative: false,
         category: categoryName,
@@ -18,7 +18,7 @@ export async function createDefaultFilters(categoryName: string) {
     };
 
     const InformativeEmailsFilter: Filter = {
-        name: i18n.global.t("constants.ruleModalConstants.informative"),
+        name: "ℹ️ " + i18n.global.t("constants.ruleModalConstants.informative"),
         important: false,
         informative: true,
         category: categoryName,

@@ -1,5 +1,6 @@
 <template>
     <SeeMailModal
+        v-if="updatedEmail"
         :isOpen="isSeeMailModalVisible"
         :email="updatedEmail"
         @closeModal="closeSeeMailModal"
@@ -12,6 +13,7 @@
         @markEmailAsUnreplyLater="markEmailAsUnreplyLater"
         @openAnswer="openAnswer"
         @transferEmail="transferEmail"
+        @createRuleForSender="createRuleForSender"
     />
     <div class="grid grid-cols-10 gap-4 items-center" @mouseenter="isHovered = true" @mouseleave="isHovered = false">
         <div class="col-span-8 cursor-pointer">
@@ -19,10 +21,10 @@
                 <div class="flex-auto group">
                     <div class="flex gap-x-4">
                         <div class="flex items-center">
-                            <p :class="`text-sm font-semibold leading-6 text-${color}-900 mr-2`">
+                            <p class="text-sm font-semibold leading-6 text-gray-800 mr-2">
                                 {{ email.sender.name }}
                             </p>
-                            <p :class="`text-sm leading-6 text-${color}-700 mr-2`">
+                            <p class="text-sm leading-6 text-gray-700 mr-2">
                                 {{ formatSentTime(email.sentDate, email.sentTime) }}
                             </p>
                         </div>
@@ -39,10 +41,8 @@
                     </div>
                     <p class="mt-1 text-md text-gray-700 leading-relaxed">{{ email.oneLineSummary }}</p>
                 </div>
-                <div v-show="isShortSummaryVisible">
-                    <p class="text-black text-sm/6 pt-1.5">{{ email.shortSummary }}</p>
-                </div>
-                <div class="flex gap-x-2 pt-1.5">
+                <!-- Flags outside summary -->
+                <div v-show="!isShortSummaryVisible" class="flex gap-x-2 pt-1.5">
                     <span
                         v-if="email?.flags?.meeting"
                         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
@@ -74,9 +74,81 @@
                         🚫 {{ $t("homePage.flag.spam") }}
                     </span>
                 </div>
+                <!-- AI message with flags and attachments -->
+                <div v-show="isShortSummaryVisible">
+                    <div class="flex mt-3">
+                        <div class="mr-3 flex-shrink-0">
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
+                                <img :src="`${API_BASE_URL}agent_icon/default-agent.png`" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                            </span>
+                        </div>
+                        <div class="flex flex-col bg-white rounded-lg p-4 max-w-xl border border-gray-200">
+                            <p class="text-gray-800">{{ email.shortSummary }}</p>
+                            <div
+                                v-if="email.hasAttachments"
+                                class="attachments-container overflow-y-auto max-h-32 flex flex-wrap gap-x-2 mt-3"
+                            >
+                                <div
+                                    v-for="attachment in email.attachments"
+                                    :key="attachment.attachmentId"
+                                    class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
+                                    @click.prevent="downloadAttachment(email.id as number, attachment.attachmentName)"
+                                >
+                                    <component
+                                        :is="getIconComponent(attachment.attachmentName)"
+                                        class="w-5 h-5 text-gray-600 group-hover:text-white"
+                                    />
+                                    <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
+                                </div>
+                            </div>
+                            <div 
+                                class="flex gap-x-2 justify-end"
+                                :class="{
+                                    'pt-2': email?.flags?.meeting || 
+                                            email?.flags?.newsletter || 
+                                            email?.flags?.notification || 
+                                            email?.flags?.scam || 
+                                            email?.flags?.spam
+                                }"
+                            >
+                                <span
+                                    v-if="email?.flags?.meeting"
+                                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
+                                >
+                                    📅 {{ $t("homePage.flag.meeting") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.newsletter"
+                                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
+                                >
+                                    📰 {{ $t("homePage.flag.newsletter") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.notification"
+                                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10"
+                                >
+                                    🔔 {{ $t("homePage.flag.notification") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.scam"
+                                    class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
+                                >
+                                    🚨 {{ $t("homePage.flag.scam") }}
+                                </span>
+                                <span
+                                    v-if="email?.flags?.spam"
+                                    class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
+                                >
+                                    🚫 {{ $t("homePage.flag.spam") }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <!-- Attachments outside summary -->
             <div
-                v-if="email.hasAttachments"
+                v-if="email.hasAttachments && !isShortSummaryVisible"
                 class="attachments-container overflow-y-auto max-h-32 flex flex-wrap gap-x-2 pt-2.5"
             >
                 <div
@@ -160,6 +232,19 @@
                             </button>
                             <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                                 {{ $t("homePage.answer") }}
+                            </div>
+                        </div>
+
+                        <!-- Add Rule Button -->
+                        <div class="relative group">
+                            <button
+                                @click="createRuleForSender"
+                                class="flex text-gray-600 hover:text-gray-800 rounded-full p-2.5 hover:bg-gray-200/80 focus:outline-none items-center justify-center"
+                            >
+                                <sparkles-icon class="w-5 h-5" />
+                            </button>
+                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                {{ $t("constants.userActions.createARule") }}
                             </div>
                         </div>
 
@@ -345,10 +430,6 @@ import {
     CameraIcon,
     HandRaisedIcon,
     SparklesIcon,
-    ArchiveBoxIcon,
-    TrashIcon,
-    ClockIcon,
-    ArrowPathRoundedSquareIcon,
 } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import { getData, getDataRawResponse, postData, deleteData, putData } from "@/global/fetchData";
@@ -357,6 +438,7 @@ import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
 import { formatSentTime } from "@/global/formatters";
 import { Teleport } from "vue";
+import { API_BASE_URL } from '@/global/const';
 
 const props = withDefaults(
     defineProps<{
@@ -738,5 +820,15 @@ const downloadAttachment = async (emailId: number, attachmentName: string) => {
             response.error as string
         );
     }
+};
+
+const createRuleForSender = () => {
+    router.push({
+        name: 'rules',
+        query: { 
+            createRule: 'true',
+            senderEmail: localEmail.value.sender.email
+        }
+    });
 };
 </script>

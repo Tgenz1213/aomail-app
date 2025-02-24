@@ -23,7 +23,7 @@ from aomail.email_providers.google.authentication import (
 from aomail.email_providers.google.email_operations import get_mail_to_db
 from aomail.utils import email_processing
 from aomail.models import SocialAPI
-from base64 import urlsafe_b64encode
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 
 LOGGER = logging.getLogger(__name__)
@@ -126,22 +126,15 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
             f"Initiating email transfer - ID: {email_id} to recipients: {', '.join(recipients)}"
         )
         user = social_api.user
+        service = authenticate_service(user, social_api.email, ["gmail"])["gmail"]
 
         email_data = get_mail_to_db(social_api, email_id)
-
-        email = social_api.email
         subject = email_data["subject"]
-        message = email_data["cleaned_html"]
+        message = email_data["email_html"]
         to = recipients
         cc = []
         bcc = []
         attachments = email_data["attachments"]
-
-        if not email or not subject or not message or not to:
-            LOGGER.error("Email transfer failed: Missing required parameters")
-            return False
-
-        service = authenticate_service(user, email, ["gmail"])["gmail"]
 
         multipart_message = MIMEMultipart()
         multipart_message["subject"] = subject
@@ -160,13 +153,40 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
         multipart_message.attach(MIMEText(message, "html"))
 
         if attachments:
-            for uploaded_file in attachments:
-                file_content = uploaded_file.read()
-                part = MIMEApplication(file_content)
-                part.add_header(
-                    "Content-Disposition", "attachment", filename=uploaded_file.name
-                )
-                multipart_message.attach(part)
+            for attachment in attachments:
+                try:
+                    # As we can not forward directly via Gmail API, we must re-download each attachment
+                    attachment_data = (
+                        service.users()
+                        .messages()
+                        .attachments()
+                        .get(
+                            userId="me",
+                            messageId=email_id,
+                            id=attachment["attachmentId"],
+                        )
+                        .execute()
+                    )
+
+                    file_data = urlsafe_b64decode(
+                        attachment_data["data"].encode("UTF-8")
+                    )
+
+                    part = MIMEApplication(file_data)
+                    part.add_header(
+                        "Content-Disposition",
+                        "attachment",
+                        filename=attachment["attachmentName"],
+                    )
+                    multipart_message.attach(part)
+                    LOGGER.info(
+                        f"Successfully attached file: {attachment['attachmentName']}"
+                    )
+                except Exception as e:
+                    LOGGER.error(
+                        f"Failed to attach file {attachment['attachmentName']}: {str(e)}"
+                    )
+                    continue
 
         raw_message = urlsafe_b64encode(
             multipart_message.as_string().encode("UTF-8")

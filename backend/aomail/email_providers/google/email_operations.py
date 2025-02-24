@@ -542,7 +542,7 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str = None) -> dict:
     return {
         "subject": subject,
         "from_info": from_info,
-        "cleaned_html": cleaned_html,
+        "email_html": email_html,
         "preprocessed_data": preprocessed_data,
         "safe_html": safe_html,
         "email_id": email_id,

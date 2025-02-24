@@ -59,8 +59,12 @@ from aomail.controllers.labels import is_shipping_label, process_label
 from aomail.utils.security import encrypt_text
 from aomail.email_providers.google import labels as google_labels
 from aomail.email_providers.microsoft import labels as microsoft_labels
-from aomail.email_providers.google.compose_email import transfer_email as transfer_email_google
-from aomail.email_providers.microsoft.compose_email import transfer_email as transfer_email_microsoft
+from aomail.email_providers.google.compose_email import (
+    transfer_email as transfer_email_google,
+)
+from aomail.email_providers.microsoft.compose_email import (
+    transfer_email as transfer_email_microsoft,
+)
 from django.db import models
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
@@ -302,11 +306,11 @@ def apply_rule_actions(rule: Rule, email_entry: Email):
     if rule.action_transfer_recipients:
         if email_entry.email_provider == GOOGLE:
             transfer_email_google(
-                email_entry, rule.action_transfer_recipients
+                email_entry.provider_id, rule.action_transfer_recipients
             )
         elif email_entry.email_provider == MICROSOFT:
             transfer_email_microsoft(
-                email_entry, rule.action_transfer_recipients
+                email_entry.provider_id, rule.action_transfer_recipients
             )
 
 

@@ -310,7 +310,7 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
     user = social_api.user
     email = email_data["email"]
     subject = email_data["subject"]
-    message = email_data["cleaned_html"]
+    message = email_data["safe_html"]
     to = recipients
     cc = []
     bcc = []

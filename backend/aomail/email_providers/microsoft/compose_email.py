@@ -25,8 +25,10 @@ from aomail.email_providers.microsoft.authentication import (
 )
 from aomail.utils import email_processing
 from aomail.constants import ALLOW_ALL, GRAPH_URL
-from aomail.models import SocialAPI
+from aomail.models import Email, SocialAPI, Agent, Signature
 from aomail.email_providers.microsoft.email_operations import get_mail_to_db
+from aomail.ai_providers.utils import update_tokens_stats
+from aomail.ai_providers.claude import generate_email_response
 
 
 LOGGER = logging.getLogger(__name__)
@@ -380,4 +382,89 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
 
     except Exception as e:
         LOGGER.error(f"Email transfer failed - ID: {email_id} - Error: {str(e)}")
+        return False
+
+
+def reply_email_microsoft(email_entry: Email, prompt: str) -> bool:
+    """
+    Replies to an email using the Microsoft Graph API and AI-generated content.
+
+    Args:
+        email_entry (Email): The original email object to reply to
+        prompt (str): User instructions for generating the reply
+
+    Returns:
+        bool: True if reply was sent successfully, False otherwise
+    """
+    try:
+        LOGGER.info(f"Initiating email reply - ID: {email_entry.message_id}")
+        agents = Agent.objects.filter(user=email_entry.user, last_used=True)
+        signatures = Signature.objects.filter(
+            user=email_entry.user, social_api=email_entry.social_api
+        )
+
+        signature = signatures.first() if signatures else None
+        agent_settings = (
+            {
+                "ai_template": agents.first().ai_template,
+                "email_example": agents.first().email_example,
+                "length": agents.first().length,
+                "formality": agents.first().formality,
+                "language": agents.first().language,
+            }
+            if agents
+            else {}
+        )
+
+        response = generate_email_response(
+            email_entry.subject,
+            email_entry.html_content,
+            prompt,
+            agent_settings,
+            signature,
+        )
+
+        update_tokens_stats(email_entry.user, response)
+
+        subject = f"Re: {email_entry.subject}"
+        message = response["body"]
+        to = [email_entry.from_email]
+
+        social_api = email_entry.social_api
+        access_token = refresh_access_token(social_api)
+        headers = get_headers(access_token)
+
+        email_content = {
+            "message": {
+                "subject": subject,
+                "body": {"contentType": "HTML", "content": message},
+                "toRecipients": [{"emailAddress": {"address": email}} for email in to],
+            }
+        }
+
+        graph_endpoint = f"{GRAPH_URL}me/sendMail"
+        response = requests.post(graph_endpoint, headers=headers, json=email_content)
+
+        if response.status_code == 202:
+            threading.Thread(
+                target=email_processing.save_contacts,
+                args=(email_entry.user, to),
+            ).start()
+
+            LOGGER.info(
+                f"Reply sent successfully to email ID: {email_entry.message_id}"
+            )
+            return True
+        else:
+            response_data = response.json()
+            error = response_data.get("error", response.reason)
+            LOGGER.error(
+                f"Failed to send reply. Error: {error}. Status code: {response.status_code}"
+            )
+            return False
+
+    except Exception as e:
+        LOGGER.error(
+            f"Failed to send reply to email ID {email_entry.message_id}: {str(e)}"
+        )
         return False

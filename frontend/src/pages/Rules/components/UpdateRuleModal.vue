@@ -606,6 +606,15 @@
                                                 :validate="validateEmail"
                                             />
                                         </div>
+
+                                        <div v-if="action.type === 'setReplyPrompt'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Prompt for AI</label>
+                                            <textarea
+                                                v-model="action.value"
+                                                placeholder="Write your prompt here"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -946,6 +955,9 @@ watch(
             if (action.type === "setTransferRecipients" && action.value === null) {
                 action.value = [];
             }
+            if (action.type === "setReplyPrompt" && action.value === null) {
+                action.value = "";
+            }
         });
     },
     { deep: true }
@@ -1025,8 +1037,11 @@ watch(
             if (newVal.actionSetAnswer) {
                 newActions.push({ type: "setAnswer", value: newVal.actionSetAnswer });
             }
-            if (newVal.actionTransferRecipients) {
+            if (newVal.actionTransferRecipients && newVal.actionTransferRecipients.length) {
                 newActions.push({ type: "setTransferRecipients", value: newVal.actionTransferRecipients });
+            }
+            if (newVal.actionReplyPrompt) {
+                newActions.push({ type: "setReplyPrompt", value: newVal.actionReplyPrompt });
             }
 
             actions.value = newActions.length ? newActions : [{ type: "", value: null }];
@@ -1128,6 +1143,10 @@ async function updateUserRule() {
                 break;
             case "setTransferRecipients":
                 formData.value.actionTransferRecipients = action.value;
+                break;
+            case "setReplyPrompt":
+                formData.value.actionReplyPrompt = action.value;
+                break;
         }
     });
 

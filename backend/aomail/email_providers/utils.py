@@ -60,9 +60,11 @@ from aomail.utils.security import encrypt_text
 from aomail.email_providers.google import labels as google_labels
 from aomail.email_providers.microsoft import labels as microsoft_labels
 from aomail.email_providers.google.compose_email import (
+    reply_email_google,
     transfer_email as transfer_email_google,
 )
 from aomail.email_providers.microsoft.compose_email import (
+    reply_email_microsoft,
     transfer_email as transfer_email_microsoft,
 )
 from django.db import models
@@ -315,6 +317,17 @@ def apply_rule_actions(rule: Rule, email_entry: Email):
                 email_entry.provider_id,
                 email_entry.social_api,
                 rule.action_transfer_recipients,
+            )
+    if rule.action_reply_prompt:
+        if email_entry.email_provider == GOOGLE:
+            reply_email_google(
+                email_entry,
+                rule.action_reply_prompt,
+            )
+        elif email_entry.email_provider == MICROSOFT:
+            reply_email_microsoft(
+                email_entry,
+                rule.action_reply_prompt,
             )
 
 

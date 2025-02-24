@@ -22,8 +22,10 @@ from aomail.email_providers.google.authentication import (
 )
 from aomail.email_providers.google.email_operations import get_mail_to_db
 from aomail.utils import email_processing
-from aomail.models import SocialAPI
+from aomail.models import Agent, Email, Signature, SocialAPI
 from base64 import urlsafe_b64encode, urlsafe_b64decode
+from aomail.ai_providers.gemini import generate_email_response
+from aomail.ai_providers.utils import update_tokens_stats
 
 
 LOGGER = logging.getLogger(__name__)
@@ -207,4 +209,81 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
 
     except Exception as e:
         LOGGER.error(f"Email transfer failed - ID: {email_id} - Error: {str(e)}")
+        return False
+
+
+def reply_email_google(email_entry: Email, prompt: str) -> bool:
+    """
+    Replies to an email using the Gmail API and AI-generated content.
+
+    Args:
+        email_entry (Email): The original email object to reply to
+        prompt (str): User instructions for generating the reply
+
+    Returns:
+        bool: True if reply was sent successfully, False otherwise
+    """
+    try:
+        LOGGER.info(f"Initiating email reply - ID: {email_entry.message_id}")
+        agents = Agent.objects.filter(user=email_entry.user, last_used=True)
+        signatures = Signature.objects.filter(
+            user=email_entry.user, social_api=email_entry.social_api
+        )
+
+        signature = signatures.first() if signatures else None
+        agent_settings = (
+            {
+                "ai_template": agents.first().ai_template,
+                "email_example": agents.first().email_example,
+                "length": agents.first().length,
+                "formality": agents.first().formality,
+                "language": agents.first().language,
+            }
+            if agents
+            else {}
+        )
+
+        response = generate_email_response(
+            email_entry.subject,
+            email_entry.html_content,
+            prompt,
+            agent_settings,
+            signature,
+        )
+
+        update_tokens_stats(email_entry.user, response)
+
+        subject = f"Re: {email_entry.subject}"
+        message = response["body"]
+        to = [email_entry.from_email]
+
+        service = authenticate_service(
+            email_entry.user, email_entry.social_api.email, ["gmail"]
+        )["gmail"]
+
+        multipart_message = MIMEMultipart()
+        multipart_message["subject"] = subject
+        multipart_message["from"] = "me"
+        multipart_message["to"] = ", ".join(to)
+        multipart_message.attach(MIMEText(message, "html"))
+
+        raw_message = urlsafe_b64encode(
+            multipart_message.as_string().encode("UTF-8")
+        ).decode()
+
+        body = {"raw": raw_message}
+        service.users().messages().send(userId="me", body=body).execute()
+
+        threading.Thread(
+            target=email_processing.save_contacts,
+            args=(email_entry.user, to),
+        ).start()
+
+        LOGGER.info(f"Reply sent successfully to email ID: {email_entry.message_id}")
+        return True
+
+    except Exception as e:
+        LOGGER.error(
+            f"Failed to send reply to email ID {email_entry.message_id}: {str(e)}"
+        )
         return False

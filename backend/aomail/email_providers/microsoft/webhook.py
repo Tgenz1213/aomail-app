@@ -135,6 +135,13 @@ def subscribe_to_email_notifications(user: User, email: str) -> bool:
 
     try:
         response = requests.post(url, json=subscription_body, headers=headers)
+
+        if not status.is_success(response.status_code):
+            LOGGER.error(
+                f"Failed to subscribe to Microsoft email notifications for user with ID: {user.id} and email {email}: {response.reason}"
+            )
+            return False
+
         response_data = response.json()
 
         social_api = SocialAPI.objects.get(user=user, email=email)

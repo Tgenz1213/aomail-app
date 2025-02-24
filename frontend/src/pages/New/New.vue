@@ -529,7 +529,7 @@ function loading() {
       <div id="dynamicLoadingIndicator" class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                     <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
                 </span>
             </div>
@@ -624,8 +624,11 @@ async function checkSpelling() {
     if (!AIContainer.value || !quill) return;
     loading();
 
+    console.log("subjectInput.value", subjectInput.value);
+    console.log("emailBody", emailBody.value);
+
     const result = await postData("correct_email_language/", {
-        subject: subjectInput.value,
+        subject: subjectInput.value || "",
         body: emailBody.value,
     });
 
@@ -639,7 +642,7 @@ async function checkSpelling() {
     const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                         <img src="${API_BASE_URL}agent_icon/${
         selectedAgent.value.icon_name
     }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
@@ -681,7 +684,7 @@ async function checkCopyWriting() {
     const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                             <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
                         </span>
                   </div>
@@ -722,7 +725,7 @@ async function writeBetter() {
     const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
-                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
                         <img src="${API_BASE_URL}agent_icon/${
         selectedAgent.value.icon_name
     }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">

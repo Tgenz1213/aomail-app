@@ -156,7 +156,6 @@ class Rule(models.Model):
 
     # --- AI actions --- #
     action_reply_prompt = models.CharField(max_length=1000, null=True)  # user prompt
-    action_reply_recipients = ArrayField(models.CharField(max_length=30), null=True)
 
 
 class MicrosoftListener(models.Model):

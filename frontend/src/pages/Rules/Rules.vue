@@ -93,9 +93,7 @@
                             @click="showModal = true"
                         >
                             <div class="flex-col">
-                                <SparklesIcon
-                                    class="w-12 h-12 mx-auto text-gray-400"
-                                />
+                                <SparklesIcon class="w-12 h-12 mx-auto text-gray-400" />
                                 <span class="mt-2 block text-sm font-semibold text-gray-900">
                                     {{ $t("rulesPage.createRule") }}
                                 </span>
@@ -108,9 +106,7 @@
                         @click="showModal = true"
                     >
                         <div class="flex-col">
-                            <SparklesIcon
-                                class="w-10 h-10 mx-auto text-gray-400"
-                            />
+                            <SparklesIcon class="w-10 h-10 mx-auto text-gray-400" />
                             <span class="mt-2 block text-sm font-semibold text-gray-900">
                                 {{ $t("rulesPage.createRule") }}
                             </span>
@@ -187,7 +183,7 @@ const debounceTimer = ref<number | undefined>(undefined);
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 const initialRuleData = ref<RuleData | undefined>(undefined);
-const initialSections = ref<{ triggers: boolean; actions: boolean; } | undefined>(undefined);
+const initialSections = ref<{ triggers: boolean; actions: boolean } | undefined>(undefined);
 
 onMounted(async () => {
     await Promise.all([fetchRules(), fetchCategories(), fetchEmailSenders()]);
@@ -215,12 +211,12 @@ onMounted(async () => {
     watch(
         () => route.query,
         (query) => {
-            if (query.createRule === 'true' && query.senderEmail) {
+            if (query.createRule === "true" && query.senderEmail) {
                 showModal.value = true;
                 const senderEmail = query.senderEmail as string;
                 initialRuleData.value = {
                     senderEmails: [senderEmail],
-                    logicalOperator: 'AND',
+                    logicalOperator: "AND",
                     domains: [],
                     hasAttachements: false,
                     categories: [],
@@ -228,21 +224,20 @@ onMounted(async () => {
                     answers: [],
                     relevances: [],
                     flags: [],
-                    emailDealWith: '',
+                    emailDealWith: "",
                     actionTransferRecipients: [],
                     actionSetFlags: [],
                     actionMarkAs: [],
                     actionDelete: false,
-                    actionSetCategory: '',
-                    actionSetPriority: '',
-                    actionSetRelevance: '',
-                    actionSetAnswer: '',
-                    actionReplyPrompt: '',
-                    actionReplyRecipients: [],
+                    actionSetCategory: "",
+                    actionSetPriority: "",
+                    actionSetRelevance: "",
+                    actionSetAnswer: "",
+                    actionReplyPrompt: "",
                 } as RuleData;
                 initialSections.value = {
                     triggers: true,
-                    actions: false
+                    actions: false,
                 };
             }
         },
@@ -330,7 +325,6 @@ function handleEditRule(rule: any) {
         actionSetRelevance: rule.actionSetRelevance || "",
         actionSetAnswer: rule.actionSetAnswer || "",
         actionReplyPrompt: rule.actionReplyPrompt || "",
-        actionReplyRecipients: rule.actionReplyRecipients || [],
     };
     showUpdateModal.value = true;
 }
@@ -486,7 +480,6 @@ async function fetchRuleById(idRule: string) {
         actionSetRelevance: result.data.actionSetRelevance || "",
         actionSetAnswer: result.data.actionSetAnswer || "",
         actionReplyPrompt: result.data.actionReplyPrompt || "",
-        actionReplyRecipients: result.data.actionReplyRecipients || [],
     };
 }
 

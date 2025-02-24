@@ -624,6 +624,15 @@
                                                 :validate="validateEmail"
                                             />
                                         </div>
+
+                                        <div v-if="action.type === 'setReplyPrompt'" class="space-y-2">
+                                            <label class="block text-sm text-gray-700">Prompt for AI</label>
+                                            <textarea
+                                                v-model="action.value"
+                                                placeholder="Write your prompt here"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -694,7 +703,7 @@ interface Props {
     categories: Category[];
     emailSenders: EmailSender[];
     initialData?: RuleData;
-    initialSections?: { 
+    initialSections?: {
         triggers: boolean;
         actions: boolean;
     };
@@ -740,7 +749,6 @@ const formData = ref<RuleData>({
     actionSetRelevance: "",
     actionSetAnswer: "",
     actionReplyPrompt: "",
-    actionReplyRecipients: [],
 });
 
 // Triggers and Actions arrays (new design)
@@ -849,11 +857,6 @@ const actionTypes = [
         label: "Prompt for AI",
         description: "Define how the AI should reply",
     },
-    {
-        value: "setReplyRecipients",
-        label: "Reply to",
-        description: "Define how the AI should reply",
-    },
 ];
 const availableActionTypes = computed(() => actionTypes);
 
@@ -957,6 +960,9 @@ watch(
             if (action.type === "setTransferRecipients" && action.value === null) {
                 action.value = [];
             }
+            if (action.type === "setReplyPrompt" && action.value === null) {
+                action.value = "";
+            }
         });
     },
     { deep: true }
@@ -1036,6 +1042,10 @@ const handleSubmit = async () => {
                 break;
             case "setTransferRecipients":
                 formData.value.actionTransferRecipients = action.value;
+                break;
+            case "setReplyPrompt":
+                formData.value.actionReplyPrompt = action.value;
+                break;
         }
     });
 
@@ -1074,10 +1084,12 @@ watch(
     (newVal) => {
         if (newVal) {
             if (newVal.senderEmails?.length) {
-                triggers.value = [{ 
-                    type: 'senderEmails', 
-                    value: newVal.senderEmails 
-                }];
+                triggers.value = [
+                    {
+                        type: "senderEmails",
+                        value: newVal.senderEmails,
+                    },
+                ];
             }
         }
     },

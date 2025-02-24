@@ -80,7 +80,6 @@ def get_rules_data(request: HttpRequest) -> Response:
                 "actionSetRelevance": rule.action_set_relevance,
                 "actionSetAnswer": rule.action_set_answer,
                 "actionReplyPrompt": rule.action_reply_prompt,
-                "actionReplyRecipients": rule.action_reply_recipients,
             }
             formatted_data.append(rule_data)
 

@@ -740,7 +740,6 @@ const formData = ref<RuleData>({
     actionSetRelevance: "",
     actionSetAnswer: "",
     actionReplyPrompt: "",
-    actionReplyRecipients: [],
 });
 
 // Triggers and Actions arrays (new design)
@@ -847,11 +846,6 @@ const actionTypes = [
     {
         value: "setReplyPrompt",
         label: "Prompt for AI",
-        description: "Define how the AI should reply",
-    },
-    {
-        value: "setReplyRecipients",
-        label: "Reply to",
         description: "Define how the AI should reply",
     },
 ];

@@ -96,11 +96,6 @@ def handle_rules(request: HttpRequest) -> Response:
             "action_reply_prompt": (
                 data.get("actionReplyPrompt") if data.get("actionReplyPrompt") else None
             ),
-            "action_reply_recipients": (
-                data.get("actionReplyRecipients")
-                if data.get("actionReplyRecipients")
-                else None
-            ),
         }
 
         serializer = RuleSerializer(
@@ -214,11 +209,6 @@ def create_rule(request: HttpRequest) -> Response:
         ),
         "action_reply_prompt": (
             data.get("actionReplyPrompt") if data.get("actionReplyPrompt") else None
-        ),
-        "action_reply_recipients": (
-            data.get("actionReplyRecipients")
-            if data.get("actionReplyRecipients")
-            else None
         ),
     }
 

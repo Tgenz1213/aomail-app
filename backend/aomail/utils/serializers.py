@@ -139,7 +139,6 @@ class RuleSerializer(serializers.ModelSerializer):
     action_reply_prompt = serializers.CharField(
         required=False, allow_null=True, allow_blank=True
     )
-    action_reply_recipients = serializers.ListField(required=False, allow_null=True)
 
     class Meta:
         model = Rule
@@ -169,7 +168,6 @@ class RuleSerializer(serializers.ModelSerializer):
             "action_set_relevance",
             "action_set_answer",
             "action_reply_prompt",
-            "action_reply_recipients",
         ]
         read_only_fields = ["id", "user"]
 

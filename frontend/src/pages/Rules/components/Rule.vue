@@ -244,16 +244,6 @@
                     <div v-if="rule.actionReplyPrompt" class="flex flex-col gap-1">
                         <span class="text-xs">{{ $t("constants.userActions.reply") }}:</span>
                         <span class="text-xs text-gray-600">"{{ rule.actionReplyPrompt }}"</span>
-
-                        <div v-if="rule.actionReplyRecipients?.length" class="flex flex-wrap gap-1 mt-1">
-                            <span
-                                v-for="recipient in rule.actionReplyRecipients"
-                                :key="recipient"
-                                class="inline-flex items-center rounded-full bg-pink-50 px-2 py-0.5 text-xs font-medium text-pink-700"
-                            >
-                                {{ recipient }}
-                            </span>
-                        </div>
                     </div>
 
                     <!-- Tags/Flags -->
@@ -316,7 +306,6 @@ const hasActions = computed(() => {
         props.rule.actionMarkAs?.length ||
         props.rule.actionTransferRecipients?.length ||
         props.rule.actionReplyPrompt ||
-        props.rule.actionReplyRecipients?.length ||
         props.rule.actionSetPriority ||
         props.rule.actionSetRelevance ||
         props.rule.actionSetAnswer

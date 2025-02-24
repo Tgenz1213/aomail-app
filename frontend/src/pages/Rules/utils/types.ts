@@ -25,7 +25,6 @@ export interface RuleData {
     actionSetAnswer: string;
     // --- AI actions --- //
     actionReplyPrompt: string;
-    actionReplyRecipients: string[];
 }
 
 export interface FilterPayload {

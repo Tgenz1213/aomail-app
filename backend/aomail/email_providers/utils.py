@@ -306,11 +306,15 @@ def apply_rule_actions(rule: Rule, email_entry: Email):
     if rule.action_transfer_recipients:
         if email_entry.email_provider == GOOGLE:
             transfer_email_google(
-                email_entry.provider_id, rule.action_transfer_recipients
+                email_entry.provider_id,
+                email_entry.social_api,
+                rule.action_transfer_recipients,
             )
         elif email_entry.email_provider == MICROSOFT:
             transfer_email_microsoft(
-                email_entry.provider_id, rule.action_transfer_recipients
+                email_entry.provider_id,
+                email_entry.social_api,
+                rule.action_transfer_recipients,
             )
 
 

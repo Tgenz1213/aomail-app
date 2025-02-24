@@ -294,9 +294,6 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
     """
     Transfer an email to a list of recipients using Microsoft Graph API.
 
-    This function retrieves an existing email by its ID and forwards it to specified recipients.
-    It preserves the original email content, subject, and attachments while sending to new recipients.
-
     Args:
         email_id (str): The ID of the email to transfer
         social_api (SocialAPI): The social API credentials object containing authentication info
@@ -305,99 +302,76 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
     Returns:
         bool: True if email was transferred successfully, False otherwise
     """
-    email_data = get_mail_to_db(social_api, email_id)
-
-    user = social_api.user
-    email = email_data["email"]
-    subject = email_data["subject"]
-    message = email_data["safe_html"]
-    to = recipients
-    cc = []
-    bcc = []
-    attachments = email_data["attachments"]
-
-    access_token = refresh_access_token(social_api)
-
-    if not email or not subject or not message or not to:
-        LOGGER.error("Missing required email parameters for transfer")
-        return False
-
     try:
-        graph_endpoint = f"{GRAPH_URL}me/sendMail"
+        LOGGER.info(
+            f"Initiating email transfer - ID: {email_id} to recipients: {', '.join(recipients)}"
+        )
+
+        access_token = refresh_access_token(social_api)
         headers = get_headers(access_token)
 
-        multipart_message = MIMEMultipart()
-        multipart_message["subject"] = subject
-        multipart_message["from"] = "me"
-        multipart_message["to"] = ", ".join(to)
+        email_data = get_mail_to_db(social_api, email_id)
 
-        all_recipients = to
-
-        if cc:
-            multipart_message["cc"] = ", ".join(cc)
-            all_recipients += cc
-        if bcc:
-            multipart_message["bcc"] = ", ".join(bcc)
-            all_recipients += bcc
-
-        multipart_message.attach(MIMEText(message, "html"))
-
-        if attachments:
-            for uploaded_file in attachments:
-                file_content = uploaded_file.read()
-                part = MIMEApplication(file_content)
-                part.add_header(
-                    "Content-Disposition", "attachment", filename=uploaded_file.name
-                )
-                multipart_message.attach(part)
-
-        raw_message = base64.b64encode(
-            multipart_message.as_string().encode("utf-8")
-        ).decode("utf-8")
+        subject = email_data["subject"]
+        message = email_data["email_html"]
+        attachments = email_data["attachments"]
 
         email_content = {
             "message": {
                 "subject": subject,
                 "body": {"contentType": "HTML", "content": message},
-                "toRecipients": [{"emailAddress": {"address": email}} for email in to],
-                "ccRecipients": (
-                    [{"emailAddress": {"address": email}} for email in cc] if cc else []
-                ),
-                "bccRecipients": (
-                    [{"emailAddress": {"address": email}} for email in bcc]
-                    if bcc
-                    else []
-                ),
-                "attachments": (
-                    [
-                        {
-                            "@odata.type": "#microsoft.graph.fileAttachment",
-                            "name": uploaded_file.name,
-                            "contentBytes": base64.b64encode(
-                                uploaded_file.read()
-                            ).decode("utf-8"),
-                        }
-                        for uploaded_file in attachments
-                    ]
-                    if attachments
-                    else []
-                ),
+                "toRecipients": [
+                    {"emailAddress": {"address": email}} for email in recipients
+                ],
             }
         }
 
+        if attachments:
+            email_content["message"]["attachments"] = []
+
+            for attachment in attachments:
+                try:
+                    # As we can not forward directly via Microsoft API, we must re-download each attachment
+                    attachment_url = f"{GRAPH_URL}me/messages/{email_id}/attachments/{attachment['id']}"
+                    attachment_response = requests.get(attachment_url, headers=headers)
+
+                    if attachment_response.status_code == 200:
+                        attachment_data = attachment_response.json()
+
+                        email_content["message"]["attachments"].append(
+                            {
+                                "@odata.type": "#microsoft.graph.fileAttachment",
+                                "name": attachment["name"],
+                                "contentBytes": attachment_data["contentBytes"],
+                            }
+                        )
+
+                        LOGGER.info(f"Successfully attached file: {attachment['name']}")
+                    else:
+                        LOGGER.error(
+                            f"Failed to get attachment {attachment['name']}: {attachment_response.text}"
+                        )
+                except Exception as e:
+                    LOGGER.error(
+                        f"Failed to process attachment {attachment['name']}: {str(e)}"
+                    )
+                    continue
+
+        graph_endpoint = f"{GRAPH_URL}me/sendMail"
         response = requests.post(graph_endpoint, headers=headers, json=email_content)
 
         if response.status_code == 202:
             threading.Thread(
                 target=email_processing.save_contacts,
-                args=(user, all_recipients),
+                args=(social_api.user, recipients),
             ).start()
+
             LOGGER.info(
-                f"Successfully transferred email {email_id} to {len(recipients)} recipients"
+                f"Email transfer completed successfully - ID: {email_id} sent to {len(recipients)} recipients"
             )
             return True
         else:
-            response_data: dict = response.json()
+            response_data = response.json()
             error = response_data.get("error", response.reason)
             LOGGER.error(
                 f"Failed to transfer email {email_id}. Error: {error}. Status code: {response.status_code}"
@@ -405,8 +379,5 @@ def transfer_email(email_id: str, social_api: SocialAPI, recipients: list[str]) 
             return False
 
     except Exception as e:
-        LOGGER.error(
-            f"Failed to transfer email {email_id} due to internal error: {str(e)}",
-            exc_info=True,
-        )
+        LOGGER.error(f"Email transfer failed - ID: {email_id} - Error: {str(e)}")
         return False

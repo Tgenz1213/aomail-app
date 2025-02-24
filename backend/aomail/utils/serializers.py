@@ -46,12 +46,12 @@ class EmailScheduleDataSerializer(serializers.Serializer):
 class EmailCorrectionSerializer(serializers.Serializer):
     """Serializer for handling email correction data."""
 
-    subject = serializers.CharField(required=True, allow_blank=False)
+    subject = serializers.CharField(required=True, allow_blank=True)
     body = serializers.CharField(required=True, allow_blank=False)
 
     def validate(self, data):
         """Validate method to check that both email subject and body are provided."""
-        if "subject" not in data or not data["subject"].strip():
+        if "subject" not in data:
             raise serializers.ValidationError("Subject is required.")
         if "body" not in data or not data["body"].strip():
             raise serializers.ValidationError("Body is required.")
@@ -61,14 +61,14 @@ class EmailCorrectionSerializer(serializers.Serializer):
 class EmailCopyWritingSerializer(serializers.Serializer):
     """Serializer for handling email copywriting data."""
 
-    subject = serializers.CharField(required=True, allow_blank=False)
+    subject = serializers.CharField(required=True, allow_blank=True)
     body = serializers.CharField(required=True, allow_blank=False)
 
     def validate(self, data):
         """Validate method to check that both email subject and body are provided."""
-        if "subject" not in data or not data["subject"].strip():
+        if "subject" not in data:
             raise serializers.ValidationError("Subject is required.")
-        if "body" not in data or not data["email_body"].strip():
+        if "body" not in data or not data["body"].strip():
             raise serializers.ValidationError("Body is required.")
         return data
 

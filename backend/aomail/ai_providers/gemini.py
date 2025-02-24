@@ -317,7 +317,7 @@ def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
     [Your suggestions for the email body]
     """
     response = get_prompt_response(template)
-    feedback_ai = extract_json_from_response(response.text)
+    feedback_ai = response.text 
 
     return {
         "feedback_ai": feedback_ai,

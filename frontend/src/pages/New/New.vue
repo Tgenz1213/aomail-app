@@ -628,7 +628,7 @@ async function checkSpelling() {
     console.log("emailBody", emailBody.value);
 
     const result = await postData("correct_email_language/", {
-        subject: subjectInput.value || "",
+        subject: subjectInput.value ? subjectInput.value : "",
         body: emailBody.value,
     });
 
@@ -669,7 +669,7 @@ async function checkCopyWriting() {
     loading();
 
     const result = await postData("check_email_copywriting/", {
-        subject: subjectInput.value,
+        subject: subjectInput.value ? subjectInput.value : "",
         body: emailBody.value,
     });
 
@@ -707,7 +707,7 @@ async function writeBetter() {
         userInput: textareaValueSave.value,
         length: selectedLength.value,
         formality: selectedFormality.value,
-        subject: subjectInput.value,
+        subject: subjectInput.value ? subjectInput.value : "",
         body: emailBody.value,
         history: history.value,
     });

@@ -33,7 +33,6 @@ package-lock.json
 .py_env/
 dist/
 backend/logger.json
-__init__.py
 
 # Credentials
 build.sh

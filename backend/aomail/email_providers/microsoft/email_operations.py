@@ -482,12 +482,11 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
             bool: Flag indicating whether the email is a reply ('RE:' in subject).
             list[dict]: List of dictionaries containing details about each attachment (ID and name).
     """
-    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    url = f"{GRAPH_URL}me/messages/{email_id}"
     access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
 
-    message_url = f"{url}/{email_id}"
-    response = requests.get(message_url, headers=headers)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         raise Exception(

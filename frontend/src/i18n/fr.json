@@ -816,12 +816,16 @@
             },
             "setAnswer": {
               "label": "Définir la réponse",
-              "description": "Définir le statut de réponse requise pour les emails correspondants",
-              "options": {
-                "required": "Réponse requise",
-                "might": "Pourrait nécessiter une réponse",
-                "none": "Pas de réponse requise"
-              }
+              "description": "Définir le statut de réponse requise pour les emails correspondants"
+            },
+            "setTransferRecipients": {
+              "label": "Transférer à",
+              "description": "Définir les adresses email pour transférer automatiquement les emails correspondants"
+            },
+            "setReplyPrompt": {
+              "label": "Instructions pour l'IA",
+              "description": "Définir les instructions pour la réponse automatique de l'IA",
+              "prompt": "Instructions de réponse"
             }
           }
         }

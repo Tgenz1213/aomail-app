@@ -745,6 +745,15 @@
             "setAnswer": {
               "label": "Set Answer",
               "description": "Set the answer requirement status for matching emails"
+            },
+            "setTransferRecipients": {
+              "label": "Transfer To",
+              "description": "Define email addresses to automatically transfer matching emails to"
+            },
+            "setReplyPrompt": {
+              "label": "AI Reply Prompt",
+              "description": "Define instructions for how AI should reply to matching emails",
+              "prompt": "Reply Prompt"
             }
           }
         }

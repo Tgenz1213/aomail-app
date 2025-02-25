@@ -21,7 +21,7 @@ from aomail.ai_providers.google import client as gemini
 
 
 def extract_contacts_recipients(
-    query: str, llm_provider: str = "google"
+    query: str, llm_provider: str = "google", llm_model: str = None
 ) -> dict[str, list]:
     """
     Analyzes the input query to categorize email recipients into main, CC, and BCC categories.
@@ -29,6 +29,7 @@ def extract_contacts_recipients(
     Args:
         query (str): The input string containing email recipient information.
         llm_provider (str): The language model to use for the email recipient extraction.
+        llm_model (str): The language model to use for the email recipient extraction.
 
     Returns:
         dict[str, list]: A dictionary with three keys:
@@ -37,13 +38,16 @@ def extract_contacts_recipients(
             'bcc_recipients': List of BCC recipients.
     """
     if llm_provider == "anthropic":
-        return claude.extract_contacts_recipients(query)
+        return claude.extract_contacts_recipients(query, llm_model)
     elif llm_provider == "google":
-        return gemini.extract_contacts_recipients(query)
+        return gemini.extract_contacts_recipients(query, llm_model)
 
 
 def generate_response_keywords(
-    input_email: str, input_subject: str, llm_provider: str = "google"
+    input_email: str,
+    input_subject: str,
+    llm_provider: str = "google",
+    llm_model: str = None,
 ) -> dict:
     """
     Generates a list of detailed draft response sentences for responding to a given email.
@@ -52,6 +56,7 @@ def generate_response_keywords(
         input_email (str): The body of the email.
         input_subject (str): The subject of the email.
         llm_provider (str): The language model to use for the email generation.
+        llm_model (str): The language model to use for the email generation.
 
     Returns:
         dict: A dictionary containing:
@@ -60,9 +65,9 @@ def generate_response_keywords(
             tokens_output (int): The number of tokens used for the output.
     """
     if llm_provider == "anthropic":
-        return claude.generate_response_keywords(input_email, input_subject)
+        return claude.generate_response_keywords(input_email, input_subject, llm_model)
     elif llm_provider == "google":
-        return gemini.generate_response_keywords(input_email, input_subject)
+        return gemini.generate_response_keywords(input_email, input_subject, llm_model)
 
 
 def generate_email(
@@ -73,6 +78,7 @@ def generate_email(
     agent_settings: dict,
     signature: str = "",
     llm_provider: str = "google",
+    llm_model: str = None,
 ) -> dict:
     """
     Generates an email, enhancing both quantity and quality according to user guidelines and agent settings.
@@ -85,6 +91,7 @@ def generate_email(
         agent_settings (dict): The agent's guidelines and settings to guide AI responses.
         signature (str): Optional HTML signature to append to the email.
         llm_provider (str): The language model to use for the email generation.
+        llm_model (str): The language model to use for the email generation.
 
     Returns:
         dict: A dictionary containing:
@@ -95,16 +102,28 @@ def generate_email(
     """
     if llm_provider == "anthropic":
         return claude.generate_email(
-            input_data, length, formality, language, agent_settings, signature
+            input_data,
+            length,
+            formality,
+            language,
+            agent_settings,
+            signature,
+            llm_model,
         )
     elif llm_provider == "google":
         return gemini.generate_email(
-            input_data, length, formality, language, agent_settings, signature
+            input_data,
+            length,
+            formality,
+            language,
+            agent_settings,
+            signature,
+            llm_model,
         )
 
 
 def correct_mail_language_mistakes(
-    body: str, subject: str, llm_provider: str = "google"
+    body: str, subject: str, llm_provider: str = "google", llm_model: str = None
 ) -> dict:
     """
     Corrects spelling and grammar mistakes in the email subject and body based on user's request.
@@ -113,6 +132,7 @@ def correct_mail_language_mistakes(
         body (str): The body of the email to be corrected.
         subject (str): The subject of the email to be corrected.
         llm_provider (str): The language model to use for the email correction.
+        llm_model (str): The language model to use for the email correction.
 
     Returns:
         dict: A dictionary containing:
@@ -123,13 +143,16 @@ def correct_mail_language_mistakes(
             tokens_output (int): The number of tokens used for the output.
     """
     if llm_provider == "anthropic":
-        return claude.correct_mail_language_mistakes(body, subject)
+        return claude.correct_mail_language_mistakes(body, subject, llm_model)
     elif llm_provider == "google":
-        return gemini.correct_mail_language_mistakes(body, subject)
+        return gemini.correct_mail_language_mistakes(body, subject, llm_model)
 
 
 def improve_email_copywriting(
-    email_subject: str, email_body: str, llm_provider: str = "google"
+    email_subject: str,
+    email_body: str,
+    llm_provider: str = "google",
+    llm_model: str = None,
 ) -> dict:
     """
     Provides feedback and suggestions for improving the copywriting in the email subject and body.
@@ -138,6 +161,8 @@ def improve_email_copywriting(
         email_subject (str): The subject of the email to be evaluated and improved.
         email_body (str): The body of the email to be evaluated and improved.
         llm_provider (str): The language model to use for the email copywriting improvement.
+        llm_model (str): The language model to use for the email copywriting improvement.
+
     Returns:
         dict: A dictionary containing:
             feedback_ai (str): Feedback and suggestions for improving the copywriting in the email subject and body.
@@ -145,9 +170,9 @@ def improve_email_copywriting(
             tokens_output (int): The number of tokens used for the output.
     """
     if llm_provider == "anthropic":
-        return claude.improve_email_copywriting(email_subject, email_body)
+        return claude.improve_email_copywriting(email_subject, email_body, llm_model)
     elif llm_provider == "google":
-        return gemini.improve_email_copywriting(email_subject, email_body)
+        return gemini.improve_email_copywriting(email_subject, email_body, llm_model)
 
 
 def generate_email_response(
@@ -157,6 +182,7 @@ def generate_email_response(
     agent_settings: dict,
     signature: str = "",
     llm_provider: str = "google",
+    llm_model: str = None,
 ) -> dict:
     """
     Generates an email response based on the given response type and agent settings.
@@ -168,6 +194,7 @@ def generate_email_response(
         agent_settings (dict): The agent's guidelines and settings to guide AI responses.
         signature (str): Optional HTML signature to append to the email.
         llm_provider (str): The language model to use for the email response generation.
+        llm_model (str): The language model to use for the email response generation.
 
     Returns:
         dict: A dictionary containing:
@@ -177,11 +204,21 @@ def generate_email_response(
     """
     if llm_provider == "anthropic":
         return claude.generate_email_response(
-            input_subject, input_body, user_instruction, agent_settings, signature
+            input_subject,
+            input_body,
+            user_instruction,
+            agent_settings,
+            signature,
+            llm_model,
         )
     elif llm_provider == "google":
         return gemini.generate_email_response(
-            input_subject, input_body, user_instruction, agent_settings, signature
+            input_subject,
+            input_body,
+            user_instruction,
+            agent_settings,
+            signature,
+            llm_model,
         )
 
 
@@ -195,6 +232,7 @@ def categorize_and_summarize_email(
     informative_guidelines: str,
     useless_guidelines: str,
     llm_provider: str = "google",
+    llm_model: str = None,
 ) -> dict:
     """
     Categorizes and summarizes an email.
@@ -209,6 +247,7 @@ def categorize_and_summarize_email(
         informative_guidelines (str): Guidelines for informative emails.
         useless_guidelines (str): Guidelines for useless emails.
         llm_provider (str): The language model to use for the email categorization and summarization.
+        llm_model (str): The language model to use for the email categorization and summarization.
 
     Returns:
         dict: Structured JSON response with categorized and summarized email details.
@@ -223,6 +262,7 @@ def categorize_and_summarize_email(
             important_guidelines,
             informative_guidelines,
             useless_guidelines,
+            llm_model,
         )
     elif llm_provider == "google":
         return gemini.categorize_and_summarize_email(
@@ -234,10 +274,13 @@ def categorize_and_summarize_email(
             important_guidelines,
             informative_guidelines,
             useless_guidelines,
+            llm_model,
         )
 
 
-def search_emails(query: str, language: str, llm_provider: str = "google") -> dict:
+def search_emails(
+    query: str, language: str, llm_provider: str = "google", llm_model: str = None
+) -> dict:
     """
     Searches emails based on the user query and generates structured JSON response.
 
@@ -245,17 +288,19 @@ def search_emails(query: str, language: str, llm_provider: str = "google") -> di
         query (str): User's query for searching emails.
         language (str): Language for the response JSON format.
         llm_provider (str): The language model to use for the email search.
+        llm_model (str): The language model to use for the email search.
+
     Returns:
         dict: Structured JSON response with search results and parameters.
     """
     if llm_provider == "anthropic":
-        return claude.search_emails(query, language)
+        return claude.search_emails(query, language, llm_model)
     elif llm_provider == "google":
-        return gemini.search_emails(query, language)
+        return gemini.search_emails(query, language, llm_model)
 
 
 def review_user_description(
-    user_description: str, llm_provider: str = "google"
+    user_description: str, llm_provider: str = "google", llm_model: str = None
 ) -> dict:
     """
     Reviews a user-provided description and provides validation and feedback.
@@ -263,17 +308,22 @@ def review_user_description(
     Args:
         user_description (str): User's description for categorizing emails.
         llm_provider (str): The language model to use for the email categorization and summarization.
+        llm_model (str): The language model to use for the email categorization and summarization.
+
     Returns:
         dict: JSON response with 'valid' status and 'feedback' message.
     """
     if llm_provider == "anthropic":
-        return claude.review_user_description(user_description)
+        return claude.review_user_description(user_description, llm_model)
     elif llm_provider == "google":
-        return gemini.review_user_description(user_description)
+        return gemini.review_user_description(user_description, llm_model)
 
 
 def generate_categories_scratch(
-    user_topics: list | str, chat_history: list = None, llm_provider: str = "google"
+    user_topics: list | str,
+    chat_history: list = None,
+    llm_provider: str = "google",
+    llm_model: str = None,
 ) -> dict:
     """
     Generates categories based on user topics for email classification.
@@ -282,17 +332,19 @@ def generate_categories_scratch(
         user_topics (list | str): List or string of topics provided by the user.
         chat_history (list | None): List of messages between user and AI.
         llm_provider (str): The language model to use for the email categorization and summarization.
+        llm_model (str): The language model to use for the email categorization and summarization.
+
     Returns:
         dict: JSON response with category names, descriptions, and feedback.
     """
     if llm_provider == "anthropic":
-        return claude.generate_categories_scratch(user_topics, chat_history)
+        return claude.generate_categories_scratch(user_topics, chat_history, llm_model)
     elif llm_provider == "google":
-        return gemini.generate_categories_scratch(user_topics, chat_history)
+        return gemini.generate_categories_scratch(user_topics, chat_history, llm_model)
 
 
 def generate_prioritization_scratch(
-    user_input: dict | str, llm_provider: str = "google"
+    user_input: dict | str, llm_provider: str = "google", llm_model: str = None
 ) -> dict:
     """
     Generates email prioritization guidelines based on user-provided input.
@@ -300,6 +352,7 @@ def generate_prioritization_scratch(
     Args:
         user_input (dict | str): The user's guidance for prioritizing emails.
         llm_provider (str): The language model to use for the email prioritization.
+        llm_model (str): The language model to use for the email prioritization.
 
     Returns:
         dict: A JSON object with descriptions for:
@@ -308,9 +361,9 @@ def generate_prioritization_scratch(
               - useless emails
     """
     if llm_provider == "anthropic":
-        return claude.generate_prioritization_scratch(user_input)
+        return claude.generate_prioritization_scratch(user_input, llm_model)
     elif llm_provider == "google":
-        return gemini.generate_prioritization_scratch(user_input)
+        return gemini.generate_prioritization_scratch(user_input, llm_model)
 
 
 def determine_action_scenario(
@@ -320,6 +373,7 @@ def determine_action_scenario(
     user_request: str,
     is_only_signature: bool,
     llm_provider: str = "google",
+    llm_model: str = None,
 ) -> int:
     """
     Determines the scenario based on input flags and user request.
@@ -331,6 +385,7 @@ def determine_action_scenario(
         user_request (str): The user's request.
         is_only_signature (bool): Whether the email content is only a signature.
         llm_provider (str): The language model to use for the email categorization and summarization.
+        llm_model (str): The language model to use for the email categorization and summarization.
 
     Returns:
         int: Scenario number (1-5).
@@ -342,9 +397,19 @@ def determine_action_scenario(
     """
     if llm_provider == "anthropic":
         return claude.determine_action_scenario(
-            destinary, subject, email_content, user_request, is_only_signature
+            destinary,
+            subject,
+            email_content,
+            user_request,
+            is_only_signature,
+            llm_model,
         )
     elif llm_provider == "google":
         return gemini.determine_action_scenario(
-            destinary, subject, email_content, user_request, is_only_signature
+            destinary,
+            subject,
+            email_content,
+            user_request,
+            is_only_signature,
+            llm_model,
         )

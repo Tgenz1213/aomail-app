@@ -428,6 +428,8 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
                 preference.important_guidelines,
                 preference.informative_guidelines,
                 preference.useless_guidelines,
+                preference.llm_provider,
+                preference.llm_model,
             )
 
         with ThreadPoolExecutor(max_workers=2) as executor:

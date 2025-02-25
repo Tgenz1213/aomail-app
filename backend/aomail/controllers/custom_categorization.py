@@ -16,6 +16,8 @@ from aomail.ai_providers import llm_functions
 from aomail.ai_providers.utils import update_tokens_stats
 from rest_framework import status
 from rest_framework.response import Response
+from aomail.models import Preference
+
 
 @api_view(["POST"])
 @block_user
@@ -34,7 +36,10 @@ def review_user_description(request: HttpRequest) -> dict:
     """
     parameters: dict = json.loads(request.body)
     user_description: str = parameters["description"]
-    result = llm_functions.review_user_description(user_description)
+    preference = Preference.objects.get(user=request.user)
+    result = llm_functions.review_user_description(
+        user_description, preference.llm_provider, preference.llm_model
+    )
     update_tokens_stats(request.user, result)
 
     return Response(result, status=status.HTTP_200_OK)
@@ -59,7 +64,13 @@ def generate_categories_scratch(request: HttpRequest) -> dict:
     parameters: dict = json.loads(request.body)
     user_topics: str = parameters["userTopics"]
     chat_history: str = parameters.get("chatHistory")
-    result = llm_functions.generate_categories_scratch(user_topics, chat_history)
+    preference = Preference.objects.get(user=request.user)
+    result = llm_functions.generate_categories_scratch(
+        user_topics,
+        chat_history,
+        preference.llm_provider,
+        preference.llm_model,
+    )
     update_tokens_stats(request.user, result)
 
     return Response(result, status=status.HTTP_200_OK)
@@ -84,7 +95,10 @@ def generate_prioritization_scratch(request: HttpRequest) -> dict:
     """
     parameters: dict = json.loads(request.body)
     user_input: str = parameters["userInput"]
-    result = llm_functions.generate_prioritization_scratch(user_input)
+    preference = Preference.objects.get(user=request.user)
+    result = llm_functions.generate_prioritization_scratch(
+        user_input, preference.llm_provider, preference.llm_model
+    )
     update_tokens_stats(request.user, result)
 
     return Response(result, status=status.HTTP_200_OK)

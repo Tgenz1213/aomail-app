@@ -166,8 +166,15 @@ def get_new_email_response(request: HttpRequest) -> Response:
 
     if is_only_signature or is_nearly_empty:
         try:
+            preference = Preference.objects.get(user=user)
             result = llm_functions.generate_email_response(
-                subject, emailBody, user_input, agent_settings, signature
+                subject,
+                emailBody,
+                user_input,
+                agent_settings,
+                signature,
+                preference.llm_provider,
+                preference.llm_model,
             )
             update_tokens_stats(user, result)
             return Response(
@@ -341,7 +348,10 @@ def search_emails_ai(request: HttpRequest) -> Response:
     emails = data["emails"]
     query = data["query"]
     language = Preference.objects.get(user=user).language
-    result: dict = llm_functions.search_emails(query, language)
+    preference = Preference.objects.get(user=user)
+    result: dict = llm_functions.search_emails(
+        query, language, preference.llm_provider, preference.llm_model
+    )
     search_params = result["search_params"]
     update_tokens_stats(user, result)
 
@@ -519,7 +529,10 @@ def find_user_view_ai(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    recipients_dict = llm_functions.extract_contacts_recipients(search_query)
+    preference = Preference.objects.get(user=request.user)
+    recipients_dict = llm_functions.extract_contacts_recipients(
+        search_query, preference.llm_provider, preference.llm_model
+    )
     update_tokens_stats(request.user, recipients_dict)
 
     main_list = recipients_dict.get("main_recipients", [])
@@ -598,9 +611,35 @@ def new_email_ai(request: HttpRequest) -> Response:
         input_data = serializer.validated_data["inputData"]
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
-        language = Preference.objects.get(user=user).language
+        preference = Preference.objects.get(user=user)
+        language = preference.language
+        signature = ""
 
-        result = llm_functions.generate_email(input_data, length, formality, language)
+        try:
+            agent = Agent.objects.get(user=user, last_used=True)
+        except Agent.DoesNotExist:
+            return Response(
+                {"error": "No active agent found for the user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        agent_settings = {
+            "ai_template": agent.ai_template,
+            "email_example": agent.email_example,
+            "length": agent.length,
+            "formality": agent.formality,
+            "language": agent.language,
+        }
+        result = llm_functions.generate_email(
+            input_data,
+            length,
+            formality,
+            language,
+            agent_settings,
+            signature,
+            preference.llm_provider,
+            preference.llm_model,
+        )
         update_tokens_stats(user, result)
 
         return Response(
@@ -637,7 +676,10 @@ def correct_email_language(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = llm_functions.correct_mail_language_mistakes(body, subject)
+        preference = Preference.objects.get(user=request.user)
+        result = llm_functions.correct_mail_language_mistakes(
+            body, subject, preference.llm_provider, preference.llm_model
+        )
         result = update_tokens_stats(request.user, result)
 
         return Response(result, status=status.HTTP_200_OK)
@@ -672,7 +714,10 @@ def check_email_copywriting(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = llm_functions.improve_email_copywriting(body, subject)
+        preference = Preference.objects.get(user=request.user)
+        result = llm_functions.improve_email_copywriting(
+            body, subject, preference.llm_provider, preference.llm_model
+        )
         update_tokens_stats(request.user, result)
 
         return Response(
@@ -708,7 +753,10 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = llm_functions.generate_response_keywords(subject, body)
+        preference = Preference.objects.get(user=request.user)
+        result = llm_functions.generate_response_keywords(
+            subject, body, preference.llm_provider, preference.llm_model
+        )
         update_tokens_stats(user, result)
 
         return Response(
@@ -764,8 +812,15 @@ def generate_email_answer(request: HttpRequest) -> Response:
             "language": agent.language,
         }
 
+        preference = Preference.objects.get(user=request.user)
         result = llm_functions.generate_email_response(
-            subject, body, user_instruction, agent_settings, signature
+            subject,
+            body,
+            user_instruction,
+            agent_settings,
+            signature,
+            preference.llm_provider,
+            preference.llm_model,
         )
         update_tokens_stats(user, result)
 
@@ -858,12 +913,15 @@ def handle_email_action(request: HttpRequest) -> Response:
             "language": agent.language,
         }
 
+        preference = Preference.objects.get(user=request.user)
         scenario = llm_functions.determine_action_scenario(
-            destinary=destinary_present,
-            subject=subject_present,
-            email_content=email_content_present,
-            is_only_signature=is_only_signature,
-            user_request=user_input,
+            destinary_present,
+            subject_present,
+            email_content_present,
+            user_input,
+            is_only_signature,
+            preference.llm_provider,
+            preference.llm_model,
         )
 
         LOGGER.info(f"===================================> Scenario: {scenario}")
@@ -899,7 +957,9 @@ def handle_email_action(request: HttpRequest) -> Response:
             ]
 
         if scenario == 1:
-            recipients = llm_functions.extract_contacts_recipients(user_input)
+            recipients = llm_functions.extract_contacts_recipients(
+                user_input, preference.llm_provider, preference.llm_model
+            )
             update_tokens_stats(user, recipients)
 
             # Get user contacts
@@ -937,6 +997,8 @@ def handle_email_action(request: HttpRequest) -> Response:
                 language,
                 agent_settings,
                 signature,
+                preference.llm_provider,
+                preference.llm_model,
             )
             update_tokens_stats(user, result)
 
@@ -947,8 +1009,10 @@ def handle_email_action(request: HttpRequest) -> Response:
                 }
             )
 
-            if scenario == 2:
-                recipients = llm_functions.extract_contacts_recipients(user_input)
+            if scenario == 2: 
+                recipients = llm_functions.extract_contacts_recipients(
+                    user_input, preference.llm_provider, preference.llm_model
+                )
                 update_tokens_stats(user, recipients)
 
                 # Get user contacts

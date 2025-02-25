@@ -62,9 +62,9 @@ def get_prompt_response(
     return response
 
 
-def extract_contacts_recipients(query: str) -> dict[str, list]:
+def extract_contacts_recipients(query: str, llm_model: str = None) -> dict[str, list]:
     formatted_prompt = EXTRACT_CONTACTS_RECIPIENTS_PROMPT.format(query=query)
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     result_json: dict = json.loads(response.content[0].text)
     result_json["tokens_input"] = response.usage.input_tokens
     result_json["tokens_output"] = response.usage.output_tokens
@@ -73,11 +73,13 @@ def extract_contacts_recipients(query: str) -> dict[str, list]:
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email: str, input_subject: str) -> dict:
+def generate_response_keywords(
+    input_email: str, input_subject: str, llm_model: str = None
+) -> dict:
     formatted_prompt = GENERATE_RESPONSE_KEYWORDS_PROMPT.format(
         input_subject=input_subject, input_email=input_email
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     keywords = response.content[0].text.strip()
     keywords_list = ast.literal_eval(keywords)
 
@@ -96,6 +98,7 @@ def generate_email(
     language: str,
     agent_settings: dict,
     signature: str = "",
+    llm_model: str = None,
 ) -> dict:
     has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
@@ -114,7 +117,7 @@ def generate_email(
         signature_instruction=signature_instruction,
     )
 
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     clear_text = response.content[0].text.strip()
 
     result_json: dict = json.loads(clear_text)
@@ -129,11 +132,15 @@ def generate_email(
     }
 
 
-def correct_mail_language_mistakes(body: str, subject: str) -> dict:
+def correct_mail_language_mistakes(
+    body: str,
+    subject: str,
+    llm_model: str = None,
+) -> dict:
     formatted_prompt = CORRECT_MAIL_LANGUAGE_MISTAKES_PROMPT.format(
         subject=subject, body=body
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     clear_text = response.content[0].text.strip()
     result_json = json.loads(clear_text)
 
@@ -153,7 +160,9 @@ def correct_mail_language_mistakes(body: str, subject: str) -> dict:
     }
 
 
-def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
+def improve_email_copywriting(
+    email_subject: str, email_body: str, llm_model: str = None
+) -> dict:
     """
     Provides feedback and suggestions for improving the copywriting in the email subject and body.
 
@@ -170,7 +179,7 @@ def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
     formatted_prompt = IMPROVE_EMAIL_COPYWRITING_PROMPT.format(
         email_subject=email_subject, email_body=email_body
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     feedback_ai = response.content[0].text.strip()
 
     return {
@@ -186,6 +195,7 @@ def generate_email_response(
     user_instruction: str,
     agent_settings: dict,
     signature: str = "",
+    llm_model: str = None,
 ) -> dict:
     has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
@@ -202,7 +212,7 @@ def generate_email_response(
         user_instruction=user_instruction,
         signature_instruction=signature_instruction,
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     body = response.content[0].text.strip()
 
     return {
@@ -221,6 +231,7 @@ def categorize_and_summarize_email(
     important_guidelines: str,
     informative_guidelines: str,
     useless_guidelines: str,
+    llm_model: str = None,
 ) -> dict:
     formatted_prompt = CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT.format(
         sender=sender,
@@ -234,7 +245,7 @@ def categorize_and_summarize_email(
         informative_guidelines=informative_guidelines,
         useless_guidelines=useless_guidelines,
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     clear_response = response.content[0].text.strip()
     result_json = json.loads(clear_response)
     result_json["tokens_input"] = response.usage.input_tokens
@@ -243,12 +254,12 @@ def categorize_and_summarize_email(
     return result_json
 
 
-def search_emails(query: str, language: str) -> dict:
+def search_emails(query: str, language: str, llm_model: str = None) -> dict:
     today = datetime.now().strftime("%m-%d-%Y")
     formatted_prompt = SEARCH_EMAILS_PROMPT.format(
         query=query, today=today, language=language
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     clear_response = response.content[0].text.strip()
     result_json = json.loads(clear_response)
     result_json["tokens_input"] = response.usage.input_tokens
@@ -257,11 +268,11 @@ def search_emails(query: str, language: str) -> dict:
     return result_json
 
 
-def review_user_description(user_description: str) -> dict:
+def review_user_description(user_description: str, llm_model: str = None) -> dict:
     formatted_prompt = REVIEW_USER_DESCRIPTION_PROMPT.format(
         user_description=user_description
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     clear_response = response.content[0].text.strip()
     result_json = json.loads(clear_response)
     result_json["tokens_input"] = response.usage.input_tokens
@@ -271,7 +282,7 @@ def review_user_description(user_description: str) -> dict:
 
 
 def generate_categories_scratch(
-    user_topics: list | str, chat_history: list = None
+    user_topics: list | str, chat_history: list = None, llm_model: str = None
 ) -> dict:
     chat_history_text = (
         CHAT_HISTORY_TEXT.format(chat_history=chat_history) if chat_history else ""
@@ -280,7 +291,7 @@ def generate_categories_scratch(
         user_topics=user_topics,
         chat_history_text=chat_history_text,
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     clear_response = response.content[0].text.strip()
     result_json = json.loads(clear_response)
     result_json["tokens_input"] = response.usage.input_tokens
@@ -289,11 +300,13 @@ def generate_categories_scratch(
     return result_json
 
 
-def generate_prioritization_scratch(user_input: dict | str) -> dict:
+def generate_prioritization_scratch(
+    user_input: dict | str, llm_model: str = None
+) -> dict:
     formatted_prompt = GENERATE_PRIORITIZATION_SCRATCH_PROMPT.format(
         user_input=user_input
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     clear_response = response.content[0].text.strip()
     result_json = json.loads(clear_response)
     result_json["tokens_input"] = response.usage.input_tokens
@@ -308,12 +321,13 @@ def determine_action_scenario(
     email_content: bool,
     user_request: str,
     is_only_signature: bool,
+    llm_model: str = None,
 ) -> int:
     if not destinary and not subject and (not email_content or is_only_signature):
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
             user_request=user_request
         )
-        response = get_prompt_response(formatted_prompt)
+        response = get_prompt_response(formatted_prompt, llm_model)
         clear_response = response.content[0].text.strip()
         try:
             scenario = int(clear_response)

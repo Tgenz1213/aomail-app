@@ -87,6 +87,8 @@ class Category(models.Model):
 class Preference(models.Model):
     """Model for storing user preferences."""
 
+    llm_provider = models.CharField(max_length=50, default="google")
+    llm_model = models.CharField(max_length=50, null=True)
     timezone = models.CharField(max_length=50, default="UTC")
     theme = models.CharField(max_length=50, default="light")
     language = models.CharField(max_length=50, default="american")

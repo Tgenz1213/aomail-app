@@ -33,6 +33,7 @@ from aomail.ai_providers.prompts import (
     GENERATE_EMAIL_RESPONSE_PROMPT,
     GENERATE_PRIORITIZATION_SCRATCH_PROMPT,
     GENERATE_RESPONSE_KEYWORDS_PROMPT,
+    GET_ANSWER_PROMPT,
     IMPROVE_EMAIL_COPYWRITING_PROMPT,
     IMPROVE_EMAIL_DRAFT_PROMPT,
     IMPROVE_EMAIL_RESPONSE_PROMPT,
@@ -40,8 +41,11 @@ from aomail.ai_providers.prompts import (
     RESPONSE_LIST,
     REVIEW_USER_DESCRIPTION_PROMPT,
     SEARCH_EMAILS_PROMPT,
+    SELECT_CATEGORIES_PROMPT,
     SIGNATURE_INSTRUCTION_WITH_CONTENT,
     SIGNATURE_INSTRUCTION_WITHOUT_CONTENT,
+    SUMMARIZE_CONVERSATION_PROMPT,
+    SUMMARIZE_EMAIL_PROMPT,
 )
 
 
@@ -305,6 +309,7 @@ def determine_action_scenario(
             user_request=user_request
         )
         response = get_prompt_response(formatted_prompt)
+        # TODO: Save the tokens used!
         try:
             scenario = int(response.text.strip())
             if scenario in [1, 2, 3]:
@@ -373,6 +378,78 @@ def improve_draft(
         user_input=user_input,
         length=length,
         formality=formality,
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
+
+    return result_json
+
+
+def select_categories(categories: str, question: str, llm_model: str = None) -> dict:
+    formatted_prompt = SELECT_CATEGORIES_PROMPT.format(
+        categories=categories, question=question
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
+
+    return result_json
+
+
+def get_answer(
+    keypoints: dict, question: str, language: str, llm_model: str = None
+) -> dict:
+    formatted_prompt = GET_ANSWER_PROMPT.format(
+        keypoints=keypoints, question=question, language=language
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
+
+    return result_json
+
+
+def summarize_conversation(
+    subject: str,
+    body: str,
+    user_description: str,
+    categories: dict,
+    language: str,
+    llm_model: str = None,
+) -> dict:
+    formatted_prompt = SUMMARIZE_CONVERSATION_PROMPT.format(
+        subject=subject,
+        body=body,
+        categories=categories,
+        user_description=user_description,
+        language=language,
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    result_json = extract_json_from_response(response.text)
+    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
+    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
+
+    return result_json
+
+
+def summarize_email(
+    subject: str,
+    body: str,
+    user_description: str,
+    categories: dict,
+    language: str,
+    llm_model: str = None,
+) -> dict:
+    formatted_prompt = SUMMARIZE_EMAIL_PROMPT.format(
+        subject=subject,
+        body=body,
+        categories=categories,
+        user_description=user_description,
+        language=language,
     )
     response = get_prompt_response(formatted_prompt, llm_model)
     result_json = extract_json_from_response(response.text)

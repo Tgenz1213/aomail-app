@@ -484,3 +484,64 @@ def improve_draft(
             formality,
             llm_model,
         )
+
+
+# -----------------------  TREE KNOWLEDGE PROMPTS (tree_knowledge.py) -----------------------#
+def select_categories(
+    categories: str, question: str, llm_provider: str = "google", llm_model: str = None
+) -> dict:
+    if llm_provider == "anthropic":
+        return claude.select_categories(categories, question, llm_model)
+    elif llm_provider == "google":
+        return gemini.select_categories(categories, question, llm_model)
+
+
+def get_answer(
+    keypoints: dict,
+    question: str,
+    language: str,
+    llm_provider: str = "google",
+    llm_model: str = None,
+) -> dict:
+    if llm_provider == "anthropic":
+        return claude.get_answer(keypoints, question, language, llm_model)
+    elif llm_provider == "google":
+        return gemini.get_answer(keypoints, question, language, llm_model)
+
+
+def summarize_conversation(
+    subject: str,
+    body: str,
+    user_description: str,
+    categories: dict,
+    language: str,
+    llm_provider: str = "google",
+    llm_model: str = None,
+) -> dict:
+    if llm_provider == "anthropic":
+        return claude.summarize_conversation(
+            subject, body, user_description, categories, language, llm_model
+        )
+    elif llm_provider == "google":
+        return gemini.summarize_conversation(
+            subject, body, user_description, categories, language, llm_model
+        )
+
+
+def summarize_email(
+    subject: str,
+    body: str,
+    user_description: str,
+    categories: dict,
+    language: str,
+    llm_provider: str = "google",
+    llm_model: str = None,
+) -> dict:
+    if llm_provider == "anthropic":
+        return claude.summarize_email(
+            subject, body, user_description, categories, language, llm_model
+        )
+    elif llm_provider == "google":
+        return gemini.summarize_email(
+            subject, body, user_description, categories, language, llm_model
+        )

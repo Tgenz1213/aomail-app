@@ -336,3 +336,109 @@ Keep the same email body length: '{length}' AND level of speech: '{formality}' u
 ---
 Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
 """
+
+
+# -----------------------  TREE KNOWLEDGE PROMPTS (tree_knowledge.py) -----------------------#
+SELECT_CATEGORIES_PROMPT = """You are an email assistant that helps a user to answer its question.
+        
+Email categories and organizations:
+{categories}
+
+User question:
+{question}
+
+Choose categories and organizations that have high probability to help the user to find its answer.
+The chosen categories and organizations must be highly relevant. If you hesitate do not add it.
+Do not add any comments nor explain your thinking process.
+
+---
+Answer must always be a Json format matching this template:
+{{
+    "category1": [selected organizations],
+    ...
+    "categoryN": [selected organizations]
+}}
+"""
+
+GET_ANSWER_PROMPT = """You are an email assistant that helps a user to answer their question.
+
+User data:
+{keypoints}
+
+User question:
+{question}
+
+If you estimate that the answer is likely to be good, set the boolean field to 'true'.
+Otherwise, set it to 'false' if you think the user is very likely to look for further details.
+The answer must be concise and straight to the point without giving explanations.
+
+---
+The answer must always be in Json format matching this template:
+{{
+    "sure": bool,
+    "answer": "answer to the user question in {language}"
+}}
+Ensure the JSON is properly formatted and parsable by Python.
+"""
+
+
+SUMMARIZE_CONVERSATION_PROMPT = """As a smart email assistant, 
+For each email in the following conversation, summarize it in {language} as a list of up to three ultra-concise keypoints (up to seven words) that encapsulate the core information. This will aid the user in recalling the past conversation.
+Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
+The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
+If a user description is clearly provided, use it to enhance the keypoints.
+In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describes the conversation.
+If you hesitate on any of them, or if it is unclear or not explicitly mentioned, set it to 'Unknown'.
+To assist you in categorizing the conversation, here are the existing categories and organizations: {categories}.
+If you can classify the conversation in an existing category/organization: Do it. If you hesitate, create another category/organization in {language}.
+
+User description:
+{user_description}
+
+Email subject:
+{subject}
+
+Email conversation:
+{body}
+
+---
+Answer must always be a Json format matching this template:
+{{
+    "category": "",
+    "organization": "",
+    "topic": "",
+    "keypoints": {{
+        "1": [list of keypoints],
+        "2": [list of keypoints],
+        "n": [list of keypoints]
+    }}
+}}"""
+
+
+SUMMARIZE_EMAIL_PROMPT = """As a smart email assistant, 
+Summarize the email body in {language} as a list of up to three ultra-concise keypoints (up to seven words each) that encapsulate the core information. This will aid the user in recalling the content of the email.
+The sentences must be highly relevant and should not include minor details or unnecessary information. If in doubt, do not add the keypoint.
+If a user description is clearly provided, use it to enhance the keypoints.
+In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describe the conversation.
+If you hesitate on any of them, or if it is unclear or not explicitly mentioned, set it to 'Unknown'.
+To assist you in categorizing the email, here are the existing categories and organizations: {categories}.
+If you can classify the email within an existing category/organization, do so. If uncertain, create another category/organization in {language}.
+
+User description:
+{user_description}
+
+Email subject:
+{subject}
+
+Email body:
+{body}
+
+---
+Answer must always be a Json format matching this template:
+{{
+    "category": "",
+    "organization": "",
+    "topic": "",
+    "keypoints": [list of keypoints]
+}}
+"""

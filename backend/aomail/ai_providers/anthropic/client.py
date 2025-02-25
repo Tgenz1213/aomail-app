@@ -33,6 +33,7 @@ from aomail.ai_providers.prompts import (
     GENERATE_EMAIL_RESPONSE_PROMPT,
     GENERATE_PRIORITIZATION_SCRATCH_PROMPT,
     GENERATE_RESPONSE_KEYWORDS_PROMPT,
+    GET_ANSWER_PROMPT,
     IMPROVE_EMAIL_COPYWRITING_PROMPT,
     IMPROVE_EMAIL_DRAFT_PROMPT,
     IMPROVE_EMAIL_RESPONSE_PROMPT,
@@ -40,8 +41,11 @@ from aomail.ai_providers.prompts import (
     RESPONSE_LIST,
     REVIEW_USER_DESCRIPTION_PROMPT,
     SEARCH_EMAILS_PROMPT,
+    SELECT_CATEGORIES_PROMPT,
     SIGNATURE_INSTRUCTION_WITH_CONTENT,
     SIGNATURE_INSTRUCTION_WITHOUT_CONTENT,
+    SUMMARIZE_CONVERSATION_PROMPT,
+    SUMMARIZE_EMAIL_PROMPT,
 )
 
 
@@ -405,6 +409,79 @@ def improve_draft(
     response = get_prompt_response(formatted_prompt, llm_model)
     clear_response = response.content[0].text.strip()
     result_json = json.loads(clear_response)
+    result_json["tokens_input"] = response.usage.input_tokens
+    result_json["tokens_output"] = response.usage.output_tokens
+
+    return result_json
+
+
+def select_categories(categories: str, question: str, llm_model: str = None) -> dict:
+    formatted_prompt = SELECT_CATEGORIES_PROMPT.format(
+        categories=categories, question=question
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    clear_response = response.content[0].text.strip()
+    result_json = json.loads(clear_response)
+    result_json["tokens_input"] = response.usage.input_tokens
+    result_json["tokens_output"] = response.usage.output_tokens
+
+    return result_json
+
+
+def get_answer(
+    keypoints: dict, question: str, language: str, llm_model: str = None
+) -> dict:
+    formatted_prompt = GET_ANSWER_PROMPT.format(
+        keypoints=keypoints, question=question, language=language
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    result_json = json.loads(response.content[0].text.strip())
+    result_json["tokens_input"] = response.usage.input_tokens
+    result_json["tokens_output"] = response.usage.output_tokens
+
+    return result_json
+
+
+def summarize_conversation(
+    subject: str,
+    body: str,
+    user_description: str,
+    categories: dict,
+    language: str,
+    llm_model: str = None,
+) -> dict:
+    formatted_prompt = SUMMARIZE_CONVERSATION_PROMPT.format(
+        subject=subject,
+        body=body,
+        categories=categories,
+        user_description=user_description,
+        language=language,
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    result_json = json.loads(response.content[0].text.strip())
+    result_json["tokens_input"] = response.usage.input_tokens
+    result_json["tokens_output"] = response.usage.output_tokens
+
+    return result_json
+
+
+def summarize_email(
+    subject: str,
+    body: str,
+    user_description: str,
+    categories: dict,
+    language: str,
+    llm_model: str = None,
+) -> dict:
+    formatted_prompt = SUMMARIZE_EMAIL_PROMPT.format(
+        subject=subject,
+        body=body,
+        categories=categories,
+        user_description=user_description,
+        language=language,
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    result_json = json.loads(response.content[0].text.strip())
     result_json["tokens_input"] = response.usage.input_tokens
     result_json["tokens_output"] = response.usage.output_tokens
 

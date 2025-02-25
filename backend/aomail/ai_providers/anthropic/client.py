@@ -329,34 +329,43 @@ def determine_action_scenario(
     is_only_signature: bool,
     llm_model: str = None,
 ) -> int:
+    result_json = {"tokens_input": 0, "tokens_output": 0, "scenario": 5}
     if not destinary and not subject and (not email_content or is_only_signature):
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
             user_request=user_request
         )
         response = get_prompt_response(formatted_prompt, llm_model)
         clear_response = response.content[0].text.strip()
-        # TODO: Save the tokens used!
         try:
             scenario = int(clear_response)
+            result_json["scenario"] = scenario
+            result_json["tokens_input"] = response.usage.input_tokens
+            result_json["tokens_output"] = response.usage.output_tokens
             if scenario in [1, 2, 3]:
-                return scenario
+                return result_json
             else:
                 LOGGER.error(f"Invalid scenario number received from AI: {scenario}")
-                return 5
+                result_json["scenario"] = 5
+                return result_json
         except (ValueError, AttributeError) as e:
             LOGGER.error(f"Error parsing AI response: {e}")
-            return 5
+            result_json["scenario"] = 5
+            return result_json
 
     if destinary and not subject and (not email_content or is_only_signature):
-        return 3
+        result_json["scenario"] = 3
+        return result_json
 
     if destinary and subject and (not email_content or is_only_signature):
-        return 3
+        result_json["scenario"] = 3
+        return result_json
 
     if email_content and not is_only_signature:
-        return 4
+        result_json["scenario"] = 4
+        return result_json
 
-    return 5
+    result_json["scenario"] = 5
+    return result_json
 
 
 def improve_email_response(

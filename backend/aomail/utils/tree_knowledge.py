@@ -6,7 +6,6 @@ import json
 import logging
 from aomail.ai_providers import llm_functions
 from aomail.models import KeyPoint, Preference
-from aomail.ai_providers.utils import extract_json_from_response
 
 
 ######################## LOGGING CONFIGURATION ########################

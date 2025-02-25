@@ -914,7 +914,7 @@ def handle_email_action(request: HttpRequest) -> Response:
         }
 
         preference = Preference.objects.get(user=request.user)
-        scenario = llm_functions.determine_action_scenario(
+        result_json = llm_functions.determine_action_scenario(
             destinary_present,
             subject_present,
             email_content_present,
@@ -923,8 +923,9 @@ def handle_email_action(request: HttpRequest) -> Response:
             preference.llm_provider,
             preference.llm_model,
         )
+        scenario = result_json.get("scenario", 5)
 
-        LOGGER.info(f"===================================> Scenario: {scenario}")
+        update_tokens_stats(user, result_json)
 
         response_data = {
             "scenario": scenario,
@@ -1009,7 +1010,7 @@ def handle_email_action(request: HttpRequest) -> Response:
                 }
             )
 
-            if scenario == 2: 
+            if scenario == 2:
                 recipients = llm_functions.extract_contacts_recipients(
                     user_input, preference.llm_provider, preference.llm_model
                 )

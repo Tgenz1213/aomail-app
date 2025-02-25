@@ -87,17 +87,19 @@ def get_prompt_response_with_tokens(
     return result_json
 
 
-def extract_contacts_recipients(query: str) -> dict:
+def extract_contacts_recipients(query: str, llm_model: str = None) -> dict:
     formatted_prompt = EXTRACT_CONTACTS_RECIPIENTS_PROMPT.format(query=query)
-    return get_prompt_response_with_tokens(formatted_prompt)
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email: str, input_subject: str) -> dict:
+def generate_response_keywords(
+    input_email: str, input_subject: str, llm_model: str = "gemini-2.0-flash-exp"
+) -> dict:
     formatted_prompt = GENERATE_RESPONSE_KEYWORDS_PROMPT.format(
         input_subject=input_subject, input_email=input_email
     )
-    response = get_prompt_response(formatted_prompt, "gemini-2.0-flash-exp")
+    response = get_prompt_response(formatted_prompt, llm_model)
     keywords_text = response.text.strip()
 
     try:
@@ -121,6 +123,7 @@ def generate_email(
     language: str,
     agent_settings: dict,
     signature: str = "",
+    llm_model: str = "gemini-2.0-flash-exp",
 ) -> dict:
     has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
@@ -139,14 +142,16 @@ def generate_email(
         signature_instruction=signature_instruction,
     )
 
-    return get_prompt_response_with_tokens(formatted_prompt, "gemini-2.0-flash-exp")
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
-def correct_mail_language_mistakes(body: str, subject: str) -> dict:
+def correct_mail_language_mistakes(
+    body: str, subject: str, llm_model: str = None
+) -> dict:
     formatted_prompt = CORRECT_MAIL_LANGUAGE_MISTAKES_PROMPT.format(
         subject=subject, body=body
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     result_json: dict = extract_json_from_response(response.text)
 
     corrected_subject = result_json["subject"]
@@ -165,11 +170,13 @@ def correct_mail_language_mistakes(body: str, subject: str) -> dict:
     }
 
 
-def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
+def improve_email_copywriting(
+    email_subject: str, email_body: str, llm_model: str = None
+) -> dict:
     formatted_prompt = IMPROVE_EMAIL_COPYWRITING_PROMPT.format(
         email_subject=email_subject, email_body=email_body
     )
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(formatted_prompt, llm_model)
     feedback_ai = response.text
 
     return {
@@ -185,6 +192,7 @@ def generate_email_response(
     user_instruction: str,
     agent_settings: dict,
     signature: str = "",
+    llm_model: str = "gemini-2.0-flash-exp",
 ) -> dict:
     has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
@@ -201,7 +209,7 @@ def generate_email_response(
         user_instruction=user_instruction,
         signature_instruction=signature_instruction,
     )
-    response = get_prompt_response(formatted_prompt, "gemini-2.0-flash-exp")
+    response = get_prompt_response(formatted_prompt, llm_model)
     result_json = extract_json_from_response(response.text)
     body = result_json.get("body", "")
 
@@ -224,6 +232,7 @@ def categorize_and_summarize_email(
     important_guidelines: str,
     informative_guidelines: str,
     useless_guidelines: str,
+    llm_model: str = None,
 ) -> dict:
     formatted_prompt = CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT.format(
         sender=sender,
@@ -237,26 +246,26 @@ def categorize_and_summarize_email(
         informative_guidelines=informative_guidelines,
         useless_guidelines=useless_guidelines,
     )
-    return get_prompt_response_with_tokens(formatted_prompt)
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
-def search_emails(query: str, language: str) -> dict:
+def search_emails(query: str, language: str, llm_model: str = None) -> dict:
     today = datetime.now().strftime("%m-%d-%Y")
     formatted_prompt = SEARCH_EMAILS_PROMPT.format(
         query=query, today=today, language=language
     )
-    return get_prompt_response_with_tokens(formatted_prompt)
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
-def review_user_description(user_description: str) -> dict:
+def review_user_description(user_description: str, llm_model: str = None) -> dict:
     formatted_prompt = REVIEW_USER_DESCRIPTION_PROMPT.format(
         user_description=user_description
     )
-    return get_prompt_response_with_tokens(formatted_prompt)
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def generate_categories_scratch(
-    user_topics: list | str, chat_history: list = None
+    user_topics: list | str, chat_history: list = None, llm_model: str = None
 ) -> dict:
     chat_history_text = (
         CHAT_HISTORY_TEXT.format(chat_history=chat_history) if chat_history else ""
@@ -265,14 +274,16 @@ def generate_categories_scratch(
         user_topics=user_topics,
         chat_history_text=chat_history_text,
     )
-    return get_prompt_response_with_tokens(formatted_prompt)
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
-def generate_prioritization_scratch(user_input: dict | str) -> dict:
+def generate_prioritization_scratch(
+    user_input: dict | str, llm_model: str = None
+) -> dict:
     formatted_prompt = GENERATE_PRIORITIZATION_SCRATCH_PROMPT.format(
         user_input=user_input
     )
-    return get_prompt_response_with_tokens(formatted_prompt)
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def determine_action_scenario(
@@ -281,13 +292,14 @@ def determine_action_scenario(
     email_content: bool,
     user_request: str,
     is_only_signature: bool,
+    llm_model: str = None,
 ) -> dict:
     result_json = {"tokens_input": 0, "tokens_output": 0, "scenario": 5}
     if not destinary and not subject and (not email_content or is_only_signature):
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
             user_request=user_request
         )
-        response = get_prompt_response(formatted_prompt)
+        response = get_prompt_response(formatted_prompt, llm_model)
         try:
             scenario = int(response.text.strip())
             result_json["scenario"] = scenario

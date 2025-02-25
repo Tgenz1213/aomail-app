@@ -12,6 +12,13 @@ Features:
 - ✅ categorize_and_summarize_email: Categorizes and summarizes an email.
 - ✅ review_user_description: Reviews a user-provided description and provides validation and feedback.
 - ✅ generate_categories_scratch: Generates categories based on user topics for email classification.
+- ✅ determine_action_scenario: Determines the scenario based on input flags and user request.
+- ✅ improve_email_response: Improves an email response based on user feedback.
+- ✅ improve_draft: Improves a draft email based on user feedback.
+- ✅ select_categories: Selects categories based on user input.
+- ✅ get_answer: Gets an answer based on user input.
+- ✅ summarize_conversation: Summarizes a conversation.
+- ✅ summarize_email: Summarizes an email.
 """
 
 import ast
@@ -68,14 +75,20 @@ def get_prompt_response(
     return response
 
 
-def extract_contacts_recipients(query: str, llm_model: str = None) -> dict[str, list]:
-    formatted_prompt = EXTRACT_CONTACTS_RECIPIENTS_PROMPT.format(query=query)
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json: dict = json.loads(response.content[0].text)
+def get_prompt_response_with_tokens(
+    formatted_prompt: str, model: str = "claude-3-haiku-20240307"
+) -> dict:
+    response = get_prompt_response(formatted_prompt, model)
+    result_json = json.loads(response.content[0].text)
     result_json["tokens_input"] = response.usage.input_tokens
     result_json["tokens_output"] = response.usage.output_tokens
 
     return result_json
+
+
+def extract_contacts_recipients(query: str, llm_model: str = None) -> dict:
+    formatted_prompt = EXTRACT_CONTACTS_RECIPIENTS_PROMPT.format(query=query)
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
@@ -123,19 +136,7 @@ def generate_email(
         signature_instruction=signature_instruction,
     )
 
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_text = response.content[0].text.strip()
-
-    result_json: dict = json.loads(clear_text)
-    subject_text = result_json.get("subject")
-    email_body = result_json.get("body")
-
-    return {
-        "subject_text": subject_text,
-        "email_body": email_body,
-        "tokens_input": response.usage.input_tokens,
-        "tokens_output": response.usage.output_tokens,
-    }
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def correct_mail_language_mistakes(
@@ -169,19 +170,6 @@ def correct_mail_language_mistakes(
 def improve_email_copywriting(
     email_subject: str, email_body: str, llm_model: str = None
 ) -> dict:
-    """
-    Provides feedback and suggestions for improving the copywriting in the email subject and body.
-
-    Args:
-        email_subject (str): The subject of the email to be evaluated and improved.
-        email_body (str): The body of the email to be evaluated and improved.
-
-    Returns:
-        dict: A dictionary containing:
-            feedback_ai (str): Feedback and suggestions for improving the copywriting in the email subject and body.
-            tokens_input (int): The number of tokens used for the input.
-            tokens_output (int): The number of tokens used for the output.
-    """
     formatted_prompt = IMPROVE_EMAIL_COPYWRITING_PROMPT.format(
         email_subject=email_subject, email_body=email_body
     )
@@ -251,13 +239,7 @@ def categorize_and_summarize_email(
         informative_guidelines=informative_guidelines,
         useless_guidelines=useless_guidelines,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def search_emails(query: str, language: str, llm_model: str = None) -> dict:
@@ -265,26 +247,14 @@ def search_emails(query: str, language: str, llm_model: str = None) -> dict:
     formatted_prompt = SEARCH_EMAILS_PROMPT.format(
         query=query, today=today, language=language
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def review_user_description(user_description: str, llm_model: str = None) -> dict:
     formatted_prompt = REVIEW_USER_DESCRIPTION_PROMPT.format(
         user_description=user_description
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def generate_categories_scratch(
@@ -297,13 +267,7 @@ def generate_categories_scratch(
         user_topics=user_topics,
         chat_history_text=chat_history_text,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def generate_prioritization_scratch(
@@ -312,13 +276,7 @@ def generate_prioritization_scratch(
     formatted_prompt = GENERATE_PRIORITIZATION_SCRATCH_PROMPT.format(
         user_input=user_input
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def determine_action_scenario(
@@ -328,16 +286,15 @@ def determine_action_scenario(
     user_request: str,
     is_only_signature: bool,
     llm_model: str = None,
-) -> int:
+) -> dict:
     result_json = {"tokens_input": 0, "tokens_output": 0, "scenario": 5}
     if not destinary and not subject and (not email_content or is_only_signature):
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
             user_request=user_request
         )
         response = get_prompt_response(formatted_prompt, llm_model)
-        clear_response = response.content[0].text.strip()
         try:
-            scenario = int(clear_response)
+            scenario = int(response.content[0].text.strip())
             result_json["scenario"] = scenario
             result_json["tokens_input"] = response.usage.input_tokens
             result_json["tokens_output"] = response.usage.output_tokens
@@ -385,13 +342,7 @@ def improve_email_response(
         user_input=user_input,
         agent_settings=agent_settings,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def improve_draft(
@@ -415,26 +366,14 @@ def improve_draft(
         length=length,
         formality=formality,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def select_categories(categories: str, question: str, llm_model: str = None) -> dict:
     formatted_prompt = SELECT_CATEGORIES_PROMPT.format(
         categories=categories, question=question
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def get_answer(
@@ -443,12 +382,7 @@ def get_answer(
     formatted_prompt = GET_ANSWER_PROMPT.format(
         keypoints=keypoints, question=question, language=language
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = json.loads(response.content[0].text.strip())
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def summarize_conversation(
@@ -466,12 +400,7 @@ def summarize_conversation(
         user_description=user_description,
         language=language,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = json.loads(response.content[0].text.strip())
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def summarize_email(
@@ -489,9 +418,4 @@ def summarize_email(
         user_description=user_description,
         language=language,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = json.loads(response.content[0].text.strip())
-    result_json["tokens_input"] = response.usage.input_tokens
-    result_json["tokens_output"] = response.usage.output_tokens
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)

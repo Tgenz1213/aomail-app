@@ -12,6 +12,13 @@ Features:
 - ✅ categorize_and_summarize_email: Categorizes and summarizes an email.
 - ✅ review_user_description: Reviews a user-provided description and provides validation and feedback.
 - ✅ generate_categories_scratch: Generates categories based on user topics for email classification.
+- ✅ determine_action_scenario: Determines the scenario based on input flags and user request.
+- ✅ improve_email_response: Improves an email response based on user feedback.
+- ✅ improve_draft: Improves a draft email based on user feedback.
+- ✅ select_categories: Selects categories based on user input.
+- ✅ get_answer: Gets an answer based on user input.
+- ✅ summarize_conversation: Summarizes a conversation.
+- ✅ summarize_email: Summarizes an email.
 """
 
 import os
@@ -69,17 +76,20 @@ def get_prompt_response(
     return response
 
 
-def extract_contacts_recipients(query: str) -> dict[str, list]:
-    formatted_prompt = EXTRACT_CONTACTS_RECIPIENTS_PROMPT.format(query=query)
-    response = get_prompt_response(formatted_prompt)
-    try:
-        result_json = extract_json_from_response(response.text)
-    except json.JSONDecodeError as e:
-        LOGGER.error(f"JSON Decode Error: {e}")
+def get_prompt_response_with_tokens(
+    formatted_prompt: str, model: str = "gemini-1.5-flash"
+) -> dict:
+    response = get_prompt_response(formatted_prompt, model)
+    result_json = extract_json_from_response(response.text)
     result_json["tokens_input"] = response.usage_metadata.prompt_token_count
     result_json["tokens_output"] = response.usage_metadata.candidates_token_count
 
     return result_json
+
+
+def extract_contacts_recipients(query: str) -> dict:
+    formatted_prompt = EXTRACT_CONTACTS_RECIPIENTS_PROMPT.format(query=query)
+    return get_prompt_response_with_tokens(formatted_prompt)
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
@@ -129,17 +139,7 @@ def generate_email(
         signature_instruction=signature_instruction,
     )
 
-    response = get_prompt_response(formatted_prompt, "gemini-2.0-flash-exp")
-    result_json: dict = extract_json_from_response(response.text)
-    subject_text = result_json.get("subject")
-    email_body = result_json.get("body")
-
-    return {
-        "subject_text": subject_text,
-        "email_body": email_body,
-        "tokens_input": response.usage_metadata.prompt_token_count,
-        "tokens_output": response.usage_metadata.candidates_token_count,
-    }
+    return get_prompt_response_with_tokens(formatted_prompt, "gemini-2.0-flash-exp")
 
 
 def correct_mail_language_mistakes(body: str, subject: str) -> dict:
@@ -237,36 +237,22 @@ def categorize_and_summarize_email(
         informative_guidelines=informative_guidelines,
         useless_guidelines=useless_guidelines,
     )
-    response = get_prompt_response(formatted_prompt)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt)
 
 
 def search_emails(query: str, language: str) -> dict:
     today = datetime.now().strftime("%m-%d-%Y")
-
     formatted_prompt = SEARCH_EMAILS_PROMPT.format(
         query=query, today=today, language=language
     )
-    response = get_prompt_response(formatted_prompt)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt)
 
 
 def review_user_description(user_description: str) -> dict:
-    prompt = REVIEW_USER_DESCRIPTION_PROMPT.format(user_description=user_description)
-    response = get_prompt_response(prompt)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    formatted_prompt = REVIEW_USER_DESCRIPTION_PROMPT.format(
+        user_description=user_description
+    )
+    return get_prompt_response_with_tokens(formatted_prompt)
 
 
 def generate_categories_scratch(
@@ -275,26 +261,18 @@ def generate_categories_scratch(
     chat_history_text = (
         CHAT_HISTORY_TEXT.format(chat_history=chat_history) if chat_history else ""
     )
-    prompt = GENERATE_CATEGORIES_SCRATCH_PROMPT.format(
+    formatted_prompt = GENERATE_CATEGORIES_SCRATCH_PROMPT.format(
         user_topics=user_topics,
         chat_history_text=chat_history_text,
     )
-    response = get_prompt_response(prompt)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt)
 
 
 def generate_prioritization_scratch(user_input: dict | str) -> dict:
-    prompt = GENERATE_PRIORITIZATION_SCRATCH_PROMPT.format(user_input=user_input)
-    response = get_prompt_response(prompt)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    formatted_prompt = GENERATE_PRIORITIZATION_SCRATCH_PROMPT.format(
+        user_input=user_input
+    )
+    return get_prompt_response_with_tokens(formatted_prompt)
 
 
 def determine_action_scenario(
@@ -303,7 +281,7 @@ def determine_action_scenario(
     email_content: bool,
     user_request: str,
     is_only_signature: bool,
-) -> int:
+) -> dict:
     result_json = {"tokens_input": 0, "tokens_output": 0, "scenario": 5}
     if not destinary and not subject and (not email_content or is_only_signature):
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
@@ -361,12 +339,7 @@ def improve_email_response(
         user_input=user_input,
         agent_settings=agent_settings,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def improve_draft(
@@ -390,24 +363,14 @@ def improve_draft(
         length=length,
         formality=formality,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def select_categories(categories: str, question: str, llm_model: str = None) -> dict:
     formatted_prompt = SELECT_CATEGORIES_PROMPT.format(
         categories=categories, question=question
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def get_answer(
@@ -416,12 +379,7 @@ def get_answer(
     formatted_prompt = GET_ANSWER_PROMPT.format(
         keypoints=keypoints, question=question, language=language
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def summarize_conversation(
@@ -439,12 +397,7 @@ def summarize_conversation(
         user_description=user_description,
         language=language,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 def summarize_email(
@@ -462,9 +415,4 @@ def summarize_email(
         user_description=user_description,
         language=language,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = extract_json_from_response(response.text)
-    result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-    result_json["tokens_output"] = response.usage_metadata.candidates_token_count
-
-    return result_json
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)

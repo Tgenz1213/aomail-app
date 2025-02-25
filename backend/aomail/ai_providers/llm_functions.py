@@ -2,18 +2,23 @@
 Dispatches LLM requests to different providers (currently Anthropic Claude and Google Gemini).
 
 Features:
-- ✅ extract_contacts_recipients: Categorizes email recipients into main, CC, and BCC.
+- ✅ extract_contacts_recipients: Categorizes email recipients.
 - ✅ generate_response_keywords: Suggests keywords for email responses.
-- ✅ generate_email: Creates emails per user guidelines and settings.
+- ✅ generate_email: Creates emails per user guidelines.
 - ✅ correct_mail_language_mistakes: Fixes spelling and grammar errors.
 - ✅ improve_email_copywriting: Suggests improvements for email copywriting.
-- ✅ generate_email_response: Crafts responses based on input emails.
+- ✅ generate_email_response: Crafts responses based on input type.
 - ✅ search_emails: Searches and structures email data.
-- ✅ categorize_and_summarize_email: Categorizes and summarizes emails.
-- ✅ review_user_description: Validates and provides feedback on user descriptions.
-- ✅ generate_categories_scratch: Generates email classification categories.
-- ✅ generate_prioritization_scratch: Creates email prioritization guidelines.
-- ✅ determine_action_scenario: Determines the appropriate action based on input context.
+- ✅ categorize_and_summarize_email: Categorizes and summarizes an email.
+- ✅ review_user_description: Reviews a user-provided description and provides validation and feedback.
+- ✅ generate_categories_scratch: Generates categories based on user topics for email classification.
+- ✅ determine_action_scenario: Determines the scenario based on input flags and user request.
+- ✅ improve_email_response: Improves an email response based on user feedback.
+- ✅ improve_draft: Improves a draft email based on user feedback.
+- ✅ select_categories: Selects categories based on user input.
+- ✅ get_answer: Gets an answer based on user input.
+- ✅ summarize_conversation: Summarizes a conversation.
+- ✅ summarize_email: Summarizes an email.
 """
 
 from aomail.ai_providers.anthropic import client as claude
@@ -374,7 +379,7 @@ def determine_action_scenario(
     is_only_signature: bool,
     llm_provider: str = "google",
     llm_model: str = None,
-) -> int:
+) -> dict:
     """
     Determines the scenario based on input flags and user request.
 
@@ -388,12 +393,15 @@ def determine_action_scenario(
         llm_model (str): The language model to use for the email categorization and summarization.
 
     Returns:
-        int: Scenario number (1-5).
+        dict: A dictionary containing:
+            scenario (int): Scenario number (1-5).
             1 = "The user wants the AI to fetch a sender's email using name or directly email or part of the email"
             2 = "The user wants to send an email and has specified the sender or senders"
             3 = "The user wants to send an email and has not specified any senders"
             4 = "The user wants feedback on already existing email content"
             5 = "I didn't understand the user request"
+            tokens_input (int): The number of tokens used for the input.
+            tokens_output (int): The number of tokens used for the output.
     """
     if llm_provider == "anthropic":
         return claude.determine_action_scenario(

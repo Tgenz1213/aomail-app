@@ -643,7 +643,7 @@ def new_email_ai(request: HttpRequest) -> Response:
         update_tokens_stats(user, result)
 
         return Response(
-            {"subject": result["subject_text"], "mail": result["email_body"]}
+            {"subject": result["subject"], "mail": result["body"]}
         )
     else:
         return Response(
@@ -1005,8 +1005,8 @@ def handle_email_action(request: HttpRequest) -> Response:
 
             response_data.update(
                 {
-                    "subject": result.get("subject_text", ""),
-                    "emailBody": result.get("email_body", ""),
+                    "subject": result.get("subject", ""),
+                    "emailBody": result.get("body", ""),
                 }
             )
 

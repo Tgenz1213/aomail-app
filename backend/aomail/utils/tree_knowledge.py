@@ -4,7 +4,7 @@ Handles AI-driven search to extract data from emails and help Ao to answer user 
 
 import json
 import logging
-from aomail.ai_providers.google import client as gemini
+from aomail.ai_providers import llm_functions
 from aomail.models import KeyPoint
 from aomail.ai_providers.utils import extract_json_from_response
 
@@ -159,7 +159,7 @@ class Search:
         }}
         """
         try:
-            response = gemini.get_prompt_response(template)
+            response = llm_functions.get_prompt_response(template)
             result_json = extract_json_from_response(response.text)
             result_json["tokens_input"] = response.usage_metadata.prompt_token_count
             result_json["tokens_output"] = (
@@ -205,7 +205,7 @@ class Search:
         Ensure the JSON is properly formatted and parsable by Python.
         """
         try:
-            response = gemini.get_prompt_response(template)
+            response = llm_functions.get_prompt_response(template)
             result_json = extract_json_from_response(response.text)
             result_json["tokens_input"] = response.usage_metadata.prompt_token_count
             result_json["tokens_output"] = (
@@ -266,7 +266,7 @@ class Search:
             }}
         }}"""
         try:
-            response = gemini.get_prompt_response(template)
+            response = llm_functions.get_prompt_response(template)
             result_json = extract_json_from_response(response.text)
             result_json["tokens_input"] = response.usage_metadata.prompt_token_count
             result_json["tokens_output"] = (
@@ -323,7 +323,7 @@ class Search:
         }}
         """
         try:
-            response = gemini.get_prompt_response(template)
+            response = llm_functions.get_prompt_response(template)
             result_json = extract_json_from_response(response.text)
             result_json["tokens_input"] = response.usage_metadata.prompt_token_count
             result_json["tokens_output"] = (

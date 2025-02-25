@@ -17,6 +17,8 @@ Endpoints:
 import json
 import logging
 import threading
+import re
+import difflib
 from django.core.mail import send_mail
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -24,7 +26,6 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import block_user, subscription
-from aomail.ai_providers.google import client as gemini
 from aomail.constants import (
     EMAIL_ADMIN,
     ALLOWED_PLANS,
@@ -66,9 +67,7 @@ from aomail.utils.ai_memory import (
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
 from aomail.ai_providers.utils import update_tokens_stats
-import re
-import difflib
-
+from aomail.ai_providers import llm_functions
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
@@ -145,32 +144,30 @@ def get_new_email_response(request: HttpRequest) -> Response:
     }
 
     def strip_html_tags(text):
-        clean = re.compile('<.*?>')
-        return re.sub(clean, '', text)
+        clean = re.compile("<.*?>")
+        return re.sub(clean, "", text)
 
     def similarity_ratio(str1, str2):
         return difflib.SequenceMatcher(None, str1, str2).ratio()
 
     clean_signature = strip_html_tags(signature) if signature else ""
     clean_body = strip_html_tags(body) if body else ""
-    
+
     is_only_signature = False
     is_nearly_empty = False
 
     if signature:
-        is_only_signature = similarity_ratio(clean_signature.strip(), clean_body.strip()) > 0.9
+        is_only_signature = (
+            similarity_ratio(clean_signature.strip(), clean_body.strip()) > 0.9
+        )
     else:
         clean_content = clean_body.strip()
         is_nearly_empty = len(clean_content) < 10
 
     if is_only_signature or is_nearly_empty:
         try:
-            result = gemini.generate_email_response(
-                subject,
-                emailBody,
-                user_input,
-                agent_settings,
-                signature
+            result = llm_functions.generate_email_response(
+                subject, emailBody, user_input, agent_settings, signature
             )
             update_tokens_stats(user, result)
             return Response(
@@ -344,7 +341,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
     emails = data["emails"]
     query = data["query"]
     language = Preference.objects.get(user=user).language
-    result: dict = gemini.search_emails(query, language)
+    result: dict = llm_functions.search_emails(query, language)
     search_params = result["search_params"]
     update_tokens_stats(user, result)
 
@@ -522,7 +519,7 @@ def find_user_view_ai(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    recipients_dict = gemini.extract_contacts_recipients(search_query)
+    recipients_dict = llm_functions.extract_contacts_recipients(search_query)
     update_tokens_stats(request.user, recipients_dict)
 
     main_list = recipients_dict.get("main_recipients", [])
@@ -603,7 +600,7 @@ def new_email_ai(request: HttpRequest) -> Response:
         formality = serializer.validated_data["formality"]
         language = Preference.objects.get(user=user).language
 
-        result = gemini.generate_email(input_data, length, formality, language)
+        result = llm_functions.generate_email(input_data, length, formality, language)
         update_tokens_stats(user, result)
 
         return Response(
@@ -640,7 +637,7 @@ def correct_email_language(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = gemini.correct_mail_language_mistakes(body, subject)
+        result = llm_functions.correct_mail_language_mistakes(body, subject)
         result = update_tokens_stats(request.user, result)
 
         return Response(result, status=status.HTTP_200_OK)
@@ -675,7 +672,7 @@ def check_email_copywriting(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = gemini.improve_email_copywriting(body, subject)
+        result = llm_functions.improve_email_copywriting(body, subject)
         update_tokens_stats(request.user, result)
 
         return Response(
@@ -711,7 +708,7 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = gemini.generate_response_keywords(subject, body)
+        result = llm_functions.generate_response_keywords(subject, body)
         update_tokens_stats(user, result)
 
         return Response(
@@ -750,7 +747,7 @@ def generate_email_answer(request: HttpRequest) -> Response:
         body = serializer.validated_data["body"]
         user_instruction = serializer.validated_data["keyword"]
         signature = serializer.validated_data["signature"]
-    
+
         try:
             agent = Agent.objects.get(user=user, last_used=True)
         except Agent.DoesNotExist:
@@ -767,12 +764,12 @@ def generate_email_answer(request: HttpRequest) -> Response:
             "language": agent.language,
         }
 
-        result = gemini.generate_email_response(subject, body, user_instruction, agent_settings, signature)
+        result = llm_functions.generate_email_response(
+            subject, body, user_instruction, agent_settings, signature
+        )
         update_tokens_stats(user, result)
 
-        return Response(
-            {"emailAnswer": result["body"]}, status=status.HTTP_200_OK
-        )
+        return Response({"emailAnswer": result["body"]}, status=status.HTTP_200_OK)
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
@@ -785,7 +782,7 @@ def generate_email_answer(request: HttpRequest) -> Response:
 def handle_email_action(request: HttpRequest) -> Response:
     """
     Handles different email action scenarios based on user input.
-    
+
     Args:
         request (HttpRequest): HTTP request object containing:
             user_input (str): The user's input/request
@@ -793,7 +790,7 @@ def handle_email_action(request: HttpRequest) -> Response:
             subject (str): The subject of the email
             email_content (str): The content of the email
             history (dict, optional): Chat history for AI conversation
-    
+
     Returns:
         Response: JSON response containing combinations of:
             scenario (int): Scenario number
@@ -816,20 +813,26 @@ def handle_email_action(request: HttpRequest) -> Response:
 
         # To compare the signature with the email content
         def strip_html_tags(text):
-            clean = re.compile('<.*?>')
-            return re.sub(clean, '', text)
+            clean = re.compile("<.*?>")
+            return re.sub(clean, "", text)
 
         def similarity_ratio(str1, str2):
             return difflib.SequenceMatcher(None, str1, str2).ratio()
 
         clean_signature = strip_html_tags(signature) if signature else ""
         clean_email = strip_html_tags(email_content) if email_content else ""
-        
-        is_only_signature = similarity_ratio(clean_signature.strip(), clean_email.strip()) > 0.9
+
+        is_only_signature = (
+            similarity_ratio(clean_signature.strip(), clean_email.strip()) > 0.9
+        )
 
         LOGGER.info(f"===================================> Signature: {signature}")
-        LOGGER.info(f"===================================> Email Content: {email_content}")
-        LOGGER.info(f"===================================> Is Only Signature: {is_only_signature}")
+        LOGGER.info(
+            f"===================================> Email Content: {email_content}"
+        )
+        LOGGER.info(
+            f"===================================> Is Only Signature: {is_only_signature}"
+        )
 
         destinary_present = bool(destinary)
         subject_present = bool(subject)
@@ -855,12 +858,12 @@ def handle_email_action(request: HttpRequest) -> Response:
             "language": agent.language,
         }
 
-        scenario = gemini.determine_action_scenario(
+        scenario = llm_functions.determine_action_scenario(
             destinary=destinary_present,
             subject=subject_present,
             email_content=email_content_present,
             is_only_signature=is_only_signature,
-            user_request=user_input
+            user_request=user_input,
         )
 
         LOGGER.info(f"===================================> Scenario: {scenario}")
@@ -872,7 +875,7 @@ def handle_email_action(request: HttpRequest) -> Response:
             "history": chat_history.dict(),
             "mainRecipients": [],
             "ccRecipients": [],
-            "bccRecipients": []
+            "bccRecipients": [],
         }
 
         def find_emails(input_str: str, contacts_dict: dict) -> list:
@@ -883,7 +886,9 @@ def handle_email_action(request: HttpRequest) -> Response:
                 if name and all(sub_str in name.lower() for sub_str in input_substrings)
             ]
 
-        def find_emails_for_recipients(recipient_list: list, contacts_dict: dict) -> list:
+        def find_emails_for_recipients(
+            recipient_list: list, contacts_dict: dict
+        ) -> list:
             return [
                 {
                     "username": recipient_name,
@@ -894,9 +899,9 @@ def handle_email_action(request: HttpRequest) -> Response:
             ]
 
         if scenario == 1:
-            recipients = gemini.extract_contacts_recipients(user_input)
+            recipients = llm_functions.extract_contacts_recipients(user_input)
             update_tokens_stats(user, recipients)
-            
+
             # Get user contacts
             try:
                 user_contacts = Contact.objects.filter(user=user)
@@ -905,37 +910,47 @@ def handle_email_action(request: HttpRequest) -> Response:
                     for contact in ContactSerializer(user_contacts, many=True).data
                 }
 
-                response_data.update({
-                    "mainRecipients": find_emails_for_recipients(recipients.get("main_recipients", []), contacts_dict),
-                    "ccRecipients": find_emails_for_recipients(recipients.get("cc_recipients", []), contacts_dict),
-                    "bccRecipients": find_emails_for_recipients(recipients.get("bcc_recipients", []), contacts_dict)
-                })
+                response_data.update(
+                    {
+                        "mainRecipients": find_emails_for_recipients(
+                            recipients.get("main_recipients", []), contacts_dict
+                        ),
+                        "ccRecipients": find_emails_for_recipients(
+                            recipients.get("cc_recipients", []), contacts_dict
+                        ),
+                        "bccRecipients": find_emails_for_recipients(
+                            recipients.get("bcc_recipients", []), contacts_dict
+                        ),
+                    }
+                )
             except Contact.DoesNotExist:
                 LOGGER.warning("No contacts found for user")
-                response_data.update({
-                    "mainRecipients": [], "ccRecipients": [], "bccRecipients": []
-                })
+                response_data.update(
+                    {"mainRecipients": [], "ccRecipients": [], "bccRecipients": []}
+                )
 
         elif scenario in [2, 3]:
-            result = gemini.generate_email(
-                user_input, 
-                agent_settings["length"], 
-                agent_settings["formality"], 
+            result = llm_functions.generate_email(
+                user_input,
+                agent_settings["length"],
+                agent_settings["formality"],
                 language,
                 agent_settings,
-                signature
+                signature,
             )
             update_tokens_stats(user, result)
-            
-            response_data.update({
-                "subject": result.get("subject_text", ""),
-                "emailBody": result.get("email_body", "")
-            })
+
+            response_data.update(
+                {
+                    "subject": result.get("subject_text", ""),
+                    "emailBody": result.get("email_body", ""),
+                }
+            )
 
             if scenario == 2:
-                recipients = gemini.extract_contacts_recipients(user_input)
+                recipients = llm_functions.extract_contacts_recipients(user_input)
                 update_tokens_stats(user, recipients)
-                
+
                 # Get user contacts
                 try:
                     user_contacts = Contact.objects.filter(user=user)
@@ -944,42 +959,50 @@ def handle_email_action(request: HttpRequest) -> Response:
                         for contact in ContactSerializer(user_contacts, many=True).data
                     }
 
-                    response_data.update({
-                        "mainRecipients": find_emails_for_recipients(recipients.get("main_recipients", []), contacts_dict),
-                        "ccRecipients": find_emails_for_recipients(recipients.get("cc_recipients", []), contacts_dict),
-                        "bccRecipients": find_emails_for_recipients(recipients.get("bcc_recipients", []), contacts_dict)
-                    })
+                    response_data.update(
+                        {
+                            "mainRecipients": find_emails_for_recipients(
+                                recipients.get("main_recipients", []), contacts_dict
+                            ),
+                            "ccRecipients": find_emails_for_recipients(
+                                recipients.get("cc_recipients", []), contacts_dict
+                            ),
+                            "bccRecipients": find_emails_for_recipients(
+                                recipients.get("bcc_recipients", []), contacts_dict
+                            ),
+                        }
+                    )
                 except Contact.DoesNotExist:
                     LOGGER.warning("No contacts found for user")
-                    response_data.update({
-                        "mainRecipients": [],
-                        "ccRecipients": [],
-                        "bccRecipients": []
-                    })
+                    response_data.update(
+                        {"mainRecipients": [], "ccRecipients": [], "bccRecipients": []}
+                    )
 
         elif scenario == 4:
             gen_email_conv = GenerateEmailConversation(
                 user=user,
                 length=agent_settings["length"],
-                formality=agent_settings["formality"], 
+                formality=agent_settings["formality"],
                 subject=subject,
                 body=email_content,
-                history=chat_history
+                history=chat_history,
             )
-            
+
             result = gen_email_conv.improve_draft(user_input, language, agent_settings)
             update_tokens_stats(user, result)
 
-            response_data.update({
-                "subject": result.get("new_subject", ""),
-                "emailBody": result.get("new_body", ""),
-                "history": gen_email_conv.history.dict()
-            })
+            response_data.update(
+                {
+                    "subject": result.get("new_subject", ""),
+                    "emailBody": result.get("new_body", ""),
+                    "history": gen_email_conv.history.dict(),
+                }
+            )
 
         else:
             return Response(
                 {"error": "Could not determine appropriate action from input"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         return Response(response_data, status=status.HTTP_200_OK)
@@ -988,5 +1011,5 @@ def handle_email_action(request: HttpRequest) -> Response:
         LOGGER.error(f"Error handling email action: {str(e)}")
         return Response(
             {"error": "An error occurred while processing your request"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

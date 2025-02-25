@@ -64,18 +64,6 @@ def get_prompt_response(
 
 
 def extract_contacts_recipients(query: str) -> dict[str, list]:
-    """
-    Analyzes the input query to categorize email recipients into main, CC, and BCC categories.
-
-    Args:
-        query (str): The input string containing email recipient information.
-
-    Returns:
-        dict[str, list]: A dictionary with three keys:
-            'main_recipients': List of main recipients.
-            'cc_recipients': List of CC recipients.
-            'bcc_recipients': List of BCC recipients.
-    """
     formatted_prompt = EXTRACT_CONTACTS_RECIPIENTS_PROMPT.format(query=query)
     response = get_prompt_response(formatted_prompt)
     try:
@@ -90,19 +78,6 @@ def extract_contacts_recipients(query: str) -> dict[str, list]:
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
 def generate_response_keywords(input_email: str, input_subject: str) -> dict:
-    """
-    Generates a list of detailed draft response sentences for responding to a given email.
-
-    Args:
-        input_email (str): The body of the email.
-        input_subject (str): The subject of the email.
-
-    Returns:
-        dict: A dictionary containing:
-            keywords_list (list): A list of detailed draft response sentences for the email.
-            tokens_input (int): The number of tokens used for the input.
-            tokens_output (int): The number of tokens used for the output.
-    """
     formatted_prompt = GENERATE_RESPONSE_KEYWORDS_PROMPT.format(
         input_subject=input_subject, input_email=input_email
     )
@@ -131,24 +106,6 @@ def generate_email(
     agent_settings: dict,
     signature: str = "",
 ) -> dict:
-    """
-    Generates an email, enhancing both quantity and quality according to user guidelines and agent settings.
-
-    Args:
-        input_data (str): The user's input data or guidelines for the email content.
-        length (str): The desired length of the email (e.g., "short", "medium", "long").
-        formality (str): The desired level of formality for the email (e.g., "informal", "formal").
-        language (str): The language in which the email should be written.
-        agent_settings (dict): The agent's guidelines and settings to guide AI responses.
-        signature (str): Optional HTML signature to append to the email.
-
-    Returns:
-        dict: A dictionary containing:
-            subject_text (str): The subject of the generated email.
-            email_body (str): The body of the generated email in HTML format.
-            tokens_input (int): The number of tokens used for the input.
-            tokens_output (int): The number of tokens used for the output.
-    """
     has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
         signature_instruction = SIGNATURE_INSTRUCTION_WITH_CONTENT.format(
@@ -180,22 +137,6 @@ def generate_email(
 
 
 def correct_mail_language_mistakes(body: str, subject: str) -> dict:
-    """
-    Corrects spelling and grammar mistakes in the email subject and body based on user's request.
-
-    Args:
-        body (str): The body of the email to be corrected.
-        subject (str): The subject of the email to be corrected.
-
-    Returns:
-        dict: A dictionary containing:
-            corrected_subject (str): The corrected subject of the email.
-            corrected_body (str): The corrected body of the email in HTML format.
-            num_corrections (int): The number of corrections made in the email subject and body.
-            tokens_input (int): The number of tokens used for the input.
-            tokens_output (int): The number of tokens used for the output.
-    """
-
     formatted_prompt = CORRECT_MAIL_LANGUAGE_MISTAKES_PROMPT.format(
         subject=subject, body=body
     )
@@ -219,20 +160,6 @@ def correct_mail_language_mistakes(body: str, subject: str) -> dict:
 
 
 def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
-    """
-    Provides feedback and suggestions for improving the copywriting in the email subject and body.
-
-    Args:
-        email_subject (str): The subject of the email to be evaluated and improved.
-        email_body (str): The body of the email to be evaluated and improved.
-
-    Returns:
-        dict: A dictionary containing:
-            feedback_ai (str): Feedback and suggestions for improving the copywriting in the email subject and body.
-            tokens_input (int): The number of tokens used for the input.
-            tokens_output (int): The number of tokens used for the output.
-    """
-
     formatted_prompt = IMPROVE_EMAIL_COPYWRITING_PROMPT.format(
         email_subject=email_subject, email_body=email_body
     )
@@ -253,22 +180,6 @@ def generate_email_response(
     agent_settings: dict,
     signature: str = "",
 ) -> dict:
-    """
-    Generates an email response based on the given response type and agent settings.
-
-    Args:
-        input_subject (str): The subject of the email to respond to.
-        input_body (str): The body of the email to respond to.
-        user_instruction (str): Instructions or guidelines provided by the user for crafting the response.
-        agent_settings (dict): The agent's guidelines and settings to guide AI responses.
-        signature (str): Optional HTML signature to append to the email.
-
-    Returns:
-        dict: A dictionary containing:
-            body (str): The generated email response in HTML format.
-            tokens_input (int): The number of tokens used for the input.
-            tokens_output (int): The number of tokens used for the output.
-    """
     has_content = bool(signature) and bool(re.sub(r"<[^>]+>", "", signature).strip())
     if has_content:
         signature_instruction = SIGNATURE_INSTRUCTION_WITH_CONTENT.format(
@@ -308,22 +219,6 @@ def categorize_and_summarize_email(
     informative_guidelines: str,
     useless_guidelines: str,
 ) -> dict:
-    """
-    Categorizes and summarizes an email.
-
-    Args:
-        subject (str): The subject of the email.
-        decoded_data (str): The decoded content of the email body.
-        category_dict (dict): A dictionary of topic categories to be used for classification.
-        user_description (str): A description provided by the user to assist with categorization.
-        sender (str): The sender of the email.
-        important_guidelines (str): Guidelines for important emails.
-        informative_guidelines (str): Guidelines for informative emails.
-        useless_guidelines (str): Guidelines for useless emails.
-
-    Returns:
-        dict: Structured JSON response with categorized and summarized email details.
-    """
     formatted_prompt = CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT.format(
         sender=sender,
         subject=subject,
@@ -345,16 +240,6 @@ def categorize_and_summarize_email(
 
 
 def search_emails(query: str, language: str) -> dict:
-    """
-    Searches emails based on the user query and generates structured JSON response.
-
-    Args:
-        query (str): User's query for searching emails.
-        language (str): Language for the response JSON format.
-
-    Returns:
-        dict: Structured JSON response with search results and parameters.
-    """
     today = datetime.now().strftime("%m-%d-%Y")
 
     formatted_prompt = SEARCH_EMAILS_PROMPT.format(
@@ -369,15 +254,6 @@ def search_emails(query: str, language: str) -> dict:
 
 
 def review_user_description(user_description: str) -> dict:
-    """
-    Reviews a user-provided description and provides validation and feedback.
-
-    Args:
-        user_description (str): User's description for categorizing emails.
-
-    Returns:
-        dict: JSON response with 'valid' status and 'feedback' message.
-    """
     prompt = REVIEW_USER_DESCRIPTION_PROMPT.format(user_description=user_description)
     response = get_prompt_response(prompt)
     result_json = extract_json_from_response(response.text)
@@ -390,16 +266,6 @@ def review_user_description(user_description: str) -> dict:
 def generate_categories_scratch(
     user_topics: list | str, chat_history: list = None
 ) -> dict:
-    """
-    Generates categories based on user topics for email classification.
-
-    Args:
-        user_topics (list | str): List or string of topics provided by the user.
-        chat_history (list | None): List of messages between user and AI.
-
-    Returns:
-        dict: JSON response with category names, descriptions, and feedback.
-    """
     chat_history_text = (
         CHAT_HISTORY_TEXT.format(chat_history=chat_history) if chat_history else ""
     )
@@ -416,18 +282,6 @@ def generate_categories_scratch(
 
 
 def generate_prioritization_scratch(user_input: dict | str) -> dict:
-    """
-    Generates email prioritization guidelines based on user-provided input.
-
-    Args:
-        user_input (dict | str): The user's guidance for prioritizing emails.
-
-    Returns:
-        dict: A JSON object with descriptions for:
-              - important emails
-              - informative emails
-              - useless emails
-    """
     prompt = GENERATE_PRIORITIZATION_SCRATCH_PROMPT.format(user_input=user_input)
     response = get_prompt_response(prompt)
     result_json = extract_json_from_response(response.text)
@@ -444,23 +298,6 @@ def determine_action_scenario(
     user_request: str,
     is_only_signature: bool,
 ) -> int:
-    """
-    Determines the scenario based on input flags and user request.
-
-    Args:
-        destinary (bool): Whether the sender is selected manually.
-        subject (bool): Whether the subject is specified.
-        email_content (bool): Whether the email content is provided.
-        user_request (str): The user's request.
-
-    Returns:
-        int: Scenario number (1-5).
-            1 = "The user wants the AI to fetch a sender's email using name or directly email or part of the email"
-            2 = "The user wants to send an email and has specified the sender or senders"
-            3 = "The user wants to send an email and has not specified any senders"
-            4 = "The user wants feedback on already existing email content"
-            5 = "I didn't understand the user request"
-    """
     if not destinary and not subject and (not email_content or is_only_signature):
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
             user_request=user_request

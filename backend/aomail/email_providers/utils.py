@@ -9,7 +9,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from django.db import transaction
 from django.contrib.auth.models import User
-from aomail.ai_providers.google import client as gemini
+from aomail.ai_providers import llm_functions
 from aomail.constants import (
     ANSWER_REQUIRED,
     DEFAULT_CATEGORY,
@@ -419,7 +419,7 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
                 )
 
         def get_email_processed():
-            return gemini.categorize_and_summarize_email(
+            return llm_functions.categorize_and_summarize_email(
                 email_data["subject"],
                 email_data["preprocessed_data"],
                 category_dict,

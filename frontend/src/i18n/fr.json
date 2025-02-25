@@ -1043,7 +1043,8 @@
       "updatingAgentStatus": "Échec de la mise à jour du statut du dernier agent",
       "noAgentsAvailable": "Aucun agent disponible",
       "unknownError": "Une erreur inconnue s'est produite"
-    }
+    },
+    "draftImproved": "Voici le mail amélioré, êtes-vous satisfait ?"
   },
   "errorWebPagesTemplates": {
     "error401Page": {

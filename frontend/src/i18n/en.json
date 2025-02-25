@@ -968,7 +968,8 @@
       "noAgentsAvailable": "No agents available",
       "initialization": "Initialization failed",
       "fetchSignatures": "Failed to fetch signatures"
-    }
+    },
+    "draftImproved": "Here is the improved email, are you satisfied?"
   },
   "answerPage": {
     "responseSentTitle": "Response sent!",

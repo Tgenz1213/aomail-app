@@ -344,7 +344,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
     emails = data["emails"]
     query = data["query"]
     language = Preference.objects.get(user=user).language
-    result: dict = claude.search_emails(query, language)
+    result: dict = gemini.search_emails(query, language)
     search_params = result["search_params"]
     update_tokens_stats(user, result)
 
@@ -522,7 +522,7 @@ def find_user_view_ai(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    recipients_dict = claude.extract_contacts_recipients(search_query)
+    recipients_dict = gemini.extract_contacts_recipients(search_query)
     update_tokens_stats(request.user, recipients_dict)
 
     main_list = recipients_dict.get("main_recipients", [])
@@ -603,7 +603,7 @@ def new_email_ai(request: HttpRequest) -> Response:
         formality = serializer.validated_data["formality"]
         language = Preference.objects.get(user=user).language
 
-        result = claude.generate_email(input_data, length, formality, language)
+        result = gemini.generate_email(input_data, length, formality, language)
         update_tokens_stats(user, result)
 
         return Response(
@@ -640,7 +640,7 @@ def correct_email_language(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = claude.correct_mail_language_mistakes(body, subject)
+        result = gemini.correct_mail_language_mistakes(body, subject)
         result = update_tokens_stats(request.user, result)
 
         return Response(result, status=status.HTTP_200_OK)
@@ -675,7 +675,7 @@ def check_email_copywriting(request: HttpRequest) -> Response:
         subject = serializer.validated_data["subject"]
         body = serializer.validated_data["body"]
 
-        result = claude.improve_email_copywriting(body, subject)
+        result = gemini.improve_email_copywriting(body, subject)
         update_tokens_stats(request.user, result)
 
         return Response(
@@ -894,7 +894,7 @@ def handle_email_action(request: HttpRequest) -> Response:
             ]
 
         if scenario == 1:
-            recipients = claude.extract_contacts_recipients(user_input)
+            recipients = gemini.extract_contacts_recipients(user_input)
             update_tokens_stats(user, recipients)
             
             # Get user contacts
@@ -933,7 +933,7 @@ def handle_email_action(request: HttpRequest) -> Response:
             })
 
             if scenario == 2:
-                recipients = claude.extract_contacts_recipients(user_input)
+                recipients = gemini.extract_contacts_recipients(user_input)
                 update_tokens_stats(user, recipients)
                 
                 # Get user contacts
@@ -967,7 +967,7 @@ def handle_email_action(request: HttpRequest) -> Response:
                 history=chat_history
             )
             
-            result = gen_email_conv.improve_draft(user_input, language)
+            result = gen_email_conv.improve_draft(user_input, language, agent_settings)
             update_tokens_stats(user, result)
 
             response_data.update({

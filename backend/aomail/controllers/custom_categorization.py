@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view
 from aomail.utils.security import block_user, subscription
 from django.http import HttpRequest
 from aomail.constants import ALLOWED_PLANS
-from aomail.ai_providers import gemini
+from aomail.ai_providers.google import client as gemini
 from aomail.ai_providers.utils import update_tokens_stats
 from rest_framework import status
 from rest_framework.response import Response

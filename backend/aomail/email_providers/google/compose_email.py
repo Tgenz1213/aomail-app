@@ -24,9 +24,8 @@ from aomail.email_providers.google.email_operations import get_mail_to_db
 from aomail.utils import email_processing
 from aomail.models import Agent, Email, Signature, SocialAPI
 from base64 import urlsafe_b64encode, urlsafe_b64decode
-from aomail.ai_providers.gemini import generate_email_response
+from aomail.ai_providers.google.client import generate_email_response
 from aomail.ai_providers.utils import update_tokens_stats
-
 
 LOGGER = logging.getLogger(__name__)
 

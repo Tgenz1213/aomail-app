@@ -5,7 +5,7 @@ Handles conversations with prompt engineering for user/AI interaction.
 import json
 from django.contrib.auth.models import User
 from langchain_community.chat_message_histories import ChatMessageHistory
-from aomail.ai_providers import gemini
+from aomail.ai_providers.google import client as gemini
 from aomail.ai_providers.utils import extract_json_from_response
 
 

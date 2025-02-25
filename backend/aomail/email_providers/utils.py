@@ -9,7 +9,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from django.db import transaction
 from django.contrib.auth.models import User
-from aomail.ai_providers import gemini
+from aomail.ai_providers.google import client as gemini
 from aomail.constants import (
     ANSWER_REQUIRED,
     DEFAULT_CATEGORY,

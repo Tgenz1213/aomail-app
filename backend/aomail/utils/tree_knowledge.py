@@ -4,7 +4,7 @@ Handles AI-driven search to extract data from emails and help Ao to answer user 
 
 import json
 import logging
-from aomail.ai_providers import gemini
+from aomail.ai_providers.google import client as gemini
 from aomail.models import KeyPoint
 from aomail.ai_providers.utils import extract_json_from_response
 

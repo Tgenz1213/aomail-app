@@ -24,7 +24,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import block_user, subscription
-from aomail.ai_providers import gemini, claude
+from aomail.ai_providers.google import client as gemini
 from aomail.constants import (
     EMAIL_ADMIN,
     ALLOWED_PLANS,

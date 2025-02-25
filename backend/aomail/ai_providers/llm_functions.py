@@ -413,3 +413,74 @@ def determine_action_scenario(
             is_only_signature,
             llm_model,
         )
+
+
+# -----------------------  AI MEMORY PROMPTS (ai_memory.py) -----------------------#
+def improve_email_response(
+    importance: str,
+    subject: str,
+    body: str,
+    history: dict,
+    user_input: str,
+    agent_settings: dict,
+    llm_provider: str = "google",
+    llm_model: str = None,
+) -> dict:
+    if llm_provider == "anthropic":
+        return claude.improve_email_response(
+            importance,
+            subject,
+            body,
+            history,
+            user_input,
+            agent_settings,
+            llm_model,
+        )
+    elif llm_provider == "google":
+        return gemini.improve_email_response(
+            importance,
+            subject,
+            body,
+            history,
+            user_input,
+            agent_settings,
+            llm_model,
+        )
+
+
+def improve_draft(
+    language: str,
+    agent_settings: dict,
+    subject: str,
+    body: str,
+    history: dict,
+    user_input: str,
+    length: str,
+    formality: str,
+    llm_provider: str = "google",
+    llm_model: str = None,
+) -> dict:
+    if llm_provider == "anthropic":
+        return claude.improve_draft(
+            language,
+            agent_settings,
+            subject,
+            body,
+            history,
+            user_input,
+            length,
+            formality,
+            llm_model,
+        )
+    elif llm_provider == "google":
+        return gemini.improve_draft(
+            language,
+            agent_settings,
+            subject,
+            body,
+            history,
+            user_input,
+            length,
+            formality,
+            llm_model,
+        )

@@ -1,5 +1,11 @@
 """
 Default prompts for the LLM providers
+
+IMPORTANT: This file contains the default prompts used across all LLM providers.
+For provider-specific prompt modifications:
+- Create or modify prompts in the provider's directory (e.g., google/prompts.py)
+- Import and override only the specific prompts that need customization
+- DO NOT modify this base file for provider-specific changes
 """
 
 from aomail.constants import (
@@ -290,4 +296,43 @@ Scenarios:
 3. The user wants to ask the AI to generate an email and has not specified any senders.
 
 Please respond with the scenario number (1, 2, or 3) that best fits the user request.
+"""
+
+# -----------------------  AI MEMORY PROMPTS (ai_memory.py) -----------------------#
+IMPROVE_EMAIL_RESPONSE_PROMPT = """You are Ao, an email assistant, following these agent guidelines: {agent_settings}, who helps a user reply to an {importance} email they received.
+The user has already entered the recipients and the subject: '{subject}' of the email.    
+Improve the email response following the user's guidelines.
+
+Current email body response:
+{body}
+
+Current Conversation:
+{history}
+User: {user_input}
+
+The response must retain the core information and incorporate the required user changes.
+If you hesitate or there is contradictory information, always prioritize the last user input.
+
+---
+Answer must ONLY be in JSON format with one key: body in HTML.
+"""
+
+
+IMPROVE_EMAIL_DRAFT_PROMPT = """You are an email assistant, who helps a user redact an email in {language}, following these agent guidelines: {agent_settings}.
+The user has already entered the recipients and the subject: '{subject}' of the email.
+Improve the email body and subject following the user's guidelines.
+
+Current email body:
+{body}
+
+Current Conversation:
+{history}
+User: {user_input}
+
+The response must retain the core information and incorporate the required user changes.
+If you hesitate or there is contradictory information, always prioritize the last user input.
+Keep the same email body length: '{length}' AND level of speech: '{formality}' unless a change is explicitly mentioned by the user.
+
+---
+Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
 """

@@ -2,11 +2,10 @@
 Handles conversations with prompt engineering for user/AI interaction.
 """
 
-import json
 from django.contrib.auth.models import User
 from langchain_community.chat_message_histories import ChatMessageHistory
 from aomail.ai_providers import llm_functions
-from aomail.ai_providers.utils import extract_json_from_response
+from aomail.models import Preference
 
 
 class EmailReplyConversation:
@@ -61,34 +60,22 @@ class EmailReplyConversation:
                 tokens_input (int): The number of tokens used for the input.
                 tokens_output (int): The number of tokens used for the output.
         """
-        template = f"""You are Ao, an email assistant, following these agent guidelines: {json.dumps(agent_settings)}, who helps a user reply to an {self.importance} email they received.
-        The user has already entered the recipients and the subject: '{self.subject}' of the email.    
-        Improve the email response following the user's guidelines.
-
-        Current email body response:
-        {self.body}
-
-        Current Conversation:
-        {self.history}
-        User: {user_input}
-
-        The response must retain the core information and incorporate the required user changes.
-        If you hesitate or there is contradictory information, always prioritize the last user input.
-
-        ---
-        Answer must ONLY be in JSON format with one key: body in HTML.
-        """
-        response = llm_functions.get_prompt_response_exp(template)
-        result_json = extract_json_from_response(response.text)
+        preference = Preference.objects.get(user=self.user)
+        result_json = llm_functions.improve_email_response(
+            self.importance,
+            self.subject,
+            self.body,
+            self.history.model_dump(),
+            user_input,
+            agent_settings,
+            preference.llm_provider,
+            preference.llm_model,
+        )
         body = result_json.get("body", "")
 
         self.update_history(user_input, body)
 
-        return {
-            "body": body,
-            "tokens_input": response.usage_metadata.prompt_token_count,
-            "tokens_output": response.usage_metadata.candidates_token_count,
-        }
+        return result_json
 
 
 class GenerateEmailConversation:
@@ -152,34 +139,21 @@ class GenerateEmailConversation:
                 tokens_input (int): The number of tokens used for the input.
                 tokens_output (int): The number of tokens used for the output.
         """
-        template = f"""You are an email assistant, who helps a user redact an email in {language}, following these agent guidelines: {json.dumps(agent_settings)}.
-        The user has already entered the recipients and the subject: '{self.subject}' of the email.    
-        Improve the email body and subject following the user's guidelines.
-
-        Current email body:
-        {self.body}
-
-        Current Conversation:
-        {self.history}
-        User: {user_input}
-
-        The response must retain the core information and incorporate the required user changes.
-        If you hesitate or there is contradictory information, always prioritize the last user input.
-        Keep the same email body length: '{self.length}' AND level of speech: '{self.formality}' unless a change is explicitly mentioned by the user.
-
-        ---
-        Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
-        """
-        response = llm_functions.get_prompt_response_exp(template)
-        result_json = llm_functions.extract_json_from_response(response.text)
-
+        preference = Preference.objects.get(user=self.user)
+        result_json = llm_functions.improve_draft(
+            language,
+            agent_settings,
+            self.subject,
+            self.body,
+            self.history.model_dump(),
+            user_input,
+            self.length,
+            self.formality,
+            preference.llm_provider,
+            preference.llm_model,
+        )
         new_subject = result_json.get("subject", "")
         new_body = result_json.get("body", "")
         self.update_history(user_input, new_subject, new_body)
 
-        return {
-            "new_subject": new_subject,
-            "new_body": new_body,
-            "tokens_input": response.usage_metadata.prompt_token_count,
-            "tokens_output": response.usage_metadata.candidates_token_count,
-        }
+        return result_json

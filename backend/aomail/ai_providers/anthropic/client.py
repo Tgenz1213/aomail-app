@@ -34,6 +34,8 @@ from aomail.ai_providers.prompts import (
     GENERATE_PRIORITIZATION_SCRATCH_PROMPT,
     GENERATE_RESPONSE_KEYWORDS_PROMPT,
     IMPROVE_EMAIL_COPYWRITING_PROMPT,
+    IMPROVE_EMAIL_DRAFT_PROMPT,
+    IMPROVE_EMAIL_RESPONSE_PROMPT,
     RELEVANCE_LIST,
     RESPONSE_LIST,
     REVIEW_USER_DESCRIPTION_PROMPT,
@@ -329,6 +331,7 @@ def determine_action_scenario(
         )
         response = get_prompt_response(formatted_prompt, llm_model)
         clear_response = response.content[0].text.strip()
+        # TODO: Save the tokens used!
         try:
             scenario = int(clear_response)
             if scenario in [1, 2, 3]:
@@ -350,3 +353,59 @@ def determine_action_scenario(
         return 4
 
     return 5
+
+
+def improve_email_response(
+    importance: str,
+    subject: str,
+    body: str,
+    history: dict,
+    user_input: str,
+    agent_settings: dict,
+    llm_model: str = None,
+) -> dict:
+    formatted_prompt = IMPROVE_EMAIL_RESPONSE_PROMPT.format(
+        importance=importance,
+        subject=subject,
+        body=body,
+        history=history,
+        user_input=user_input,
+        agent_settings=agent_settings,
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    clear_response = response.content[0].text.strip()
+    result_json = json.loads(clear_response)
+    result_json["tokens_input"] = response.usage.input_tokens
+    result_json["tokens_output"] = response.usage.output_tokens
+
+    return result_json
+
+
+def improve_draft(
+    language: str,
+    agent_settings: dict,
+    subject: str,
+    body: str,
+    history: dict,
+    user_input: str,
+    length: str,
+    formality: str,
+    llm_model: str = None,
+) -> dict:
+    formatted_prompt = IMPROVE_EMAIL_DRAFT_PROMPT.format(
+        language=language,
+        agent_settings=agent_settings,
+        subject=subject,
+        body=body,
+        history=history,
+        user_input=user_input,
+        length=length,
+        formality=formality,
+    )
+    response = get_prompt_response(formatted_prompt, llm_model)
+    clear_response = response.content[0].text.strip()
+    result_json = json.loads(clear_response)
+    result_json["tokens_input"] = response.usage.input_tokens
+    result_json["tokens_output"] = response.usage.output_tokens
+
+    return result_json

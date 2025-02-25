@@ -6,7 +6,6 @@ Features:
 """
 
 import logging
-import re
 from concurrent.futures import ThreadPoolExecutor
 from django.db import transaction
 from django.contrib.auth.models import User
@@ -304,7 +303,9 @@ def apply_rule_actions(rule: Rule, email_entry: Email):
         email_entry.relevance = rule.action_set_relevance
     if rule.action_set_flags:
         for flag in rule.action_set_flags:
-            process_email["email_processed"]["flags"][camel_to_snake(flag)] = True
+            process_email["email_processed"]["flags"][
+                email_processing.camel_to_snake(flag)
+            ] = True
     if rule.action_transfer_recipients:
         if email_entry.email_provider == GOOGLE:
             transfer_email_google(
@@ -703,18 +704,3 @@ def create_pictures_and_attachments(processed_email: dict, email_entry: Email):
             name=attachment["attachmentName"],
             id_api=attachment["attachmentId"],
         )
-
-
-def camel_to_snake(name: str) -> str:
-    """
-    Converts a camelCase string to snake_case.
-
-    Args:
-        name (str): The camelCase string to be converted.
-
-    Returns:
-        str: The converted snake_case string.
-    """
-    # Replace capital letters with underscore + lowercase letter
-    snake = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
-    return snake

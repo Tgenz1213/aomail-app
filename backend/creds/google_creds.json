@@ -1,9 +1,0 @@
-{
-    "web": {
-        "client_id": "900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com",
-        "project_id": "chrome-cipher-268712",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "client_secret": "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"
-    }
-}

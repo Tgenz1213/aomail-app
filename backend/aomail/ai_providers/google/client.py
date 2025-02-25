@@ -21,7 +21,7 @@ import json
 import logging
 import google.generativeai as genai
 from datetime import datetime
-from aomail.ai_providers.utils import extract_json_from_response
+from aomail.ai_providers.utils import count_corrections, extract_json_from_response
 from aomail.ai_providers.prompts import (
     CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT,
     CHAT_HISTORY_TEXT,
@@ -48,53 +48,19 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
-def get_prompt_response(formatted_prompt: str, model: str = "gemini-1.5-flash"):
+def get_prompt_response(
+    formatted_prompt: str, model: str = "gemini-1.5-flash"
+) -> genai.types.GenerateContentResponse:
     """Returns the prompt response using Gemini 1.5 Flash model"""
     genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel(model)
-    response = model.generate_content(
+    gemini_model = genai.GenerativeModel(model)
+    response = gemini_model.generate_content(
         formatted_prompt,
         generation_config=genai.types.GenerationConfig(
             max_output_tokens=1000, temperature=0.0
         ),
     )
     return response
-
-
-def count_corrections(
-    original_subject: str,
-    original_body: str,
-    corrected_subject: str,
-    corrected_body: str,
-) -> int:
-    """
-    Counts and compares corrections in original and corrected texts.
-
-    Args:
-        original_subject (str): The original subject text.
-        original_body (str): The original body text.
-        corrected_subject (str): The corrected subject text.
-        corrected_body (str): The corrected body text.
-
-    Returns:
-        int: The total number of corrections made in the subject and body texts.
-    """
-    original_subject_words = original_subject.split()
-    corrected_subject_words = corrected_subject.split()
-    original_body_words = original_body.split()
-    corrected_body_words = corrected_body.split()
-
-    subject_corrections = sum(
-        orig != corr
-        for orig, corr in zip(original_subject_words, corrected_subject_words)
-    )
-    body_corrections = sum(
-        orig != corr for orig, corr in zip(original_body_words, corrected_body_words)
-    )
-
-    total_corrections = subject_corrections + body_corrections
-
-    return total_corrections
 
 
 def extract_contacts_recipients(query: str) -> dict[str, list]:
@@ -191,7 +157,7 @@ def generate_email(
     else:
         signature_instruction = SIGNATURE_INSTRUCTION_WITHOUT_CONTENT
 
-    template = GENERATE_EMAIL_PROMPT.format(
+    formatted_prompt = GENERATE_EMAIL_PROMPT.format(
         agent_settings=json.dumps(agent_settings),
         length=length,
         formality=formality,
@@ -200,7 +166,7 @@ def generate_email(
         signature_instruction=signature_instruction,
     )
 
-    response = get_prompt_response(template, "gemini-2.0-flash-exp")
+    response = get_prompt_response(formatted_prompt, "gemini-2.0-flash-exp")
     result_json: dict = extract_json_from_response(response.text)
     subject_text = result_json.get("subject")
     email_body = result_json.get("body")
@@ -267,10 +233,10 @@ def improve_email_copywriting(email_subject: str, email_body: str) -> dict:
             tokens_output (int): The number of tokens used for the output.
     """
 
-    template = IMPROVE_EMAIL_COPYWRITING_PROMPT.format(
+    formatted_prompt = IMPROVE_EMAIL_COPYWRITING_PROMPT.format(
         email_subject=email_subject, email_body=email_body
     )
-    response = get_prompt_response(template)
+    response = get_prompt_response(formatted_prompt)
     feedback_ai = response.text
 
     return {
@@ -311,14 +277,14 @@ def generate_email_response(
     else:
         signature_instruction = SIGNATURE_INSTRUCTION_WITHOUT_CONTENT
 
-    template = GENERATE_EMAIL_RESPONSE_PROMPT.format(
+    formatted_prompt = GENERATE_EMAIL_RESPONSE_PROMPT.format(
         agent_settings=json.dumps(agent_settings),
         input_subject=input_subject,
         input_body=input_body,
         user_instruction=user_instruction,
         signature_instruction=signature_instruction,
     )
-    response = get_prompt_response(template, "gemini-2.0-flash-exp")
+    response = get_prompt_response(formatted_prompt, "gemini-2.0-flash-exp")
     result_json = extract_json_from_response(response.text)
     body = result_json.get("body", "")
 
@@ -358,7 +324,7 @@ def categorize_and_summarize_email(
     Returns:
         dict: Structured JSON response with categorized and summarized email details.
     """
-    template = CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT.format(
+    formatted_prompt = CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT.format(
         sender=sender,
         subject=subject,
         decoded_data=decoded_data,
@@ -370,7 +336,7 @@ def categorize_and_summarize_email(
         informative_guidelines=informative_guidelines,
         useless_guidelines=useless_guidelines,
     )
-    response = get_prompt_response(template)
+    response = get_prompt_response(formatted_prompt)
     result_json = extract_json_from_response(response.text)
     result_json["tokens_input"] = response.usage_metadata.prompt_token_count
     result_json["tokens_output"] = response.usage_metadata.candidates_token_count
@@ -391,8 +357,10 @@ def search_emails(query: str, language: str) -> dict:
     """
     today = datetime.now().strftime("%m-%d-%Y")
 
-    template = SEARCH_EMAILS_PROMPT.format(query=query, today=today, language=language)
-    response = get_prompt_response(template)
+    formatted_prompt = SEARCH_EMAILS_PROMPT.format(
+        query=query, today=today, language=language
+    )
+    response = get_prompt_response(formatted_prompt)
     result_json = extract_json_from_response(response.text)
     result_json["tokens_input"] = response.usage_metadata.prompt_token_count
     result_json["tokens_output"] = response.usage_metadata.candidates_token_count

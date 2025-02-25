@@ -46,3 +46,39 @@ def extract_json_from_response(response_text: str) -> dict:
         return json.loads(json_text)
     except json.JSONDecodeError as e:
         raise json.JSONDecodeError(f"Error decoding JSON: {str(e)}")
+
+
+def count_corrections(
+    original_subject: str,
+    original_body: str,
+    corrected_subject: str,
+    corrected_body: str,
+) -> int:
+    """
+    Counts and compares corrections in original and corrected texts.
+
+    Args:
+        original_subject (str): The original subject text.
+        original_body (str): The original body text.
+        corrected_subject (str): The corrected subject text.
+        corrected_body (str): The corrected body text.
+
+    Returns:
+        int: The total number of corrections made in the subject and body texts.
+    """
+    original_subject_words = original_subject.split()
+    corrected_subject_words = corrected_subject.split()
+    original_body_words = original_body.split()
+    corrected_body_words = corrected_body.split()
+
+    subject_corrections = sum(
+        orig != corr
+        for orig, corr in zip(original_subject_words, corrected_subject_words)
+    )
+    body_corrections = sum(
+        orig != corr for orig, corr in zip(original_body_words, corrected_body_words)
+    )
+
+    total_corrections = subject_corrections + body_corrections
+
+    return total_corrections

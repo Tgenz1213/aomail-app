@@ -447,6 +447,7 @@ def get_user_llm_settings(request: HttpRequest) -> Response:
             "llmModel": (
                 preference.llm_model if preference.llm_model else "gemini-1.5-flash"
             ),
+            #todo return a dict {prompt: "", variables: []} for all + update the frontend to use it
             "improveEmailDraftPrompt": (
                 preference.improve_email_draft_prompt
                 if preference.improve_email_draft_prompt

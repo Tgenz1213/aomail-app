@@ -133,7 +133,15 @@
         "lastUsedAgentError": "Failed to load last used agent",
         "agentsFetchError": "Failed to fetch agents",
         "invalidCategory": "Invalid Category",
-        "categoryNotFound": "The selected category was not found. Redirecting to default category."
+        "categoryNotFound": "The selected category was not found. Redirecting to default category.",
+        "resetError": "Failed to reset to default",
+        "resetSelectedError": "Failed to reset selected prompt",
+        "saveLLMSettingsError": "Failed to save LLM settings",
+        "noPromptSelected": "No prompt selected",
+        "noPromptSelectedDesc": "Please select a prompt to edit",
+        "missingVariables": "Missing required variables",
+        "missingVariablesDesc": "The following variables are missing: {variables}",
+        "savePromptError": "Failed to save prompt"
       },
       "successMessages": {
         "success": "Success!",
@@ -154,7 +162,15 @@
         "agentDeleted": "Agent deleted successfully",
         "agentCreatedDesc": "The new agent has been created successfully.",
         "agentUpdatedDesc": "The agent has been updated successfully.",
-        "agentDeletedDesc": "The agent has been deleted successfully."
+        "agentDeletedDesc": "The agent has been deleted successfully.",
+        "promptSaved": "Prompt saved successfully",
+        "promptSavedDesc": "Your prompt has been saved and will be used for future email processing",
+        "resetSuccess": "Settings reset successfully",
+        "resetSuccessDesc": "All settings have been reset to their default values",
+        "resetSelectedSuccess": "Selected prompt reset successfully",
+        "resetSelectedSuccessDesc": "The selected prompt has been reset to its default value",
+        "saveLLMSettingsSuccess": "LLM settings saved successfully",
+        "saveLLMSettingsSuccessDesc": "Your LLM provider and model settings have been updated"
       }
     },
     "freeTrialExpired": "Free trial expired",
@@ -1581,5 +1597,69 @@
     "passwordsDoNotMatch": "Passwords do not match",
     "resetSuccessful": "Password reset successful! Redirecting...",
     "genericError": "An error occurred. Please try again."
+  },
+  "promptCustomization": {
+    "title": "Prompt Customization",
+    "joinDiscord": "Join our Discord",
+    "submitFeatureRequest": "Submit Feature Request",
+    "resetAll": "Reset All",
+    "saveLLMSettings": "Save LLM Settings",
+    "importantNotice": {
+      "title": "Important Notice",
+      "bulletPoints": {
+        "tested": "Prompts are tested with Gemini 1.5 Pro and Gemini 2.0 Flash",
+        "risk": "Changes are made at your own risk",
+        "playground": "A playground is planned to test your changes"
+      }
+    },
+    "llmSettings": {
+      "provider": {
+        "label": "LLM Provider",
+        "description": "Description:",
+        "headquarters": "Headquarters:",
+        "apiReference": "API Reference:",
+        "viewDocs": "View Documentation"
+      },
+      "model": {
+        "label": "LLM Model",
+        "description": "Description:"
+      }
+    },
+    "prompts": {
+      "title": "Customizable Prompts",
+      "editing": "Editing:",
+      "resetSelected": "Reset Selected",
+      "saveChanges": "Save Changes",
+      "selectPrompt": "Select a prompt to edit",
+      "requiredVariables": "Required variables:",
+      "formatWarning": "Do not change anything after --- as this tells the LLM the format of the response",
+      "placeholder": "Enter your custom prompt here..."
+    },
+    "promptTypes": {
+      "improveEmailDraftPrompt": {
+        "name": "Improve Email Draft",
+        "description": "Enhances your email draft while maintaining your intended message and tone"
+      },
+      "improveEmailResponsePrompt": {
+        "name": "Improve Email Response",
+        "description": "Improves your response to received emails"
+      },
+      "categorizeAndSummarizeEmailPrompt": {
+        "name": "Categorize & Summarize Email",
+        "description": "Analyzes and categorizes incoming emails with detailed summaries"
+      },
+      "generateEmailResponsePrompt": {
+        "name": "Generate Email Response",
+        "description": "Creates appropriate responses to incoming emails"
+      },
+      "generateEmailPrompt": {
+        "name": "Generate New Email",
+        "description": "Creates new emails from scratch based on your requirements"
+      },
+      "generateResponseKeywordsPrompt": {
+        "name": "Generate Response Keywords",
+        "description": "Suggests key response points for email replies"
+      }
+    }
   }
 }

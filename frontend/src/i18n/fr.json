@@ -132,7 +132,15 @@
         "unknownPdfError": "Une erreur inconnue s'est produite lors de la récupération du PDF.",
         "failedToDeleteLabel": "Échec de la suppression de l'étiquette",
         "invalidCategory": "Catégorie invalide",
-        "categoryNotFound": "La catégorie sélectionnée n'a pas été trouvée. Redirection vers la catégorie par défaut."
+        "categoryNotFound": "La catégorie sélectionnée n'a pas été trouvée. Redirection vers la catégorie par défaut.",
+        "resetError": "Échec de la réinitialisation",
+        "resetSelectedError": "Échec de la réinitialisation du prompt sélectionné",
+        "saveLLMSettingsError": "Échec de la sauvegarde des paramètres LLM",
+        "noPromptSelected": "Aucun prompt sélectionné",
+        "noPromptSelectedDesc": "Veuillez sélectionner un prompt à modifier",
+        "missingVariables": "Variables requises manquantes",
+        "missingVariablesDesc": "Les variables suivantes sont manquantes : {variables}",
+        "savePromptError": "Échec de la sauvegarde du prompt"
       },
       "successMessages": {
         "success": "Succès !",
@@ -153,7 +161,15 @@
         "agentDeleted": "Agent supprimé avec succès",
         "agentCreatedDesc": "Le nouvel agent a été créé avec succès.",
         "agentUpdatedDesc": "L'agent a été mis à jour avec succès.",
-        "agentDeletedDesc": "L'agent a été supprimé avec succès."
+        "agentDeletedDesc": "L'agent a été supprimé avec succès.",
+        "promptSaved": "Prompt sauvegardé avec succès",
+        "promptSavedDesc": "Votre prompt a été sauvegardé et sera utilisé pour le traitement futur des e-mails",
+        "resetSuccess": "Paramètres réinitialisés avec succès",
+        "resetSuccessDesc": "Tous les paramètres ont été réinitialisés à leurs valeurs par défaut",
+        "resetSelectedSuccess": "Prompt sélectionné réinitialisé avec succès",
+        "resetSelectedSuccessDesc": "Le prompt sélectionné a été réinitialisé à sa valeur par défaut",
+        "saveLLMSettingsSuccess": "Paramètres LLM sauvegardés avec succès",
+        "saveLLMSettingsSuccessDesc": "Vos paramètres de fournisseur et de modèle LLM ont été mis à jour"
       }
     },
     "freeTrialExpired": "Essai gratuit expiré",
@@ -1635,5 +1651,69 @@
     "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
     "resetSuccessful": "Réinitialisation du mot de passe réussie ! Redirection...",
     "genericError": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "promptCustomization": {
+    "title": "Personnalisation des Prompts",
+    "joinDiscord": "Rejoindre notre Discord",
+    "submitFeatureRequest": "Demande de fonctionnalité",
+    "resetAll": "Tout Réinitialiser",
+    "saveLLMSettings": "Sauvegarder les Paramètres LLM",
+    "importantNotice": {
+      "title": "Note Importante",
+      "bulletPoints": {
+        "tested": "Les prompts sont testés avec Gemini 1.5 Pro et Gemini 2.0 Flash",
+        "risk": "Les modifications sont faites à vos risques et périls",
+        "playground": "Un environnement de test est prévu pour tester vos modifications"
+      }
+    },
+    "llmSettings": {
+      "provider": {
+        "label": "Fournisseur LLM",
+        "description": "Description :",
+        "headquarters": "Siège social :",
+        "apiReference": "Référence API :",
+        "viewDocs": "Voir la Documentation"
+      },
+      "model": {
+        "label": "Modèle LLM",
+        "description": "Description :"
+      }
+    },
+    "prompts": {
+      "title": "Prompts Personnalisables",
+      "editing": "Modification :",
+      "resetSelected": "Réinitialiser la Sélection",
+      "saveChanges": "Sauvegarder les Modifications",
+      "selectPrompt": "Sélectionnez un prompt à modifier",
+      "formatWarning": "Ne changez rien après --- car cela indique au LLM le format de la réponse",
+      "requiredVariables": "Variables requises :",
+      "placeholder": "Entrez votre prompt personnalisé ici..."
+    },
+    "promptTypes": {
+      "improveEmailDraftPrompt": {
+        "name": "Améliorer le Brouillon d'Email",
+        "description": "Améliore votre brouillon d'email tout en conservant votre message et ton"
+      },
+      "improveEmailResponsePrompt": {
+        "name": "Améliorer la Réponse d'Email",
+        "description": "Améliore vos réponses aux emails reçus"
+      },
+      "categorizeAndSummarizeEmailPrompt": {
+        "name": "Catégoriser & Résumer l'Email",
+        "description": "Analyse et catégorise les emails entrants avec des résumés détaillés"
+      },
+      "generateEmailResponsePrompt": {
+        "name": "Générer une Réponse d'Email",
+        "description": "Crée des réponses appropriées aux emails reçus"
+      },
+      "generateEmailPrompt": {
+        "name": "Générer un Nouvel Email",
+        "description": "Crée de nouveaux emails à partir de zéro selon vos besoins"
+      },
+      "generateResponseKeywordsPrompt": {
+        "name": "Générer des Mots-clés de Réponse",
+        "description": "Suggère des points clés pour les réponses aux emails"
+      }
+    }
   }
 }

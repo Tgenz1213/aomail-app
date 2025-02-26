@@ -1345,6 +1345,9 @@
         "informative": "Financial reports, client updates, regulatory changes, software updates. Example: 'Monthly reconciliation reminder' or 'New tax regulation update'.",
         "useless": "Financial software marketing, general accounting newsletters, irrelevant training ads. Example: 'Try our new accounting software' or 'Random finance magazine'."
       }
+    },
+    "promptCustomization": {
+      "button": "Prompt customization"
     }
   },
   "apiFilters": {

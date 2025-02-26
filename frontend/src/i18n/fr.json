@@ -1399,6 +1399,9 @@
         "informative": "Rapports financiers, mises à jour clients, changements réglementaires, mises à jour logicielles. Exemple : 'Rappel de rapprochement mensuel' ou 'Nouvelle mise à jour réglementation fiscale'.",
         "useless": "Marketing de logiciels financiers, newsletters comptables générales, publicités de formation non pertinentes. Exemple : 'Essayez notre nouveau logiciel comptable' ou 'Magazine aléatoire de finance'."
       }
+    },
+    "promptCustomization": {
+      "button": "Personnalisation des prompts"
     }
   },
   "apiFilters": {

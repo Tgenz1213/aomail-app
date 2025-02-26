@@ -61,11 +61,11 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 ######################## TEXT PROCESSING UTILITIES ########################
 def get_prompt_response(
-    formatted_prompt: str, model: str = "claude-3-haiku-20240307"
+    formatted_prompt: str, model: str = "claude-3-5-haiku-latest"
 ) -> anthropic.types.message.Message:
     """Returns the prompt response"""
     if not model:
-        model = "claude-3-haiku-20240307"
+        model = "claude-3-5-haiku-latest"
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
         model=model,
@@ -77,7 +77,7 @@ def get_prompt_response(
 
 
 def get_prompt_response_with_tokens(
-    formatted_prompt: str, model: str = "claude-3-haiku-20240307"
+    formatted_prompt: str, model: str = "claude-3-5-haiku-latest"
 ) -> dict:
     response = get_prompt_response(formatted_prompt, model)
     result_json = json.loads(response.content[0].text)

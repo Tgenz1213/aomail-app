@@ -32,7 +32,7 @@ If the input does not clearly differentiate between main, cc, and bcc recipients
 Return ONLY the results in JSON format with three keys:
 main_recipients: [Python list],
 cc_recipients: [Python list],
-bcc_recipients: [Python list]    
+bcc_recipients: [Python list]
 """
 
 GENERATE_RESPONSE_KEYWORDS_PROMPT = """As an email assistant, analyze the email with the subject: '{input_subject}' and body: '{input_email}'.
@@ -64,7 +64,7 @@ Answer must ONLY be in JSON format with two keys: subject (STRING) and body in H
 
 
 CORRECT_MAIL_LANGUAGE_MISTAKES_PROMPT = """As an email assistant, check the following text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
-    
+
 Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
 subject: {subject},
@@ -209,11 +209,11 @@ Answer must ONLY be a Json format matching this template in {language} WITHOUT g
 
 
 REVIEW_USER_DESCRIPTION_PROMPT = """You are an assistant helping a user to create categories to automatically classify emails. The user has provided the following description for a category: {user_description}
-    
+
 The category should be clear and precise with enough details to classify incoming emails. The description should be in the third person and provide a clear understanding of the category.
 Here are some good examples:
-            'Augustin ROLET is a student at ESAIP (Engineering School specialized in Computer Science),
-            Augustin ROLET is an Integration Development Intern at CDS (Cognitive Design Systems is a company that creates software for 3D printing).'
+- 'Augustin ROLET is a student at ESAIP (Engineering School specialized in Computer Science)'
+- 'Augustin ROLET is an Integration Development Intern at CDS (Cognitive Design Systems is a company that creates software for 3D printing)'
 
 Tasks:
 - Review the description provided by the user.
@@ -232,7 +232,7 @@ The response MUST be a JSON formatted as follows:
 CHAT_HISTORY_TEXT = "- Take into account the chat history, but prioritize the latest guidelines from the user:\n  {chat_history}"
 
 GENERATE_CATEGORIES_SCRATCH_PROMPT = """You are an assistant helping a user to create categories to automatically classify emails. The user has provided the following list of topics: {user_topics}
-    
+
 Tasks:
 - The topics will be used to classify incoming emails.
 - If you see an obvious mistake in the name or the desctiption you can correct it.
@@ -261,7 +261,7 @@ The response MUST be a JSON formatted as follows:
 
 
 GENERATE_PRIORITIZATION_SCRATCH_PROMPT = """You are an intelligent email assistant tasked with helping a user create detailed and effective email prioritization guidelines.
-    
+
 The user has provided the following input: {user_input}
 This input will be used to guide an AI system in automatically categorizing and prioritizing emails based on the user's preferences.
 
@@ -310,7 +310,7 @@ Answer must always be a Json format matching this template:
 
 # -----------------------  AI MEMORY PROMPTS (ai_memory.py) -----------------------#
 IMPROVE_EMAIL_RESPONSE_PROMPT = """You are Ao, an email assistant, following these agent guidelines: {agent_settings}, who helps a user reply to an {importance} email they received.
-The user has already entered the recipients and the subject: '{subject}' of the email.    
+The user has already entered the recipients and the subject: '{subject}' of the email.
 Improve the email response following the user's guidelines.
 
 Current email body response:

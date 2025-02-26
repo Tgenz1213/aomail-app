@@ -6,12 +6,12 @@
         :backgroundColor="backgroundColor"
         @dismissPopup="dismissPopup"
     />
-    <div class="flex flex-col justify-center items-center h-screen">
+    <div class="h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
+                <Navbar @update:isMinimized="(value: boolean) => (isNavMinimized = value)" />
             </div>
-            <div class="flex-1 bg-white ring-1 ring-black ring-opacity-5">
+            <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full">
                     <main class="bg-gray-50 ring-1 ring-black ring-opacity-5">
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -24,11 +24,12 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
+                                                @click="() => router.push('/ai-assistant')"
                                             >
                                                 <SparklesIcon class="w-4 h-4" />
-                                                <a class="text-sm font-medium text-gray-800">
+                                                <a class="text-sm font-medium text-gray-600">
                                                     {{ $t("aiAssistantPage.navtitle") }}
                                                 </a>
                                             </div>
@@ -38,10 +39,9 @@
                                                     'flex space-x-2 items-center rounded-md py-2',
                                                     'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
-                                                @click="() => router.push('/custom-categorization')"
                                             >
                                                 <ChatBubbleLeftRightIcon class="w-4 h-4" />
-                                                <a class="text-sm font-medium text-gray-600">
+                                                <a class="text-sm font-medium text-gray-800">
                                                     {{ $t("aiAssistantPage.emailCategories.button") }}
                                                 </a>
                                             </div>
@@ -62,7 +62,7 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/prompt-customization')"
                                             >
@@ -78,7 +78,7 @@
                         </div>
                     </main>
                     <div class="flex-1 overflow-auto p-6">
-                        <PrioritizationGuidelines />
+                        <Prompts />
                     </div>
                 </div>
             </div>
@@ -87,35 +87,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, provide } from "vue";
+import { provide, ref } from "vue";
+import { useRouter } from "vue-router";
+import { i18n } from "@/global/preferences";
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { getData } from "@/global/fetchData";
-import PrioritizationGuidelines from "./components/PrioritizationGuidelines.vue";
-import { useRouter } from "vue-router";
-import { i18n } from "@/global/preferences";
+import Prompts from "./components/Prompts.vue";
 
 const router = useRouter();
-const showNotification = ref(false);
+
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
+const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
-const currentGuidelines = ref({
-    importantGuidelines: "",
-    informativeGuidelines: "",
-    uselessGuidelines: "",
-});
-
-const guidelines = ref({
-    important: "",
-    informative: "",
-    useless: "",
-});
+provide("displayPopup", displayPopup);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
@@ -132,28 +122,4 @@ function dismissPopup() {
         clearTimeout(timerId.value);
     }
 }
-
-async function loadCurrentGuidelines() {
-    const result = await getData("user/preferences/guidelines/");
-    if (result.success) {
-        currentGuidelines.value = result.data;
-        guidelines.value = {
-            important: result.data.importantGuidelines,
-            informative: result.data.informativeGuidelines,
-            useless: result.data.uselessGuidelines,
-        };
-    } else {
-        displayPopup(
-            "error",
-            i18n.global.t("aiAssistantPage.errorMessages.failedToLoadGuidelines"),
-            result.error as string
-        );
-    }
-}
-
-provide("displayPopup", displayPopup);
-
-onMounted(() => {
-    loadCurrentGuidelines();
-});
 </script>

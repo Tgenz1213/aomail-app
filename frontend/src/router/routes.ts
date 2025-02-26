@@ -20,6 +20,7 @@ import Logout from "@/pages/Logout/Logout.vue";
 import CustomCategorization from "@/pages/CustomCategorization/CustomCategorization.vue";
 import Subscription from "@/pages/Subscription/Subscription.vue";
 import Analytics from "@/pages/Analytics/Analytics.vue";
+import PromptCustomization from "@/pages/PromptCustomization/PromptCustomization.vue";
 
 export interface RouteConfig {
     path: string;
@@ -140,7 +141,7 @@ const labels: RouteConfig = {
 
 const customCategorization: RouteConfig = {
     path: "/custom-categorization",
-    name: "customCategorization",
+    name: "custom-categorization",
     meta: { requiresAuth: true },
     component: CustomCategorization,
 };
@@ -171,6 +172,13 @@ const analytics: RouteConfig = {
     component: Analytics,
 };
 
+const promptCustomization: RouteConfig = {
+    path: "/prompt-customization",
+    name: "prompt-customization",
+    meta: { requiresAuth: true },
+    component: PromptCustomization,
+};
+
 const routes: RouteConfig[] = [
     login,
     logout,
@@ -193,6 +201,7 @@ const routes: RouteConfig[] = [
     notFound,
     subscription,
     analytics,
+    promptCustomization,
 ];
 
 export default routes;

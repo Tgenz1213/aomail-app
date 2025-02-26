@@ -59,6 +59,19 @@
                                                     {{ $t("aiAssistantPage.rules.button") }}
                                                 </a>
                                             </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
+                                                ]"
+                                                @click="() => router.push('/prompt-customization')"
+                                            >
+                                                <AdjustmentsHorizontalIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-600">
+                                                    {{ $t("aiAssistantPage.promptCustomization.button") }}
+                                                </a>
+                                            </div>
                                         </nav>
                                     </div>
                                 </div>

@@ -228,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { getData, putData } from "@/global/fetchData";
+import { deleteData, getData, putData } from "@/global/fetchData";
 import { inject, onMounted, ref, computed } from "vue";
 import Multiselect from "vue-multiselect";
 import { i18n } from "@/global/preferences";
@@ -376,7 +376,7 @@ async function resetToDefault() {
     promptInput.value = "";
     editingPrompt.value = null;
 
-    const result = await putData("user/preferences/llm_settings/", {});
+    const result = await deleteData("user/preferences/llm_settings/", { resetAll: true });
 
     if (!result.success) {
         displayPopup?.("error", "Failed to reset to default", result.error as string);
@@ -386,21 +386,38 @@ async function resetToDefault() {
     await fetchLLMSettings();
 }
 
-function resetSelectedPrompt() {
-    // TODO: Implement actual saving logic here
-    // postData to backend with only the selected prompt set to null (default)
+async function resetSelectedPrompt() {
+    const result = await deleteData("user/preferences/llm_settings/", {
+        [editingPrompt.value as string]: true,
+    });
+
+    if (!result.success) {
+        displayPopup?.("error", "Failed to reset selected prompt", result.error as string);
+        return;
+    }
+
+    await fetchLLMSettings();
 
     if (editingPrompt.value) {
         promptInput.value = customizablePrompts.value[editingPrompt.value].prompt || "";
     }
 }
 
-function saveLLMSettings() {
-    // TODO: Implement actual saving logic here
-    // postData to backend with the LLM settings
+async function saveLLMSettings() {
+    const result = await putData("user/preferences/llm_settings/", {
+        llmProvider: llmProvider.value.provider,
+        llmModel: llmModel.value.name,
+    });
+
+    if (!result.success) {
+        displayPopup?.("error", "Failed to save LLM settings", result.error as string);
+        return;
+    }
+
+    await fetchLLMSettings();
 }
 
-function savePrompt() {
+async function savePrompt() {
     if (!editingPrompt.value) {
         displayPopup?.("error", "No prompt selected", "No prompt selected");
         return;
@@ -418,7 +435,15 @@ function savePrompt() {
         return;
     }
 
-    // TODO: Implement actual saving logic here
+    const result = await putData("user/preferences/llm_settings/", {
+        [editingPrompt.value as string]: promptInput.value,
+    });
+
+    if (!result.success) {
+        displayPopup?.("error", "Failed to save prompt", result.error as string);
+        return;
+    }
+
     displayPopup?.("success", "Prompt saved successfully!", "Prompt saved successfully!");
 }
 

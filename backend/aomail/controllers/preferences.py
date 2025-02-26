@@ -489,8 +489,10 @@ def update_user_llm_settings(request: HttpRequest) -> Response:
     parameters: dict = json.loads(request.body)
     preference = get_object_or_404(Preference, user=request.user)
 
-    preference.llm_provider = parameters.get("llmProvider", "google")
-    preference.llm_model = parameters.get("llmModel")
+    if parameters.get("llmProvider"):
+        preference.llm_provider = parameters.get("llmProvider")
+    if parameters.get("llmModel"):
+        preference.llm_model = parameters.get("llmModel")
 
     improve_email_draft_prompt = parameters.get("improveEmailDraftPrompt")
     if improve_email_draft_prompt and all(
@@ -549,8 +551,41 @@ def reset_user_llm_settings(request: HttpRequest) -> Response:
     """
     Reset the LLM settings to the default values.
     """
+    parameters: dict = json.loads(request.body)
     preference = get_object_or_404(Preference, user=request.user)
-    preference.reset_to_default()
-    return Response(
-        {"message": "LLM settings reset to default"}, status=status.HTTP_200_OK
-    )
+
+    if parameters.get("resetAll"):
+        preference.improve_email_draft_prompt = None
+        preference.improve_email_response_prompt = None
+        preference.categorize_and_summarize_email_prompt = None
+        preference.generate_email_response_prompt = None
+        preference.generate_email_prompt = None
+        preference.generate_response_keywords_prompt = None
+        preference.llm_model = None
+        preference.llm_provider = "google"
+        preference.save()
+
+        return Response(
+            {"message": "LLM settings and prompts reset to default"},
+            status=status.HTTP_200_OK,
+        )
+    else:
+        # Reset selected prompts
+        if parameters.get("improveEmailDraftPrompt"):
+            preference.improve_email_draft_prompt = None
+        if parameters.get("improveEmailResponsePrompt"):
+            preference.improve_email_response_prompt = None
+        if parameters.get("categorizeAndSummarizeEmailPrompt"):
+            preference.categorize_and_summarize_email_prompt = None
+        if parameters.get("generateEmailResponsePrompt"):
+            preference.generate_email_response_prompt = None
+        if parameters.get("generateEmailPrompt"):
+            preference.generate_email_prompt = None
+        if parameters.get("generateResponseKeywordsPrompt"):
+            preference.generate_response_keywords_prompt = None
+
+        preference.save()
+
+        return Response(
+            {"message": "Prompt reset to default"}, status=status.HTTP_200_OK
+        )

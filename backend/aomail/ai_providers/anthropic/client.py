@@ -21,7 +21,6 @@ Features:
 - ✅ summarize_email: Summarizes an email.
 """
 
-import ast
 import json
 import logging
 import os
@@ -65,6 +64,8 @@ def get_prompt_response(
     formatted_prompt: str, model: str = "claude-3-haiku-20240307"
 ) -> anthropic.types.message.Message:
     """Returns the prompt response"""
+    if not model:
+        model = "claude-3-haiku-20240307"
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
         model=model,
@@ -98,15 +99,8 @@ def generate_response_keywords(
     formatted_prompt = GENERATE_RESPONSE_KEYWORDS_PROMPT.format(
         input_subject=input_subject, input_email=input_email
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    keywords = response.content[0].text.strip()
-    keywords_list = ast.literal_eval(keywords)
 
-    return {
-        "keywords_list": keywords_list,
-        "tokens_input": response.usage.input_tokens,
-        "tokens_output": response.usage.output_tokens,
-    }
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 ######################## WRITING ########################
@@ -292,12 +286,9 @@ def determine_action_scenario(
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
             user_request=user_request
         )
-        response = get_prompt_response(formatted_prompt, llm_model)
+        response = get_prompt_response_with_tokens(formatted_prompt, llm_model)
         try:
-            scenario = int(response.content[0].text.strip())
-            result_json["scenario"] = scenario
-            result_json["tokens_input"] = response.usage.input_tokens
-            result_json["tokens_output"] = response.usage.output_tokens
+            scenario = response.get("scenario", 5)
             if scenario in [1, 2, 3]:
                 return result_json
             else:

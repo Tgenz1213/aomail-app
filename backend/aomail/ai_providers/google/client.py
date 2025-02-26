@@ -23,7 +23,6 @@ Features:
 
 import os
 import re
-import ast
 import json
 import logging
 import google.generativeai as genai
@@ -65,6 +64,8 @@ def get_prompt_response(
     formatted_prompt: str, model: str = "gemini-1.5-flash"
 ) -> genai.types.GenerateContentResponse:
     """Returns the prompt response using Gemini 1.5 Flash model"""
+    if not model:
+        model = "gemini-1.5-flash"
     genai.configure(api_key=GEMINI_API_KEY)
     gemini_model = genai.GenerativeModel(model)
     response = gemini_model.generate_content(
@@ -99,20 +100,8 @@ def generate_response_keywords(
     formatted_prompt = GENERATE_RESPONSE_KEYWORDS_PROMPT.format(
         input_subject=input_subject, input_email=input_email
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    keywords_text = response.text.strip()
 
-    try:
-        keywords_list = ast.literal_eval(keywords_text)
-    except (ValueError, SyntaxError):
-        cleaned_text = keywords_text.replace("```", "").replace("python", "").strip()
-        keywords_list = ast.literal_eval(cleaned_text)
-
-    return {
-        "keywords_list": keywords_list,
-        "tokens_input": response.usage_metadata.prompt_token_count,
-        "tokens_output": response.usage_metadata.candidates_token_count,
-    }
+    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 
 ######################## WRITING ########################
@@ -299,14 +288,9 @@ def determine_action_scenario(
         formatted_prompt = DETERMINE_ACTION_SCENARIO_PROMPT.format(
             user_request=user_request
         )
-        response = get_prompt_response(formatted_prompt, llm_model)
+        result_json = get_prompt_response_with_tokens(formatted_prompt, llm_model)
         try:
-            scenario = int(response.text.strip())
-            result_json["scenario"] = scenario
-            result_json["tokens_input"] = response.usage_metadata.prompt_token_count
-            result_json["tokens_output"] = (
-                response.usage_metadata.candidates_token_count
-            )
+            scenario = result_json.get("scenario", 5)
             if scenario in [1, 2, 3]:
                 return result_json
             else:

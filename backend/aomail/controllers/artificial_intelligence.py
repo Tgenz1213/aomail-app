@@ -642,9 +642,7 @@ def new_email_ai(request: HttpRequest) -> Response:
         )
         update_tokens_stats(user, result)
 
-        return Response(
-            {"subject": result["subject"], "mail": result["body"]}
-        )
+        return Response({"subject": result["subject"], "mail": result["body"]})
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
@@ -881,21 +879,14 @@ def handle_email_action(request: HttpRequest) -> Response:
             similarity_ratio(clean_signature.strip(), clean_email.strip()) > 0.9
         )
 
-        LOGGER.info(f"===================================> Signature: {signature}")
-        LOGGER.info(
-            f"===================================> Email Content: {email_content}"
-        )
-        LOGGER.info(
-            f"===================================> Is Only Signature: {is_only_signature}"
-        )
-
         destinary_present = bool(destinary)
         subject_present = bool(subject)
         email_content_present = bool(email_content)
 
         chat_history = dict_to_chat_history(history)
 
-        language = Preference.objects.get(user=user).language
+        preference = Preference.objects.get(user=user)
+        language = preference.language
 
         try:
             agent = Agent.objects.get(user=user, last_used=True)
@@ -913,7 +904,6 @@ def handle_email_action(request: HttpRequest) -> Response:
             "language": agent.language,
         }
 
-        preference = Preference.objects.get(user=request.user)
         result_json = llm_functions.determine_action_scenario(
             destinary_present,
             subject_present,

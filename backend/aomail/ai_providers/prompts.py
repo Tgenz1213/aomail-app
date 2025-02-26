@@ -42,7 +42,11 @@ IDENTIFY exactly 5 distinct ways to respond. For each scenario:
 - "can't attend 5pm, need new schedule, request confirmation"
 - "appreciate feedback, will implement changes, thank you"
 
-As an answer ONLY give a Python List format: ["...", "..."]. Do not use any other characters or explanations; RETURN only the list.
+---
+Answer must always be a Json format matching this template:
+{{
+    "keywords_list": [Python list]
+}}
 """
 
 SIGNATURE_INSTRUCTION_WITH_CONTENT = "\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
@@ -296,6 +300,12 @@ Scenarios:
 3. The user wants to ask the AI to generate an email and has not specified any senders.
 
 Please respond with the scenario number (1, 2, or 3) that best fits the user request.
+
+---
+Answer must always be a Json format matching this template:
+{{
+    "scenario": int
+}}
 """
 
 # -----------------------  AI MEMORY PROMPTS (ai_memory.py) -----------------------#

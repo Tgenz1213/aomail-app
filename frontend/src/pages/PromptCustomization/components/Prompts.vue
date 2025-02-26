@@ -30,6 +30,13 @@
                     Submit Feature Request
                 </a>
                 <button
+                    @click="resetToDefault"
+                    title="Reset All including LLM settings and prompts customized"
+                    class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
+                >
+                    Reset All
+                </button>
+                <button
                     @click="saveLLMSettings"
                     class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
                 >
@@ -133,19 +140,19 @@
                 <h2 class="text-lg font-semibold mb-4">Customizable Prompts</h2>
                 <div class="space-y-4">
                     <div
-                        v-for="prompt in customizablePrompts"
-                        :key="prompt.name"
+                        v-for="prompt in Object.keys(customizablePrompts)"
+                        :key="prompt"
                         class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                        :class="{ 'bg-blue-50 border-blue-500': editingPrompt?.name === prompt.name }"
-                        @click="setEditingPrompt(prompt.name)"
+                        :class="{ 'bg-blue-50 border-blue-500': editingPrompt === prompt }"
+                        @click="setEditingPrompt(prompt)"
                     >
-                        <h3 class="font-medium text-gray-900">{{ getPromptDisplayName(prompt.name) }}</h3>
-                        <p class="text-sm text-gray-500 mt-1">{{ getPromptDescription(prompt.name) }}</p>
+                        <h3 class="font-medium text-gray-900">{{ getPromptDisplayName(prompt) }}</h3>
+                        <p class="text-sm text-gray-500 mt-1">{{ getPromptDescription(prompt) }}</p>
                         <div class="mt-2">
                             <span class="text-xs text-gray-500">Required variables:</span>
                             <div class="flex flex-wrap gap-1 mt-1">
                                 <span
-                                    v-for="variable in prompt.variables"
+                                    v-for="variable in customizablePrompts[prompt].variables"
                                     :key="variable"
                                     class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
                                 >
@@ -161,21 +168,13 @@
                 <div class="space-y-6">
                     <div v-if="editingPrompt" class="mb-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-lg font-semibold">
-                                Editing: {{ getPromptDisplayName(editingPrompt.name) }}
-                            </h2>
+                            <h2 class="text-lg font-semibold">Editing: {{ getPromptDisplayName(editingPrompt) }}</h2>
                             <div class="flex space-x-2">
                                 <button
                                     @click="resetSelectedPrompt"
                                     class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
                                 >
                                     Reset Selected
-                                </button>
-                                <button
-                                    @click="resetToDefault"
-                                    class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
-                                >
-                                    Reset All
                                 </button>
                             </div>
                         </div>
@@ -229,11 +228,12 @@
 </template>
 
 <script setup lang="ts">
+import { getData, putData } from "@/global/fetchData";
 import { inject, onMounted, ref, computed } from "vue";
 import Multiselect from "vue-multiselect";
+import { i18n } from "@/global/preferences";
 
 interface Prompt {
-    name: string;
     prompt: string;
     variables: string[];
 }
@@ -330,112 +330,17 @@ const llmModelOptions = computed(() => {
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-const customizablePrompts = ref<Prompt[]>([
-    {
-        name: "IMPROVE_EMAIL_DRAFT_PROMPT",
-        prompt: `You are an email assistant, who helps a user redact an email in {language}, following these agent guidelines: {agent_settings}.
-The user has already entered the recipients and the subject: '{subject}' of the email.
-Improve the email body and subject following the user's guidelines.
-
-Current email body:
-{body}
-
-Current Conversation:
-{history}
-User: {user_input}
-
-The response must retain the core information and incorporate the required user changes.
-If you hesitate or there is contradictory information, always prioritize the last user input.
-Keep the same email body length: '{length}' AND level of speech: '{formality}' unless a change is explicitly mentioned by the user.
-
----
-Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
-`,
+const customizablePrompts = ref<{ [key: string]: Prompt }>({
+    improveEmailDraftPrompt: {
+        prompt: "",
         variables: ["language", "agent_settings", "subject", "body", "history", "user_input", "length", "formality"],
     },
-    {
-        name: "IMPROVE_EMAIL_RESPONSE_PROMPT",
-        prompt: `You are Ao, an email assistant, following these agent guidelines: {agent_settings}, who helps a user reply to an {importance} email they received.
-The user has already entered the recipients and the subject: '{subject}' of the email.
-Improve the email response following the user's guidelines.
-
-Current email body response:
-{body}
-
-Current Conversation:
-{history}
-User: {user_input}
-
-The response must retain the core information and incorporate the required user changes.
-If you hesitate or there is contradictory information, always prioritize the last user input.
-
----
-Answer must ONLY be in JSON format with one key: body in HTML.
-`,
+    improveEmailResponsePrompt: {
+        prompt: "",
         variables: ["agent_settings", "importance", "subject", "body", "history", "user_input"],
     },
-    {
-        name: "CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT",
-        prompt: `You are a smart email assistant acting as if you were a secretary, summarizing an email for the recipient orally.
-    
-Given the following email:
-
-Sender:
-{sender}
-
-Subject:
-{subject}
-
-Text:
-{decoded_data}
-
-User description:
-{user_description}
-
-Using the provided categories:
-
-Topic Categories:
-{category_dict}
-
-Response Categories:
-{response_list}
-
-Relevance Categories:
-{relevance_list}
-
-Follow those rules:
-"important" emails: {important_guidelines}
-"informative" emails: {informative_guidelines}
-"useless" emails: {useless_guidelines}
-
-Complete the following tasks in same language used in the email:
-- Categorize the email according to the user description (if provided) and given categories.
-- Summarize the email without adding any greetings.
-- If the email explicitly mentions the name of the user (provided with user description), then use 'You' instead of the name of the user.
-- Provide a short sentence (up to 10 words) summarizing the core content of the email.
-- Define the importance level of the email with one keyword: "important", "informative" or "useless".
-- If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones.
-- The summary should objectively reflect the most important information of the email without making subjective judgments.    
-
----
-Return this JSON object completed with the requested information:
-{{
-    "topic": Selected Category,
-    "response": Response,
-    "relevance": Relevance,
-    "importance": Importance of the email,
-    "flags": {{
-        "spam": bool,
-        "scam": bool,
-        "newsletter": bool,
-        "notification": bool,
-        "meeting": bool
-    }},
-    "summary": {{
-        "one_line": One sentence summary,
-        "short": Short summary of the email
-    }}
-}}`,
+    categorizeAndSummarizeEmailPrompt: {
+        prompt: "",
         variables: [
             "sender",
             "subject",
@@ -449,68 +354,45 @@ Return this JSON object completed with the requested information:
             "useless_guidelines",
         ],
     },
-    {
-        name: "GENERATE_EMAIL_RESPONSE_PROMPT",
-        prompt: `As a smart email assistant, following these agent guidelines: {agent_settings}, and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
-Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
-0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
-1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
-2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
-{signature_instruction}
-
----
-Answer must ONLY be in JSON format with one key: body in HTML.
-`,
+    generateEmailResponsePrompt: {
+        prompt: "",
         variables: ["agent_settings", "input_subject", "input_body", "user_instruction", "signature_instruction"],
     },
-    {
-        name: "GENERATE_EMAIL_PROMPT",
-        prompt: `As an email assistant, following these agent guidelines: {agent_settings}, write a {length} and {formality} email in {language}.
-Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
-It must strictly contain only the information that is present in the input.
-{signature_instruction}
-
----
-Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
-`,
+    generateEmailPrompt: {
+        prompt: "",
         variables: ["agent_settings", "length", "formality", "language", "input_data", "signature_instruction"],
     },
-    {
-        name: "GENERATE_RESPONSE_KEYWORDS_PROMPT",
-        prompt: `As an email assistant, analyze the email with the subject: '{input_subject}' and body: '{input_email}'.
-
-IDENTIFY exactly 5 distinct ways to respond. For each scenario:
-**Provide "keywords":** a list of short phrases (fragments) describing the approach. These should **not form complete sentences** but should contain multiple words to effectively convey the strategy. Ensure that the keywords are **in the same language** as the original email. For example:
-- "can't attend 5pm, need new schedule, request confirmation"
-- "appreciate feedback, will implement changes, thank you"
-
----
-Answer must always be a Json format matching this template:
-{{
-    "keywords_list": [Python list]
-}}
-`,
+    generateResponseKeywordsPrompt: {
+        prompt: "",
         variables: ["input_subject", "input_email"],
     },
-]);
+});
 
-const editingPrompt = ref<Prompt | null>(null);
+const editingPrompt = ref<string | null>(null);
 
-function resetToDefault() {
-    // TODO: Implement actual saving logic here
-    // postData to backend with everything set to null (default)
-
+async function resetToDefault() {
     llmModel.value = llmProviderOptions[0].models[0];
     llmProvider.value = llmProviderOptions[0];
     promptInput.value = "";
     editingPrompt.value = null;
+
+    const result = await putData("user/preferences/llm_settings/", {});
+
+    if (!result.success) {
+        displayPopup?.("error", "Failed to reset to default", result.error as string);
+        return;
+    }
+
+    await fetchLLMSettings();
 }
 
 function resetSelectedPrompt() {
     // TODO: Implement actual saving logic here
     // postData to backend with only the selected prompt set to null (default)
 
-    promptInput.value = editingPrompt.value?.prompt || "";
+    if (editingPrompt.value) {
+        promptInput.value = customizablePrompts.value[editingPrompt.value].prompt || "";
+    }
 }
 
 function saveLLMSettings() {
@@ -524,7 +406,7 @@ function savePrompt() {
         return;
     }
 
-    const promptData = editingPrompt.value;
+    const promptData = customizablePrompts.value[editingPrompt.value];
     const missingVariables = promptData.variables.filter((variable) => !promptInput.value.includes(`{${variable}}`));
 
     if (missingVariables.length > 0) {
@@ -541,11 +423,32 @@ function savePrompt() {
 }
 
 function setEditingPrompt(promptName: string) {
-    editingPrompt.value = customizablePrompts.value.find((p) => p.name === promptName) || null;
-    promptInput.value = editingPrompt.value?.prompt || "";
+    editingPrompt.value = promptName;
+    promptInput.value = customizablePrompts.value[promptName].prompt || "";
 }
 
-onMounted(() => {
+async function fetchLLMSettings() {
+    const result = await getData("user/preferences/llm_settings/");
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch LLM settings", result.error as string);
+        return;
+    }
+
+    const data = result.data;
+
+    llmProvider.value = llmProviderOptions.find((p) => p.provider === data.llmProvider) || llmProviderOptions[0];
+    llmModel.value = llmModelOptions.value.find((m) => m.name === data.llmModel) || llmModelOptions.value[0];
+
+    customizablePrompts.value["improveEmailDraftPrompt"].prompt = data.improveEmailDraftPrompt;
+    customizablePrompts.value["improveEmailResponsePrompt"].prompt = data.improveEmailResponsePrompt;
+    customizablePrompts.value["categorizeAndSummarizeEmailPrompt"].prompt = data.categorizeAndSummarizeEmailPrompt;
+    customizablePrompts.value["generateEmailResponsePrompt"].prompt = data.generateEmailResponsePrompt;
+    customizablePrompts.value["generateEmailPrompt"].prompt = data.generateEmailPrompt;
+    customizablePrompts.value["generateResponseKeywordsPrompt"].prompt = data.generateResponseKeywordsPrompt;
+}
+
+onMounted(async () => {
+    await fetchLLMSettings();
     document.addEventListener("keydown", (event) => {
         if (event.ctrlKey && event.key === "s") {
             event.preventDefault();
@@ -562,24 +465,24 @@ onMounted(() => {
 // Add new functions for prompt display names and descriptions
 function getPromptDisplayName(name: string): string {
     const displayNames: { [key: string]: string } = {
-        IMPROVE_EMAIL_DRAFT_PROMPT: "Improve Email Draft",
-        IMPROVE_EMAIL_RESPONSE_PROMPT: "Improve Email Response",
-        CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT: "Categorize & Summarize Email",
-        GENERATE_EMAIL_RESPONSE_PROMPT: "Generate Email Response",
-        GENERATE_EMAIL_PROMPT: "Generate New Email",
-        GENERATE_RESPONSE_KEYWORDS_PROMPT: "Generate Response Keywords",
+        improveEmailDraftPrompt: "Improve Email Draft",
+        improveEmailResponsePrompt: "Improve Email Response",
+        categorizeAndSummarizeEmailPrompt: "Categorize & Summarize Email",
+        generateEmailResponsePrompt: "Generate Email Response",
+        generateEmailPrompt: "Generate New Email",
+        generateResponseKeywordsPrompt: "Generate Response Keywords",
     };
     return displayNames[name] || name;
 }
 
 function getPromptDescription(name: string): string {
     const descriptions: { [key: string]: string } = {
-        IMPROVE_EMAIL_DRAFT_PROMPT: "Enhances your email draft while maintaining your intended message and tone",
-        IMPROVE_EMAIL_RESPONSE_PROMPT: "Improves your response to received emails",
-        CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT: "Analyzes and categorizes incoming emails with detailed summaries",
-        GENERATE_EMAIL_RESPONSE_PROMPT: "Creates appropriate responses to incoming emails",
-        GENERATE_EMAIL_PROMPT: "Creates new emails from scratch based on your requirements",
-        GENERATE_RESPONSE_KEYWORDS_PROMPT: "Suggests key response points for email replies",
+        improveEmailDraftPrompt: "Enhances your email draft while maintaining your intended message and tone",
+        improveEmailResponsePrompt: "Improves your response to received emails",
+        categorizeAndSummarizeEmailPrompt: "Analyzes and categorizes incoming emails with detailed summaries",
+        generateEmailResponsePrompt: "Creates appropriate responses to incoming emails",
+        generateEmailPrompt: "Creates new emails from scratch based on your requirements",
+        generateResponseKeywordsPrompt: "Suggests key response points for email replies",
     };
     return descriptions[name] || "No description available";
 }

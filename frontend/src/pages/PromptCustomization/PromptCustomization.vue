@@ -89,7 +89,6 @@
 <script setup lang="ts">
 import { provide, ref } from "vue";
 import { useRouter } from "vue-router";
-import { i18n } from "@/global/preferences";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";

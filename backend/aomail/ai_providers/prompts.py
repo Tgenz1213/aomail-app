@@ -48,6 +48,10 @@ Answer must always be a Json format matching this template:
     "keywords_list": [Python list]
 }}
 """
+GENERATE_RESPONSE_KEYWORDS_PROMPT_VARIABLES = [
+    "input_subject",
+    "input_email",
+]
 
 SIGNATURE_INSTRUCTION_WITH_CONTENT = "\n3. DO NOT modify, remove or create a new signature. Keep this EXACT SAME signature at the end of the email:\n{signature}"
 SIGNATURE_INSTRUCTION_WITHOUT_CONTENT = "Add a standard greeting and sign-off without a signature (unless explicitly mentioned).\nSignature: <br>"
@@ -61,7 +65,14 @@ It must strictly contain only the information that is present in the input.
 ---
 Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
 """
-
+GENERATE_EMAIL_PROMPT_VARIABLES = [
+    "agent_settings",
+    "length",
+    "formality",
+    "language",
+    "input_data",
+    "signature_instruction",
+]
 
 CORRECT_MAIL_LANGUAGE_MISTAKES_PROMPT = """As an email assistant, check the following text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
 
@@ -106,6 +117,13 @@ Craft a response strictly in the language used in the email following the user i
 ---
 Answer must ONLY be in JSON format with one key: body in HTML.
 """
+GENERATE_EMAIL_RESPONSE_PROMPT_VARIABLES = [
+    "agent_settings",
+    "input_subject",
+    "input_body",
+    "user_instruction",
+    "signature_instruction",
+]
 
 RESPONSE_LIST = {
     ANSWER_REQUIRED: "Message requires an answer.",
@@ -178,7 +196,18 @@ Return this JSON object completed with the requested information:
         "short": Short summary of the email
     }}
 }}"""
-
+CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT_VARIABLES = [
+    "sender",
+    "subject",
+    "decoded_data",
+    "user_description",
+    "category_dict",
+    "response_list",
+    "relevance_list",
+    "important_guidelines",
+    "informative_guidelines",
+    "useless_guidelines",
+]
 
 SEARCH_EMAILS_PROMPT = """As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
 1. Analyse and create a filter to search emails content with the Gmail API and Graph API.
@@ -326,6 +355,14 @@ If you hesitate or there is contradictory information, always prioritize the las
 ---
 Answer must ONLY be in JSON format with one key: body in HTML.
 """
+IMPROVE_EMAIL_RESPONSE_PROMPT_VARIABLES = [
+    "agent_settings",
+    "importance",
+    "subject",
+    "body",
+    "history",
+    "user_input",
+]
 
 
 IMPROVE_EMAIL_DRAFT_PROMPT = """You are an email assistant, who helps a user redact an email in {language}, following these agent guidelines: {agent_settings}.
@@ -346,6 +383,16 @@ Keep the same email body length: '{length}' AND level of speech: '{formality}' u
 ---
 Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
 """
+IMPROVE_EMAIL_DRAFT_PROMPT_VARIABLES = [
+    "language",
+    "agent_settings",
+    "subject",
+    "body",
+    "history",
+    "user_input",
+    "length",
+    "formality",
+]
 
 
 # -----------------------  TREE KNOWLEDGE PROMPTS (tree_knowledge.py) -----------------------#

@@ -87,11 +87,19 @@ class Category(models.Model):
 class Preference(models.Model):
     """Model for storing user preferences."""
 
+    # LLM settings
     llm_provider = models.CharField(max_length=50, default="google")
     llm_model = models.CharField(max_length=50, null=True)
-    timezone = models.CharField(max_length=50, default="UTC")
-    theme = models.CharField(max_length=50, default="light")
-    language = models.CharField(max_length=50, default="american")
+
+    # Prompts
+    improve_email_draft_prompt = models.TextField(max_length=1000, null=True)
+    improve_email_response_prompt = models.TextField(max_length=1000, null=True)
+    categorize_and_summarize_email_prompt = models.TextField(max_length=2000, null=True)
+    generate_email_response_prompt = models.TextField(max_length=1000, null=True)
+    generate_email_prompt = models.TextField(max_length=1000, null=True)
+    generate_response_keywords_prompt = models.TextField(max_length=1000, null=True)
+
+    # Guidelines
     important_guidelines = models.CharField(
         max_length=1000,
         default="if it's strictly work-related AND either urgent or requires prompt business action",
@@ -104,6 +112,11 @@ class Preference(models.Model):
         max_length=1000,
         default="it's promotional OR newsletter content (like TV shows, marketing emails, subscriptions)",
     )
+
+    # UI / UX settings
+    timezone = models.CharField(max_length=50, default="UTC")
+    theme = models.CharField(max_length=50, default="light")
+    language = models.CharField(max_length=50, default="american")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 

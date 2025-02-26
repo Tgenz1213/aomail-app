@@ -26,6 +26,20 @@ from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.constants import ALLOW_ALL
 from aomail.models import Preference, Subscription
+from aomail.ai_providers.prompts import (
+    CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT,
+    CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT_VARIABLES,
+    GENERATE_EMAIL_PROMPT,
+    GENERATE_EMAIL_PROMPT_VARIABLES,
+    GENERATE_EMAIL_RESPONSE_PROMPT,
+    GENERATE_EMAIL_RESPONSE_PROMPT_VARIABLES,
+    GENERATE_RESPONSE_KEYWORDS_PROMPT,
+    GENERATE_RESPONSE_KEYWORDS_PROMPT_VARIABLES,
+    IMPROVE_EMAIL_DRAFT_PROMPT,
+    IMPROVE_EMAIL_DRAFT_PROMPT_VARIABLES,
+    IMPROVE_EMAIL_RESPONSE_PROMPT,
+    IMPROVE_EMAIL_RESPONSE_PROMPT_VARIABLES,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -405,3 +419,138 @@ def get_user_guidelines(request: HttpRequest) -> Response:
             {"error": "Failed to retrieve guidelines"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+
+@api_view(["GET", "PUT", "DELETE"])
+@subscription(ALLOW_ALL)
+def user_llm_settings(request: HttpRequest) -> Response:
+    """
+    Retrieve, update, or create the LLM settings for the authenticated user.
+    """
+    if request.method == "GET":
+        return get_user_llm_settings(request)
+    elif request.method == "PUT":
+        return update_user_llm_settings(request)
+    elif request.method == "DELETE":
+        return reset_user_llm_settings(request)
+
+
+def get_user_llm_settings(request: HttpRequest) -> Response:
+    """
+    Retrieve the LLM settings for the authenticated user.
+    """
+    preference = get_object_or_404(Preference, user=request.user)
+
+    return Response(
+        {
+            "llmProvider": preference.llm_provider,
+            "llmModel": (
+                preference.llm_model if preference.llm_model else "gemini-1.5-flash"
+            ),
+            "improveEmailDraftPrompt": (
+                preference.improve_email_draft_prompt
+                if preference.improve_email_draft_prompt
+                else IMPROVE_EMAIL_DRAFT_PROMPT
+            ),
+            "improveEmailResponsePrompt": (
+                preference.improve_email_response_prompt
+                if preference.improve_email_response_prompt
+                else IMPROVE_EMAIL_RESPONSE_PROMPT
+            ),
+            "categorizeAndSummarizeEmailPrompt": (
+                preference.categorize_and_summarize_email_prompt
+                if preference.categorize_and_summarize_email_prompt
+                else CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT
+            ),
+            "generateEmailResponsePrompt": (
+                preference.generate_email_response_prompt
+                if preference.generate_email_response_prompt
+                else GENERATE_EMAIL_RESPONSE_PROMPT
+            ),
+            "generateEmailPrompt": (
+                preference.generate_email_prompt
+                if preference.generate_email_prompt
+                else GENERATE_EMAIL_PROMPT
+            ),
+            "generateResponseKeywordsPrompt": (
+                preference.generate_response_keywords_prompt
+                if preference.generate_response_keywords_prompt
+                else GENERATE_RESPONSE_KEYWORDS_PROMPT
+            ),
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+def update_user_llm_settings(request: HttpRequest) -> Response:
+    """
+    Update the LLM settings for the authenticated user.
+    """
+    parameters: dict = json.loads(request.body)
+    preference = get_object_or_404(Preference, user=request.user)
+
+    preference.llm_provider = parameters.get("llmProvider", "google")
+    preference.llm_model = parameters.get("llmModel")
+
+    improve_email_draft_prompt = parameters.get("improveEmailDraftPrompt")
+    if improve_email_draft_prompt and all(
+        f"{{{variable}}}" in improve_email_draft_prompt
+        for variable in IMPROVE_EMAIL_DRAFT_PROMPT_VARIABLES
+    ):
+        preference.improve_email_draft_prompt = improve_email_draft_prompt
+
+    improve_email_response_prompt = parameters.get("improveEmailResponsePrompt")
+    if improve_email_response_prompt and all(
+        f"{{{variable}}}" in improve_email_response_prompt
+        for variable in IMPROVE_EMAIL_RESPONSE_PROMPT_VARIABLES
+    ):
+        preference.improve_email_response_prompt = improve_email_response_prompt
+
+    categorize_and_summarize_email_prompt = parameters.get(
+        "categorizeAndSummarizeEmailPrompt"
+    )
+    if categorize_and_summarize_email_prompt and all(
+        f"{{{variable}}}" in categorize_and_summarize_email_prompt
+        for variable in CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT_VARIABLES
+    ):
+        preference.categorize_and_summarize_email_prompt = (
+            categorize_and_summarize_email_prompt
+        )
+
+    generate_email_response_prompt = parameters.get("generateEmailResponsePrompt")
+    if generate_email_response_prompt and all(
+        f"{{{variable}}}" in generate_email_response_prompt
+        for variable in GENERATE_EMAIL_RESPONSE_PROMPT_VARIABLES
+    ):
+        preference.generate_email_response_prompt = generate_email_response_prompt
+
+    generate_email_prompt = parameters.get("generateEmailPrompt")
+    if generate_email_prompt and all(
+        f"{{{variable}}}" in generate_email_prompt
+        for variable in GENERATE_EMAIL_PROMPT_VARIABLES
+    ):
+        preference.generate_email_prompt = generate_email_prompt
+
+    generate_response_keywords_prompt = parameters.get("generateResponseKeywordsPrompt")
+    if generate_response_keywords_prompt and all(
+        f"{{{variable}}}" in generate_response_keywords_prompt
+        for variable in GENERATE_RESPONSE_KEYWORDS_PROMPT_VARIABLES
+    ):
+        preference.generate_response_keywords_prompt = generate_response_keywords_prompt
+
+    preference.save()
+
+    return Response(
+        {"message": "LLM settings updated successfully"}, status=status.HTTP_200_OK
+    )
+
+
+def reset_user_llm_settings(request: HttpRequest) -> Response:
+    """
+    Reset the LLM settings to the default values.
+    """
+    preference = get_object_or_404(Preference, user=request.user)
+    preference.reset_to_default()
+    return Response(
+        {"message": "LLM settings reset to default"}, status=status.HTTP_200_OK
+    )

@@ -28,8 +28,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install pytest .
-          python -m pip install google-generativeai .
+          python pip install pytest
+          python pip install google-generativeai
  
       - name: Setup DJANGO_SETTINGS_MODULE
         run: |

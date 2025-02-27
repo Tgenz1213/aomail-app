@@ -32,11 +32,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
  
-      - name: Setup DJANGO_SETTINGS_MODULE
+      - name: Run tests
         run: |
           export DJANGO_SETTINGS_MODULE=config.settings
-
-      - name: Run tests
-        run: python -m pytest
+          python -m pytest
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}

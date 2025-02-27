@@ -1059,9 +1059,32 @@
       "fetchingAgents": "Erreur lors de la récupération des agents",
       "updatingAgentStatus": "Échec de la mise à jour du statut du dernier agent",
       "noAgentsAvailable": "Aucun agent disponible",
+      "initialization": "Échec de l'initialisation",
+      "fetchSignatures": "Échec de la récupération des signatures",
       "unknownError": "Une erreur inconnue s'est produite"
     },
     "draftImproved": "Voici le mail amélioré, êtes-vous satisfait ?"
+  },
+  "answerPage": {
+    "responseSentTitle": "Réponse envoyée !",
+    "chatSummarize": "Résumé de l'email :",
+    "chatKeyWordIntroduction": "Voici les réponses suggérées, comment souhaitez-vous répondre ?",
+    "seeMail": "Voir l'email",
+    "error": {
+      "title": "Erreur",
+      "fetchSignatures": "Échec de la récupération des signatures",
+      "lastUsedAgent": "Échec du chargement du dernier agent utilisé",
+      "initialization": "Échec de l'initialisation de l'application",
+      "containerNotFound": "Conteneur AI introuvable",
+      "paragraphNotFound": "Paragraphe animé introuvable",
+      "insertingSignature": "Erreur lors de l'insertion de la signature",
+      "displayingAgentSelection": "Erreur lors de l'affichage de la sélection d'agent",
+      "checkingLastUsedAgent": "Erreur lors de la vérification du dernier agent utilisé",
+      "fetchingAgents": "Erreur lors de la récupération des agents",
+      "updatingAgentStatus": "Échec de la mise à jour du statut du dernier agent",
+      "noAgentsAvailable": "Aucun agent disponible",
+      "unknownError": "Une erreur inconnue s'est produite"
+    }
   },
   "errorWebPagesTemplates": {
     "error401Page": {

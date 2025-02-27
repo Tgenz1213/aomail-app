@@ -18,12 +18,12 @@ from aomail.email_providers.utils import (
 from aomail.utils.security import encrypt_text
 
 
-@pytest.fixture
+@pytest.mark.django_db
 def user():
     return User.objects.get_or_create(username="testuser", password="testpassword")
 
 
-@pytest.fixture
+@pytest.mark.django_db
 def social_api(user: User):
     return SocialAPI.objects.get_or_create(
         user=user,
@@ -35,12 +35,12 @@ def social_api(user: User):
     )
 
 
-@pytest.fixture
+@pytest.mark.django_db
 def statistics(user: User):
     return Statistics.objects.get_or_create(user=user)
 
 
-@pytest.fixture
+@pytest.mark.django_db
 def rules(user: User):
     rule1 = Rule.objects.create(
         user=user,
@@ -126,7 +126,7 @@ def processed_email():
     }
 
 
-@pytest.fixture
+@pytest.mark.django_db
 def sender():
     return Sender.objects.create(
         name="sender",
@@ -134,7 +134,7 @@ def sender():
     )
 
 
-@pytest.fixture
+@pytest.mark.django_db
 def email_entry(sender: Sender):
     return Email.objects.create(
         social_api=social_api,

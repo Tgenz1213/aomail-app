@@ -15,9 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Move to backend directory
-        run: ls
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -28,8 +25,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python pip install pytest
-          python pip install google-generativeai
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install pytest
+          python -m pip install google-generativeai
  
       - name: Setup DJANGO_SETTINGS_MODULE
         run: |

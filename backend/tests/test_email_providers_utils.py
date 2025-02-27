@@ -18,12 +18,12 @@ from aomail.email_providers.utils import (
 from aomail.utils.security import encrypt_text
 
 
-@pytest.mark.django_db
+@pytest.fixture
 def user():
     return User.objects.get_or_create(username="testuser", password="testpassword")
 
 
-@pytest.mark.django_db
+@pytest.fixture
 def social_api(user: User):
     return SocialAPI.objects.get_or_create(
         user=user,
@@ -35,12 +35,12 @@ def social_api(user: User):
     )
 
 
-@pytest.mark.django_db
+@pytest.fixture
 def statistics(user: User):
     return Statistics.objects.get_or_create(user=user)
 
 
-@pytest.mark.django_db
+@pytest.fixture
 def rules(user: User):
     rule1 = Rule.objects.create(
         user=user,
@@ -126,7 +126,7 @@ def processed_email():
     }
 
 
-@pytest.mark.django_db
+@pytest.fixture
 def sender():
     return Sender.objects.create(
         name="sender",
@@ -134,7 +134,7 @@ def sender():
     )
 
 
-@pytest.mark.django_db
+@pytest.fixture
 def email_entry(sender: Sender):
     return Email.objects.create(
         social_api=social_api,
@@ -167,11 +167,13 @@ def email_entry(sender: Sender):
     )
 
 
+@pytest.mark.django_db
 def test_apply_rules(processed_email: dict, user: User, email_entry: Email):
     apply_rules(processed_email, user, email_entry)
     assert email_entry.category == DEFAULT_CATEGORY
 
 
+@pytest.mark.django_db
 def test_verify_condition(processed_email: dict, rules: list[Rule]):
     rule1, rule2, rule3, rule4 = rules
 
@@ -233,6 +235,7 @@ def test_verify_condition(processed_email: dict, rules: list[Rule]):
     assert verify_condition("non_existing_condition", processed_email, rule1) == False
 
 
+@pytest.mark.django_db
 def test_delete_email_rule_with_domain(user: User):
     """Test email deletion rule based on domain."""
     email_data = {"from_info": ("Spam", "spammer@spam.com")}
@@ -242,6 +245,7 @@ def test_delete_email_rule_with_domain(user: User):
     assert delete_email_rule(user, email_data) == True
 
 
+@pytest.mark.django_db
 def test_delete_email_rule_with_specific_email(user: User):
     email_data = {"from_info": ("Specific", "bad@company.com")}
 
@@ -254,6 +258,7 @@ def test_delete_email_rule_with_specific_email(user: User):
     assert delete_email_rule(user, email_data) == False
 
 
+@pytest.mark.django_db
 def test_save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
     email_entry = save_email_to_db(processed_email, user, social_api)
 

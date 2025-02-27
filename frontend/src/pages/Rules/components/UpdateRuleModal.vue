@@ -7,19 +7,20 @@
         >
             <div class="bg-white rounded-lg relative w-[850px] max-h-[85vh] overflow-y-auto">
                 <!-- Header -->
-                <div class="sticky top-0 z-10 rounded-t-lg border-b border-gray-200 bg-gray-50">
-                    <div class="flex items-center justify-between p-4">
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            {{ $t("rulesPage.modals.updateRule.title") }}
-                        </h2>
-                        <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
-                            <XMarkIcon class="h-6 w-6" />
-                        </button>
-                    </div>
+                <div class="flex justify-between items-center mb-4 px-6 py-6">
+                    <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
+                        {{ $t("rulesPage.modals.updateRule.title") }}
+                    </DialogTitle>
+                    <button
+                        @click="closeModal"
+                        class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
+                    >
+                        <XMarkIcon class="h-6 w-6" />
+                    </button>
                 </div>
 
                 <!-- Content -->
-                <div class="p-4 space-y-6">
+                <div class="pb-4 px-6 space-y-8">
                     <div v-if="errorMessage" class="text-red-600 text-sm mb-4">{{ errorMessage }}</div>
 
                     <!-- Logical Operator (Listbox) -->

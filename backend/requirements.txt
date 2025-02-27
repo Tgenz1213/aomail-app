@@ -100,4 +100,4 @@ uritemplate
 urllib3
 yarl
 google-generativeai
-pytest
+pytest-django

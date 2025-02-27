@@ -149,7 +149,7 @@ async function handleAIClick() {
         isWriting.value = false;
         return;
     } else if (result.data.message) {
-        message = i18n.global.t("searchPage.aiSearch.typeMessage");
+        message = i18n.global.t("searchPage.aiSearch.notEnoughData");
     } else {
         const { answer, ids } = result.data.answer;
         message = answer;

@@ -952,7 +952,8 @@
       "loading": "Chargement...",
       "typeMessage": "Tapez un message...",
       "askQuestion": "Posez-moi une question sur vos e-mails...",
-      "initialGreeting": "Bonjour ! Je suis là pour vous aider à rechercher dans vos e-mails. Que souhaitez-vous savoir ?"
+      "initialGreeting": "Bonjour ! Je suis là pour vous aider à rechercher dans vos e-mails. Comment puis-je vous aider aujourd'hui ?",
+      "notEnoughData": "Je n'ai pas assez de données pour répondre à votre question"
     },
     "sortBy": "Trier par",
     "orderBy": "Ordre",

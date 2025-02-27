@@ -876,11 +876,12 @@
     },
     "aiSearch": {
       "instruction": "Type your instruction...",
-      "failedToFetchDetails": "Failed to fetch email details",
+      "failedToFetchDetails": "Failed to fetch search details",
       "loading": "Loading...",
       "typeMessage": "Type a message...",
       "askQuestion": "Ask me a question about your emails...",
-      "initialGreeting": "Hello! I'm here to help you search through your emails. What would you like to know?"
+      "initialGreeting": "Hello! I'm here to help you search through your emails. How can I assist you today?",
+      "notEnoughData": "I do not have enough data to answer your question"
     },
     "sortBy": "Sort by",
     "orderBy": "Order by",

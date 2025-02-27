@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Move to backend directory
-        run: cd backend
+        run: ls
 
       - name: Checkout code
         uses: actions/checkout@v4

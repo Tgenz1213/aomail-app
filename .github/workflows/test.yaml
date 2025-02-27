@@ -17,6 +17,19 @@ jobs:
       run:
         working-directory: ./backend
 
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,3 +50,10 @@ jobs:
           python manage.py test
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          DJANGO_SECRET_KEY: "testing-secret-key"
+          DJANGO_DB_ENGINE: django.db.backends.postgresql
+          DJANGO_DB_HOST: postgres
+          DJANGO_DB_PORT: 5432
+          DJANGO_DB_USER: postgres
+          DJANGO_DB_PASSWORD: postgres
+          DJANGO_DB_NAME: postgres

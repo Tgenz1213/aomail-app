@@ -6,6 +6,10 @@ from django.contrib.auth.models import User
 from langchain_community.chat_message_histories import ChatMessageHistory
 from aomail.ai_providers import llm_functions
 from aomail.models import Preference
+from aomail.ai_providers.prompts import (
+    IMPROVE_EMAIL_DRAFT_PROMPT,
+    IMPROVE_EMAIL_RESPONSE_PROMPT,
+)
 
 
 class EmailReplyConversation:
@@ -61,7 +65,13 @@ class EmailReplyConversation:
                 tokens_output (int): The number of tokens used for the output.
         """
         preference = Preference.objects.get(user=self.user)
+        base_prompt = (
+            preference.improve_email_response_prompt
+            if preference.improve_email_response_prompt
+            else IMPROVE_EMAIL_RESPONSE_PROMPT
+        )
         result_json = llm_functions.improve_email_response(
+            base_prompt,
             self.importance,
             self.subject,
             self.body,
@@ -140,7 +150,13 @@ class GenerateEmailConversation:
                 tokens_output (int): The number of tokens used for the output.
         """
         preference = Preference.objects.get(user=self.user)
+        base_prompt = (
+            preference.improve_email_draft_prompt
+            if preference.improve_email_draft_prompt
+            else IMPROVE_EMAIL_DRAFT_PROMPT
+        )
         result_json = llm_functions.improve_draft(
+            base_prompt,
             language,
             agent_settings,
             self.subject,

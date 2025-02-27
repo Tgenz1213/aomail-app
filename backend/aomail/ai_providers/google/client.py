@@ -29,20 +29,14 @@ import google.generativeai as genai
 from datetime import datetime
 from aomail.ai_providers.utils import count_corrections, extract_json_from_response
 from aomail.ai_providers.prompts import (
-    CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT,
     CHAT_HISTORY_TEXT,
     CORRECT_MAIL_LANGUAGE_MISTAKES_PROMPT,
     DETERMINE_ACTION_SCENARIO_PROMPT,
     EXTRACT_CONTACTS_RECIPIENTS_PROMPT,
     GENERATE_CATEGORIES_SCRATCH_PROMPT,
-    GENERATE_EMAIL_PROMPT,
-    GENERATE_EMAIL_RESPONSE_PROMPT,
     GENERATE_PRIORITIZATION_SCRATCH_PROMPT,
-    GENERATE_RESPONSE_KEYWORDS_PROMPT,
     GET_ANSWER_PROMPT,
     IMPROVE_EMAIL_COPYWRITING_PROMPT,
-    IMPROVE_EMAIL_DRAFT_PROMPT,
-    IMPROVE_EMAIL_RESPONSE_PROMPT,
     RELEVANCE_LIST,
     RESPONSE_LIST,
     REVIEW_USER_DESCRIPTION_PROMPT,
@@ -95,9 +89,12 @@ def extract_contacts_recipients(query: str, llm_model: str = None) -> dict:
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
 def generate_response_keywords(
-    input_email: str, input_subject: str, llm_model: str = "gemini-2.0-flash-exp"
+    base_prompt: str,
+    input_email: str,
+    input_subject: str,
+    llm_model: str = "gemini-2.0-flash-exp",
 ) -> dict:
-    formatted_prompt = GENERATE_RESPONSE_KEYWORDS_PROMPT.format(
+    formatted_prompt = base_prompt.format(
         input_subject=input_subject, input_email=input_email
     )
 
@@ -106,6 +103,7 @@ def generate_response_keywords(
 
 ######################## WRITING ########################
 def generate_email(
+    base_prompt: str,
     input_data: str,
     length: str,
     formality: str,
@@ -122,7 +120,7 @@ def generate_email(
     else:
         signature_instruction = SIGNATURE_INSTRUCTION_WITHOUT_CONTENT
 
-    formatted_prompt = GENERATE_EMAIL_PROMPT.format(
+    formatted_prompt = base_prompt.format(
         agent_settings=json.dumps(agent_settings),
         length=length,
         formality=formality,
@@ -176,6 +174,7 @@ def improve_email_copywriting(
 
 
 def generate_email_response(
+    base_prompt: str,
     input_subject: str,
     input_body: str,
     user_instruction: str,
@@ -191,7 +190,7 @@ def generate_email_response(
     else:
         signature_instruction = SIGNATURE_INSTRUCTION_WITHOUT_CONTENT
 
-    formatted_prompt = GENERATE_EMAIL_RESPONSE_PROMPT.format(
+    formatted_prompt = base_prompt.format(
         agent_settings=json.dumps(agent_settings),
         input_subject=input_subject,
         input_body=input_body,
@@ -213,6 +212,7 @@ def generate_email_response(
 
 
 def categorize_and_summarize_email(
+    base_prompt: str,
     subject: str,
     decoded_data: str,
     category_dict: dict,
@@ -223,7 +223,7 @@ def categorize_and_summarize_email(
     useless_guidelines: str,
     llm_model: str = None,
 ) -> dict:
-    formatted_prompt = CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT.format(
+    formatted_prompt = base_prompt.format(
         sender=sender,
         subject=subject,
         decoded_data=decoded_data,
@@ -319,6 +319,7 @@ def determine_action_scenario(
 
 
 def improve_email_response(
+    base_prompt: str,
     importance: str,
     subject: str,
     body: str,
@@ -327,7 +328,7 @@ def improve_email_response(
     agent_settings: dict,
     llm_model: str = "gemini-2.0-flash-exp",
 ) -> dict:
-    formatted_prompt = IMPROVE_EMAIL_RESPONSE_PROMPT.format(
+    formatted_prompt = base_prompt.format(
         importance=importance,
         subject=subject,
         body=body,
@@ -339,6 +340,7 @@ def improve_email_response(
 
 
 def improve_draft(
+    base_prompt: str,
     language: str,
     agent_settings: dict,
     subject: str,
@@ -349,7 +351,7 @@ def improve_draft(
     formality: str,
     llm_model: str = None,
 ) -> dict:
-    formatted_prompt = IMPROVE_EMAIL_DRAFT_PROMPT.format(
+    formatted_prompt = base_prompt.format(
         language=language,
         agent_settings=agent_settings,
         subject=subject,

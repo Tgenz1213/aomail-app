@@ -49,6 +49,7 @@ def extract_contacts_recipients(
 
 
 def generate_response_keywords(
+    base_prompt: str,
     input_email: str,
     input_subject: str,
     llm_provider: str = "google",
@@ -58,6 +59,7 @@ def generate_response_keywords(
     Generates a list of detailed draft response sentences for responding to a given email.
 
     Args:
+        base_prompt (str): The base prompt to use for the email response keywords generation.
         input_email (str): The body of the email.
         input_subject (str): The subject of the email.
         llm_provider (str): The language model to use for the email generation.
@@ -70,12 +72,17 @@ def generate_response_keywords(
             tokens_output (int): The number of tokens used for the output.
     """
     if llm_provider == "anthropic":
-        return claude.generate_response_keywords(input_email, input_subject, llm_model)
+        return claude.generate_response_keywords(
+            base_prompt, input_email, input_subject, llm_model
+        )
     elif llm_provider == "google":
-        return gemini.generate_response_keywords(input_email, input_subject, llm_model)
+        return gemini.generate_response_keywords(
+            base_prompt, input_email, input_subject, llm_model
+        )
 
 
 def generate_email(
+    base_prompt: str,
     input_data: str,
     length: str,
     formality: str,
@@ -89,6 +96,7 @@ def generate_email(
     Generates an email, enhancing both quantity and quality according to user guidelines and agent settings.
 
     Args:
+        base_prompt (str): The base prompt to use for the email generation.
         input_data (str): The user's input data or guidelines for the email content.
         length (str): The desired length of the email (e.g., "short", "medium", "long").
         formality (str): The desired level of formality for the email (e.g., "informal", "formal").
@@ -107,6 +115,7 @@ def generate_email(
     """
     if llm_provider == "anthropic":
         return claude.generate_email(
+            base_prompt,
             input_data,
             length,
             formality,
@@ -117,6 +126,7 @@ def generate_email(
         )
     elif llm_provider == "google":
         return gemini.generate_email(
+            base_prompt,
             input_data,
             length,
             formality,
@@ -181,6 +191,7 @@ def improve_email_copywriting(
 
 
 def generate_email_response(
+    base_prompt: str,
     input_subject: str,
     input_body: str,
     user_instruction: str,
@@ -193,6 +204,7 @@ def generate_email_response(
     Generates an email response based on the given response type and agent settings.
 
     Args:
+        base_prompt (str): The base prompt to use for the email response generation.
         input_subject (str): The subject of the email to respond to.
         input_body (str): The body of the email to respond to.
         user_instruction (str): Instructions or guidelines provided by the user for crafting the response.
@@ -209,6 +221,7 @@ def generate_email_response(
     """
     if llm_provider == "anthropic":
         return claude.generate_email_response(
+            base_prompt,
             input_subject,
             input_body,
             user_instruction,
@@ -218,6 +231,7 @@ def generate_email_response(
         )
     elif llm_provider == "google":
         return gemini.generate_email_response(
+            base_prompt,
             input_subject,
             input_body,
             user_instruction,
@@ -228,6 +242,7 @@ def generate_email_response(
 
 
 def categorize_and_summarize_email(
+    base_prompt: str,
     subject: str,
     decoded_data: str,
     category_dict: dict,
@@ -243,6 +258,7 @@ def categorize_and_summarize_email(
     Categorizes and summarizes an email.
 
     Args:
+        base_prompt (str): The base prompt to use for the email categorization and summarization.
         subject (str): The subject of the email.
         decoded_data (str): The decoded content of the email body.
         category_dict (dict): A dictionary of topic categories to be used for classification.
@@ -259,6 +275,7 @@ def categorize_and_summarize_email(
     """
     if llm_provider == "anthropic":
         return claude.categorize_and_summarize_email(
+            base_prompt,
             subject,
             decoded_data,
             category_dict,
@@ -271,6 +288,7 @@ def categorize_and_summarize_email(
         )
     elif llm_provider == "google":
         return gemini.categorize_and_summarize_email(
+            base_prompt,
             subject,
             decoded_data,
             category_dict,
@@ -425,6 +443,7 @@ def determine_action_scenario(
 
 # -----------------------  AI MEMORY PROMPTS (ai_memory.py) -----------------------#
 def improve_email_response(
+    base_prompt: str,
     importance: str,
     subject: str,
     body: str,
@@ -436,6 +455,7 @@ def improve_email_response(
 ) -> dict:
     if llm_provider == "anthropic":
         return claude.improve_email_response(
+            base_prompt,
             importance,
             subject,
             body,
@@ -446,6 +466,7 @@ def improve_email_response(
         )
     elif llm_provider == "google":
         return gemini.improve_email_response(
+            base_prompt,
             importance,
             subject,
             body,
@@ -457,6 +478,7 @@ def improve_email_response(
 
 
 def improve_draft(
+    base_prompt: str,
     language: str,
     agent_settings: dict,
     subject: str,
@@ -470,6 +492,7 @@ def improve_draft(
 ) -> dict:
     if llm_provider == "anthropic":
         return claude.improve_draft(
+            base_prompt,
             language,
             agent_settings,
             subject,
@@ -482,6 +505,7 @@ def improve_draft(
         )
     elif llm_provider == "google":
         return gemini.improve_draft(
+            base_prompt,
             language,
             agent_settings,
             subject,

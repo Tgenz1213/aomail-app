@@ -68,6 +68,10 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
 from aomail.ai_providers.utils import update_tokens_stats
 from aomail.ai_providers import llm_functions
+from aomail.ai_providers.prompts import (
+    GENERATE_EMAIL_PROMPT,
+    GENERATE_EMAIL_RESPONSE_PROMPT,
+)
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
@@ -167,7 +171,13 @@ def get_new_email_response(request: HttpRequest) -> Response:
     if is_only_signature or is_nearly_empty:
         try:
             preference = Preference.objects.get(user=user)
+            base_prompt = (
+                preference.generate_email_response_prompt
+                if preference.generate_email_response_prompt
+                else GENERATE_EMAIL_RESPONSE_PROMPT
+            )
             result = llm_functions.generate_email_response(
+                base_prompt,
                 subject,
                 emailBody,
                 user_input,
@@ -631,6 +641,11 @@ def new_email_ai(request: HttpRequest) -> Response:
             "language": agent.language,
         }
         result = llm_functions.generate_email(
+            (
+                preference.generate_email_prompt
+                if preference.generate_email_prompt
+                else GENERATE_EMAIL_PROMPT
+            ),
             input_data,
             length,
             formality,
@@ -753,9 +768,16 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
 
         preference = Preference.objects.get(user=request.user)
         result = llm_functions.generate_response_keywords(
-            subject, body, preference.llm_provider, preference.llm_model
+            (
+                preference.generate_email_response_prompt
+                if preference.generate_email_response_prompt
+                else GENERATE_EMAIL_RESPONSE_PROMPT
+            ),
+            body,
+            subject,
+            preference.llm_provider,
+            preference.llm_model,
         )
-        update_tokens_stats(user, result)
 
         return Response(
             {"responseKeywords": result["keywords_list"]},
@@ -811,7 +833,13 @@ def generate_email_answer(request: HttpRequest) -> Response:
         }
 
         preference = Preference.objects.get(user=request.user)
+        base_prompt = (
+            preference.generate_email_response_prompt
+            if preference.generate_email_response_prompt
+            else GENERATE_EMAIL_RESPONSE_PROMPT
+        )
         result = llm_functions.generate_email_response(
+            base_prompt,
             subject,
             body,
             user_instruction,
@@ -982,6 +1010,11 @@ def handle_email_action(request: HttpRequest) -> Response:
 
         elif scenario in [2, 3]:
             result = llm_functions.generate_email(
+                (
+                    preference.generate_email_prompt
+                    if preference.generate_email_prompt
+                    else GENERATE_EMAIL_PROMPT
+                ),
                 user_input,
                 agent_settings["length"],
                 agent_settings["formality"],

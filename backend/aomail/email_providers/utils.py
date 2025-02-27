@@ -69,6 +69,7 @@ from aomail.email_providers.microsoft.compose_email import (
 from django.db import models
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from aomail.ai_providers.prompts import CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT
 
 
 LOGGER = logging.getLogger(__name__)
@@ -420,6 +421,11 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
 
         def get_email_processed():
             return llm_functions.categorize_and_summarize_email(
+                (
+                    preference.categorize_and_summarize_email_prompt
+                    if preference.categorize_and_summarize_email_prompt
+                    else CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT
+                ),
                 email_data["subject"],
                 email_data["preprocessed_data"],
                 category_dict,

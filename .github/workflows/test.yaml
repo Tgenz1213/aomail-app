@@ -1,4 +1,4 @@
-name: Run AI Tests
+name: Run Tests
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [main]
 
 jobs:
-  run-ai-tests:
+  run-tests:
     strategy:
       fail-fast: false
 
-    name: Run AI Tests
+    name: Run Tests
     runs-on: ubuntu-latest
     defaults:
       run:

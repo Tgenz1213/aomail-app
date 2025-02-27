@@ -5,13 +5,13 @@ from aomail.models import SocialAPI, Statistics
 from aomail.ai_providers.utils import update_tokens_stats
 
 
-@pytest.mark.transactional_db
-def user():
+@pytest.fixture
+def user(transactional_db):
     return User.objects.get_or_create(username="testuser", password="testpassword")
 
 
 @pytest.mark.transactional_db
-def social_api(user: User):
+def social_api(transactional_db, user: User):
     return SocialAPI.objects.get_or_create(
         user=user,
         email="testuser@example.com",
@@ -23,7 +23,7 @@ def social_api(user: User):
 
 
 @pytest.mark.transactional_db
-def statistics(user: User):
+def statistics(transactional_db, user: User):
     return Statistics.objects.get_or_create(user=user)
 
 

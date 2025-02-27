@@ -10,7 +10,7 @@ def user(transactional_db):
     return User.objects.get_or_create(username="testuser", password="testpassword")
 
 
-@pytest.mark.transactional_db
+@pytest.fixture
 def social_api(transactional_db, user: User):
     return SocialAPI.objects.get_or_create(
         user=user,
@@ -22,7 +22,7 @@ def social_api(transactional_db, user: User):
     )
 
 
-@pytest.mark.transactional_db
+@pytest.fixture
 def statistics(transactional_db, user: User):
     return Statistics.objects.get_or_create(user=user)
 

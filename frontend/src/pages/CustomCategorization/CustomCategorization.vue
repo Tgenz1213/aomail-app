@@ -26,9 +26,22 @@
                                                     'flex space-x-2 items-center rounded-md py-2',
                                                     'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
-                                                @click="() => router.push('/ai-assistant')"
+                                                @click="() => router.push('/rules')"
                                             >
                                                 <SparklesIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-800">
+                                                    {{ $t("aiAssistantPage.rules.button") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
+                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
+                                                ]"
+                                                @click="() => router.push('/ai-assistant')"
+                                            >
+                                                <BoltIcon class="w-4 h-4" />
                                                 <a class="text-sm font-medium text-gray-600">
                                                     {{ $t("aiAssistantPage.navtitle") }}
                                                 </a>
@@ -39,23 +52,11 @@
                                                     'flex space-x-2 items-center rounded-md py-2',
                                                     'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
+                                                @click="() => router.push('/custom-categorization')"
                                             >
                                                 <ChatBubbleLeftRightIcon class="w-4 h-4" />
-                                                <a class="text-sm font-medium text-gray-800">
-                                                    {{ $t("aiAssistantPage.emailCategories.button") }}
-                                                </a>
-                                            </div>
-                                            <div
-                                                class="text-sm font-medium cursor-pointer"
-                                                :class="[
-                                                    'flex space-x-2 items-center rounded-md py-2',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
-                                                ]"
-                                                @click="() => router.push('/rules')"
-                                            >
-                                                <AdjustmentsHorizontalIcon class="w-4 h-4" />
                                                 <a class="text-sm font-medium text-gray-600">
-                                                    {{ $t("aiAssistantPage.rules.button") }}
+                                                    {{ $t("aiAssistantPage.emailCategories.button") }}
                                                 </a>
                                             </div>
                                             <div
@@ -94,7 +95,7 @@ import Conversation from "./components/Conversation.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import ChatInput from "./components/ChatInput.vue";
-import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
+import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon, BoltIcon } from "@heroicons/vue/24/outline";
 import { Message } from "@/global/types";
 import { useRouter } from "vue-router";
 import { i18n } from "@/global/preferences";

@@ -146,9 +146,9 @@ onMounted(() => {
 const mainNavigation: NavigationPage[] = [
     { 
         name: i18n.global.t("constants.AiNavbar"), 
-        href: "/ai-assistant", 
+        href: "/rules", 
         icon: SparklesIcon,
-        activePaths: ["/ai-assistant", "/rules", "/custom-categorization"]
+        activePaths: ["/rules", "/ai-assistant", "/custom-categorization", "/prompt-customization"]
     },
     { name: i18n.global.t("constants.inboxNavbar"), href: "/inbox", icon: InboxIcon },
     { name: i18n.global.t("constants.analyticsNavbar"), href: "/analytics", icon: ChartBarIcon },

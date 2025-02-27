@@ -24,11 +24,24 @@
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
                                                     'flex space-x-2 items-center rounded-md py-2',
+                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
+                                                ]"
+                                                @click="() => router.push('/rules')"
+                                            >
+                                                <SparklesIcon class="w-4 h-4" />
+                                                <a class="text-sm font-medium text-gray-800">
+                                                    {{ $t("aiAssistantPage.rules.button") }}
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="text-sm font-medium cursor-pointer"
+                                                :class="[
+                                                    'flex space-x-2 items-center rounded-md py-2',
                                                     'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8',
                                                 ]"
                                                 @click="() => router.push('/ai-assistant')"
                                             >
-                                                <SparklesIcon class="w-4 h-4" />
+                                                <BoltIcon class="w-4 h-4" />
                                                 <a class="text-sm font-medium text-gray-600">
                                                     {{ $t("aiAssistantPage.navtitle") }}
                                                 </a>
@@ -44,19 +57,6 @@
                                                 <ChatBubbleLeftRightIcon class="w-4 h-4" />
                                                 <a class="text-sm font-medium text-gray-600">
                                                     {{ $t("aiAssistantPage.emailCategories.button") }}
-                                                </a>
-                                            </div>
-                                            <div
-                                                class="text-sm font-medium cursor-pointer"
-                                                :class="[
-                                                    'flex space-x-2 items-center rounded-md py-2',
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-8',
-                                                ]"
-                                                @click="() => router.push('/rules')"
-                                            >
-                                                <AdjustmentsHorizontalIcon class="w-4 h-4" />
-                                                <a class="text-sm font-medium text-gray-800">
-                                                    {{ $t("aiAssistantPage.rules.button") }}
                                                 </a>
                                             </div>
                                             <div
@@ -160,7 +160,7 @@ import SearchBar from "./components/SearchBar.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { FilterPayload, RuleData } from "./utils/types";
 import { i18n } from "@/global/preferences";
-import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon } from "@heroicons/vue/24/outline";
+import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon, BoltIcon } from "@heroicons/vue/24/outline";
 import { useRouter, useRoute } from "vue-router";
 import { EmailSender } from "@/global/types";
 

@@ -1441,7 +1441,7 @@
       }
     },
     "promptCustomization": {
-      "button": "Personnalisation des prompts"
+      "button": "Personnalisation prompts (beta)"
     }
   },
   "apiFilters": {

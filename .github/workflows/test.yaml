@@ -35,6 +35,6 @@ jobs:
           export DJANGO_SETTINGS_MODULE=config.settings
 
       - name: Run tests
-        run: pytest
+        run: python -m pytest
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}

@@ -133,7 +133,7 @@ LOGGING = {
             "datefmt": CUSTOM_DATE_FORMAT,
         },
         "json": {
-            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "()": "pythonjsonlogger.json.JsonFormatter",
             "format": "%(asctime)s | %(name)s.py | Line %(lineno)d | %(levelname)s - %(message)s",
             "datefmt": CUSTOM_DATE_FORMAT,
         },

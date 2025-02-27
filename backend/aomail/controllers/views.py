@@ -222,9 +222,19 @@ def serve_agent_icon(request: HttpRequest, image_name: str) -> Response:
         if content_type:
             return FileResponse(open(image_path, "rb"), content_type=content_type)
         else:
-            raise Http404("Unsupported image format")
+            LOGGER.error(
+                f"Unsupported image format: {image_path} Returning default agent icon"
+            )
+            return FileResponse(
+                open(os.getcwd() + "/aomail/assets/default-agent-icon.png", "rb"),
+                content_type="image/png",
+            )
     else:
-        raise Http404("Image not found")
+        LOGGER.error(f"Image not found: {image_path} Returning default agent icon")
+        return FileResponse(
+            open(os.getcwd() + "/aomail/assets/default-agent-icon.png", "rb"),
+            content_type="image/png",
+        )
 
 
 ############################# CONTACT ##############################

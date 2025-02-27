@@ -17,7 +17,7 @@
                         <div class="flex-shrink-0">
                             <div class="relative h-[4rem] w-[4rem]">
                                 <img
-                                    :src="previewImage || '/assets/default-agent.png'"
+                                    :src="previewImage"
                                     class="h-[4rem] w-[4rem] rounded-lg object-cover"
                                     alt="Agent icon"
                                 />
@@ -251,6 +251,7 @@ import { putData, deleteData } from "@/global/fetchData";
 import { Agent } from "@/global/types";
 import { i18n } from "../preferences";
 import { inject } from "vue";
+import { API_BASE_URL } from "@/global/const";
 
 const emit = defineEmits(["updated", "deleted", "close"]);
 
@@ -267,7 +268,7 @@ const agentName = ref(props.agent.agent_name);
 const behaviorDescription = ref(props.agent.ai_template || "");
 const length = ref(props.agent.length);
 const formality = ref(props.agent.formality);
-const previewImage = ref(props.agent.picture || "");
+const previewImage = ref(`${API_BASE_URL}agent_icon/${props.agent.picture}`);
 const selectedFile = ref<File | null>(null);
 const showEmailExample = ref(false);
 const emailExample = ref(props.agent.email_example || "");

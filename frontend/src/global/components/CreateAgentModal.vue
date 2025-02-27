@@ -16,7 +16,7 @@
                         <div class="flex-shrink-0">
                             <div class="relative h-[4rem] w-[4rem]">
                                 <img
-                                    :src="previewImage || '/assets/default-agent.png'"
+                                    :src="previewImage"
                                     class="h-[4rem] w-[4rem] rounded-lg object-cover"
                                     alt="Agent icon"
                                 />
@@ -242,6 +242,7 @@ import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headless
 import { ChevronUpDownIcon, CheckIcon, PlusIcon, MinusIcon } from "@heroicons/vue/20/solid";
 import { i18n } from "@/global/preferences";
 import { inject } from "vue";
+import { API_BASE_URL } from "@/global/const";
 
 const emit = defineEmits(["created", "close"]);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
@@ -252,7 +253,7 @@ const length = ref("short");
 const formality = ref("formal");
 const showEmailExample = ref(false);
 const emailExample = ref("");
-const previewImage = ref("");
+const previewImage = ref(`${API_BASE_URL}agent_icon/default-agent-icon.png`);
 const selectedFile = ref<File | null>(null);
 const showNameError = ref(false);
 

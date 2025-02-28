@@ -1,15 +1,17 @@
 """
-Handles prompt engineering requests for Mistral API.
+Handles prompt engineering requests for GPT-4 API.
 
 ⚠️ This file is untested ⚠️
 """
 
+import logging
 import os
+import openai
 import re
 import json
 import logging
-from mistralai import ChatCompletionResponse, Mistral
 from datetime import datetime
+from openai.types.chat.chat_completion import ChatCompletion
 from aomail.ai_providers.utils import count_corrections, extract_json_from_response
 from aomail.ai_providers.prompts import (
     CHAT_HISTORY_TEXT,
@@ -33,37 +35,32 @@ from aomail.ai_providers.prompts import (
 
 
 LOGGER = logging.getLogger(__name__)
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
 def get_prompt_response(
-    formatted_prompt: str, model: str = "mistral-small-latest"
-) -> ChatCompletionResponse:
+    formatted_prompt: str, model: str = "gpt-4o-mini"
+) -> ChatCompletion:
     """Returns the prompt response"""
     if not model:
-        model = "mistral-small-latest"
-    client = Mistral(api_key=MISTRAL_API_KEY)
-    response = client.chat.complete(
+        model = "gpt-4o-mini"
+    client = openai.OpenAI(api_key=OPENAI_API_KEY)
+    response = client.chat.completions.create(
         model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": formatted_prompt,
-            },
-        ],
+        messages=[{"role": "user", "content": formatted_prompt}],
     )
     return response
 
 
 def get_prompt_response_with_tokens(
-    formatted_prompt: str, model: str = "mistral-small-latest"
+    formatted_prompt: str, model: str = "gpt-4o-mini"
 ) -> dict:
+    """Returns the prompt response with tokens"""
     response = get_prompt_response(formatted_prompt, model)
     result_json = extract_json_from_response(response.choices[0].message.content)
     result_json["tokens_input"] = response.usage.prompt_tokens
     result_json["tokens_output"] = response.usage.completion_tokens
-
     return result_json
 
 

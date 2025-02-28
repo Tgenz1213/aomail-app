@@ -425,6 +425,7 @@
     "subscriptionPage": {
       "freeTrialTitle": "Free Trial",
       "freeTrialMessage": "You're using a free trial and have access to all premium features during the beta period that expires on {expiryDate} ({daysLeft} days left).",
+      "promptEditRestriction": "You can only edit the prompts with a paid plan",
       "subscriptionTitle": "Subscription",
       "selectPlan": "Select",
       "perMonth": "/month",

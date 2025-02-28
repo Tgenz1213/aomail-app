@@ -79,7 +79,13 @@
                         </div>
                     </main>
                     <div class="flex-1 overflow-auto p-6">
-                        <Prompts />
+                        <div v-if="isTrial" class="flex justify-center items-center h-full">
+                            <div class="max-w-3xl w-full bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+                                <p class="font-bold">{{ $t("settingsPage.subscriptionPage.freeTrialTitle") }}</p>
+                                <p>{{ $t("settingsPage.subscriptionPage.promptEditRestriction") }}</p>
+                            </div>
+                        </div>
+                        <Prompts v-else />
                     </div>
                 </div>
             </div>
@@ -88,15 +94,18 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref } from "vue";
+import { onMounted, provide, ref } from "vue";
 import { useRouter } from "vue-router";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Navbar from "@/global/components/Navbar.vue";
 import { ChatBubbleLeftRightIcon, AdjustmentsHorizontalIcon, SparklesIcon, BoltIcon } from "@heroicons/vue/24/outline";
 import Prompts from "./components/Prompts.vue";
+import { getData } from "@/global/fetchData";
 
 const router = useRouter();
+
+const isTrial = ref(true);
 
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const showNotification = ref(false);
@@ -106,6 +115,15 @@ const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
 provide("displayPopup", displayPopup);
+
+onMounted(async () => {
+    const result = await getData("user/preferences/plan/");
+    if (result.success) {
+        if (!result.data.isTrial) {
+            isTrial.value = false;
+        }
+    }
+});
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

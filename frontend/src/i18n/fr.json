@@ -424,6 +424,7 @@
     "subscriptionPage": {
       "freeTrialTitle": "Essai gratuit",
       "freeTrialMessage": "Vous utilisez un essai gratuit et avez accès à toutes les fonctionnalités premium pendant la période de bêta qui expire le {expiryDate} ({daysLeft} jours restants).",
+      "promptEditRestriction": "Vous ne pouvez modifier les prompts qu'avec un abonnement payant",
       "subscriptionTitle": "Abonnement",
       "selectPlan": "Sélectionner",
       "perMonth": "/mois",

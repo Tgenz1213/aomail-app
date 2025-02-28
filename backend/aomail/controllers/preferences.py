@@ -447,7 +447,7 @@ def get_user_llm_settings(request: HttpRequest) -> Response:
             "llmModel": (
                 preference.llm_model if preference.llm_model else "gemini-1.5-flash"
             ),
-            #todo return a dict {prompt: "", variables: []} for all + update the frontend to use it
+            # todo return a dict {prompt: "", variables: []} for all + update the frontend to use it
             "improveEmailDraftPrompt": (
                 preference.improve_email_draft_prompt
                 if preference.improve_email_draft_prompt
@@ -487,6 +487,14 @@ def update_user_llm_settings(request: HttpRequest) -> Response:
     """
     Update the LLM settings for the authenticated user.
     """
+    subscription = Subscription.objects.get(user=request.user)
+
+    if subscription.is_trial:
+        return Response(
+            {"error": "You can only edit the prompts with a paid plan"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     parameters: dict = json.loads(request.body)
     preference = get_object_or_404(Preference, user=request.user)
 

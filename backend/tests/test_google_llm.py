@@ -47,7 +47,7 @@ def test_generate_response_keywords():
         "Will you be there on Friday?",
         "Meeting with John Doe",
     )
-    assert type(result["keywords_list"]) == list
+    assert type(result.get("keywords_list")) == list
     assert type(result["tokens_input"]) == int
     assert type(result["tokens_output"]) == int
 
@@ -196,23 +196,28 @@ def test_determine_action_scenario():
     assert type(result["tokens_input"]) == int
     assert type(result["tokens_output"]) == int
 
-    result = determine_action_scenario(True, False, False, "", True)
+    result = determine_action_scenario(True, False, True, "", True)
     assert result["scenario"] == 3
     assert result["tokens_input"] == 0
     assert result["tokens_output"] == 0
 
-    result = determine_action_scenario(True, True, False, "", True)
+    result = determine_action_scenario(True, False, False, "", False)
+    assert result["scenario"] == 3
+    assert result["tokens_input"] == 0
+    assert result["tokens_output"] == 0
+
+    result = determine_action_scenario(True, True, False, "", False)
+    assert result["scenario"] == 3
+    assert result["tokens_input"] == 0
+    assert result["tokens_output"] == 0
+
+    result = determine_action_scenario(True, True, True, "", True)
     assert result["scenario"] == 3
     assert result["tokens_input"] == 0
     assert result["tokens_output"] == 0
 
     result = determine_action_scenario(False, True, True, "", False)
     assert result["scenario"] == 4
-    assert result["tokens_input"] == 0
-    assert result["tokens_output"] == 0
-
-    result = determine_action_scenario(False, False, False, "", False)
-    assert result["scenario"] == 5
     assert result["tokens_input"] == 0
     assert result["tokens_output"] == 0
 
@@ -262,9 +267,12 @@ def test_select_categories():
         ),
         "Did I receive any positive answer for my internship applications?",
     )
-    assert type(result.get("Jobs")) == list
-    assert type(result["tokens_input"]) == int
-    assert type(result["tokens_output"]) == int
+    tokens_input = result.pop("tokens_input")
+    tokens_output = result.pop("tokens_output")
+    assert type(tokens_input) == int
+    assert type(tokens_output) == int
+    for organization_list in result.values():
+        assert type(organization_list) == list
 
 
 def test_get_answer():

@@ -313,7 +313,6 @@ def determine_action_scenario(
         result_json["scenario"] = 4
         return result_json
 
-    result_json["scenario"] = 5
     return result_json
 
 

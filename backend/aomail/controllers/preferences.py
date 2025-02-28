@@ -11,7 +11,9 @@ Endpoints:
 - ✅ set_user_timezone: Set the timezone.
 - ✅ update_password: Update the password.
 - ✅ update_username: Update the username.
-prioritization
+- ✅ prioritization: Update the prioritization.
+- ✅ get_user_guidelines: Retrieve the user's current guidelines for email prioritization.
+- ✅ user_llm_settings: Retrieve, update, or create the LLM settings for the authenticated user.
 """
 
 import json

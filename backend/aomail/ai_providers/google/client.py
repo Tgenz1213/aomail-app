@@ -97,7 +97,6 @@ def generate_response_keywords(
     formatted_prompt = base_prompt.format(
         input_subject=input_subject, input_email=input_email
     )
-
     return get_prompt_response_with_tokens(formatted_prompt, llm_model)
 
 

@@ -71,6 +71,7 @@ from aomail.ai_providers import llm_functions
 from aomail.ai_providers.prompts import (
     GENERATE_EMAIL_PROMPT,
     GENERATE_EMAIL_RESPONSE_PROMPT,
+    GENERATE_RESPONSE_KEYWORDS_PROMPT,
 )
 
 ######################## LOGGING CONFIGURATION ########################
@@ -769,15 +770,16 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         preference = Preference.objects.get(user=request.user)
         result = llm_functions.generate_response_keywords(
             (
-                preference.generate_email_response_prompt
-                if preference.generate_email_response_prompt
-                else GENERATE_EMAIL_RESPONSE_PROMPT
+                preference.generate_response_keywords_prompt
+                if preference.generate_response_keywords_prompt
+                else GENERATE_RESPONSE_KEYWORDS_PROMPT
             ),
             body,
             subject,
             preference.llm_provider,
             preference.llm_model,
         )
+        update_tokens_stats(user, result)
 
         return Response(
             {"responseKeywords": result["keywords_list"]},

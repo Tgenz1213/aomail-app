@@ -1,3 +1,6 @@
+![](https://aomail.ai/aomail-inbox-gif-v2.gif)
+
+
 # 📧 Aomail - Open Source Email Management
 
 > An intelligent, open-source email management platform with AI capabilities. Use our [hosted version](https://app.aomail.ai) or self-host for complete control.
@@ -44,9 +47,9 @@
 **Required Services:**
 - Gemini API
 - Google OAuth
-- Google PubSub
 
 **Optional Services:**
+- Google PubSub
 - Microsoft Azure
 - Stripe
 

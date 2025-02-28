@@ -6,14 +6,14 @@ from aomail.ai_providers.utils import update_tokens_stats
 
 
 @pytest.fixture
-@pytest.mark.django_db
+# @pytest.mark.django_db
 def user():
     user, _ = User.objects.get_or_create(username="testuser", password="testpassword")
     return user
 
 
 @pytest.fixture
-@pytest.mark.django_db
+# @pytest.mark.django_db
 def social_api(user: User):
     social_api, _ = SocialAPI.objects.get_or_create(
         user=user,
@@ -27,7 +27,7 @@ def social_api(user: User):
 
 
 @pytest.fixture
-@pytest.mark.django_db
+# @pytest.mark.django_db
 def statistics(user: User):
     statistics, _ = Statistics.objects.get_or_create(user=user)
     return statistics
@@ -68,5 +68,6 @@ def test_count_corrections():
 @pytest.mark.django_db
 def test_update_tokens_stats(user: User, statistics: Statistics):
     update_tokens_stats(user, {"tokens_input": 10, "tokens_output": 20})
+    statistics.refresh_from_db()
     assert statistics.nb_tokens_input == 10
     assert statistics.nb_tokens_output == 20

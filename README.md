@@ -5,6 +5,8 @@
 
 > An intelligent, open-source email management platform with AI capabilities. Use our [hosted version](https://app.aomail.ai) or self-host for complete control.
 >
+> 🌐 Website: [https://aomail.ai](https://aomail.ai)
+>
 > 📧 Support: aomailaipro@gmail.com
   
 
@@ -37,6 +39,18 @@
 - **AI Custom Rules**: Automatic forwarding and smart replies
 - **Platform Integration**: Discord & Slack connectivity with smart summaries
 - **LLM Choice**: Support for OpenAI, Anthropic, Llama, Mistral
+
+
+<div align="center">
+
+## 🚀 Ready to Get Started?
+
+Try Aomail for free today and experience the future of email management.  
+No credit card required.
+
+[<img src="https://img.shields.io/badge/Sign_Up_Now-4A90E2?style=for-the-badge&logo=mail&logoColor=white" alt="Sign Up Now" height="40"/>](https://app.aomail.ai/signup)
+
+</div>
 
 ## 🛠 Self-Hosting Guide
 
@@ -121,11 +135,8 @@ chmod +x start.sh
 ```
 Access at [http://localhost:8090/](http://localhost:8090/)
 
-## 🔧 Frequently Asked Questions & Troubleshooting
+## 🔧 Troubleshooting
 
-### How do I get unlimited access to Aomail?
-You need to setup the admin dashboard to give yourself unlimited access. Check out our admin dashboard repository:
-https://github.com/aomail-ai/aomail-admin-dashboard
 
 ### How do I fix database migration issues?
 If you encounter database migration problems, run these commands:
@@ -149,6 +160,49 @@ Follow these steps in order:
 4. Add the subdomain to `ALLOWED_HOSTS` in start.sh
 
  
+## ❓ Frequently Asked Questions
+
+### Security & Privacy
+
+**Q: How do you ensure email security?**  
+> A: We take security seriously:
+> - All emails are encrypted and stored in a secure database
+> - Our code is open source and publicly auditable
+> - We've received a 9.7/10 security rating from TAC Security
+> - No AI training is performed on your data
+
+[Download Security Assessment Report](https://aomail.ai/aomail-tac-security-tier2-assessment.pdf)
+
+**Q: How do you handle AI and data privacy?**  
+> A: We prioritize your privacy:
+> - No training is performed on your emails
+> - We use stateless API calls to LLM providers
+> - You can choose your preferred LLM provider:
+  - [Gemini](https://ai.google.dev/gemini-api/terms#paid-services)
+  - [Anthropic](https://www.anthropic.com/legal/consumer-terms)
+  - [Mistral](https://mistral.ai/en/terms#data-processing-agreement)
+
+### Account & Pricing
+
+**Q: How long is the free trial?**  
+> A: We offer a 14-day free trial.
+
+**Q: Do I need to provide credit card information?**  
+> A: No, you can start your free trial without entering any payment information.
+
+### Email Integration
+
+**Q: Which email providers are supported?**  
+> A: Currently, we support:
+> - Gmail
+> - Outlook (beta)
+
+**Q: How does mailbox linking work?**  
+> A: We use industry-standard OAuth 2.0 for secure mailbox integration. [Learn more about OAuth 2.0](https://oauth.net/2/)
+
+**Q: How do I get unlimited access to Aomail?**  
+> A: You'll need to set up the admin dashboard to give yourself unlimited access. Check out our [admin dashboard repository](https://github.com/aomail-ai/aomail-admin-dashboard) for setup instructions.
+
 
 ## 🤝 Contributing
 
@@ -163,7 +217,6 @@ pip install -r requirements.txt
 3. Create feature branch
 4. Submit pull request
 
-### Issue Reporting
-- **Features**: Create issue with `enhancement` + `backend`/`frontend` labels
-- **Bugs**: Create issue with `bug` + `backend`/`frontend` labels
- 
+## 🪲 Issue Reporting
+- **Feature Requests**: Use our [feature request template](https://github.com/aomail-ai/aomail-app/issues/new?template=feature-request.yml) with `enhancement` + `backend`/`frontend` labels
+- **Bug Reports**: Use our [bug report template](https://github.com/aomail-ai/aomail-app/issues/new?template=bug_report.yml) with `bug` + `backend`/`frontend` labels

@@ -5,32 +5,29 @@ from aomail.models import SocialAPI, Statistics
 from aomail.ai_providers.utils import update_tokens_stats
 
 
-@pytest.fixture
-# @pytest.mark.django_db
-def user():
-    user, _ = User.objects.get_or_create(username="testuser", password="testpassword")
-    return user
+# @pytest.fixture
+# def user():
+#     user, _ = User.objects.get_or_create(username="testuser", password="testpassword")
+#     return user
 
 
-@pytest.fixture
-# @pytest.mark.django_db
-def social_api(user: User):
-    social_api, _ = SocialAPI.objects.get_or_create(
-        user=user,
-        email="testuser@example.com",
-        type_api="google",
-        user_description="user_description",
-        access_token="access_token",
-        refresh_token="refresh_token",
-    )
-    return social_api
+# @pytest.fixture
+# def social_api(user: User):
+#     social_api, _ = SocialAPI.objects.get_or_create(
+#         user=user,
+#         email="testuser@example.com",
+#         type_api="google",
+#         user_description="user_description",
+#         access_token="access_token",
+#         refresh_token="refresh_token",
+#     )
+#     return social_api
 
 
-@pytest.fixture
-# @pytest.mark.django_db
-def statistics(user: User):
-    statistics, _ = Statistics.objects.get_or_create(user=user)
-    return statistics
+# @pytest.fixture
+# def statistics(user: User):
+#     statistics, _ = Statistics.objects.get_or_create(user=user)
+#     return statistics
 
 
 def test_extract_json_from_response():
@@ -65,7 +62,7 @@ def test_count_corrections():
     )
 
 
-@pytest.mark.django_db
+@pytest.fixture
 def test_update_tokens_stats(user: User, statistics: Statistics):
     update_tokens_stats(user, {"tokens_input": 10, "tokens_output": 20})
     statistics.refresh_from_db()

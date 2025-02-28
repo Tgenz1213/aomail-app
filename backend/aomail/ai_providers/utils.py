@@ -37,12 +37,15 @@ def extract_json_from_response(response_text: str) -> dict:
                               cannot be parsed.
     """
     try:
-        json_text = (
-            response_text.replace("Content: ```json", "")
-            .replace("```", "")
-            .replace("json\n", "")
-            .strip()
-        )
+        if "```json" in response_text:
+            json_text = (
+                response_text.replace("Content: ```json", "")
+                .replace("```", "")
+                .replace("json\n", "")
+                .strip()
+            )
+        else:
+            json_text = response_text.split("```")[1].split("```")[0]
         return json.loads(json_text)
     except json.JSONDecodeError as e:
         raise json.JSONDecodeError(f"Error decoding JSON: {str(e)}")

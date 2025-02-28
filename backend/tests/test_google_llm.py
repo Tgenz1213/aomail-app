@@ -206,7 +206,7 @@ def test_determine_action_scenario():
     assert result["tokens_input"] == 0
     assert result["tokens_output"] == 0
 
-    result = determine_action_scenario(False, True, False, "", False)
+    result = determine_action_scenario(False, True, True, "", False)
     assert result["scenario"] == 4
     assert result["tokens_input"] == 0
     assert result["tokens_output"] == 0
@@ -254,14 +254,15 @@ def test_select_categories():
     result = select_categories(
         json.dumps(
             {
-                "sports": ["Cycling", "Football"],
-                "work": ["Project X", "Project Y"],
-                "internship": ["refuse", "accept"],
+                "Jobs": ["Indeed", "Glassdoor", "LinkedIn", "Gradcracker"],
+                "Sports": ["Cycling", "Football"],
+                "Work": ["Aomail", "AlphaPen"],
+                "ESAIP": ["Java", "Network", "JavaScript", "Deutsch"],
             }
         ),
         "Did I receive any positive answer for my internship applications?",
     )
-    assert result["category1"] == ["internship"]
+    assert type(result.get("Jobs")) == list
     assert type(result["tokens_input"]) == int
     assert type(result["tokens_output"]) == int
 

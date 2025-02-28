@@ -44,10 +44,18 @@ def test_extract_contacts_recipients():
 def test_generate_response_keywords():
     result = generate_response_keywords(
         GENERATE_RESPONSE_KEYWORDS_PROMPT,
-        "Will you be there on Friday?",
-        "Meeting with John Doe",
+        """Hello John Doe,
+        I am writing you to ask if you will be there on Friday?
+
+        ---
+        Patricia,
+        Human Resources
+        Noname company
+        """,
+        "Meeting with the director",
+        "gemini-1.5-flash",
     )
-    assert type(result.get("keywords_list")) == list
+    assert type(result["keywords_list"]) == list
     assert type(result["tokens_input"]) == int
     assert type(result["tokens_output"]) == int
 

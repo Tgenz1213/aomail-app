@@ -140,7 +140,7 @@ class Search:
         try:
             preference = Preference.objects.get(user_id=self.user_id)
             result_json = llm_functions.select_categories(
-                self.categories,
+                json.dumps(self.categories),
                 self.question,
                 preference.llm_provider,
                 preference.llm_model,

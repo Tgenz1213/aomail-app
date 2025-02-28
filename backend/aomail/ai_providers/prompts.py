@@ -310,6 +310,7 @@ Example of effective prioritization guidance:
     "useless": "Spam, marketing emails, and newsletters that are not useful."
 }}
 
+---
 Your response MUST strictly follow this JSON format:
 {{
     "important": "Description of what important emails are for the user.",

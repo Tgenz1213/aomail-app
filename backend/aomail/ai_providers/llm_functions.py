@@ -23,6 +23,8 @@ Features:
 
 from aomail.ai_providers.anthropic import client as claude
 from aomail.ai_providers.google import client as gemini
+from aomail.ai_providers.mistral import client as mistral_client
+from aomail.ai_providers.openai import client as openai_client
 
 
 def extract_contacts_recipients(
@@ -46,6 +48,10 @@ def extract_contacts_recipients(
         return claude.extract_contacts_recipients(query, llm_model)
     elif llm_provider == "google":
         return gemini.extract_contacts_recipients(query, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.extract_contacts_recipients(query, llm_model)
+    elif llm_provider == "openai":
+        return openai_client.extract_contacts_recipients(query, llm_model)
 
 
 def generate_response_keywords(
@@ -77,6 +83,14 @@ def generate_response_keywords(
         )
     elif llm_provider == "google":
         return gemini.generate_response_keywords(
+            base_prompt, input_email, input_subject, llm_model
+        )
+    elif llm_provider == "mistral":
+        return mistral_client.generate_response_keywords(
+            base_prompt, input_email, input_subject, llm_model
+        )
+    elif llm_provider == "openai":
+        return openai_client.generate_response_keywords(
             base_prompt, input_email, input_subject, llm_model
         )
 
@@ -135,6 +149,28 @@ def generate_email(
             signature,
             llm_model,
         )
+    elif llm_provider == "mistral":
+        return mistral_client.generate_email(
+            base_prompt,
+            input_data,
+            length,
+            formality,
+            language,
+            agent_settings,
+            signature,
+            llm_model,
+        )
+    elif llm_provider == "openai":
+        return openai_client.generate_email(
+            base_prompt,
+            input_data,
+            length,
+            formality,
+            language,
+            agent_settings,
+            signature,
+            llm_model,
+        )
 
 
 def correct_mail_language_mistakes(
@@ -161,6 +197,10 @@ def correct_mail_language_mistakes(
         return claude.correct_mail_language_mistakes(body, subject, llm_model)
     elif llm_provider == "google":
         return gemini.correct_mail_language_mistakes(body, subject, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.correct_mail_language_mistakes(body, subject, llm_model)
+    elif llm_provider == "openai":
+        return openai_client.correct_mail_language_mistakes(body, subject, llm_model)
 
 
 def improve_email_copywriting(
@@ -188,6 +228,14 @@ def improve_email_copywriting(
         return claude.improve_email_copywriting(email_subject, email_body, llm_model)
     elif llm_provider == "google":
         return gemini.improve_email_copywriting(email_subject, email_body, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.improve_email_copywriting(
+            email_subject, email_body, llm_model
+        )
+    elif llm_provider == "openai":
+        return openai_client.improve_email_copywriting(
+            email_subject, email_body, llm_model
+        )
 
 
 def generate_email_response(
@@ -231,6 +279,26 @@ def generate_email_response(
         )
     elif llm_provider == "google":
         return gemini.generate_email_response(
+            base_prompt,
+            input_subject,
+            input_body,
+            user_instruction,
+            agent_settings,
+            signature,
+            llm_model,
+        )
+    elif llm_provider == "mistral":
+        return mistral_client.generate_email_response(
+            base_prompt,
+            input_subject,
+            input_body,
+            user_instruction,
+            agent_settings,
+            signature,
+            llm_model,
+        )
+    elif llm_provider == "openai":
+        return openai_client.generate_email_response(
             base_prompt,
             input_subject,
             input_body,
@@ -299,6 +367,32 @@ def categorize_and_summarize_email(
             useless_guidelines,
             llm_model,
         )
+    elif llm_provider == "mistral":
+        return mistral_client.categorize_and_summarize_email(
+            base_prompt,
+            subject,
+            decoded_data,
+            category_dict,
+            user_description,
+            sender,
+            important_guidelines,
+            informative_guidelines,
+            useless_guidelines,
+            llm_model,
+        )
+    elif llm_provider == "openai":
+        return openai_client.categorize_and_summarize_email(
+            base_prompt,
+            subject,
+            decoded_data,
+            category_dict,
+            user_description,
+            sender,
+            important_guidelines,
+            informative_guidelines,
+            useless_guidelines,
+            llm_model,
+        )
 
 
 def search_emails(
@@ -320,6 +414,10 @@ def search_emails(
         return claude.search_emails(query, language, llm_model)
     elif llm_provider == "google":
         return gemini.search_emails(query, language, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.search_emails(query, language, llm_model)
+    elif llm_provider == "openai":
+        return openai_client.search_emails(query, language, llm_model)
 
 
 def review_user_description(
@@ -340,6 +438,10 @@ def review_user_description(
         return claude.review_user_description(user_description, llm_model)
     elif llm_provider == "google":
         return gemini.review_user_description(user_description, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.review_user_description(user_description, llm_model)
+    elif llm_provider == "openai":
+        return openai_client.review_user_description(user_description, llm_model)
 
 
 def generate_categories_scratch(
@@ -364,6 +466,14 @@ def generate_categories_scratch(
         return claude.generate_categories_scratch(user_topics, chat_history, llm_model)
     elif llm_provider == "google":
         return gemini.generate_categories_scratch(user_topics, chat_history, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.generate_categories_scratch(
+            user_topics, chat_history, llm_model
+        )
+    elif llm_provider == "openai":
+        return openai_client.generate_categories_scratch(
+            user_topics, chat_history, llm_model
+        )
 
 
 def generate_prioritization_scratch(
@@ -387,6 +497,10 @@ def generate_prioritization_scratch(
         return claude.generate_prioritization_scratch(user_input, llm_model)
     elif llm_provider == "google":
         return gemini.generate_prioritization_scratch(user_input, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.generate_prioritization_scratch(user_input, llm_model)
+    elif llm_provider == "openai":
+        return openai_client.generate_prioritization_scratch(user_input, llm_model)
 
 
 def determine_action_scenario(
@@ -439,6 +553,24 @@ def determine_action_scenario(
             is_only_signature,
             llm_model,
         )
+    elif llm_provider == "mistral":
+        return mistral_client.determine_action_scenario(
+            destinary,
+            subject,
+            email_content,
+            user_request,
+            is_only_signature,
+            llm_model,
+        )
+    elif llm_provider == "openai":
+        return openai_client.determine_action_scenario(
+            destinary,
+            subject,
+            email_content,
+            user_request,
+            is_only_signature,
+            llm_model,
+        )
 
 
 # -----------------------  AI MEMORY PROMPTS (ai_memory.py) -----------------------#
@@ -466,6 +598,28 @@ def improve_email_response(
         )
     elif llm_provider == "google":
         return gemini.improve_email_response(
+            base_prompt,
+            importance,
+            subject,
+            body,
+            history,
+            user_input,
+            agent_settings,
+            llm_model,
+        )
+    elif llm_provider == "mistral":
+        return mistral_client.improve_email_response(
+            base_prompt,
+            importance,
+            subject,
+            body,
+            history,
+            user_input,
+            agent_settings,
+            llm_model,
+        )
+    elif llm_provider == "openai":
+        return openai_client.improve_email_response(
             base_prompt,
             importance,
             subject,
@@ -516,6 +670,32 @@ def improve_draft(
             formality,
             llm_model,
         )
+    elif llm_provider == "mistral":
+        return mistral_client.improve_draft(
+            base_prompt,
+            language,
+            agent_settings,
+            subject,
+            body,
+            history,
+            user_input,
+            length,
+            formality,
+            llm_model,
+        )
+    elif llm_provider == "openai":
+        return openai_client.improve_draft(
+            base_prompt,
+            language,
+            agent_settings,
+            subject,
+            body,
+            history,
+            user_input,
+            length,
+            formality,
+            llm_model,
+        )
 
 
 # -----------------------  TREE KNOWLEDGE PROMPTS (tree_knowledge.py) -----------------------#
@@ -526,6 +706,10 @@ def select_categories(
         return claude.select_categories(categories, question, llm_model)
     elif llm_provider == "google":
         return gemini.select_categories(categories, question, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.select_categories(categories, question, llm_model)
+    elif llm_provider == "openai":
+        return openai_client.select_categories(categories, question, llm_model)
 
 
 def get_answer(
@@ -539,6 +723,10 @@ def get_answer(
         return claude.get_answer(keypoints, question, language, llm_model)
     elif llm_provider == "google":
         return gemini.get_answer(keypoints, question, language, llm_model)
+    elif llm_provider == "mistral":
+        return mistral_client.get_answer(keypoints, question, language, llm_model)
+    elif llm_provider == "openai":
+        return openai_client.get_answer(keypoints, question, language, llm_model)
 
 
 def summarize_conversation(
@@ -558,6 +746,14 @@ def summarize_conversation(
         return gemini.summarize_conversation(
             subject, body, user_description, categories, language, llm_model
         )
+    elif llm_provider == "mistral":
+        return mistral_client.summarize_conversation(
+            subject, body, user_description, categories, language, llm_model
+        )
+    elif llm_provider == "openai":
+        return openai_client.summarize_conversation(
+            subject, body, user_description, categories, language, llm_model
+        )
 
 
 def summarize_email(
@@ -575,5 +771,13 @@ def summarize_email(
         )
     elif llm_provider == "google":
         return gemini.summarize_email(
+            subject, body, user_description, categories, language, llm_model
+        )
+    elif llm_provider == "mistral":
+        return mistral_client.summarize_email(
+            subject, body, user_description, categories, language, llm_model
+        )
+    elif llm_provider == "openai":
+        return openai_client.summarize_email(
             subject, body, user_description, categories, language, llm_model
         )

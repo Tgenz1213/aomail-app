@@ -25,7 +25,7 @@ export async function createDefaultFilters(categoryName: string) {
         useless: false,
         read: false,
         notification: false,
-        newsletter: true,
+        newsletter: false,
         spam: false,
         scam: false,
         meeting: false,

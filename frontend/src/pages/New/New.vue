@@ -806,6 +806,7 @@ const displayAgentSelection = async () => {
                     const selectedAgentData = agents.value.find((agent) => agent.id.toString() === agentId);
                     if (selectedAgentData) {
                         selectedAgent.value = selectedAgentData;
+                        AIContainer.value!.innerHTML = '';
                         displayMessage(i18n.global.t("agent.AiGreeting"), selectedAgent.value.icon_name);
                         setAgentLastUsed(selectedAgent.value);
                     }

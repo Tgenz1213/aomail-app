@@ -252,6 +252,8 @@
     "youHaveAnAccount": "Vous avez un compte ?"
   },
   "signUpLinkPage": {
+    "length": "Longueur",
+    "formality": "Formalité",
     "processingLastEmails": "Traitement de vos derniers emails...",
     "authorizationError": "Erreur d'autorisation",
     "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL",

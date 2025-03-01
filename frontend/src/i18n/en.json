@@ -898,6 +898,8 @@
     }
   },
   "newPage": {
+    "length": "Length",
+    "formality": "Formality",
     "openOptions": "Open options",
     "carbonCopyInitials": "CC",
     "blindCarbonCopyInitials": "BCC",

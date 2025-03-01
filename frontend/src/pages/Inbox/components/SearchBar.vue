@@ -70,7 +70,7 @@ import { Ref, ref, inject, onMounted, watch } from "vue";
 import Filters from "./Filters.vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid";
 
-const showFilters = ref(false);
+const showFilters = ref(true);
 const searchTimeout = ref<number | null>(null);
 
 const selectedCategory = inject("selectedCategory") as Ref<string>;
@@ -124,7 +124,7 @@ watch(searchQuery, () => {
 
 onMounted(() => {
     const storedShowFilters = localStorage.getItem("showFiltersTab");
-    if (storedShowFilters) {
+    if (storedShowFilters !== null) {
         showFilters.value = JSON.parse(storedShowFilters);
     }
 });

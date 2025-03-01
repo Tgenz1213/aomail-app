@@ -230,41 +230,11 @@ watch(
         const categoryFilters = filters.value[selectedCategory.value];
         
         if (!currentCategoryFilter && categoryFilters?.length > 0) {
-            const storedFilters = localStorage.getItem("activeFilters");
-            if (storedFilters) {
-                const parsedFilters = JSON.parse(storedFilters);
-                activeFilters.value = { ...parsedFilters };
-                
-                if (!activeFilters.value[selectedCategory.value] && categoryFilters) {
-                    const storedFilter = parsedFilters[selectedCategory.value];
-                    if (storedFilter) {
-                        const matchingFilter = categoryFilters.find(f => f.name === storedFilter.name);
-                        if (matchingFilter) {
-                            activeFilters.value[selectedCategory.value] = matchingFilter;
-                            selectedFilter.value = matchingFilter;
-                        } else {
-                            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
-                            if (allEmailsFilter) {
-                                activeFilters.value[selectedCategory.value] = allEmailsFilter;
-                                selectedFilter.value = allEmailsFilter;
-                            }
-                        }
-                    } else {
-                        const allEmailsFilter = categoryFilters.find(f => f.id === 0);
-                        if (allEmailsFilter) {
-                            activeFilters.value[selectedCategory.value] = allEmailsFilter;
-                            selectedFilter.value = allEmailsFilter;
-                        }
-                    }
-                }
+            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+            if (allEmailsFilter) {
+                activeFilters.value[selectedCategory.value] = allEmailsFilter;
+                selectedFilter.value = allEmailsFilter;
                 localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
-            } else {
-                const allEmailsFilter = categoryFilters.find(f => f.id === 0);
-                if (allEmailsFilter) {
-                    activeFilters.value[selectedCategory.value] = allEmailsFilter;
-                    selectedFilter.value = allEmailsFilter;
-                    localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
-                }
             }
         } else {
             selectedFilter.value = currentCategoryFilter;
@@ -820,6 +790,7 @@ const selectCategory = async (category: Category) => {
 
     await fetchFiltersData(selectedCategory.value);
 
+    // If no filter is active for this category, set "All emails" as default
     if (!activeFilters.value[category.name]) {
         const categoryFilters = filters.value[category.name];
         if (categoryFilters && categoryFilters.length > 0) {
@@ -1025,32 +996,24 @@ onMounted(async () => {
     if (storedFilters) {
         const parsedFilters = JSON.parse(storedFilters);
         activeFilters.value = { ...parsedFilters };
-        
-        for (const category of categories.value) {
-            const categoryFilters = filters.value[category.name];
-            if (categoryFilters) {
-                const storedFilter = parsedFilters[category.name];
-                if (storedFilter) {
-                    const matchingFilter = categoryFilters.find(f => f.name === storedFilter.name);
-                    if (matchingFilter) {
-                        activeFilters.value[category.name] = matchingFilter;
-                        if (category.name === selectedCategory.value) {
-                            selectedFilter.value = matchingFilter;
-                        }
-                    } else {
-                        const allEmailsFilter = categoryFilters.find(f => f.id === 0);
-                        if (allEmailsFilter) {
-                            activeFilters.value[category.name] = allEmailsFilter;
-                            if (category.name === selectedCategory.value) {
-                                selectedFilter.value = allEmailsFilter;
-                            }
-                        }
-                    }
+    }
+
+    for (const category of categories.value) {
+        const categoryFilters = filters.value[category.name];
+        if (categoryFilters && (!activeFilters.value[category.name] || !categoryFilters.find(f => f.name === activeFilters.value[category.name]?.name))) {
+            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+            if (allEmailsFilter) {
+                activeFilters.value[category.name] = allEmailsFilter;
+                if (category.name === selectedCategory.value) {
+                    selectedFilter.value = allEmailsFilter;
                 }
             }
+        } else if (categoryFilters && category.name === selectedCategory.value) {
+            selectedFilter.value = activeFilters.value[category.name];
         }
-        localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
     }
+
+    localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
 
     await fetchEmailsData(selectedCategory.value);
     await fetchEmailCounts(selectedCategory.value);

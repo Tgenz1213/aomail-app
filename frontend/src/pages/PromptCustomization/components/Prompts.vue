@@ -336,6 +336,30 @@ const llmProviderOptions: LLMProvider[] = [
             },
         ],
     },
+    {
+        provider: "groq",
+        headquarters: "Mountain View, CA, USA",
+        description: "Groq's AI model provider",
+        apiReference: "https://console.groq.com/docs/api-reference",
+        models: [
+            {
+                name: "llama3-8b-8192",
+                description: "Most capable model from Meta AI",
+            },
+        ],
+    },
+    {
+        provider: "deepseek",
+        headquarters: "Hangzhou, Zhejiang, China",
+        description: "DeepSeek's AI model provider",
+        apiReference: "https://deepseek.com/docs/api-reference",
+        models: [
+            {
+                name: "deepseek-chat",
+                description: "Default model for general purpose tasks",
+            },
+        ],
+    },
 ];
 
 const promptInput = ref("");

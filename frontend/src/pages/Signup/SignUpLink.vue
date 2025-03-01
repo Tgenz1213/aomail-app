@@ -234,7 +234,7 @@ async function processDemoEmails() {
 
         let progress = 0;
         const progressInterval = setInterval(() => {
-            progress += 1;
+            progress += 0.714;
             progressBar.style.width = `${Math.min(progress, 100)}%`;
         }, 100);
 
@@ -244,7 +244,7 @@ async function processDemoEmails() {
             signupToken: localStorage.getItem("signupToken"),
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 10000));
+        await new Promise((resolve) => setTimeout(resolve, 14000));
 
         clearInterval(iconInterval);
         clearInterval(progressInterval);

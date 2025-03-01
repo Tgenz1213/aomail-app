@@ -10,11 +10,11 @@ export async function createDefaultFilters(categoryName: string) {
         category: categoryName,
         useless: false,
         read: false,
-        notification: true,
+        notification: false,
         newsletter: false,
         spam: false,
         scam: false,
-        meeting: true,
+        meeting: false,
     };
 
     const InformativeEmailsFilter: Filter = {
@@ -24,11 +24,11 @@ export async function createDefaultFilters(categoryName: string) {
         category: categoryName,
         useless: false,
         read: false,
-        notification: true,
+        notification: false,
         newsletter: true,
         spam: false,
         scam: false,
-        meeting: true,
+        meeting: false,
     };
 
     await postData("create_filter/", ImportantEmailsFilter);

@@ -88,62 +88,73 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
     """
     user = social_api.user
     api_type = social_api.type_api
-    subscription = Subscription.objects.get(user=user)
-
-    if subscription.is_block:
-        LOGGER.info(f"Skipping processing for blocked user ID: {user.id}.")
-        return False
-
-    LOGGER.info(
-        f"Saving email to database for user ID: {user.id} using {api_type.capitalize()} API"
-    )
 
     try:
-        email_data = get_email_data(social_api, email_id)
-        if not email_data:
-            return False
+        with transaction.atomic():
+            subscription = Subscription.objects.get(user=user)
 
-        if Email.objects.filter(provider_id=email_data["email_id"]).exists():
-            return False
+            if subscription.is_block:
+                LOGGER.info(f"Skipping processing for blocked user ID: {user.id}.")
+                return False
 
-        if delete_email_rule(user, email_data):
-            delete_email(social_api, email_data, user)
-            return False
+            email_data = get_email_data(social_api, email_id)
+            if not email_data:
+                return False
 
-        processed_email = process_email(email_data, user, social_api)
+            if Email.objects.select_for_update(skip_locked=True).filter(
+                provider_id=email_data["email_id"],
+                user=user
+            ).exists():
+                LOGGER.info(
+                    f"Email ID: {email_data['email_id']} already exists for user ID: {user.id}. Skipping."
+                )
+                return False
 
-        # Replicate labels on email provider
-        ai_output: dict = processed_email["email_processed"].copy()
-        # We replicate only the topic and the importance of the email
-        ai_output.pop("summary")
-
-        if social_api.type_api == GOOGLE:
-            google_labels.replicate_labels(
-                social_api, ai_output, email_data["email_id"]
-            )
-        elif social_api.type_api == MICROSOFT:
-            microsoft_labels.replicate_labels(
-                social_api, ai_output, email_data["email_id"]
+            LOGGER.info(
+                f"Saving email to database for user ID: {user.id} using {api_type.capitalize()} API"
             )
 
-        email_entry = save_email_to_db(processed_email, user, social_api)
+            if delete_email_rule(user, email_data):
+                delete_email(social_api, email_data, user)
+                return False
 
-        if is_shipping_label(email_data["subject"]):
-            process_label(
-                email_data["from_info"][1],
-                email_data["subject"],
-                email_data["safe_html"],
-                email_entry,
+            processed_email = process_email(email_data, user, social_api)
+
+            ai_output: dict = processed_email["email_processed"].copy()
+            ai_output.pop("summary")
+
+            if social_api.type_api == GOOGLE:
+                google_labels.replicate_labels(
+                    social_api, ai_output, email_data["email_id"]
+                )
+            elif social_api.type_api == MICROSOFT:
+                microsoft_labels.replicate_labels(
+                    social_api, ai_output, email_data["email_id"]
+                )
+
+            email_entry = save_email_to_db(processed_email, user, social_api)
+
+            if is_shipping_label(email_data["subject"]):
+                process_label(
+                    email_data["from_info"][1],
+                    email_data["subject"],
+                    email_data["safe_html"],
+                    email_entry,
+                )
+
+            apply_rules(processed_email, user, email_entry)
+
+            LOGGER.info(
+                f"Email ID: {email_data['email_id']} saved successfully for social_api email: {social_api.email}"
             )
-
-        apply_rules(processed_email, user, email_entry)
-
-        LOGGER.info(
-            f"Email ID: {email_data['email_id']} saved successfully for social_api email: {social_api.email}"
-        )
-        return True
+            return True
 
     except Exception as e:
+        if 'duplicate key value violates unique constraint' in str(e):
+            LOGGER.info(
+                f"Email ID already saved by another process for user ID: {user.id}. Skipping."
+            )
+            return False
         LOGGER.error(f"Error saving email for user ID: {user.id}: {str(e)}")
         return False
 
@@ -686,13 +697,82 @@ def create_cc_bcc_senders(processed_email: dict, email_entry: Email):
     cc_info = processed_email.get("cc_info", [])
     bcc_info = processed_email.get("bcc_info", [])
 
+    def extract_email_and_name(sender_info) -> tuple[str | None, str]:
+        """
+        Extract email and name from various possible sender info formats.
+        Returns (email, name) tuple where email can be None if invalid.
+        """
+        if isinstance(sender_info, str):
+            return sender_info.strip(), ""
+
+        if isinstance(sender_info, dict):
+            email = (
+                sender_info.get("email")
+                or sender_info.get("address")
+                or sender_info.get("emailAddress")
+                or sender_info.get("mail")
+                or ""
+            ).strip()
+            name = (
+                sender_info.get("name")
+                or sender_info.get("displayName")
+                or sender_info.get("display_name")
+                or ""
+            ).strip()
+            return email, name
+
+        if isinstance(sender_info, (list, tuple)):
+            if not sender_info:
+                return None, ""
+            
+            if len(sender_info) == 1:
+                return str(sender_info[0]).strip(), ""
+            
+            return str(sender_info[0]).strip(), str(sender_info[1]).strip()
+
+        if hasattr(sender_info, "email"):
+            email = getattr(sender_info, "email", "").strip()
+            name = getattr(sender_info, "name", "").strip()
+            return email, name
+
+        return None, ""
+
+    def safe_create_sender(sender_info, creator_func):
+        """Helper function to safely create sender entries"""
+        try:
+            email, name = extract_email_and_name(sender_info)
+            
+            if not email:
+                return
+                
+            if "@" not in email:
+                return
+
+            creator_func(email_object=email_entry, email=email, name=name)
+        except Exception as e:
+            LOGGER.warning(f"Failed to create sender entry: {str(e)}")
+
     if cc_info:
-        for email, name in cc_info:
-            CC_sender.objects.create(email_object=email_entry, email=email, name=name)
+        if isinstance(cc_info, dict):
+            for email, name in cc_info.items():
+                if email and isinstance(email, str):
+                    safe_create_sender([email, name], CC_sender.objects.create)
+        elif isinstance(cc_info, (list, tuple)):
+            for sender in cc_info:
+                safe_create_sender(sender, CC_sender.objects.create)
+        else:
+            safe_create_sender(cc_info, CC_sender.objects.create)
 
     if bcc_info:
-        for email, name in bcc_info:
-            BCC_sender.objects.create(email_object=email_entry, email=email, name=name)
+        if isinstance(bcc_info, dict):
+            for email, name in bcc_info.items():
+                if email and isinstance(email, str):
+                    safe_create_sender([email, name], BCC_sender.objects.create)
+        elif isinstance(bcc_info, (list, tuple)):
+            for sender in bcc_info:
+                safe_create_sender(sender, BCC_sender.objects.create)
+        else:
+            safe_create_sender(bcc_info, BCC_sender.objects.create)
 
 
 def create_pictures_and_attachments(processed_email: dict, email_entry: Email):

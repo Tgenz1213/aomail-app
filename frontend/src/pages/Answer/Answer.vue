@@ -227,7 +227,7 @@ const displayAgentSelection = async () => {
         data-agent-id="${agent.id}"
       >
         <img 
-          src="${agent.picture}" 
+          src="${API_BASE_URL}agent_icon/${agent.icon_name}" 
           alt="Agent Icon" 
           class="h-14 w-14 rounded-full mr-4 object-cover flex-shrink-0"
         />
@@ -342,6 +342,37 @@ function dismissPopup() {
     }
 }
 
+async function displayEmailContent() {
+    if (!AIContainer.value) return;
+
+    const messageHTML = `
+        <div class="flex pb-12">
+          <div class="mr-4 flex flex-shrink-0">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
+                <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+            </span>
+          </div>
+          <div class="flex flex-col space-y-1 bg-white rounded-lg p-4 border border-gray-200">
+            <p class="my-0">${subject.value}</p>
+            <p class="my-0 font-bold text-md">${i18n.global.t("answerPage.chatSummarize")}</p>
+            <p class="my-0 text-sm">${JSON.parse(sessionStorage.getItem("shortSummary") || "")}</p>
+            <div class="mr-4 pt-2">
+              <button type="button" class="text-md show-email-btn px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-zinc-800 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                ${i18n.global.t("answerPage.seeMail")}
+              </button>
+            </div>
+            <div class="email-content hidden mt-4 border-t pt-4">${sessionStorage.getItem("htmlContent") || ""}</div>
+          </div>
+        </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+    emailContent.value = JSON.parse(sessionStorage.getItem("decodedData") || "");
+    subjectInput.value = "Re : " + subject.value;
+
+    fetchResponseKeywords();
+}
+
 onMounted(async () => {
     const storedManualWidth = localStorage.getItem("manualEmailWidth");
     const storedAiWidth = localStorage.getItem("aiEmailWidth");
@@ -370,7 +401,6 @@ onMounted(async () => {
         await Promise.all([
             initializeQuill(),
             checkSignature(),
-            checkLastUsedAgent(),
             getProfileImage(),
             fetchRecipients(),
         ]);
@@ -389,36 +419,22 @@ onMounted(async () => {
         selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
         selectedBCC.value = JSON.parse(sessionStorage.getItem("bcc") || "[]");
         emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
-
         importance.value = JSON.parse(sessionStorage.getItem("importance") || "");
-        const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");
-        const htmlContent = sessionStorage.getItem("htmlContent") || "";
-        const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
 
         await fetchSelectedEmailData();
 
-        const messageHTML = `
-        <div class="flex pb-12">
-          <div class="mr-4 flex flex-shrink-0">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
-                <img src="${API_BASE_URL}agent_icon/${
-            selectedAgent.value.icon_name
-        }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
-            </span>
-          </div>
-          <div class="flex flex-col space-y-1 bg-white rounded-lg p-4 border border-gray-200">
-            <p class="my-0">${subject.value}</p>
-            <p class="my-0 font-bold text-md">${i18n.global.t("answerPage.chatSummarize")}</p>
-            <p class="my-0 text-sm">${shortSummary}</p>
-            <div class="mr-4 pt-2">
-              <button type="button" class="text-md show-email-btn px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-zinc-800 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                ${i18n.global.t("answerPage.seeMail")}
-              </button>
-            </div>
-            <div class="email-content hidden mt-4 border-t pt-4">${htmlContent}</div>
-          </div>
-        </div>
-      `;
+        // Check if there's a last used agent
+        const response = await getData("user/agents/check_last_used/");
+        if (response.success && response.data.exists) {
+            const selectedAgentData = agents.value.find((agent) => agent.id === response.data.agent_id);
+            if (selectedAgentData) {
+                selectedAgent.value = selectedAgentData;
+                await displayEmailContent();
+            }
+        } else {
+            await displayMessage(i18n.global.t("agent.chooseAiAssistant"), selectedAgent.value.picture);
+            await displayAgentSelection();
+        }
 
         document.addEventListener("click", (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
@@ -436,11 +452,6 @@ onMounted(async () => {
             }
         });
 
-        if (AIContainer.value) AIContainer.value.innerHTML += messageHTML;
-        emailContent.value = decodedData;
-        subjectInput.value = "Re : " + subject.value;
-
-        fetchResponseKeywords();
     } catch (error) {
         displayPopup(
             "error",
@@ -757,7 +768,11 @@ async function setAgentLastUsed(agent: Agent) {
             i18n.global.t("answerPage.error.title"),
             i18n.global.t("answerPage.error.updatingAgentStatus")
         );
+        return;
     }
+
+    // Display email content after agent is selected and set as last used
+    await displayEmailContent();
 }
 
 // Ajout des fonctions de glissement

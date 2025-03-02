@@ -252,7 +252,9 @@
     "youHaveAnAccount": "Vous avez un compte ?"
   },
   "signUpLinkPage": {
-    "processingLastEmails": "Traitement de vos 5 derniers emails...",
+    "length": "Longueur",
+    "formality": "Formalité",
+    "processingLastEmails": "Traitement de vos derniers emails...",
     "authorizationError": "Erreur d'autorisation",
     "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL",
     "accountCreationInProgress": "Création de compte en cours...",

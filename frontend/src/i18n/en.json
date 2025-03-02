@@ -252,7 +252,7 @@
     "youHaveAnAccount": "Do you have an account?"
   },
   "signUpLinkPage": {
-    "processingLastEmails": "Processing your last 5 emails...",
+    "processingLastEmails": "Processing your last emails...",
     "linkYourMailAccount": "Link your Gmail or Outlook account",
     "authorizationError": "Authorization error",
     "authorizationCodeNotFound": "Authorization code not found in URL",
@@ -898,6 +898,8 @@
     }
   },
   "newPage": {
+    "length": "Length",
+    "formality": "Formality",
     "openOptions": "Open options",
     "carbonCopyInitials": "CC",
     "blindCarbonCopyInitials": "BCC",

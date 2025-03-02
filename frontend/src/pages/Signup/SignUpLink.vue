@@ -46,7 +46,7 @@ import StepsTracker from "./components/StepsTracker.vue";
 import EmailLinkForm from "./components/EmailLinkForm.vue";
 import CategoriesForm from "./components/CategoriesForm.vue";
 import router from "@/router/router";
-import { API_BASE_URL } from "@/global/const";
+import { API_BASE_URL, DEFAULT_CATEGORY } from "@/global/const";
 import { Category } from "@/global/types";
 import { createDefaultFilters } from "@/global/filters";
 
@@ -180,6 +180,8 @@ async function createCategories(categories: Category[]) {
         for (const category of categories) {
             await createDefaultFilters(category.name);
         }
+
+        await createDefaultFilters(DEFAULT_CATEGORY);
     } catch (error) {
         displayPopup("error", i18n.global.t("signUpLinkPage.categoryCreationError"), (error as Error).message);
     }
@@ -234,7 +236,7 @@ async function processDemoEmails() {
 
         let progress = 0;
         const progressInterval = setInterval(() => {
-            progress += 1;
+            progress += 0.714;
             progressBar.style.width = `${Math.min(progress, 100)}%`;
         }, 100);
 
@@ -244,7 +246,7 @@ async function processDemoEmails() {
             signupToken: localStorage.getItem("signupToken"),
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 10000));
+        await new Promise((resolve) => setTimeout(resolve, 14000));
 
         clearInterval(iconInterval);
         clearInterval(progressInterval);

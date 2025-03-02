@@ -80,50 +80,126 @@ def get_mail_by_id(request: HttpRequest) -> Response:
 
     Returns:
         Response:
-            - Success (HTTP 200 OK): JSON object with email details (subject, decodedData, cc, bcc, date, emailUser).
+            - Success (HTTP 200 OK): JSON object with email details (subject, decodedData, from, to, cc, bcc, date, emailUser).
             - Failure (HTTP 400 BAD REQUEST): Error message if "email_id" is missing.
     """
-    user = request.user
-    mail_id = request.GET.get("email_id")
+    try:
+        user = request.user
+        mail_id = request.GET.get("email_id")
 
-    email = get_object_or_404(Email, user=user, provider_id=mail_id)
-    social_api = email.social_api
-    email_user = social_api.email
-    type_api = social_api.type_api
+        if not mail_id:
+            return Response(
+                {"error": "No email ID provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-    if mail_id:
+        email = get_object_or_404(Email, user=user, provider_id=mail_id)
+        social_api = email.social_api
+        email_user = social_api.email
+        type_api = social_api.type_api
+
+        subject = None
+        decoded_data = None
+        from_info = None
+        cc = []
+        bcc = []
+        date = None
+
+        def format_recipients(recipients):
+            """Helper function to format recipient data consistently"""
+            if not recipients:
+                return []
+            formatted = []
+            for recipient in recipients:
+                if isinstance(recipient, (list, tuple)) and len(recipient) >= 2:
+                    formatted.append({
+                        "name": recipient[0] or "",
+                        "email": recipient[1] or ""
+                    })
+            return formatted
+
+        def format_single_recipient(recipient):
+            """Helper function to format a single recipient"""
+            if not recipient:
+                return {"name": "", "email": ""}
+            if isinstance(recipient, (list, tuple)) and len(recipient) >= 2:
+                return {"name": recipient[0] or "", "email": recipient[1] or ""}
+            return {"name": "", "email": ""}
+
         if type_api == GOOGLE:
             services = auth_google.authenticate_service(user, email_user, ["gmail"])
-            subject, _, decoded_data, cc, bcc, _, date = (
-                email_operations_google.get_mail(services, None, mail_id)
-            )
+            if not services:
+                return Response(
+                    {"error": "Failed to authenticate with Google"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            try:
+                subject, from_data, decoded_data, cc_data, bcc_data, _, date = (
+                    email_operations_google.get_mail(services, None, mail_id)
+                )
+                from_info = format_single_recipient(from_data)
+                cc = format_recipients(cc_data if isinstance(cc_data, (list, tuple)) else [cc_data])
+                bcc = format_recipients(bcc_data if isinstance(bcc_data, (list, tuple)) else [bcc_data])
+            except Exception as e:
+                LOGGER.error(f"Error fetching Google mail: {str(e)}")
+                return Response(
+                    {"error": "Failed to fetch email from Google"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
         elif type_api == MICROSOFT:
             access_token = auth_microsoft.refresh_access_token(
                 auth_microsoft.get_social_api(user, email_user)
             )
-            subject, _, decoded_data, cc, bcc, _, date = (
-                email_operations_microsoft.get_mail(access_token, None, mail_id)
+            if not access_token:
+                return Response(
+                    {"error": "Failed to authenticate with Microsoft"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            try:
+                subject, from_data, decoded_data, cc_data, bcc_data, _, date = (
+                    email_operations_microsoft.get_mail(access_token, None, mail_id)
+                )
+                from_info = format_single_recipient(from_data)
+                cc = format_recipients(cc_data)
+                bcc = format_recipients(bcc_data)
+            except Exception as e:
+                LOGGER.error(f"Error fetching Microsoft mail: {str(e)}")
+                return Response(
+                    {"error": "Failed to fetch email from Microsoft"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+        if not subject or not decoded_data:
+            return Response(
+                {"error": "Failed to retrieve email content"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        if cc:
-            cc = tuple(item for item in cc if item is not None)
-        if bcc:
-            bcc = tuple(item for item in bcc if item is not None)
+        LOGGER.debug(f"Email response data - From: {from_info}, CC: {cc}, BCC: {bcc}")
+
+        all_recipients = []
+        if from_info and from_info["email"] != email_user:
+            all_recipients.append(from_info)
+        all_recipients.extend(cc)
 
         return Response(
             {
                 "subject": subject,
                 "decodedData": decoded_data,
-                "cc": cc,
-                "bcc": bcc,
+                "from": from_info or {"name": "", "email": ""},
+                "cc": cc or [],
+                "bcc": bcc or [],
                 "date": date,
                 "emailUser": email_user,
             },
             status=status.HTTP_200_OK,
         )
-    else:
+
+    except Exception as e:
+        LOGGER.error(f"Error in get_mail_by_id: {str(e)}")
         return Response(
-            {"error": "No email ID provided"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Internal server error"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 

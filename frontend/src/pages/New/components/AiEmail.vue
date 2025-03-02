@@ -233,6 +233,15 @@ async function handleAIClick() {
     if (isWriting.value) {
         return;
     }
+
+    // If no agent is selected (default agent), clear chat and select the second agent
+    if (!selectedAgent.value.id && agents.value.length >= 2) {
+        AIContainer.value.innerHTML = ''; 
+        const aoAgent = agents.value[1]; 
+        selectedAgent.value = aoAgent;
+        setAgentLastUsed?.(aoAgent);
+    }
+
     setWriting();
     displayUserMessage();
 

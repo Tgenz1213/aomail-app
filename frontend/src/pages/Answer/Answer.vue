@@ -353,7 +353,6 @@ async function displayEmailContent() {
             </span>
           </div>
           <div class="flex flex-col space-y-1 bg-white rounded-lg p-4 border border-gray-200">
-            <p class="my-0">${subject.value}</p>
             <p class="my-0 font-bold text-md">${i18n.global.t("answerPage.chatSummarize")}</p>
             <p class="my-0 text-sm">${JSON.parse(sessionStorage.getItem("shortSummary") || "")}</p>
             <div class="mr-4 pt-2">
@@ -368,9 +367,27 @@ async function displayEmailContent() {
 
     AIContainer.value.innerHTML += messageHTML;
     emailContent.value = JSON.parse(sessionStorage.getItem("decodedData") || "");
-    subjectInput.value = "Re : " + subject.value;
 
     fetchResponseKeywords();
+}
+
+async function displaySubject() {
+    if (!AIContainer.value) return;
+
+    const messageHTML = `
+        <div class="flex pb-6">
+          <div class="mr-4 flex flex-shrink-0">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
+                <img src="${API_BASE_URL}agent_icon/default-agent.png" alt="Default Icon" class="h-12 w-12 rounded-full object-cover">
+            </span>
+          </div>
+          <div class="flex flex-col space-y-1 bg-white rounded-lg p-4 border border-gray-200">
+            <p class="my-0 font-semibold text-lg">${subject.value}</p>
+          </div>
+        </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
 }
 
 onMounted(async () => {
@@ -415,6 +432,7 @@ onMounted(async () => {
         window.addEventListener("beforeunload", handleBeforeUnload);
 
         subject.value = JSON.parse(sessionStorage.getItem("subject") || "");
+        subjectInput.value = "Re : " + subject.value;
         selectedPeople.value = [{ email: JSON.parse(sessionStorage.getItem("senderEmail") || "[]") }];
         selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
         selectedBCC.value = JSON.parse(sessionStorage.getItem("bcc") || "[]");
@@ -769,6 +787,11 @@ async function setAgentLastUsed(agent: Agent) {
             i18n.global.t("answerPage.error.updatingAgentStatus")
         );
         return;
+    }
+
+    // Clear the chat container before displaying new content
+    if (AIContainer.value) {
+        AIContainer.value.innerHTML = "";
     }
 
     // Display email content after agent is selected and set as last used

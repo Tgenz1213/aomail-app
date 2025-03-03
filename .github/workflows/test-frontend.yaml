@@ -1,0 +1,20 @@
+name: Run Frontend Build Test
+
+on: [push, pull_request]
+
+jobs:
+  run-frontend-build-test:
+    strategy:
+      fail-fast: false
+      
+    name: Run Frontend Build Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+              npm install
+              npm run build

@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Backend Tests
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [main]
 
 jobs:
-  run-tests:
+  run-backend-tests:
     strategy:
       fail-fast: false
 
-    name: Run Tests
+    name: Run Backend Tests
     runs-on: ubuntu-latest
     defaults:
       run:

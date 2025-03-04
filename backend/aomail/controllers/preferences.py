@@ -11,7 +11,9 @@ Endpoints:
 - ✅ set_user_timezone: Set the timezone.
 - ✅ update_password: Update the password.
 - ✅ update_username: Update the username.
-prioritization
+- ✅ prioritization: Update the prioritization.
+- ✅ get_user_guidelines: Retrieve the user's current guidelines for email prioritization.
+- ✅ user_llm_settings: Retrieve, update, or create the LLM settings for the authenticated user.
 """
 
 import json
@@ -447,37 +449,54 @@ def get_user_llm_settings(request: HttpRequest) -> Response:
             "llmModel": (
                 preference.llm_model if preference.llm_model else "gemini-1.5-flash"
             ),
-            # todo return a dict {prompt: "", variables: []} for all + update the frontend to use it
-            "improveEmailDraftPrompt": (
-                preference.improve_email_draft_prompt
-                if preference.improve_email_draft_prompt
-                else IMPROVE_EMAIL_DRAFT_PROMPT
-            ),
-            "improveEmailResponsePrompt": (
-                preference.improve_email_response_prompt
-                if preference.improve_email_response_prompt
-                else IMPROVE_EMAIL_RESPONSE_PROMPT
-            ),
-            "categorizeAndSummarizeEmailPrompt": (
-                preference.categorize_and_summarize_email_prompt
-                if preference.categorize_and_summarize_email_prompt
-                else CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT
-            ),
-            "generateEmailResponsePrompt": (
-                preference.generate_email_response_prompt
-                if preference.generate_email_response_prompt
-                else GENERATE_EMAIL_RESPONSE_PROMPT
-            ),
-            "generateEmailPrompt": (
-                preference.generate_email_prompt
-                if preference.generate_email_prompt
-                else GENERATE_EMAIL_PROMPT
-            ),
-            "generateResponseKeywordsPrompt": (
-                preference.generate_response_keywords_prompt
-                if preference.generate_response_keywords_prompt
-                else GENERATE_RESPONSE_KEYWORDS_PROMPT
-            ),
+            "improveEmailDraftPrompt": {
+                "prompt": (
+                    preference.improve_email_draft_prompt
+                    if preference.improve_email_draft_prompt
+                    else IMPROVE_EMAIL_DRAFT_PROMPT
+                ),
+                "variables": IMPROVE_EMAIL_DRAFT_PROMPT_VARIABLES,
+            },
+            "improveEmailResponsePrompt": {
+                "prompt": (
+                    preference.improve_email_response_prompt
+                    if preference.improve_email_response_prompt
+                    else IMPROVE_EMAIL_RESPONSE_PROMPT
+                ),
+                "variables": IMPROVE_EMAIL_RESPONSE_PROMPT_VARIABLES,
+            },
+            "categorizeAndSummarizeEmailPrompt": {
+                "prompt": (
+                    preference.categorize_and_summarize_email_prompt
+                    if preference.categorize_and_summarize_email_prompt
+                    else CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT
+                ),
+                "variables": CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT_VARIABLES,
+            },
+            "generateEmailResponsePrompt": {
+                "prompt": (
+                    preference.generate_email_response_prompt
+                    if preference.generate_email_response_prompt
+                    else GENERATE_EMAIL_RESPONSE_PROMPT
+                ),
+                "variables": GENERATE_EMAIL_RESPONSE_PROMPT_VARIABLES,
+            },
+            "generateEmailPrompt": {
+                "prompt": (
+                    preference.generate_email_prompt
+                    if preference.generate_email_prompt
+                    else GENERATE_EMAIL_PROMPT
+                ),
+                "variables": GENERATE_EMAIL_PROMPT_VARIABLES,
+            },
+            "generateResponseKeywordsPrompt": {
+                "prompt": (
+                    preference.generate_response_keywords_prompt
+                    if preference.generate_response_keywords_prompt
+                    else GENERATE_RESPONSE_KEYWORDS_PROMPT
+                ),
+                "variables": GENERATE_RESPONSE_KEYWORDS_PROMPT_VARIABLES,
+            },
         },
         status=status.HTTP_200_OK,
     )

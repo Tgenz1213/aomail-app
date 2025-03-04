@@ -166,6 +166,7 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const hideLoading = inject<() => void>("hideLoading");
 const loading = inject<() => void>("loading");
+const fetchResponseKeywords = inject<() => void>("fetchResponseKeywords");
 
 const getQuill = inject<() => Quill | null>("getQuill");
 const signatures = inject<Ref<any[]>>("signatures") || ref([]);
@@ -200,6 +201,7 @@ function handleEnterKey(event: KeyboardEvent) {
 
     if (target && target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
+        event.stopPropagation();
         handleAIClick();
     }
 }
@@ -231,6 +233,11 @@ function handleAIClick() {
     if (isWriting.value) {
         return;
     }
+
+    if (!selectedAgent.value.id) {
+        return;
+    }
+
     setWriting();
     displayUserMessage();
 
@@ -306,6 +313,9 @@ function selectAgent(agent: Agent) {
     selectedAgent.value = agent;
     setAgentLastUsed?.(agent);
     isDropdownOpen.value = false;
+    if (selectedAgent.value) {
+        fetchResponseKeywords?.();
+    }
 }
 
 function openCreateAgentModal() {

@@ -86,7 +86,7 @@ class EmailGenerateAnswer(serializers.Serializer):
     subject = serializers.CharField()
     body = serializers.CharField()
     keyword = serializers.CharField()
-    signature = serializers.CharField()
+    signature = serializers.CharField(allow_blank=True)
 
 
 class UserLoginSerializer(serializers.ModelSerializer):

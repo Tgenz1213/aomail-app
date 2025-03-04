@@ -34,7 +34,7 @@
     <SignatureModal
         :visible="showSignatureModal"
         :selectedEmail="emailSelected"
-        @close="showSignatureModal = false"
+        @close="handleSignatureModalClose"
         @created="handleSignatureCreated"
     />
 </template>
@@ -185,6 +185,7 @@ provide("signatures", signatures);
 provide("emailContent", emailContent);
 provide("manualEmailWidth", manualEmailWidth);
 provide("aiEmailWidth", aiEmailWidth);
+provide("fetchResponseKeywords", fetchResponseKeywords);
 
 async function fetchSelectedEmailData() {
     const result = await getData(`user/emails_linked/`);
@@ -261,6 +262,13 @@ const displayAgentSelection = async () => {
                     if (selectedAgentData) {
                         selectedAgent.value = selectedAgentData;
                         setAgentLastUsed(selectedAgent.value);
+                        if (AIContainer.value) {
+                            const messages = AIContainer.value.children;
+                            if (messages.length > 0) {
+                                messages[messages.length - 1].remove();
+                            }
+                            fetchResponseKeywords();
+                        }
                     }
                 });
             });
@@ -367,8 +375,6 @@ async function displayEmailContent() {
 
     AIContainer.value.innerHTML += messageHTML;
     emailContent.value = JSON.parse(sessionStorage.getItem("decodedData") || "");
-
-    fetchResponseKeywords();
 }
 
 async function displaySubject() {
@@ -412,7 +418,6 @@ onMounted(async () => {
             return;
         }
 
-        // Rest of the initialization...
         await Promise.all([fetchSignatures(), fetchAgents()]);
 
         await Promise.all([
@@ -426,8 +431,7 @@ onMounted(async () => {
             insertSignature(signatures.value[0].signature_content);
         }
 
-        document.addEventListener("keydown", handleKeyDown);
-        localStorage.removeItem("uploadedFiles");
+        document.addEventListener("keydown", handleKeyDown, true);
         window.addEventListener("resize", scrollToBottom);
         window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -448,8 +452,10 @@ onMounted(async () => {
             if (selectedAgentData) {
                 selectedAgent.value = selectedAgentData;
                 await displayEmailContent();
+                await fetchResponseKeywords();
             }
         } else {
+            await displayEmailContent();
             await displayMessage(i18n.global.t("agent.chooseAiAssistant"), selectedAgent.value.picture);
             await displayAgentSelection();
         }
@@ -485,6 +491,7 @@ onBeforeUnmount(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
     window.removeEventListener("mousemove", onDrag);
     window.removeEventListener("mouseup", stopDrag);
+    document.removeEventListener("keydown", handleKeyDown, true);
 });
 
 async function getProfileImage() {
@@ -541,6 +548,24 @@ async function fetchRecipients() {
 }
 
 function handleKeyDown(event: KeyboardEvent) {
+    const target = event.target as HTMLElement;
+    
+    if (showSignatureModal.value || target.closest('#dynamicTextarea')) {
+        return;
+    }
+    
+    if (event.key === "Enter" && 
+        (target.closest('.ql-editor') || 
+         target.matches('input, textarea, [contenteditable="true"]'))) {
+        return;
+    }
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+    }
+
     if (event.ctrlKey) {
         const recipients = document.getElementById("recipients");
         const subjectInput = document.getElementById("subjectInput") as HTMLInputElement | null;
@@ -592,7 +617,7 @@ function hideLoading() {
     }
 }
 
-function askContentAdvice() {
+function askContentAdvice(keyword?: string) {
     if (!AIContainer.value || isWriting.value) {
         return;
     }
@@ -669,7 +694,7 @@ async function handleButtonClick(keyword: string | null) {
         subject: subjectInput.value,
         body: emailContent.value,
         keyword: keyword,
-        signature: signatures.value[0].signature_content,
+        signature: signatures.value[0]?.signature_content || "",
     });
 
     hideLoading();
@@ -768,7 +793,8 @@ const checkSignature = () => {
     }
 };
 
-const handleSignatureCreated = (newSignature: any) => {
+const handleSignatureCreated = async (newSignature: any) => {
+    await new Promise(resolve => setTimeout(resolve, 150));
     signatures.value.push(newSignature);
     if (quill) {
         insertSignature(newSignature.signature_content);
@@ -849,6 +875,10 @@ const stopDrag = () => {
 const saveWidths = () => {
     localStorage.setItem("manualEmailWidth", manualEmailWidth.value.toString());
     localStorage.setItem("aiEmailWidth", aiEmailWidth.value.toString());
+};
+
+const handleSignatureModalClose = () => {
+    showSignatureModal.value = false;
 };
 </script>
 

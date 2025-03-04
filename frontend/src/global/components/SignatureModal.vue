@@ -14,6 +14,7 @@
             @paste="handlePaste"
             @dragover.prevent
             @drop="handleDrop"
+            @keydown="handleKeyDown"
           ></div>
         </div>
         <div class="flex items-center gap-x-1 mb-4 text-sm text-gray-500">
@@ -123,6 +124,14 @@ const handleDrop = async (e: DragEvent) => {
       reader.readAsDataURL(file);
       return;
     }
+  }
+};
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+    document.execCommand('insertLineBreak');
   }
 };
 

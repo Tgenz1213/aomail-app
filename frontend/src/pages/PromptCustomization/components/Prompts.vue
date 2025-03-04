@@ -376,43 +376,7 @@ const llmModelOptions = computed(() => {
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-const customizablePrompts = ref<{ [key: string]: Prompt }>({
-    improveEmailDraftPrompt: {
-        prompt: "",
-        variables: ["language", "agent_settings", "subject", "body", "history", "user_input", "length", "formality"],
-    },
-    improveEmailResponsePrompt: {
-        prompt: "",
-        variables: ["agent_settings", "importance", "subject", "body", "history", "user_input"],
-    },
-    categorizeAndSummarizeEmailPrompt: {
-        prompt: "",
-        variables: [
-            "sender",
-            "subject",
-            "decoded_data",
-            "user_description",
-            "category_dict",
-            "response_list",
-            "relevance_list",
-            "important_guidelines",
-            "informative_guidelines",
-            "useless_guidelines",
-        ],
-    },
-    generateEmailResponsePrompt: {
-        prompt: "",
-        variables: ["agent_settings", "input_subject", "input_body", "user_instruction", "signature_instruction"],
-    },
-    generateEmailPrompt: {
-        prompt: "",
-        variables: ["agent_settings", "length", "formality", "language", "input_data", "signature_instruction"],
-    },
-    generateResponseKeywordsPrompt: {
-        prompt: "",
-        variables: ["input_subject", "input_email"],
-    },
-});
+const customizablePrompts = ref<{ [key: string]: Prompt }>({});
 
 const editingPrompt = ref<string | null>(null);
 
@@ -554,12 +518,9 @@ async function fetchLLMSettings() {
     llmProvider.value = llmProviderOptions.find((p) => p.provider === data.llmProvider) || llmProviderOptions[0];
     llmModel.value = llmModelOptions.value.find((m) => m.name === data.llmModel) || llmModelOptions.value[0];
 
-    customizablePrompts.value["improveEmailDraftPrompt"].prompt = data.improveEmailDraftPrompt;
-    customizablePrompts.value["improveEmailResponsePrompt"].prompt = data.improveEmailResponsePrompt;
-    customizablePrompts.value["categorizeAndSummarizeEmailPrompt"].prompt = data.categorizeAndSummarizeEmailPrompt;
-    customizablePrompts.value["generateEmailResponsePrompt"].prompt = data.generateEmailResponsePrompt;
-    customizablePrompts.value["generateEmailPrompt"].prompt = data.generateEmailPrompt;
-    customizablePrompts.value["generateResponseKeywordsPrompt"].prompt = data.generateResponseKeywordsPrompt;
+    delete data.llmProvider;
+    delete data.llmModel;
+    customizablePrompts.value = data;
 }
 
 onMounted(async () => {

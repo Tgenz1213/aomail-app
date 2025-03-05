@@ -100,6 +100,9 @@ def ensure_proper_spacing(text: str, signature: str = "") -> str:
     if not text:
         return text
     
+    # Normalize paragraph spacing with exactly one line break
+    text = re.sub(r'</p>\s*<p>', '</p>\n<p>', text)
+    
     # Convert <br> to newlines to handle them as normal line breaks
     text = re.sub(r'<br\s*/?>(?!</)', '\n', text, flags=re.IGNORECASE)
     

@@ -201,18 +201,13 @@ def generate_email_response(
         user_instruction=user_instruction,
         signature_instruction=signature_instruction,
     )
-    response = get_prompt_response(formatted_prompt, llm_model)
-    result_json = extract_json_from_response(response.text)
+
+    result_json = get_prompt_response_with_tokens(formatted_prompt, llm_model)
     body = result_json.get("body", "")
 
-    if signature and signature not in body:
-        body = f"{body}\n{signature}"
+    result_json["body"] = ensure_proper_spacing(body, signature)
 
-    return {
-        "body": body,
-        "tokens_input": response.usage_metadata.prompt_token_count,
-        "tokens_output": response.usage_metadata.candidates_token_count,
-    }
+    return result_json
 
 
 def categorize_and_summarize_email(

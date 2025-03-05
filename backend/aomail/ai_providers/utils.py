@@ -1,6 +1,7 @@
 import json
 from aomail.models import Statistics
 from django.contrib.auth.models import User
+import re
 
 
 def update_tokens_stats(user: User, result: dict) -> dict:
@@ -85,3 +86,49 @@ def count_corrections(
     total_corrections = subject_corrections + body_corrections
 
     return total_corrections
+
+
+def ensure_proper_spacing(text: str, signature: str = "") -> str:
+    """
+    Ensures EXACTLY ONE blank line between content lines in main content.
+    Preserves EXACT spacing in signature block.
+    
+    Args:
+        text (str): The text to process
+        signature (str): The signature text to identify signature section
+    """
+    if not text:
+        return text
+    
+    # Convert <br> to newlines to handle them as normal line breaks
+    text = re.sub(r'<br\s*/?>(?!</)', '\n', text, flags=re.IGNORECASE)
+    
+    # Split content and signature if signature exists
+    main_content = text
+    sig_part = ""
+    
+    if signature and signature.strip() in text:
+        # Find the signature position and split
+        sig_pos = text.find(signature.strip())
+        if sig_pos != -1:
+            main_content = text[:sig_pos].rstrip()
+            sig_part = text[sig_pos:]  # Keep everything after signature start
+    
+    # Process main content - ensure one blank line between content
+    lines = main_content.split('\n')
+    result = []
+    
+    # Add lines with exactly one blank line between content
+    for line in lines:
+        if line.strip():  # If line has actual content
+            if result and result[-1].strip():  # If previous line had content
+                result.append('')  # Add exactly one blank line
+            result.append(line)
+    
+    # Add signature if it exists - preserve its exact spacing
+    if sig_part:
+        if result and result[-1].strip():
+            result.append('')
+        result.append(sig_part.rstrip())  # Just add it as is, only trim end
+    
+    return '\n'.join(result)

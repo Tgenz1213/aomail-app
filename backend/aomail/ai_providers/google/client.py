@@ -27,7 +27,7 @@ import json
 import logging
 import google.generativeai as genai
 from datetime import datetime
-from aomail.ai_providers.utils import count_corrections, extract_json_from_response
+from aomail.ai_providers.utils import count_corrections, extract_json_from_response, ensure_proper_spacing
 from aomail.ai_providers.prompts import (
     CHAT_HISTORY_TEXT,
     CORRECT_MAIL_LANGUAGE_MISTAKES_PROMPT,
@@ -128,7 +128,12 @@ def generate_email(
         signature_instruction=signature_instruction,
     )
 
-    return get_prompt_response_with_tokens(formatted_prompt, llm_model)
+    result_json = get_prompt_response_with_tokens(formatted_prompt, llm_model)
+    
+    if "body" in result_json:
+        result_json["body"] = ensure_proper_spacing(result_json["body"], signature)
+    
+    return result_json
 
 
 def correct_mail_language_mistakes(

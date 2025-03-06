@@ -14,18 +14,6 @@
                         </p>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Account Description
-                            <span class="text-gray-500 dark:text-gray-400">(Optional)</span>
-                        </label>
-                        <input
-                            v-model="userDescription"
-                            :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
-                            class="w-full p-2.5 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        />
-                    </div>
-
                     <div class="space-y-4">
                         <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email Provider</label>
@@ -70,6 +58,32 @@
                                 />
                             </svg>
                         </a>
+
+                        <div class="space-y-4 mt-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="emailAddress"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                                    placeholder="your.email@example.com"
+                                />
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Account Description
+                                    <span class="text-gray-500 dark:text-gray-400">(Optional)</span>
+                                </label>
+                                <input
+                                    v-model="userDescription"
+                                    :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
+                                    class="w-full p-2.5 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div class="space-y-4">
@@ -79,7 +93,7 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Host</label>
                                 <input
                                     type="text"
-                                    v-model="imapHostName"
+                                    v-model="imapHost"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                     placeholder="imap.example.com"
                                 />
@@ -90,17 +104,6 @@
                                     type="number"
                                     v-model="imapPort"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Username
-                                </label>
-                                <input
-                                    type="text"
-                                    v-model="imapUsername"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                                    placeholder="your.email@example.com"
                                 />
                             </div>
                             <div>
@@ -134,7 +137,7 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Host</label>
                                 <input
                                     type="text"
-                                    v-model="smtpHostName"
+                                    v-model="smtpHost"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                     placeholder="smtp.example.com"
                                 />
@@ -145,17 +148,6 @@
                                     type="number"
                                     v-model="smtpPort"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Username
-                                </label>
-                                <input
-                                    type="text"
-                                    v-model="smtpUsername"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                                    placeholder="your.email@example.com"
                                 />
                             </div>
                             <div>
@@ -240,46 +232,42 @@ const getProviderLogo = (providerName: string) => {
 
 const selectedProvider = ref(knownProviders[0]);
 const errorMessage = ref("");
+
+const emailAddress = ref("");
 const userDescription = ref("");
 
-const imapHostName = ref(selectedProvider.value.imapHost);
+const imapHost = ref(selectedProvider.value.imapHost);
 const imapPort = ref(selectedProvider.value.imapPort);
-const imapUsername = ref("");
 const imapAppPassword = ref("");
 const imapSsl = ref(selectedProvider.value.imapSsl);
 
-const smtpHostName = ref(selectedProvider.value.smtpHost);
+const smtpHost = ref(selectedProvider.value.smtpHost);
 const smtpPort = ref(selectedProvider.value.smtpPort);
-const smtpUsername = ref("");
 const smtpAppPassword = ref("");
 const smtpSsl = ref(selectedProvider.value.smtpSsl);
 
 const selectProvider = (provider: (typeof knownProviders)[0]) => {
     selectedProvider.value = provider;
-    imapHostName.value = provider.imapHost;
+    imapHost.value = provider.imapHost;
     imapPort.value = provider.imapPort;
-    imapUsername.value = "";
     imapAppPassword.value = "";
     imapSsl.value = provider.imapSsl;
-    smtpHostName.value = provider.smtpHost;
+    smtpHost.value = provider.smtpHost;
     smtpPort.value = provider.smtpPort;
-    smtpUsername.value = "";
     smtpAppPassword.value = "";
     smtpSsl.value = provider.smtpSsl;
 };
 
 const linkAccount = async () => {
-    const result = await postData("social_api/link", {
-        isImapSmtp: true,
+    const result = await postData("user/social_api/link/", {
+        emailAddress: emailAddress.value,
         userDescription: userDescription.value,
-        imapHostName: imapHostName.value,
+        imapHost: imapHost.value,
         imapPort: imapPort.value,
-        imapUsername: imapUsername.value,
         imapAppPassword: imapAppPassword.value,
         imapSsl: imapSsl.value,
-        smtpHostName: smtpHostName.value,
+        smtpHost: smtpHost.value,
         smtpPort: smtpPort.value,
-        smtpUsername: smtpUsername.value,
         smtpAppPassword: smtpAppPassword.value,
         smtpSsl: smtpSsl.value,
     });

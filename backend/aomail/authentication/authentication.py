@@ -66,6 +66,7 @@ from aomail.models import (
     Subscription,
 )
 from aomail.payment_providers import stripe
+from aomail.email_providers.imap.authentication import validate_imap_connection
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -408,79 +409,122 @@ def link_email(request: HttpRequest) -> Response:
     ip = security.get_ip_with_port(request)
     LOGGER.info(f"Link email request received from IP: {ip} and user ID: {user.id}")
 
-    authorization_result = validate_code_link_email(type_api, code)
-    if "error" in authorization_result:
-        LOGGER.error(f"Authorization failed: {authorization_result['error']}")
-        return Response(
-            {"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST
+    # Oauth connection attempt
+    if code:
+        authorization_result = validate_code_link_email(type_api, code)
+        if "error" in authorization_result:
+            LOGGER.error(f"Authorization failed: {authorization_result['error']}")
+            return Response(
+                {"error": authorization_result["error"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        access_token = authorization_result["access_token"]
+        refresh_token = authorization_result["refresh_token"]
+        email = authorization_result["email"]
+        refresh_token_encrypted = security.encrypt_text(
+            SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token
         )
 
-    access_token = authorization_result["access_token"]
-    refresh_token = authorization_result["refresh_token"]
-    email = authorization_result["email"]
-    refresh_token_encrypted = security.encrypt_text(
-        SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token
-    )
+        regrant = False
+        try:
+            regrant = True
+            social_api = SocialAPI.objects.get(user=user, email=email)
+            social_api.refresh_token = refresh_token_encrypted
+            social_api.access_token = access_token
+            social_api.save()
+            LOGGER.info(
+                f"Social API for user ID: {user.id} tokens updated successfully"
+            )
+        except SocialAPI.DoesNotExist:
+            social_api = SocialAPI.objects.create(
+                user=user,
+                email=email,
+                type_api=type_api,
+                user_description=user_description,
+                access_token=access_token,
+                refresh_token=refresh_token_encrypted,
+            )
+            LOGGER.info(f"Social API for user ID: {user.id} created successfully")
+        except IntegrityError:
+            return Response(
+                {"error": "Email address already used by another account"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-    regrant = False
-    try:
-        regrant = True
-        social_api = SocialAPI.objects.get(user=user, email=email)
-        social_api.refresh_token = refresh_token_encrypted
-        social_api.access_token = access_token
-        social_api.save()
-        LOGGER.info(f"Social API for user ID: {user.id} tokens updated successfully")
-    except SocialAPI.DoesNotExist:
-        social_api = SocialAPI.objects.create(
-            user=user,
-            email=email,
-            type_api=type_api,
-            user_description=user_description,
-            access_token=access_token,
-            refresh_token=refresh_token_encrypted,
-        )
-        LOGGER.info(f"Social API for user ID: {user.id} created successfully")
-    except IntegrityError:
-        return Response(
-            {"error": "Email address already used by another account"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        try:
+            if type_api == GOOGLE:
+                threading.Thread(
+                    target=profile_google.set_all_contacts, args=(user, email)
+                ).start()
+            elif type_api == MICROSOFT:
+                threading.Thread(
+                    target=profile_microsoft.set_all_contacts, args=(user, email)
+                ).start()
+        except Exception as e:
+            LOGGER.error(
+                f"Failed to save all contacts for Social API email: {social_api.email}. Error: {str(e)}"
+            )
+            return Response(
+                {"error": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
-    try:
-        if type_api == GOOGLE:
-            threading.Thread(
-                target=profile_google.set_all_contacts, args=(user, email)
-            ).start()
-        elif type_api == MICROSOFT:
-            threading.Thread(
-                target=profile_microsoft.set_all_contacts, args=(user, email)
-            ).start()
-    except Exception as e:
-        LOGGER.error(
-            f"Failed to save all contacts for Social API email: {social_api.email}. Error: {str(e)}"
-        )
-        return Response(
-            {"error": "Internal server error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+        subscribed = subscribe_listeners(type_api, user, email)
+        if subscribed:
+            LOGGER.info(f"Email account linked successfully for user ID: {user.id}")
+            return Response(
+                {"message": "Email linked to account successfully!"},
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            LOGGER.error(
+                f"Failed to subscribe to listener for Social API: {social_api.email}"
+            )
+            if not regrant:
+                social_api.delete()
+                LOGGER.info(f"Social API: {social_api.email} deleted successfully")
+            return Response(
+                {"error": "Could not subscribe to listener"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+    # IMAP/SMTP connection attempt
+    else:
+        email_address: str = parameters.get("emailAddress")
 
-    subscribed = subscribe_listeners(type_api, user, email)
-    if subscribed:
-        LOGGER.info(f"Email account linked successfully for user ID: {user.id}")
+        imap_host: str = parameters.get("imapHost")
+        imap_port: int = parameters.get("imapPort")
+        imap_app_password: str = parameters.get("imapAppPassword")
+        imap_ssl: bool = parameters.get("imapSsl")
+
+        smtp_host: str = parameters.get("smtpHost")
+        smtp_port: int = parameters.get("smtpPort")
+        smtp_app_password: str = parameters.get("smtpAppPassword")
+        smtp_ssl: bool = parameters.get("smtpSsl")
+
+        # Validate IMAP connection
+        imap_valid = validate_imap_connection(
+            email_address, imap_app_password, imap_host, imap_port, imap_ssl
+        )
+        if not imap_valid:
+            return Response(
+                {"error": "Failed to validate IMAP connection"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate SMTP connection
+        # smtp_valid = validate_smtp_connection(
+        #     email_address, smtp_app_password, smtp_host, smtp_port, smtp_ssl
+        # )
+        # if not smtp_valid:
+        #     return Response(
+        #         {"error": "Failed to validate SMTP connection"},
+        #         status=status.HTTP_400_BAD_REQUEST,
+        #     )
+
         return Response(
             {"message": "Email linked to account successfully!"},
             status=status.HTTP_201_CREATED,
-        )
-    else:
-        LOGGER.error(
-            f"Failed to subscribe to listener for Social API: {social_api.email}"
-        )
-        if not regrant:
-            social_api.delete()
-            LOGGER.info(f"Social API: {social_api.email} deleted successfully")
-        return Response(
-            {"error": "Could not subscribe to listener"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 

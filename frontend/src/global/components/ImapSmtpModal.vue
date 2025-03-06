@@ -296,7 +296,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from "vue";
+import { inject, onMounted, onUnmounted, ref } from "vue";
 import { postData } from "@/global/fetchData";
 import fastmailLogo from "@/assets/logos/fastmail.svg";
 import microsoftLogo from "@/assets/logos/microsoft.svg";
@@ -317,6 +317,7 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const fetchEmailLinked = inject<() => void>("fetchEmailLinked");
 
 const providerLogos: Record<string, string> = {
     Fastmail: fastmailLogo,
@@ -335,6 +336,7 @@ const getProviderLogo = (providerName: string) => {
 const selectedProvider = ref(knownProviders[0]);
 const errorMessage = ref("");
 
+const typeApi = ref(selectedProvider.value.typeApi);
 const emailAddress = ref("");
 const userDescription = ref("");
 
@@ -352,6 +354,8 @@ const showSmtpPassword = ref(false);
 
 const selectProvider = (provider: (typeof knownProviders)[0]) => {
     selectedProvider.value = provider;
+    typeApi.value = provider.typeApi;
+
     imapHost.value = provider.imapHost;
     imapPort.value = provider.imapPort;
     imapAppPassword.value = "";
@@ -365,6 +369,7 @@ const selectProvider = (provider: (typeof knownProviders)[0]) => {
 
 const linkAccount = async () => {
     const result = await postData("user/social_api/link/", {
+        typeApi: typeApi.value,
         emailAddress: emailAddress.value,
         userDescription: userDescription.value,
         imapHost: imapHost.value,
@@ -381,6 +386,7 @@ const linkAccount = async () => {
         errorMessage.value = result.error as string;
     } else {
         displayPopup?.("success", "Email linked", "Your email has been linked successfully");
+        fetchEmailLinked?.();
         closeModal();
     }
 };
@@ -396,4 +402,19 @@ function toggleSmtpPasswordVisibility() {
 const closeModal = () => {
     emit("closeModal");
 };
+
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+        event.preventDefault();
+        closeModal();
+    }
+};
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("keydown", handleKeyDown);
+});
 </script>

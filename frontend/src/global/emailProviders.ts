@@ -1,6 +1,7 @@
 export const knownProviders = [
     {
         name: "Fastmail",
+        typeApi: "fastmail",
         link: "https://app.fastmail.com/settings/security/apps/new",
         imapHost: "imap.fastmail.com",
         imapPort: 993,
@@ -11,6 +12,7 @@ export const knownProviders = [
     },
     {
         name: "GMX",
+        typeApi: "gmx",
         link: "https://support.gmx.com/pop-imap/toggle.html",
         imapHost: "imap.gmx.com",
         imapPort: 993,
@@ -21,6 +23,7 @@ export const knownProviders = [
     },
     {
         name: "Orange",
+        typeApi: "orange",
         link: "https://assistance.orange.fr/ordinateurs-peripheriques/installer-et-utiliser/l-utilisation-du-mail-et-du-cloud/mail-orange/le-mail-orange-nouvelle-version/parametrer-la-boite-mail/mail-orange-comment-acceder-a-sa-boite-mail-orange-depuis-une-application-ou-un-logiciel-de-messagerie-non-fourni-par-orange_434630-964290#onglet1",
         imapHost: "imap.orange.fr",
         imapPort: 993,
@@ -31,6 +34,7 @@ export const knownProviders = [
     },
     {
         name: "Microsoft",
+        typeApi: "microsoft",
         link: "https://support.microsoft.com/en-us/office/pop-imap-and-smtp-settings-for-outlook-com-d088b986-291d-42b8-9564-9c414e2aa040",
         imapHost: "outlook.office365.com",
         imapPort: 993,
@@ -41,6 +45,7 @@ export const knownProviders = [
     },
     {
         name: "Google",
+        typeApi: "google",
         link: "https://myaccount.google.com/u/1/apppasswords",
         imapHost: "imap.gmail.com",
         imapPort: 993,
@@ -51,6 +56,7 @@ export const knownProviders = [
     },
     {
         name: "Yahoo",
+        typeApi: "yahoo",
         link: "https://help.yahoo.com/kb/generate-password-sln15241.html#cont1",
         imapHost: "imap.mail.yahoo.com",
         imapPort: 993,
@@ -61,6 +67,7 @@ export const knownProviders = [
     },
     {
         name: "Apple",
+        typeApi: "apple",
         link: "https://support.apple.com/en-us/102525",
         imapHost: "imap.mail.me.com",
         imapPort: 993,
@@ -71,6 +78,7 @@ export const knownProviders = [
     },
     {
         name: "Other",
+        typeApi: "other",
         link: "",
         imapHost: "",
         imapPort: 993,

@@ -188,12 +188,17 @@ const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 
 function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Tab") {
-        event.preventDefault();
+    const usernameInput = document.getElementById("usernameInput") as HTMLInputElement | null;
+    const confirmPassword = document.getElementById("confirmPassword") as HTMLInputElement | null;
+    const newPassword = document.getElementById("newPassword") as HTMLInputElement | null;
 
-        const usernameInput = document.getElementById("usernameInput") as HTMLInputElement | null;
-        const confirmPassword = document.getElementById("confirmPassword") as HTMLInputElement | null;
-        const newPassword = document.getElementById("newPassword") as HTMLInputElement | null;
+    if (
+        event.key === "Tab" &&
+        (document.activeElement === usernameInput ||
+            document.activeElement === newPassword ||
+            document.activeElement === confirmPassword)
+    ) {
+        event.preventDefault();
 
         if (document.activeElement === usernameInput) {
             newPassword?.focus();

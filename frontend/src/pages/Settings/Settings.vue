@@ -116,6 +116,7 @@ const isAccountDeletionModalOpen = ref(false);
 const isUnlinkEmailModalOpen = ref(false);
 const isUpdateUserDescriptionModalOpen = ref(false);
 const isTroubleshootingMenuModalOpen = ref(false);
+const isImapSmtpModalOpen = ref(false);
 const isDeleteRadioButtonChecked = ref(false);
 const emailSelected = ref("");
 const userDescription = ref("");
@@ -123,6 +124,7 @@ const emailsLinked = ref<EmailLinked[]>([]);
 const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 provide("displayPopup", displayPopup);
+provide("isImapSmtpModalOpen", isImapSmtpModalOpen);
 provide("openAddUserDescriptionModal", openAddUserDescriptionModal);
 provide("closeAddUserDescriptionModal", closeAddUserDescriptionModal);
 provide("openAccountDeletionModal", openAccountDeletionModal);
@@ -203,7 +205,8 @@ function isAModalOpen() {
         isUpdateUserDescriptionModalOpen.value ||
         isAddUserDescriptionModalOpen.value ||
         isAccountDeletionModalOpen.value ||
-        isUnlinkEmailModalOpen.value
+        isUnlinkEmailModalOpen.value ||
+        isImapSmtpModalOpen.value
     );
 }
 

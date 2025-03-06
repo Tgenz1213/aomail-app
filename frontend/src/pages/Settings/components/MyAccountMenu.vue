@@ -196,8 +196,8 @@ const isDeleteRadioButtonChecked = inject<Ref<boolean>>("isDeleteRadioButtonChec
 const isAddUserDescriptionModalOpen = inject<Ref<boolean>>("isAddUserDescriptionModalOpen", ref(false));
 const isTroubleshootingMenuModalOpen = inject<Ref<boolean>>("isTroubleshootingMenuModalOpen", ref(false));
 const isAccountDeletionModalOpen = inject<Ref<boolean>>("isAccountDeletionModalOpen", ref(false));
+const isImapSmtpModalOpen = inject<Ref<boolean>>("isImapSmtpModalOpen", ref(false));
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
-const isImapSmtpModalOpen = ref(false);
 
 provide("typeApi", typeApi);
 provide("usernameInput", usernameInput);

@@ -14,14 +14,15 @@ def validate_imap_connection(
     app_password: str,
     imap_host: str,
     imap_port: int,
-    use_ssl: bool,
+    imap_encryption: str,
 ) -> bool:
     try:
+        use_tls = imap_encryption == "tls"
         LOGGER.info(
-            f"Validating IMAP{'(SSL)' if use_ssl else ''} connection for {email_address} on {imap_host}:{imap_port}"
+            f"Validating IMAP (Encryption: {imap_encryption}) connection for {email_address} on {imap_host}:{imap_port}"
         )
 
-        mailbox_class = MailBox if use_ssl else MailBoxUnencrypted
+        mailbox_class = MailBox if use_tls else MailBoxUnencrypted
         mailbox = mailbox_class(imap_host, imap_port)
 
         LOGGER.info(

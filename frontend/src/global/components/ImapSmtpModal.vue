@@ -117,14 +117,33 @@
                                     placeholder="Your app-specific password"
                                 />
                             </div>
-                            <div class="col-span-2">
-                                <label class="flex items-center" v-if="selectedProvider.name === 'Other'">
+
+                            <label
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                                v-if="selectedProvider.name === 'Other'"
+                            >
+                                IMAP Encryption
+                            </label>
+                            <div class="flex items-center space-x-4" v-if="selectedProvider.name === 'Other'">
+                                <label class="inline-flex items-center">
                                     <input
-                                        type="checkbox"
-                                        v-model="imapSsl"
-                                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        type="radio"
+                                        v-model="imapEncryption"
+                                        name="imapEncryption"
+                                        value="none"
+                                        class="form-radio text-blue-600"
                                     />
-                                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Use SSL/TLS</span>
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">No encryption</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input
+                                        type="radio"
+                                        v-model="imapEncryption"
+                                        name="imapEncryption"
+                                        value="tls"
+                                        class="form-radio text-blue-600"
+                                    />
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">TLS</span>
                                 </label>
                             </div>
                         </div>
@@ -161,15 +180,42 @@
                                     placeholder="Your app-specific password"
                                 />
                             </div>
-                            <div class="col-span-2">
-                                <label class="flex items-center" v-if="selectedProvider.name === 'Other'">
-                                    <input
-                                        type="checkbox"
-                                        v-model="smtpSsl"
-                                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    />
-                                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Use SSL/TLS</span>
+                            <div class="col-span-2" v-if="selectedProvider.name === 'Other'">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    SMTP Encryption
                                 </label>
+                                <div class="flex items-center space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            v-model="smtpEncryption"
+                                            name="smtpEncryption"
+                                            value="none"
+                                            class="form-radio text-blue-600"
+                                        />
+                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">No encryption</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            v-model="smtpEncryption"
+                                            name="smtpEncryption"
+                                            value="ssl"
+                                            class="form-radio text-blue-600"
+                                        />
+                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">SSL</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            v-model="smtpEncryption"
+                                            name="smtpEncryption"
+                                            value="tls"
+                                            class="form-radio text-blue-600"
+                                        />
+                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">TLS</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -239,23 +285,23 @@ const userDescription = ref("");
 const imapHost = ref(selectedProvider.value.imapHost);
 const imapPort = ref(selectedProvider.value.imapPort);
 const imapAppPassword = ref("");
-const imapSsl = ref(selectedProvider.value.imapSsl);
-
+const imapEncryption = ref("tls");
 const smtpHost = ref(selectedProvider.value.smtpHost);
 const smtpPort = ref(selectedProvider.value.smtpPort);
 const smtpAppPassword = ref("");
-const smtpSsl = ref(selectedProvider.value.smtpSsl);
+const smtpEncryption = ref("ssl");
 
 const selectProvider = (provider: (typeof knownProviders)[0]) => {
     selectedProvider.value = provider;
     imapHost.value = provider.imapHost;
     imapPort.value = provider.imapPort;
     imapAppPassword.value = "";
-    imapSsl.value = provider.imapSsl;
+    imapEncryption.value = provider.imapEncryption;
+
     smtpHost.value = provider.smtpHost;
     smtpPort.value = provider.smtpPort;
     smtpAppPassword.value = "";
-    smtpSsl.value = provider.smtpSsl;
+    smtpEncryption.value = provider.smtpEncryption;
 };
 
 const linkAccount = async () => {
@@ -265,11 +311,11 @@ const linkAccount = async () => {
         imapHost: imapHost.value,
         imapPort: imapPort.value,
         imapAppPassword: imapAppPassword.value,
-        imapSsl: imapSsl.value,
+        imapEncryption: imapEncryption.value,
         smtpHost: smtpHost.value,
         smtpPort: smtpPort.value,
         smtpAppPassword: smtpAppPassword.value,
-        smtpSsl: smtpSsl.value,
+        smtpEncryption: smtpEncryption.value,
     });
 
     if (!result.success) {

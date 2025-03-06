@@ -67,6 +67,7 @@ from aomail.models import (
 )
 from aomail.payment_providers import stripe
 from aomail.email_providers.imap.authentication import validate_imap_connection
+from aomail.email_providers.smtp.authentication import validate_smtp_connection
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -495,16 +496,16 @@ def link_email(request: HttpRequest) -> Response:
         imap_host: str = parameters.get("imapHost")
         imap_port: int = parameters.get("imapPort")
         imap_app_password: str = parameters.get("imapAppPassword")
-        imap_ssl: bool = parameters.get("imapSsl")
+        imap_encryption: str = parameters.get("imapEncryption")
 
         smtp_host: str = parameters.get("smtpHost")
         smtp_port: int = parameters.get("smtpPort")
         smtp_app_password: str = parameters.get("smtpAppPassword")
-        smtp_ssl: bool = parameters.get("smtpSsl")
+        smtp_encryption: str = parameters.get("smtpEncryption")
 
         # Validate IMAP connection
         imap_valid = validate_imap_connection(
-            email_address, imap_app_password, imap_host, imap_port, imap_ssl
+            email_address, imap_app_password, imap_host, imap_port, imap_encryption
         )
         if not imap_valid:
             return Response(
@@ -513,14 +514,14 @@ def link_email(request: HttpRequest) -> Response:
             )
 
         # Validate SMTP connection
-        # smtp_valid = validate_smtp_connection(
-        #     email_address, smtp_app_password, smtp_host, smtp_port, smtp_ssl
-        # )
-        # if not smtp_valid:
-        #     return Response(
-        #         {"error": "Failed to validate SMTP connection"},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
+        smtp_valid = validate_smtp_connection(
+            email_address, smtp_app_password, smtp_host, smtp_port, smtp_encryption
+        )
+        if not smtp_valid:
+            return Response(
+                {"error": "Failed to validate SMTP connection"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         return Response(
             {"message": "Email linked to account successfully!"},

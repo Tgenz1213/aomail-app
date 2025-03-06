@@ -503,7 +503,6 @@ def link_email(request: HttpRequest) -> Response:
         smtp_app_password: str = parameters.get("smtpAppPassword")
         smtp_encryption: str = parameters.get("smtpEncryption")
 
-        # Validate IMAP connection
         imap_valid = validate_imap_connection(
             email_address, imap_app_password, imap_host, imap_port, imap_encryption
         )
@@ -513,7 +512,6 @@ def link_email(request: HttpRequest) -> Response:
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Validate SMTP connection
         smtp_valid = validate_smtp_connection(
             email_address, smtp_app_password, smtp_host, smtp_port, smtp_encryption
         )
@@ -522,6 +520,11 @@ def link_email(request: HttpRequest) -> Response:
                 {"error": "Failed to validate SMTP connection"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        
+        try:
+            ...
+        except Exception as e:
+            ...
 
         return Response(
             {"message": "Email linked to account successfully!"},

@@ -110,12 +110,39 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     App Password
                                 </label>
-                                <input
-                                    type="password"
-                                    v-model="imapAppPassword"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                                    placeholder="Your app-specific password"
-                                />
+                                <div class="flex flex-col">
+                                    <div class="relative items-stretch mt-2 flex">
+                                        <input
+                                            placeholder="Enter your IMAP app password"
+                                            id="imapAppPassword"
+                                            v-if="!showImapPassword"
+                                            type="password"
+                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                            v-model="imapAppPassword"
+                                        />
+                                        <input
+                                            v-else
+                                            id="imapAppPassword"
+                                            type="text"
+                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                            v-model="imapAppPassword"
+                                        />
+                                        <button
+                                            @click="toggleImapPasswordVisibility"
+                                            class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300"
+                                        >
+                                            <svg class="w-6 h-6" stroke="currentColor">
+                                                <use
+                                                    :href="
+                                                        eyeIcon +
+                                                        '#' +
+                                                        (showImapPassword ? 'eye-hidden' : 'eye-visible')
+                                                    "
+                                                />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <label
@@ -173,12 +200,40 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     App Password
                                 </label>
-                                <input
-                                    type="password"
-                                    v-model="smtpAppPassword"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                                    placeholder="Your app-specific password"
-                                />
+                                <div class="flex flex-col">
+                                    <div class="relative items-stretch mt-2 flex">
+                                        <input
+                                            placeholder="Enter your SMTP app password"
+                                            id="smtpAppPassword"
+                                            v-if="!showSmtpPassword"
+                                            type="password"
+                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                            v-model="smtpAppPassword"
+                                        />
+                                        <input
+                                            v-else
+                                            id="imapAppPassword"
+                                            type="text"
+                                            smtpAppPassword
+                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                            v-model="smtpAppPassword"
+                                        />
+                                        <button
+                                            @click="toggleSmtpPasswordVisibility"
+                                            class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300"
+                                        >
+                                            <svg class="w-6 h-6" stroke="currentColor">
+                                                <use
+                                                    :href="
+                                                        eyeIcon +
+                                                        '#' +
+                                                        (showSmtpPassword ? 'eye-hidden' : 'eye-visible')
+                                                    "
+                                                />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-span-2" v-if="selectedProvider.name === 'Other'">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -250,6 +305,7 @@ import googleLogo from "@/assets/logos/google.svg";
 import yahooLogo from "@/assets/logos/yahoo.svg";
 import appleLogo from "@/assets/logos/apple.svg";
 import gmxLogo from "@/assets/logos/gmx.svg";
+import eyeIcon from "@/assets/eye-icon.svg";
 import { knownProviders } from "@/global/emailProviders";
 
 defineProps<{
@@ -291,6 +347,9 @@ const smtpPort = ref(selectedProvider.value.smtpPort);
 const smtpAppPassword = ref("");
 const smtpEncryption = ref("ssl");
 
+const showImapPassword = ref(false);
+const showSmtpPassword = ref(false);
+
 const selectProvider = (provider: (typeof knownProviders)[0]) => {
     selectedProvider.value = provider;
     imapHost.value = provider.imapHost;
@@ -325,6 +384,14 @@ const linkAccount = async () => {
         closeModal();
     }
 };
+
+function toggleImapPasswordVisibility() {
+    showImapPassword.value = !showImapPassword.value;
+}
+
+function toggleSmtpPasswordVisibility() {
+    showSmtpPassword.value = !showSmtpPassword.value;
+}
 
 const closeModal = () => {
     emit("closeModal");

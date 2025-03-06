@@ -2,6 +2,7 @@
     <AddUserDescriptionModal :isOpen="isAddUserDescriptionModalOpen" @closeModal="closeAddUserDescriptionModal" />
     <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @closeModal="closeAccountDeletionModal" />
     <TroubleshootingMenuModal :isOpen="isTroubleshootingMenuModalOpen" @closeModal="closeTroubleshootingMenu" />
+    <ImapSmtpModal :isOpen="isImapSmtpModalOpen" @closeModal="closeImapSmtpModal" />
     <div class="flex-1 h-full">
         <div class="h-full w-full flex items-center justify-center">
             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">
@@ -131,46 +132,13 @@
                                 <button
                                     type="button"
                                     class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                    @click="authorize(APPLE)"
+                                    @click="openImapSmtpModal"
                                 >
-                                    <img src="@/assets/logos/apple.svg" alt="Apple" class="w-5 h-5" />
+                                    <InboxIcon class="w-5 h-5" />
                                     <span
                                         class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block"
                                     >
-                                        {{ $t("constants.underDevelopment") }}
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="py-4">
-                            <div class="relative items-stretch mt-2 flex justify-center items-center">
-                                <button
-                                    type="button"
-                                    class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                    @click="authorize(YAHOO)"
-                                >
-                                    <img src="@/assets/logos/yahoo.svg" alt="Yahoo" class="w-5 h-5" />
-                                    <span
-                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block"
-                                    >
-                                        {{ $t("constants.underDevelopment") }}
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="py-4">
-                            <div class="relative items-stretch mt-2 flex justify-center items-center">
-                                <button
-                                    type="button"
-                                    class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                >
-                                    <img src="@/assets/logos/fastmail.svg" alt="Fastmail" class="w-5 h-5" />
-                                    <span
-                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block"
-                                    >
-                                        {{ $t("constants.underDevelopment") }}
+                                        Any IMAP & SMTP provider
                                     </span>
                                 </button>
                             </div>
@@ -205,14 +173,16 @@
 </template>
 
 <script lang="ts" setup>
+import { InboxIcon } from "@heroicons/vue/24/outline";
 import { ref, onMounted, provide, inject, Ref } from "vue";
 import { getData, postData } from "@/global/fetchData";
-import { YAHOO, GOOGLE, MICROSOFT, APPLE } from "@/global/const";
+import { GOOGLE, MICROSOFT } from "@/global/const";
 import AddUserDescriptionModal from "./AddUserDescriptionModal.vue";
 import AccountDeletionModal from "./AccountDeletionModal.vue";
 import UserEmailLinked from "./UserEmailLinked.vue";
 import UserCredentialsUpdateSection from "./UserCredentialsUpdateSection.vue";
 import TroubleshootingMenuModal from "./TroubleshootingMenuModal.vue";
+import ImapSmtpModal from "@/global/components/ImapSmtpModal.vue";
 import { i18n } from "@/global/preferences";
 import { EmailLinked } from "@/global/types";
 import { Plan } from "../utils/types";
@@ -227,11 +197,13 @@ const isAddUserDescriptionModalOpen = inject<Ref<boolean>>("isAddUserDescription
 const isTroubleshootingMenuModalOpen = inject<Ref<boolean>>("isTroubleshootingMenuModalOpen", ref(false));
 const isAccountDeletionModalOpen = inject<Ref<boolean>>("isAccountDeletionModalOpen", ref(false));
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
+const isImapSmtpModalOpen = ref(false);
 
 provide("typeApi", typeApi);
 provide("usernameInput", usernameInput);
 provide("username", username);
 provide("fetchEmailLinked", fetchEmailLinked);
+
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const closeAddUserDescriptionModal = inject<() => void>("closeAddUserDescriptionModal");
 const closeAccountDeletionModal = inject<() => void>("closeAccountDeletionModal");
@@ -344,4 +316,12 @@ async function fetchUsername() {
     usernameInput.value = result.data.username;
     username.value = result.data.username;
 }
+
+const openImapSmtpModal = () => {
+    isImapSmtpModalOpen.value = true;
+};
+
+const closeImapSmtpModal = () => {
+    isImapSmtpModalOpen.value = false;
+};
 </script>

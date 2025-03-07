@@ -3,9 +3,48 @@ from imap_tools import A, H
 from aomail.models import SocialAPI
 from aomail.email_providers.imap.authentication import connect_to_imap
 from aomail.utils import email_processing
+from django.contrib.auth.models import User
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def get_demo_list(user: User, email: str) -> list[str]:
+    """
+    Retrieves a list of up to 5 email message IDs from the user's Gmail inbox.
+
+    Args:
+        user (User): The user object representing the email account owner.
+        email (str): The email address of the user.
+
+    Returns:
+        list[str]: A list of up to 10 email message IDs from the inbox.
+                   Returns an empty list if no messages are found.
+    """
+    social_api = SocialAPI.objects.get(user=user, email=email)
+    mailbox = connect_to_imap(
+        social_api.email,
+        social_api.imap_config.app_password,
+        social_api.imap_config.host,
+        social_api.imap_config.port,
+        social_api.imap_config.encryption,
+    )
+
+    if not mailbox:
+        return []
+
+    email_ids = []
+    emails = mailbox.fetch(
+        reverse=True,
+        limit=5,
+        mark_seen=False,
+    )
+    for email in emails:
+        message_id = email.headers.get("message-id")
+        email_id = message_id[0].split("<")[1].split(">")[0]
+        email_ids.append(email_id)
+
+    return email_ids
 
 
 def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:

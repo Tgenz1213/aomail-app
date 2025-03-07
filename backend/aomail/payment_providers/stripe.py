@@ -3,7 +3,7 @@ Handles Stripe payment processes, including subscription management and webhook 
 
 Endpoints:
 - ✅ create_checkout_session: Creates a Stripe Checkout session for a subscription.
-- ✅ webhook: Unified Stripe webhook listener that processes various Stripe events. 
+- ✅ webhook: Unified Stripe webhook listener that processes various Stripe events.
 """
 
 import stripe
@@ -249,11 +249,11 @@ def handle_checkout_session_completed(event: dict):
         # Resubscribe user to email notifications in case
         social_apis = SocialAPI.objects.filter(user=user)
         for social_api in social_apis:
-            if social_api.type_api == GOOGLE:
+            if social_api.type_api == GOOGLE and not social_api.imap_config:
                 webhook_google.check_and_resubscribe_to_missing_resources(
                     social_api.type_api, user, social_api.email
                 )
-            elif social_api.type_api == MICROSOFT:
+            elif social_api.type_api == MICROSOFT and not social_api.imap_config:
                 webhook_microsoft.check_and_resubscribe_to_missing_resources(
                     user, social_api.email
                 )

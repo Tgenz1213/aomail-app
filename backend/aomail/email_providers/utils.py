@@ -476,17 +476,11 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
         LOGGER.critical(
             f"Failed to process email with AI for email: {social_api.email}"
         )
-        if social_api.type_api == GOOGLE:
-            email_provider = GOOGLE
-        elif social_api.type_api == MICROSOFT:
-            email_provider = MICROSOFT
-        else:
-            email_provider = "Unknown"
 
         context = {
             "error": str(e),
             "email": social_api.email,
-            "email_provider": email_provider,
+            "email_provider": social_api.type_api,
             "user": social_api.user,
         }
         email_html = render_to_string("ai_failed_email.html", context)

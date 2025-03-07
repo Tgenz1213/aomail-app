@@ -49,6 +49,9 @@ from aomail.email_providers.microsoft import (
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
 )
+from aomail.email_providers.imap import (
+    email_operations as email_operations_imap,
+)
 from aomail.email_providers.utils import email_to_db
 from aomail.authentication.authentication import subscribe_listeners
 
@@ -448,18 +451,20 @@ def process_demo_emails(type_api: str, user: User, email: str):
         f"User with ID {user.id} is initiating the demo email processing sequence for {type_api}."
     )
 
-    if type_api == GOOGLE:
+    social_api = SocialAPI.objects.get(user=user, email=email)
+
+    if social_api.type_api == GOOGLE and not social_api.imap_config:
         email_ids = email_operations_google.get_demo_list(user, email)
-    elif type_api == MICROSOFT:
+    elif social_api.type_api == MICROSOFT and not social_api.imap_config:
         email_ids = email_operations_microsoft.get_demo_list(user, email)
+    elif social_api.imap_config:
+        email_ids = email_operations_imap.get_demo_list(user, email)
     else:
         LOGGER.error(f"Unsupported email provider type: {type_api}")
         return
     LOGGER.info(
         f"Retrieved {len(email_ids)} email IDs for user ID {user.id}. Processing each email now."
     )
-
-    social_api = SocialAPI.objects.get(user=user, email=email)
 
     with ThreadPoolExecutor(max_workers=10) as executor:
         future_to_email_id = {

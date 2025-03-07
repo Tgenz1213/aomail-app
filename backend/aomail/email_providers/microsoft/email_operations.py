@@ -408,7 +408,7 @@ def search_emails_manually(
 
 def get_demo_list(user: User, email: str) -> list[str]:
     """
-    Retrieves a list of up to 10 email message IDs from the user's Microsoft Outlook inbox.
+    Retrieves a list of up to 5 email message IDs from the user's Microsoft Outlook inbox.
 
     Args:
         user (User): The user object representing the email account owner.

@@ -2,7 +2,7 @@
 Provides email search and operation functions using Google API.
 
 Endpoints:
-- ✅ get_mail: Retrieves email details by index or message ID. 
+- ✅ get_mail: Retrieves email details by index or message ID.
 """
 
 import base64
@@ -329,7 +329,7 @@ def search_emails_manually(
 
 def get_demo_list(user: User, email: str) -> list[str]:
     """
-    Retrieves a list of up to 10 email message IDs from the user's Gmail inbox.
+    Retrieves a list of up to 5 email message IDs from the user's Gmail inbox.
 
     Args:
         user (User): The user object representing the email account owner.

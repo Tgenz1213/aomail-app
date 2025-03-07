@@ -44,6 +44,9 @@ from aomail.email_providers.microsoft import (
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
 )
+from aomail.email_providers.imap import (
+    email_operations as email_operations_imap,
+)
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -111,10 +114,9 @@ def get_mail_by_id(request: HttpRequest) -> Response:
             formatted = []
             for recipient in recipients:
                 if isinstance(recipient, (list, tuple)) and len(recipient) >= 2:
-                    formatted.append({
-                        "name": recipient[0] or "",
-                        "email": recipient[1] or ""
-                    })
+                    formatted.append(
+                        {"name": recipient[0] or "", "email": recipient[1] or ""}
+                    )
             return formatted
 
         def format_single_recipient(recipient):
@@ -137,8 +139,12 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                     email_operations_google.get_mail(services, None, mail_id)
                 )
                 from_info = format_single_recipient(from_data)
-                cc = format_recipients(cc_data if isinstance(cc_data, (list, tuple)) else [cc_data])
-                bcc = format_recipients(bcc_data if isinstance(bcc_data, (list, tuple)) else [bcc_data])
+                cc = format_recipients(
+                    cc_data if isinstance(cc_data, (list, tuple)) else [cc_data]
+                )
+                bcc = format_recipients(
+                    bcc_data if isinstance(bcc_data, (list, tuple)) else [bcc_data]
+                )
             except Exception as e:
                 LOGGER.error(f"Error fetching Google mail: {str(e)}")
                 return Response(
@@ -608,10 +614,12 @@ def get_email_content(request: HttpRequest) -> Response:
             SocialAPI, user=request.user, email=provider_email
         )
 
-        if social_api.type_api == GOOGLE:
+        if social_api.type_api == GOOGLE and not social_api.imap_config:
             email_data = email_operations_google.get_mail_to_db(social_api, email_id)
-        elif social_api.type_api == MICROSOFT:
+        elif social_api.type_api == MICROSOFT and not social_api.imap_config:
             email_data = email_operations_microsoft.get_mail_to_db(social_api, email_id)
+        elif social_api.imap_config:
+            email_data = email_operations_imap.get_mail_to_db(social_api, email_id)
         else:
             return Response(
                 {"error": f"Unsupported provider type: {social_api.type_api}"},
@@ -620,26 +628,32 @@ def get_email_content(request: HttpRequest) -> Response:
 
         if not email_data:
             return Response(
-                {"error": "Email not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        return Response({
-            "subject": email_data["subject"],
-            "from": {
-                "email": email_data["from_info"][1],
-                "name": email_data["from_info"][0]
+        return Response(
+            {
+                "subject": email_data["subject"],
+                "from": {
+                    "email": email_data["from_info"][1],
+                    "name": email_data["from_info"][0],
+                },
+                "htmlContent": email_data["safe_html"],
+                "cc": [
+                    {"email": c[1], "name": c[0]} for c in [email_data["cc_info"]] if c
+                ],
+                "bcc": [
+                    {"email": b[1], "name": b[0]} for b in [email_data["bcc_info"]] if b
+                ],
+                "date": email_data["sent_date"],
+                "hasAttachments": email_data["has_attachments"],
+                "attachments": [
+                    {"name": att["attachmentName"], "id": att["attachmentId"]}
+                    for att in email_data["attachments"]
+                ],
             },
-            "htmlContent": email_data["safe_html"],
-            "cc": [{"email": c[1], "name": c[0]} for c in [email_data["cc_info"]] if c],
-            "bcc": [{"email": b[1], "name": b[0]} for b in [email_data["bcc_info"]] if b],
-            "date": email_data["sent_date"],
-            "hasAttachments": email_data["has_attachments"],
-            "attachments": [
-                {"name": att["attachmentName"], "id": att["attachmentId"]}
-                for att in email_data["attachments"]
-            ]
-        }, status=status.HTTP_200_OK)
+            status=status.HTTP_200_OK,
+        )
 
     except Exception as e:
         LOGGER.error(f"Error in get_email_content: {str(e)}")

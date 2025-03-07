@@ -387,6 +387,9 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             }
     """
     try:
+        # starts to process imap emails in the background
+        # threading.Thread(target=process_imap_emails).start()
+
         user = request.user
         valid_data = validate_and_parse_parameters(request)
         parameters: dict = valid_data["parameters"]

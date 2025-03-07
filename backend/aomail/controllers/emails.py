@@ -509,11 +509,11 @@ def retrieve_attachment_data(
     email = get_object_or_404(Email, user=user, id=email_id)
     social_api = email.social_api
 
-    if social_api.type_api == GOOGLE:
+    if social_api.type_api == GOOGLE and not social_api.imap_config:
         attachment_data = email_operations_google.get_attachment_data(
             user, social_api.email, email.provider_id, attachment_name
         )
-    elif social_api.type_api == MICROSOFT:
+    elif social_api.type_api == MICROSOFT and not social_api.imap_config:
         attachment_data = email_operations_microsoft.get_attachment_data(
             social_api, email.provider_id, attachment_name
         )

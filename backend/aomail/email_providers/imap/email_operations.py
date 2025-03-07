@@ -1,3 +1,10 @@
+"""
+Provides email search and operation functions using Google API.
+
+Endpoints:
+- ❌ get_mail: Retrieves email details by index or message ID.
+"""
+
 import logging
 from imap_tools import A, H
 from aomail.models import SocialAPI

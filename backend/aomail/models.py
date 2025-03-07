@@ -132,6 +132,7 @@ class EmailServerConfig(models.Model):
 class SocialAPI(models.Model):
     """Table that contains email credentials."""
 
+    last_fetched_date = models.DateTimeField(auto_now=True)
     type_api = models.CharField(max_length=50)
     email = models.CharField(max_length=524, unique=True)
     access_token = models.CharField(max_length=3000)

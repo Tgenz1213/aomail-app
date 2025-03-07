@@ -1,7 +1,11 @@
-from aomail.models import SocialAPI
+import logging
 from imap_tools import A, H
+from aomail.models import SocialAPI
 from aomail.email_providers.imap.authentication import connect_to_imap
 from aomail.utils import email_processing
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
@@ -18,6 +22,9 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
     mailbox = connect_to_imap(
         social_api.email,
         social_api.imap_config.app_password,
+        social_api.imap_config.host,
+        social_api.imap_config.port,
+        social_api.imap_config.encryption,
     )
 
     if not mailbox:

@@ -69,6 +69,7 @@ from aomail.models import (
 from aomail.payment_providers import stripe
 from aomail.email_providers.imap.authentication import validate_imap_connection
 from aomail.email_providers.smtp.authentication import validate_smtp_connection
+from aomail.email_providers.imap import profile as imap_profile
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -117,12 +118,15 @@ def unsubscribe_listeners(user: User, email: str = None):
         user (User): The authenticated user object.
         email (str, optional): Specific email to unsubscribe from Microsoft listeners.
     """
-    social_apis = SocialAPI.objects.filter(user=user)
+    if email:
+        social_apis = SocialAPI.objects.filter(user=user, email=email)
+    else:
+        social_apis = SocialAPI.objects.filter(user=user)
 
     # Unsubscribe from Google APIs
     if social_apis.exists():
         for social_api in social_apis:
-            if social_api.type_api == GOOGLE:
+            if not social_api.imap_config and social_api.type_api == GOOGLE:
                 for i in range(MAX_RETRIES):
                     if webhook_google.unsubscribe_from_email_notifications(
                         user, social_api.email
@@ -159,9 +163,13 @@ def unsubscribe_listeners(user: User, email: str = None):
 
     if microsoft_listeners.exists():
         for listener in microsoft_listeners:
+            social_api = SocialAPI.objects.get(user=user, email=listener.email)
             for i in range(MAX_RETRIES):
-                if webhook_microsoft.delete_subscription(
-                    user, listener.email, listener.subscription_id
+                if (
+                    not social_api.imap_config
+                    and webhook_microsoft.delete_subscription(
+                        user, listener.email, listener.subscription_id
+                    )
                 ):
                     break
                 else:
@@ -510,6 +518,10 @@ def link_email_config_account(
             imap_config=imap_config,
             smtp_config=smtp_config,
         )
+
+    threading.Thread(
+        target=imap_profile.set_all_contacts, args=(user, social_api)
+    ).start()
 
     return {
         "success": True,

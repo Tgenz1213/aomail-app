@@ -161,7 +161,7 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
             )
     except ImportError:
         return Response(
-            {"error": f"Unsupported API module: {module_name}"},
+            {"error": f"Unsupported API: {type_api}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 

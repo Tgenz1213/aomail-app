@@ -60,7 +60,9 @@ def is_no_reply_email(sender_email: str) -> bool:
     return any(pattern in sender_email.lower() for pattern in no_reply_patterns)
 
 
-def save_email_sender(user: User, sender_name: str, sender_email: str, sender_id: int):
+def save_email_sender(
+    user: User, sender_name: str, sender_email: str, sender_id: int = None
+) -> bool:
     """
     Saves the email sender's details to the database if the email is not from a no-reply address.
 
@@ -69,6 +71,9 @@ def save_email_sender(user: User, sender_name: str, sender_email: str, sender_id
         sender_name (str): The name of the email sender.
         sender_email (str): The email address of the sender.
         sender_id (int): The unique identifier for the sender provided by the email service.
+
+    Returns:
+        bool: True if the email sender was saved, False otherwise.
     """
     if not is_no_reply_email(sender_email):
         existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
@@ -81,8 +86,11 @@ def save_email_sender(user: User, sender_name: str, sender_email: str, sender_id
                     user=user,
                     provider_id=sender_id,
                 )
+                return True
             except IntegrityError:
-                pass
+                return False
+        else:
+            return False
 
 
 # ----------------------- SAVE CONTACTS AFTER SENDING EMAIL -----------------------#

@@ -3,7 +3,7 @@ This file contains the authentication logic for the IMAP protocol.
 """
 
 import logging
-from imap_tools import MailBox, MailBoxUnencrypted
+from imap_tools import MailBox, MailBoxUnencrypted, BaseMailBox
 
 
 LOGGER = logging.getLogger(__name__)
@@ -16,6 +16,22 @@ def validate_imap_connection(
     imap_port: int,
     imap_encryption: str,
 ) -> bool:
+    mailbox = connect_to_imap(
+        email_address, app_password, imap_host, imap_port, imap_encryption
+    )
+    if mailbox:
+        mailbox.logout()
+        return True
+    return False
+
+
+def connect_to_imap(
+    email_address: str,
+    app_password: str,
+    imap_host: str,
+    imap_port: int,
+    imap_encryption: str,
+) -> BaseMailBox | None:
     try:
         use_tls = imap_encryption == "tls"
         LOGGER.info(
@@ -32,10 +48,10 @@ def validate_imap_connection(
         LOGGER.info(
             f"Logged in to IMAP server for {email_address} on {imap_host}:{imap_port}"
         )
-        return True
+        return mailbox
 
     except Exception as e:
         LOGGER.error(
             f"Error validating IMAP connection for {email_address} on {imap_host}:{imap_port}: {e}"
         )
-        return False
+        return None

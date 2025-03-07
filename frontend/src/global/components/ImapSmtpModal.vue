@@ -401,6 +401,7 @@ function toggleSmtpPasswordVisibility() {
 
 const closeModal = () => {
     emit("closeModal");
+    errorMessage.value = "";
 };
 
 const handleKeyDown = (event: KeyboardEvent) => {

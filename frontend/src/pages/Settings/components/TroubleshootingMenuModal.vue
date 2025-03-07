@@ -50,7 +50,7 @@
                 <div v-if="!isLoading" class="max-h-60 w-full overflow-y-auto p-4">
                     <ul role="list" class="space-y-2 w-full">
                         <li
-                            v-for="email in emailsLinked"
+                            v-for="email in emailsLinked.filter(email => !email.isServerConfig)"
                             :key="email?.email"
                             class="border border-gray-300 rounded-md bg-gray-100 flex items-center p-2 shadow hover:shadow-md"
                         >

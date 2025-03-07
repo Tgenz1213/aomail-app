@@ -3,7 +3,7 @@ Handles user statistics computation and retrieval.
 
 Endpoints:
 - ✅ get_statistics: Returns required statistics of the user based on specified parameters.
-- ✅ get_combined_statistics:  Retrieves combined statistics for the selected emails.     
+- ✅ get_combined_statistics:  Retrieves combined statistics for the selected emails.
 """
 
 import json
@@ -38,6 +38,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from aomail.utils.email_processing import camel_to_snake
 from aomail.email_providers.google import profile as profile_google
 from aomail.email_providers.microsoft import profile as profile_microsoft
+from aomail.email_providers.imap import profile as profile_imap
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -540,15 +541,18 @@ def get_email_providers_data(social_apis: list[SocialAPI]) -> dict:
         "nbEmailsSent": 0,
     }
     for social_api in social_apis:
-        if social_api.type_api == GOOGLE:
+        data = {}
+        if social_api.type_api == GOOGLE and not social_api.imap_config:
             data = profile_google.get_data(social_api)
-        elif social_api.type_api == MICROSOFT:
+        elif social_api.type_api == MICROSOFT and not social_api.imap_config:
             data = profile_microsoft.get_data(social_api)
-
-        sum_data["nbEmailsReceived"] += data["num_emails_received"]
-        sum_data["nbEmailsRead"] += data["num_emails_read"]
-        sum_data["nbEmailsArchived"] += data["num_emails_archived"]
-        sum_data["nbEmailsStarred"] += data["num_emails_starred"]
-        sum_data["nbEmailsSent"] += data["num_emails_sent"]
+        elif social_api.imap_config:
+            data = profile_imap.get_data(social_api)
+        if data:
+            sum_data["nbEmailsReceived"] += data["num_emails_received"]
+            sum_data["nbEmailsRead"] += data["num_emails_read"]
+            sum_data["nbEmailsArchived"] += data["num_emails_archived"]
+            sum_data["nbEmailsStarred"] += data["num_emails_starred"]
+            sum_data["nbEmailsSent"] += data["num_emails_sent"]
 
     return sum_data

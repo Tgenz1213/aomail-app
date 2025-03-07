@@ -127,11 +127,11 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             ai_output: dict = processed_email["email_processed"].copy()
             ai_output.pop("summary")
 
-            if social_api.type_api == GOOGLE:
+            if social_api.type_api == GOOGLE and not social_api.imap_config:
                 google_labels.replicate_labels(
                     social_api, ai_output, email_data["email_id"]
                 )
-            elif social_api.type_api == MICROSOFT:
+            elif social_api.type_api == MICROSOFT and not social_api.imap_config:
                 microsoft_labels.replicate_labels(
                     social_api, ai_output, email_data["email_id"]
                 )

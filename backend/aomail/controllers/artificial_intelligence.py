@@ -388,7 +388,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
         social_api = SocialAPI.objects.get(email=email)
         type_api = social_api.type_api
 
-        if type_api == GOOGLE:
+        if type_api == GOOGLE and not social_api.imap_config:
             services = auth_google.authenticate_service(user, email, ["gmail"])
             search_result = threading.Thread(
                 target=append_to_result,
@@ -409,7 +409,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
                     ),
                 ),
             )
-        elif type_api == MICROSOFT:
+        elif type_api == MICROSOFT and not social_api.imap_config:
             access_token = auth_microsoft.refresh_access_token(
                 auth_microsoft.get_social_api(user, email)
             )

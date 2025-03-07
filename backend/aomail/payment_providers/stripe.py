@@ -329,11 +329,11 @@ def handle_updated_subscription(event: dict):
         # Resubscribe user to email notifications in case
         social_apis = SocialAPI.objects.filter(user=subscription.user)
         for social_api in social_apis:
-            if social_api.type_api == GOOGLE:
+            if social_api.type_api == GOOGLE and not social_api.imap_config:
                 webhook_google.check_and_resubscribe_to_missing_resources(
                     social_api.type_api, subscription.user, social_api.email
                 )
-            elif social_api.type_api == MICROSOFT:
+            elif social_api.type_api == MICROSOFT and not social_api.imap_config:
                 webhook_microsoft.check_and_resubscribe_to_missing_resources(
                     subscription.user, social_api.email
                 )

@@ -5,8 +5,8 @@
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center p-4"
             v-if="isOpen"
         >
-            <div class="bg-white dark:bg-gray-800 rounded-lg relative w-full max-w-2xl p-6 shadow-xl">
-                <div class="space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg relative w-full h-full m-32 p-6 shadow-xl">
+                <div class="space-y-6 overflow-y-auto max-h-full">
                     <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
                         <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Link Email Account</h2>
                         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">

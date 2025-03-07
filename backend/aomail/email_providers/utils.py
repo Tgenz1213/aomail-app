@@ -159,7 +159,9 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
                 f"Email ID already saved by another process for user ID: {user.id}. Skipping."
             )
             return False
-        LOGGER.error(f"Error saving email for user ID: {user.id}: {str(e)}")
+        LOGGER.error(
+            f"Error saving email ID: {email_data['email_id']} for user ID: {user.id}: {str(e)}"
+        )
         return False
 
 
@@ -247,7 +249,7 @@ def apply_rules(processed_email: dict, user: User, email_entry: Email):
                 apply_rule_actions(rule, email_entry)
             elif (
                 rule.categories
-                and processed_email["email_processed"]["category"] in rule.categories
+                and processed_email["email_processed"]["topic"] in rule.categories
             ):
                 apply_rule_actions(rule, email_entry)
             elif (
@@ -285,7 +287,7 @@ def verify_condition(condition: str, processed_email: dict, rule: Rule) -> bool:
     elif condition == "has_attachements":
         return processed_email["email_data"]["has_attachments"]
     elif condition == "categories":
-        return processed_email["email_processed"]["category"] in rule.categories
+        return processed_email["email_processed"]["topic"] in rule.categories
     elif condition == "priorities":
         return processed_email["email_processed"]["priority"] in rule.priorities
     elif condition == "answers":

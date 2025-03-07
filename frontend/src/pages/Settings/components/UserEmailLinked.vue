@@ -5,8 +5,7 @@
         @closeModal="closeUpdateUserDescriptionModal"
     />
     <div class="flex items-center justify-center w-full">
-        <img v-if="email.typeApi === MICROSOFT" src="@/assets/logos/microsoft.svg" alt="Microsoft" class="w-5 h-5" />
-        <img v-if="email.typeApi === GOOGLE" src="@/assets/logos/google.svg" alt="Google" class="w-5 h-5" />
+        <img :src="getProviderSvg()" alt="" class="w-5 h-5" />
         <div class="flex-grow"></div>
         <span>{{ email.email }}</span>
         <div class="flex-grow"></div>
@@ -60,7 +59,19 @@ import { inject, Ref, ref } from "vue";
 import UnlinkEmailModal from "./UnlinkEmailModal.vue";
 import UpdateUserDescriptionModal from "./UpdateUserDescriptionModal.vue";
 import { EmailLinked } from "@/global/types";
-import { GOOGLE, MICROSOFT } from "@/global/const";
+
+const props = defineProps<{
+    email: EmailLinked;
+    isRegrant?: boolean;
+}>();
+
+function getProviderSvg() {
+    try {
+        return require(`@/assets/logos/${props.email.typeApi}.svg`);
+    } catch {
+        return require(`@/assets/logos/other.svg`);
+    }
+}
 
 const isUnlinkEmailModalOpen = inject<Ref<boolean>>("isUnlinkEmailModalOpen", ref(false));
 const isUpdateUserDescriptionModalOpen = inject<Ref<boolean>>("isUpdateUserDescriptionModalOpen", ref(false));
@@ -68,9 +79,4 @@ const openUnLinkModal = inject<(email: string) => void>("openUnLinkModal");
 const openUpdateUserDescriptionModal = inject<(email: string) => void>("openUpdateUserDescriptionModal");
 const closeUnlinkEmailModal = inject<() => void>("closeUnlinkEmailModal");
 const closeUpdateUserDescriptionModal = inject<() => void>("closeUpdateUserDescriptionModal");
-
-defineProps<{
-    email: EmailLinked;
-    isRegrant?: boolean;
-}>();
 </script>

@@ -46,18 +46,7 @@
                                     <span
                                         class="bg-gray-100/70 px-4 py-1 text-sm text-gray-600 rounded-full backdrop-blur-sm flex items-center gap-2"
                                     >
-                                        <img
-                                            v-if="provider === GOOGLE"
-                                            src="@/assets/logos/google.svg"
-                                            alt="Google"
-                                            class="w-5 h-5"
-                                        />
-                                        <img
-                                            v-if="provider === MICROSOFT"
-                                            src="@/assets/logos/microsoft.svg"
-                                            alt="Microsoft"
-                                            class="w-5 h-5"
-                                        />
+                                        <img :src="getProviderSvg(provider)" alt="" class="w-5 h-5" />
                                         {{ userEmail }}
                                     </span>
                                 </div>
@@ -119,6 +108,14 @@ const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailA
 const selectedSearchMode = inject<Ref<KeyValuePair>>("selectedSearchMode")!;
 let showEmailApiList = false;
 const isLoading = inject<Ref<boolean>>("isLoading") || ref(false);
+
+function getProviderSvg(provider: string) {
+    try {
+        return require(`@/assets/logos/${provider}.svg`);
+    } catch {
+        return require(`@/assets/logos/other.svg`);
+    }
+}
 
 watch(emailApiList, (emailApiList) => {
     showEmailApiList = emailApiList.google !== undefined || emailApiList.microsoft !== undefined;

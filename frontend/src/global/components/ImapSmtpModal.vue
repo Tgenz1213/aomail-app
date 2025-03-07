@@ -30,12 +30,10 @@
                                 ]"
                             >
                                 <img
-                                    v-if="provider.name !== 'Other'"
-                                    :src="getProviderLogo(provider.name)"
+                                    :src="getProviderSvg(provider.typeApi)"
                                     :alt="provider.name"
                                     class="w-8 h-8 object-contain"
                                 />
-                                <span v-else class="w-8 h-8 flex items-center justify-center text-xl">⚙️</span>
                                 <p class="text-sm mt-2 text-center text-gray-700 dark:text-gray-300">
                                     {{ provider.name }}
                                 </p>
@@ -298,13 +296,6 @@
 <script setup lang="ts">
 import { inject, onMounted, onUnmounted, ref } from "vue";
 import { postData } from "@/global/fetchData";
-import fastmailLogo from "@/assets/logos/fastmail.svg";
-import microsoftLogo from "@/assets/logos/microsoft.svg";
-import orangeLogo from "@/assets/logos/orange.svg";
-import googleLogo from "@/assets/logos/google.svg";
-import yahooLogo from "@/assets/logos/yahoo.svg";
-import appleLogo from "@/assets/logos/apple.svg";
-import gmxLogo from "@/assets/logos/gmx.svg";
 import eyeIcon from "@/assets/eye-icon.svg";
 import { knownProviders } from "@/global/emailProviders";
 
@@ -319,19 +310,13 @@ const emit = defineEmits<{
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const fetchEmailLinked = inject<() => void>("fetchEmailLinked");
 
-const providerLogos: Record<string, string> = {
-    Fastmail: fastmailLogo,
-    Microsoft: microsoftLogo,
-    Google: googleLogo,
-    Yahoo: yahooLogo,
-    Apple: appleLogo,
-    Orange: orangeLogo,
-    GMX: gmxLogo,
-};
-
-const getProviderLogo = (providerName: string) => {
-    return providerLogos[providerName] || "";
-};
+function getProviderSvg(provider: string) {
+    try {
+        return require(`@/assets/logos/${provider}.svg`);
+    } catch {
+        return require(`@/assets/logos/other.svg`);
+    }
+}
 
 const selectedProvider = ref(knownProviders[0]);
 const errorMessage = ref("");

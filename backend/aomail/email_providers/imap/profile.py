@@ -24,7 +24,9 @@ def set_all_contacts(user: User, social_api: SocialAPI):
 
     nb_contact_saved = 0
     start = time.time()
-    LOGGER.info(f"Saving contacts of: {social_api.email} for user ID: {user.id}")
+    LOGGER.info(
+        f"Saving contacts of: {social_api.email} and type_api: {social_api.type_api} for user ID: {user.id}"
+    )
 
     for email in mailbox.fetch(mark_seen=False):
         if email_processing.save_email_sender(

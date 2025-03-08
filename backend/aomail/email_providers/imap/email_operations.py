@@ -3,14 +3,98 @@ Provides email search and operation functions using IMAP protocol.
 """
 
 import logging
-from imap_tools import A, H
+import datetime
+from imap_tools import AND, Header, OR
 from aomail.models import SocialAPI
 from aomail.email_providers.imap.authentication import connect_to_imap
 from aomail.utils import email_processing
 from django.contrib.auth.models import User
+from aomail.email_providers.utils import get_imap_email_id
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def search_emails_manually(
+    social_api: SocialAPI,
+    search_query: str = "",
+    max_results: int = 100,
+    file_extensions: list[str] = None,
+    filenames: list[str] = None,
+    advanced: bool = False,
+    search_in: dict = None,
+    from_addresses: list[str] = None,
+    to_addresses: list[str] = None,
+    subject: str = None,
+    body: str = None,
+    date_from: str = None,
+) -> list[str]:
+    """
+    Manually searches for emails using the specified query parameters with AND logic for attachments.
+
+    Args:
+        social_api (SocialAPI): The social API object containing user and email data.
+        search_query (str, optional): General search string to look for in emails.
+        max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
+        file_extensions (list, optional): List of file extensions to filter attachments.
+        filenames (list, optional): List of filenames to filter attachments.
+        advanced (bool, optional): If True, applies advanced search parameters. Defaults to False.
+        search_in (dict, optional): Dictionary specifying folders to search in.
+        from_addresses (list, optional): List of sender email addresses to filter emails.
+        to_addresses (list, optional): List of recipient email addresses to filter emails.
+        subject (str, optional): Subject to filter emails.
+        body (str, optional): Body content to filter emails.
+        date_from (str, optional): Filter emails received after this date. Format: YYYY-MM-DD
+
+    Returns:
+        list[str]: A list of email IDs that match the criteria.
+    """
+    mailbox = connect_to_imap(
+        social_api.email,
+        social_api.imap_config.app_password,
+        social_api.imap_config.host,
+        social_api.imap_config.port,
+        social_api.imap_config.encryption,
+    )
+    if not mailbox:
+        return []
+
+    email_ids = []
+    if advanced:
+        date_from = (
+            datetime.datetime.strptime(date_from, "%Y-%m-%d").date()
+            if date_from
+            else date_from
+        )
+
+        emails = mailbox.fetch(
+            criteria=AND(
+                date_gte=date_from,
+                subject=search_query,
+                body=search_query,
+                from_=from_addresses,
+                to=to_addresses,
+            ),
+            limit=100,
+            mark_seen=False,
+        )
+    else:
+        emails = mailbox.fetch(
+            criteria=OR(
+                subject=search_query,
+                body=search_query,
+                from_=search_query,
+                to=search_query,
+                keyword=search_query,
+            ),
+            limit=max_results,
+            mark_seen=False,
+        )
+
+    for email in emails:
+        email_ids.append(get_imap_email_id(email.headers.get("message-id")))
+
+    return email_ids
 
 
 def delete_email(social_api: SocialAPI, email_id: str) -> dict:
@@ -36,8 +120,8 @@ def delete_email(social_api: SocialAPI, email_id: str) -> dict:
         return {"error": "Failed to connect to imap server"}
 
     emails = mailbox.fetch(
-        A(
-            header=H(
+        AND(
+            header=Header(
                 "Message-ID",
                 email_id,
             )
@@ -76,8 +160,8 @@ def set_email_read(social_api: SocialAPI, email_id: str) -> dict:
         return {"error": "Failed to connect to imap server"}
 
     emails = mailbox.fetch(
-        A(
-            header=H(
+        AND(
+            header=Header(
                 "Message-ID",
                 email_id,
             )
@@ -116,8 +200,8 @@ def set_email_unread(social_api: SocialAPI, email_id: str) -> dict:
         return {"error": "Failed to connect to imap server"}
 
     emails = mailbox.fetch(
-        A(
-            header=H(
+        AND(
+            header=Header(
                 "Message-ID",
                 email_id,
             )
@@ -164,9 +248,7 @@ def get_demo_list(user: User, email: str) -> list[str]:
         mark_seen=False,
     )
     for email in emails:
-        message_id = email.headers.get("message-id")
-        email_id = message_id[0].split("<")[1].split(">")[0]
-        email_ids.append(email_id)
+        email_ids.append(get_imap_email_id(email.headers.get("message-id")))
 
     return email_ids
 
@@ -194,8 +276,8 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
         return {}
 
     emails = mailbox.fetch(
-        A(
-            header=H(
+        AND(
+            header=Header(
                 "Message-ID",
                 email_id,
             )

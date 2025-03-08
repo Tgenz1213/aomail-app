@@ -795,3 +795,16 @@ def create_pictures_and_attachments(processed_email: dict, email_entry: Email):
             name=attachment["attachmentName"],
             id_api=attachment["attachmentId"],
         )
+
+
+def get_imap_email_id(message_id: str) -> str:
+    """
+    Extracts the email ID from a message ID string.
+
+    Args:
+        message_id (str): The message ID string.
+
+    Returns:
+        str: The email ID.
+    """
+    return message_id[0].split("<")[1].split(">")[0]

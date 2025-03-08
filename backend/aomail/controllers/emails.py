@@ -127,7 +127,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                 return {"name": recipient[0] or "", "email": recipient[1] or ""}
             return {"name": "", "email": ""}
 
-        if type_api == GOOGLE:
+        if type_api == GOOGLE and not social_api.imap_config:
             services = auth_google.authenticate_service(user, email_user, ["gmail"])
             if not services:
                 return Response(
@@ -152,7 +152,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-        elif type_api == MICROSOFT:
+        elif type_api == MICROSOFT and not social_api.imap_config:
             access_token = auth_microsoft.refresh_access_token(
                 auth_microsoft.get_social_api(user, email_user)
             )
@@ -174,14 +174,20 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                     {"error": "Failed to fetch email from Microsoft"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        elif social_api.imap_config:
+            email_data = email_operations_imap.get_mail_to_db(social_api, mail_id)
+            subject = email_data["subject"]
+            decoded_data = email_data["safe_html"]
+            from_info = format_single_recipient(email_data["from_info"])
+            cc = email_data["cc_info"]
+            bcc = email_data["bcc_info"]
+            date = email_data["sent_date"]
 
         if not subject or not decoded_data:
             return Response(
                 {"error": "Failed to retrieve email content"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-        LOGGER.debug(f"Email response data - From: {from_info}, CC: {cc}, BCC: {bcc}")
 
         all_recipients = []
         if from_info and from_info["email"] != email_user:

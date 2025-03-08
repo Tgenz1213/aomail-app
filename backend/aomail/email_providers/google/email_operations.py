@@ -1,8 +1,5 @@
 """
 Provides email search and operation functions using Google API.
-
-Endpoints:
-- ✅ get_mail: Retrieves email details by index or message ID.
 """
 
 import base64

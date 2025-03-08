@@ -1,8 +1,5 @@
 """
 Provides email search and operation functions using IMAP protocol.
-
-Endpoints:
-- ❌ get_mail: Retrieves email details by index or message ID.
 """
 
 import logging

@@ -67,14 +67,14 @@ def delete_email(user: User, email: str, email_id: str) -> dict:
             return {"error": "Internal server error"}
 
 
-def set_email_read(user: User, email: str, mail_id: str) -> dict:
+def set_email_read(user: User, email: str, email_id: str) -> dict:
     """
     Sets the status of the email with the specified ID to 'read' on Gmail.
 
     Args:
         user (User): The authenticated user object.
         email (str): The email address associated with the Gmail service.
-        mail_id (str): The ID of the email to mark as read.
+        email_id (str): The ID of the email to mark as read.
 
     Returns:
         dict: A dictionary indicating the result of the operation
@@ -82,22 +82,22 @@ def set_email_read(user: User, email: str, mail_id: str) -> dict:
     service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
         service.users().messages().modify(
-            userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
+            userId="me", id=email_id, body={"removeLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as read successfully!"}
     except Exception as e:
-        LOGGER.error(f"Failed to mark email ID {mail_id} as read: {str(e)}")
+        LOGGER.error(f"Failed to mark email ID {email_id} as read: {str(e)}")
         return {"error": "Internal server error"}
 
 
-def set_email_unread(user: User, email: str, mail_id: str) -> dict:
+def set_email_unread(user: User, email: str, email_id: str) -> dict:
     """
     Sets the status of the email with the specified ID to 'unread' on Gmail.
 
     Args:
         user (User): The authenticated user object.
         email (str): The email address associated with the Gmail service.
-        mail_id (str): The ID of the email to mark as unread.
+        email_id (str): The ID of the email to mark as unread.
 
     Returns:
         dict: A dictionary indicating the result of the operation
@@ -105,11 +105,11 @@ def set_email_unread(user: User, email: str, mail_id: str) -> dict:
     service = authenticate_service(user, email, ["gmail"])["gmail"]
     try:
         service.users().messages().modify(
-            userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
+            userId="me", id=email_id, body={"addLabelIds": ["UNREAD"]}
         ).execute()
         return {"message": "Email marked as unread successfully!"}
     except Exception as e:
-        LOGGER.error(f"Failed to mark email ID {mail_id} as unread: {str(e)}")
+        LOGGER.error(f"Failed to mark email ID {email_id} as unread: {str(e)}")
         return {"error": "Internal server error"}
 
 

@@ -1,5 +1,5 @@
 """
-Provides email search and operation functions using Google API.
+Provides email search and operation functions using IMAP protocol.
 
 Endpoints:
 - ❌ get_mail: Retrieves email details by index or message ID.
@@ -16,9 +16,129 @@ from django.contrib.auth.models import User
 LOGGER = logging.getLogger(__name__)
 
 
+def delete_email(social_api: SocialAPI, email_id: str) -> dict:
+    """
+    Deletes an email from the user's inbox using IMAP protocol.
+
+    Args:
+        social_api (SocialAPI): The social API object containing user and email data.
+        email_id (str): The ID of the email to be deleted.
+
+    Returns:
+        dict: A dictionary containing either a success message or an error message.
+    """
+    mailbox = connect_to_imap(
+        social_api.email,
+        social_api.imap_config.app_password,
+        social_api.imap_config.host,
+        social_api.imap_config.port,
+        social_api.imap_config.encryption,
+    )
+
+    if not mailbox:
+        return {"error": "Failed to connect to imap server"}
+
+    emails = mailbox.fetch(
+        A(
+            header=H(
+                "Message-ID",
+                email_id,
+            )
+        ),
+        limit=1,
+        mark_seen=False,
+    )
+    if emails:
+        email = list(emails)[0]
+        mailbox.flag(email.uid, flag_set="\\Deleted", value=True)
+        return {"message": "Email deleted successfully!"}
+    else:
+        return {"error": "Email not found"}
+
+
+def set_email_read(social_api: SocialAPI, email_id: str) -> dict:
+    """
+    Sets the status of the email with the specified ID to 'read' on IMAP server.
+
+    Args:
+        social_api (SocialAPI): The social API object containing user and email data.
+        email_id (str): The ID of the email to mark as read.
+
+    Returns:
+        dict: A dictionary indicating the result of the operation
+    """
+    mailbox = connect_to_imap(
+        social_api.email,
+        social_api.imap_config.app_password,
+        social_api.imap_config.host,
+        social_api.imap_config.port,
+        social_api.imap_config.encryption,
+    )
+
+    if not mailbox:
+        return {"error": "Failed to connect to imap server"}
+
+    emails = mailbox.fetch(
+        A(
+            header=H(
+                "Message-ID",
+                email_id,
+            )
+        ),
+        limit=1,
+        mark_seen=False,
+    )
+    if emails:
+        email = list(emails)[0]
+        mailbox.flag(email.uid, flag_set="\\Seen", value=True)
+        return {"message": "Email marked as read successfully!"}
+    else:
+        return {"error": "Email not found"}
+
+
+def set_email_unread(social_api: SocialAPI, email_id: str) -> dict:
+    """
+    Sets the status of the email with the specified ID to 'unread' on IMAP server.
+
+    Args:
+        social_api (SocialAPI): The social API object containing user and email data.
+        email_id (str): The ID of the email to mark as unread.
+
+    Returns:
+        dict: A dictionary indicating the result of the operation
+    """
+    mailbox = connect_to_imap(
+        social_api.email,
+        social_api.imap_config.app_password,
+        social_api.imap_config.host,
+        social_api.imap_config.port,
+        social_api.imap_config.encryption,
+    )
+
+    if not mailbox:
+        return {"error": "Failed to connect to imap server"}
+
+    emails = mailbox.fetch(
+        A(
+            header=H(
+                "Message-ID",
+                email_id,
+            )
+        ),
+        limit=1,
+        mark_seen=False,
+    )
+    if emails:
+        email = list(emails)[0]
+        mailbox.flag(email.uid, flag_set="\\Seen", value=False)
+        return {"message": "Email marked as unread successfully!"}
+    else:
+        return {"error": "Email not found"}
+
+
 def get_demo_list(user: User, email: str) -> list[str]:
     """
-    Retrieves a list of up to 5 email message IDs from the user's Gmail inbox.
+    Retrieves a list of up to 5 email message IDs from the user's IMAP inbox.
 
     Args:
         user (User): The user object representing the email account owner.

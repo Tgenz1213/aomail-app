@@ -374,13 +374,14 @@ def delete_emails(request: HttpRequest) -> Response:
                     if os.path.exists(pdf_file_path):
                         os.remove(pdf_file_path)
 
-                if type_api == GOOGLE:
+                if type_api == GOOGLE and not social_api.imap_config:
                     email_operations_google.delete_email(
                         user, social_api.email, provider_id
                     )
-                elif type_api == MICROSOFT:
-                    email_operations_microsoft.delete_email(provider_id, social_api)
-
+                elif type_api == MICROSOFT and not social_api.imap_config:
+                    email_operations_microsoft.delete_email(social_api, provider_id)
+                elif social_api.imap_config:
+                    email_operations_imap.delete_email(social_api, provider_id)
                 email.delete()
 
             except Email.DoesNotExist:
@@ -441,12 +442,18 @@ def update_emails(request: HttpRequest) -> Response:
                 email.read_date = timezone.now()
                 social_api = email.social_api
                 if social_api:
-                    if social_api.type_api == GOOGLE:
+                    if social_api.type_api == GOOGLE and not social_api.imap_config:
                         email_operations_google.set_email_read(
                             user, social_api.email, email.provider_id
                         )
-                    elif social_api.type_api == MICROSOFT:
+                    elif (
+                        social_api.type_api == MICROSOFT and not social_api.imap_config
+                    ):
                         email_operations_microsoft.set_email_read(
+                            social_api, email.provider_id
+                        )
+                    elif social_api.imap_config:
+                        email_operations_imap.set_email_read(
                             social_api, email.provider_id
                         )
 
@@ -455,12 +462,18 @@ def update_emails(request: HttpRequest) -> Response:
                 email.read_date = None
                 social_api = email.social_api
                 if social_api:
-                    if social_api.type_api == GOOGLE:
+                    if social_api.type_api == GOOGLE and not social_api.imap_config:
                         email_operations_google.set_email_unread(
                             user, social_api.email, email.provider_id
                         )
-                    elif social_api.type_api == MICROSOFT:
+                    elif (
+                        social_api.type_api == MICROSOFT and not social_api.imap_config
+                    ):
                         email_operations_microsoft.set_email_unread(
+                            social_api, email.provider_id
+                        )
+                    elif social_api.imap_config:
+                        email_operations_imap.set_email_unread(
                             social_api, email.provider_id
                         )
 

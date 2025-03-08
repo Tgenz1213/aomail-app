@@ -166,7 +166,7 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
 
 
 def delete_email(social_api: SocialAPI, email_data: dict, user: User):
-    if social_api.type_api == GOOGLE:
+    if social_api.type_api == GOOGLE and not social_api.imap_config:
         result = email_operations_google.delete_email(
             user, social_api.email, email_data["email_id"]
         )
@@ -176,7 +176,7 @@ def delete_email(social_api: SocialAPI, email_data: dict, user: User):
             LOGGER.info(
                 f"Result after deleting email via Google: {result.get('message')}"
             )
-    elif social_api.type_api == MICROSOFT:
+    elif social_api.type_api == MICROSOFT and not social_api.imap_config:
         result = email_operations_microsoft.delete_email(
             email_data["email_id"], social_api
         )
@@ -185,6 +185,14 @@ def delete_email(social_api: SocialAPI, email_data: dict, user: User):
         else:
             LOGGER.info(
                 f"Result after deleting email via Microsoft: {result.get('message')}"
+            )
+    elif social_api.imap_config:
+        result = email_operations_imap.delete_email(email_data["email_id"], social_api)
+        if "error" in result:
+            LOGGER.error(f"Error deleting email via IMAP: {result.get('error')}")
+        else:
+            LOGGER.info(
+                f"Result after deleting email via IMAP: {result.get('message')}"
             )
 
 

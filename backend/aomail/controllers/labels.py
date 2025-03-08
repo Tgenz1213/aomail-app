@@ -218,14 +218,16 @@ def create_shipping_label(email: Email, label_data: dict[str, str]):
         )
         return
 
-    if email.social_api.type_api == GOOGLE:
+    if email.social_api.type_api == GOOGLE and not email.social_api.imap_config:
         attachment = email_operations_google.get_attachment_data(
             email.user, email.social_api.email, email.provider_id, attachment_name
         )
-    elif email.social_api.type_api == MICROSOFT:
+    elif email.social_api.type_api == MICROSOFT and not email.social_api.imap_config:
         attachment = email_operations_microsoft.get_attachment_data(
             email.social_api, email.provider_id, attachment_name
         )
+    elif email.social_api.imap_config:
+        return
 
     pdf_reader = PdfReader(BytesIO(attachment["data"]))
     pdf_writer = PdfWriter()

@@ -26,6 +26,9 @@ from aomail.email_providers.microsoft import (
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
 )
+from aomail.email_providers.imap import (
+    email_operations as email_operations_imap,
+)
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -326,6 +329,7 @@ def search_emails(request: HttpRequest) -> Response:
     max_results: int = data["max_results"]
     query: str = data["query"]
     file_extensions: list = data["file_extensions"]
+    filenames: list = data.get("filenames", [])
     advanced: bool = data["advanced"]
     from_addresses: list = data["from_addresses"]
     to_addresses: list = data["to_addresses"]
@@ -357,6 +361,7 @@ def search_emails(request: HttpRequest) -> Response:
                         query,
                         max_results,
                         file_extensions,
+                        filenames,
                         advanced,
                         search_in,
                         from_addresses,
@@ -381,6 +386,29 @@ def search_emails(request: HttpRequest) -> Response:
                         query,
                         max_results,
                         file_extensions,
+                        filenames,
+                        advanced,
+                        search_in,
+                        from_addresses,
+                        to_addresses,
+                        subject,
+                        body,
+                        date_from,
+                    ),
+                ),
+            )
+        elif social_api.imap_config:
+            search_result = threading.Thread(
+                target=append_to_result,
+                args=(
+                    social_api.type_api,
+                    social_api.email,
+                    email_operations_imap.search_emails_manually(
+                        social_api,
+                        query,
+                        max_results,
+                        file_extensions,
+                        filenames,
                         advanced,
                         search_in,
                         from_addresses,

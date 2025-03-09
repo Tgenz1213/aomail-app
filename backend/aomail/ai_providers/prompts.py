@@ -60,6 +60,7 @@ SIGNATURE_INSTRUCTION_WITHOUT_CONTENT = "Add a standard greeting and sign-off wi
 GENERATE_EMAIL_PROMPT = """As an email assistant, following these agent guidelines: {agent_settings}, write a {length} and {formality} email in {language}.
 Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
 It must strictly contain only the information that is present in the input.
+IMPORTANT: All words (including greetings) must be properly spaced with a single space between each word.
 {signature_instruction}
 
 ---

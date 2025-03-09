@@ -5,9 +5,11 @@
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center p-4"
             v-if="isOpen"
         >
-            <div class="bg-white dark:bg-gray-800 rounded-lg relative w-full h-full m-32 p-6 shadow-xl">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-lg relative w-full m-32 p-6 shadow-xl overflow-y-auto max-h-full"
+            >
                 <form @submit.prevent>
-                    <div class="space-y-6 overflow-y-auto max-h-full">
+                    <div class="space-y-6">
                         <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
                             <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Link Email Account</h2>
                             <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -17,29 +19,101 @@
 
                         <div class="space-y-4">
                             <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
+
+                            <!-- Quick Access Email Providers -->
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Popular Email Providers
+                                </h3>
+                                <div v-if="selectedProvider" class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Selected:</span>
+                                    <div
+                                        class="flex items-center space-x-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-700 rounded-md"
+                                    >
+                                        <img
+                                            :src="getProviderSvg(selectedProvider.typeApi)"
+                                            :alt="selectedProvider.name"
+                                            class="w-5 h-5 object-contain"
+                                        />
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">
+                                            {{ selectedProvider.name }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-4 mb-6">
+                                <div
+                                    v-for="provider in pinnedProviders"
+                                    :key="provider"
+                                    @click="
+                                        () => {
+                                            const foundProvider = knownProviders.find((p) => p.typeApi === provider);
+                                            if (foundProvider) selectProvider(foundProvider);
+                                        }
+                                    "
+                                    class="cursor-pointer p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-200 transition-all duration-200 flex flex-col items-center"
+                                >
+                                    <img
+                                        :src="getProviderSvg(provider)"
+                                        :alt="provider"
+                                        class="w-8 h-8 object-contain"
+                                    />
+                                    <p class="text-sm mt-2 text-center text-gray-700 dark:text-gray-300">
+                                        {{ knownProviders.find((p) => p.typeApi === provider)?.name }}
+                                    </p>
+                                </div>
+                            </div>
+
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Email Provider
                             </label>
-                            <div class="flex items-center space-x-4 mb-4">
-                                <div
-                                    v-for="provider in knownProviders"
-                                    :key="provider.name"
+
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg
+                                        class="h-5 w-5 text-gray-400"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </div>
+                                <input
+                                    type="text"
+                                    v-model="searchInput"
+                                    placeholder="Search email provider..."
+                                    class="pl-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                />
+                            </div>
+
+                            <div
+                                v-if="searchInput"
+                                class="mt-2 border rounded-lg divide-y dark:divide-gray-700 dark:border-gray-700 max-h-40 overflow-y-auto"
+                            >
+                                <button
+                                    v-for="provider in filteredProviders()"
+                                    :key="provider.typeApi"
                                     @click="selectProvider(provider)"
-                                    :class="[
-                                        'cursor-pointer p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center',
-                                        selectedProvider.name === provider.name
-                                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-200',
-                                    ]"
+                                    class="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-3"
                                 >
                                     <img
                                         :src="getProviderSvg(provider.typeApi)"
                                         :alt="provider.name"
-                                        class="w-8 h-8 object-contain"
+                                        class="w-6 h-6 object-contain"
                                     />
-                                    <p class="text-sm mt-2 text-center text-gray-700 dark:text-gray-300">
-                                        {{ provider.name }}
-                                    </p>
+                                    <span class="text-gray-700 dark:text-gray-300">{{ provider.name }}</span>
+                                </button>
+                                <div
+                                    v-if="!filteredProviders().length"
+                                    class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400"
+                                >
+                                    No results found
                                 </div>
                             </div>
 
@@ -322,7 +396,7 @@
 import { inject, onMounted, onUnmounted, ref } from "vue";
 import { postData } from "@/global/fetchData";
 import eyeIcon from "@/assets/eye-icon.svg";
-import { knownProviders } from "@/global/emailProviders";
+import { knownProviders, pinnedProviders } from "@/global/emailProviders";
 
 const props = defineProps<{
     isOpen: boolean;
@@ -355,6 +429,12 @@ function getProviderSvg(provider: string) {
     } catch {
         return require(`@/assets/logos/other.svg`);
     }
+}
+
+const searchInput = ref("");
+
+function filteredProviders() {
+    return knownProviders.filter((provider) => provider.name.toLowerCase().includes(searchInput.value.toLowerCase()));
 }
 
 const selectedProvider = ref(knownProviders[0]);

@@ -1,4 +1,5 @@
 <template>
+    <ImapSmtpModal :isOpen="isImapSmtpModalOpen" @closeModal="closeImapSmtpModal" />
     <div class="flex flex-col">
         <div class="relative">
             <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -10,32 +11,51 @@
                 </span>
             </div>
         </div>
-        <div class="py-4">
-            <div class="relative items-stretch mt-2 flex justify-center items-center gap-4">
-                <button
-                    type="button"
-                    :class="[
-                        'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
-                        isGoogleLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600',
-                    ]"
-                    @click="authorizeGoogle"
-                >
-                    <img src="@/assets/logos/google.svg" alt="Google" class="w-5 h-5" />
-                    {{ $t("signUpLinkPage.linkYourGmailAccount") }}
-                    <CheckIcon v-if="isGoogleLinked" class="h-5 w-5 text-white" aria-hidden="true" />
-                </button>
-                <button
-                    type="button"
-                    :class="[
-                        'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
-                        isMicrosoftLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600',
-                    ]"
-                    @click="authorizeMicrosoft"
-                >
-                    <img src="@/assets/logos/microsoft.svg" alt="Microsoft" class="w-5 h-5" />
-                    {{ $t("signUpLinkPage.linkYourOutlookAccount") }}
-                    <CheckIcon v-if="isMicrosoftLinked" class="h-5 w-5 text-white" aria-hidden="true" />
-                </button>
+        <div class="flex gap-x-4 justify-center">
+            <div class="py-4">
+                <div class="relative items-stretch mt-2 flex justify-center items-center gap-4">
+                    <button
+                        type="button"
+                        :class="[
+                            'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                            isGoogleLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600',
+                        ]"
+                        @click="authorizeGoogle"
+                    >
+                        <img src="@/assets/logos/google.svg" alt="Google" class="w-5 h-5" />
+                        {{ $t("signUpLinkPage.linkYourGmailAccount") }}
+                        <CheckIcon v-if="isGoogleLinked" class="h-5 w-5 text-white" aria-hidden="true" />
+                    </button>
+                    <button
+                        type="button"
+                        :class="[
+                            'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                            isMicrosoftLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600',
+                        ]"
+                        @click="authorizeMicrosoft"
+                    >
+                        <img src="@/assets/logos/microsoft.svg" alt="Microsoft" class="w-5 h-5" />
+                        {{ $t("signUpLinkPage.linkYourOutlookAccount") }}
+                        <CheckIcon v-if="isMicrosoftLinked" class="h-5 w-5 text-white" aria-hidden="true" />
+                    </button>
+                </div>
+            </div>
+            <div class="pt-4">
+                <div class="relative items-stretch mt-2 flex justify-center items-center">
+                    <button
+                        type="button"
+                        class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        @click="openImapSmtpModal"
+                    >
+                        <InboxIcon class="w-5 h-5" />
+                        IMAP & SMTP
+                        <span
+                            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block"
+                        >
+                            Any IMAP & SMTP provider
+                        </span>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="pt-4">
@@ -74,6 +94,17 @@
                     <div class="flex items-center space-x-3 mt-4">
                         <CloudIcon class="h-6 w-6 text-indigo-600" aria-hidden="true" />
                         <span>{{ $t("signUpLinkPage.emailsFallbackToProviders") }}</span>
+                    </div>
+                    <!-- Keypoint 4: Open Source code -->
+                    <div class="flex items-center space-x-3 mt-4">
+                        <CodeBracketIcon class="h-6 w-6 text-indigo-600" aria-hidden="true" />
+                        <a
+                            href="https://github.com/aomail-ai/aomail-app"
+                            target="_blank"
+                            class="text-blue-600 hover:underline"
+                        >
+                            {{ $t("signUpLinkPage.transparency") }}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -129,11 +160,21 @@
 
 <script setup lang="ts">
 import { API_BASE_URL, GOOGLE, MICROSOFT } from "@/global/const";
-import { inject, onMounted, ref } from "vue";
-import { ShieldCheckIcon, LockClosedIcon, CloudIcon, CheckIcon } from "@heroicons/vue/24/outline";
+import { inject, onMounted, Ref, ref } from "vue";
+import {
+    ShieldCheckIcon,
+    LockClosedIcon,
+    CloudIcon,
+    CheckIcon,
+    InboxIcon,
+    CodeBracketIcon,
+} from "@heroicons/vue/24/outline";
+import ImapSmtpModal from "@/global/components/ImapSmtpModal.vue";
 const submitSignupData = inject<() => void>("submitSignupData");
 const isGoogleLinked = ref(false);
 const isMicrosoftLinked = ref(false);
+
+const isImapSmtpModalOpen = inject<Ref<boolean>>("isImapSmtpModalOpen", ref(false));
 
 onMounted(() => {
     const typeApi = sessionStorage.getItem("typeApi");
@@ -154,5 +195,13 @@ function authorizeMicrosoft(event: Event) {
     event.preventDefault();
     sessionStorage.setItem("typeApi", MICROSOFT);
     window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
+}
+
+function openImapSmtpModal() {
+    isImapSmtpModalOpen.value = true;
+}
+
+function closeImapSmtpModal() {
+    isImapSmtpModalOpen.value = false;
 }
 </script>

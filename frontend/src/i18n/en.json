@@ -279,6 +279,7 @@
     "cyberScoreAssessor": "TAC Security assessor",
     "emailsAreEncryptedAtRest": "Emails content are encrypted at rest on our database",
     "emailsFallbackToProviders": "Emails still available in Gmail or Outlook as a fallback",
+    "transparency": "Transparency: Our code is open source",
     "categoryCreationError": "Error creating category",
     "startApp": "Start the app 🚀"
   },

@@ -4,7 +4,7 @@ Authentication and Signup Module
 Endpoints:
 - ✅ signup: Register a new user and handle OAuth2.0 callback.
 - ✅ check_username: Verify if a username is available.
-- ✅ process_demo_data: Process the 10 most recent emails for a newly signed-up user.
+- ✅ process_demo_data: Process the 5 most recent emails for a newly signed-up user.
 """
 
 import json
@@ -32,16 +32,17 @@ from aomail.constants import (
     PREMIUM_PLAN,
     SOCIAL_API_REFRESH_TOKEN_KEY,
 )
-from aomail.email_providers.google import profile as profile_google
-from aomail.email_providers.microsoft import profile as profile_microsoft
+from aomail.email_providers.google import profile as google_profile
+from aomail.email_providers.microsoft import profile as microsoft_profile
+from aomail.email_providers.imap import profile as imap_profile
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.models import (
+    EmailServerConfig,
     SocialAPI,
     Preference,
     Statistics,
     Subscription,
-    Agent,
 )
 from aomail.email_providers.microsoft import (
     email_operations as email_operations_microsoft,
@@ -55,6 +56,9 @@ from aomail.email_providers.imap import (
 from aomail.email_providers.utils import email_to_db
 from aomail.authentication.authentication import subscribe_listeners
 from aomail.utils.email_processing import validate_email_address
+from aomail.email_providers.imap.authentication import validate_imap_connection
+from aomail.email_providers.smtp.authentication import validate_smtp_connection
+from aomail.controllers.agents import create_default_agents
 
 
 LOGGER = logging.getLogger(__name__)
@@ -116,6 +120,8 @@ def signup(request: HttpRequest) -> Response:
     user_timezone: str = parameters.get("timezone", "UTC")
     language: str = parameters.get("language", "american")
     theme: str = parameters.get("theme", "light")
+    imap_config = None
+    smtp_config = None
 
     validation_result: dict = validate_signup_data(parameters)
     if "error" in validation_result:
@@ -124,38 +130,92 @@ def signup(request: HttpRequest) -> Response:
 
     LOGGER.info("User signup data validated successfully")
 
-    authorization_result: dict = validate_authorization_code(type_api, code)
-    if "error" in authorization_result:
-        LOGGER.error(f"Authorization failed: {authorization_result['error']}")
-        return Response(
-            {"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST
-        )
+    # Oauth connection attempt
+    if code:
+        authorization_result: dict = validate_authorization_code(type_api, code)
+        if "error" in authorization_result:
+            LOGGER.error(f"Authorization failed: {authorization_result['error']}")
+            return Response(
+                {"error": authorization_result["error"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-    LOGGER.info(f"Successfully validated authorization code for {type_api} API")
+        LOGGER.info(f"Successfully validated authorization code for {type_api} API")
 
-    access_token = authorization_result.get("access_token", "")
-    refresh_token = authorization_result.get("refresh_token", "")
-    email = authorization_result.get("email", "")
+        access_token = authorization_result.get("access_token", "")
+        refresh_token = authorization_result.get("refresh_token", "")
+        email = authorization_result.get("email", "")
 
-    if email:
-        social_api = SocialAPI.objects.filter(email=email)
+        if email:
+            social_api = SocialAPI.objects.filter(email=email)
+            if social_api.exists() and social_api.first().user:
+                LOGGER.error("Email address already used by another account")
+                return Response(
+                    {"error": "Email address already used by another account"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            elif " " in email:
+                LOGGER.error("Email address must not contain spaces")
+                return Response(
+                    {"error": "Email address must not contain spaces"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            LOGGER.error("No email received")
+            return Response(
+                {"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST
+            )
+    # IMAP/SMTP connection attempt
+    else:
+        email_address = parameters.get("emailAddress", "")
+        imap_app_password = parameters.get("imapAppPassword", "")
+        imap_host = parameters.get("imapHost", "")
+        imap_port = parameters.get("imapPort", "")
+        imap_encryption = parameters.get("imapEncryption", "")
+        smtp_app_password = parameters.get("smtpAppPassword", "")
+        smtp_host = parameters.get("smtpHost", "")
+        smtp_port = parameters.get("smtpPort", "")
+        smtp_encryption = parameters.get("smtpEncryption", "")
+
+        social_api = SocialAPI.objects.filter(email=email_address)
         if social_api.exists() and social_api.first().user:
             LOGGER.error("Email address already used by another account")
             return Response(
                 {"error": "Email address already used by another account"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        elif " " in email:
-            LOGGER.error("Email address must not contain spaces")
+
+        imap_valid = validate_imap_connection(
+            email_address, imap_app_password, imap_host, imap_port, imap_encryption
+        )
+        if not imap_valid:
             return Response(
-                {"error": "Email address must not contain spaces"},
+                {"error": "Failed to validate IMAP connection"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-    else:
-        LOGGER.error("No email received")
-        return Response(
-            {"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST
+
+        smtp_valid = validate_smtp_connection(
+            email_address, smtp_app_password, smtp_host, smtp_port, smtp_encryption
         )
+        if not smtp_valid:
+            return Response(
+                {"error": "Failed to validate SMTP connection"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        imap_config = EmailServerConfig.objects.create(
+            host=imap_host,
+            port=imap_port,
+            app_password=imap_app_password,
+            encryption=imap_encryption,
+        )
+        smtp_config = EmailServerConfig.objects.create(
+            host=smtp_host,
+            port=smtp_port,
+            app_password=smtp_app_password,
+            encryption=smtp_encryption,
+        )
+
     user = User.objects.create_user(username, "", password)
     LOGGER.info(f"User {username} created successfully")
 
@@ -179,6 +239,8 @@ def signup(request: HttpRequest) -> Response:
         language,
         user_timezone,
         theme,
+        imap_config,
+        smtp_config,
     )
     if "error" in result:
         LOGGER.error(f"Failed to save user data: {result['error']}")
@@ -189,14 +251,14 @@ def signup(request: HttpRequest) -> Response:
     LOGGER.info(f"User data saved successfully for {username}")
 
     try:
-        if type_api == GOOGLE:
+        if type_api == GOOGLE and not imap_config:
             threading.Thread(
-                target=profile_google.set_all_contacts, args=(user, email)
+                target=google_profile.set_all_contacts, args=(user, email)
             ).start()
-        elif type_api == MICROSOFT:
-            if profile_microsoft.verify_license(access_token):
+        elif type_api == MICROSOFT and not imap_config:
+            if microsoft_profile.verify_license(access_token):
                 threading.Thread(
-                    target=profile_microsoft.set_all_contacts, args=(user, email)
+                    target=microsoft_profile.set_all_contacts, args=(user, email)
                 ).start()
             else:
                 LOGGER.error("No license associated with the account")
@@ -206,6 +268,10 @@ def signup(request: HttpRequest) -> Response:
                     {"error": "No license associated with the account"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+        elif imap_config and smtp_config:
+            threading.Thread(
+                target=imap_profile.set_all_contacts, args=(user, social_api)
+            ).start()
     except Exception as e:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
@@ -220,8 +286,46 @@ def signup(request: HttpRequest) -> Response:
     )
     LOGGER.info(f"User {username} subscribed to premium plan (free trial)")
 
-    subscribed = subscribe_listeners(type_api, user, email)
-    if subscribed:
+    if code:
+        subscribed = subscribe_listeners(type_api, user, email)
+        if subscribed:
+            signup_token = jwt.encode(
+                {
+                    "user_id": user.id,
+                    "type": "signup",
+                    "exp": timezone.now() + timezone.timedelta(minutes=30),
+                },
+                settings.SECRET_KEY,
+                algorithm="HS256",
+            )
+            LOGGER.info(f"User {username} subscribed to listeners successfully")
+
+            result = create_default_agents(user, language)
+
+            if "error" in result:
+                LOGGER.error(f"Default agent creation failed: {result['error']}")
+                return Response(
+                    {"error": result["error"]},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            return Response(
+                {
+                    "accessToken": django_access_token,
+                    "signupToken": signup_token,
+                    "emailSocial": email,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            LOGGER.error(f"Failed to subscribe user {username} to listeners")
+            user.delete()
+            LOGGER.info(f"User {username} deleted successfully")
+            return Response(
+                {"error": "Could not subscribe to listener"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+    else:
         signup_token = jwt.encode(
             {
                 "user_id": user.id,
@@ -231,148 +335,23 @@ def signup(request: HttpRequest) -> Response:
             settings.SECRET_KEY,
             algorithm="HS256",
         )
-        LOGGER.info(f"User {username} subscribed to listeners successfully")
 
         result = create_default_agents(user, language)
 
         if "error" in result:
             LOGGER.error(f"Default agent creation failed: {result['error']}")
             return Response(
-                {"error": result["error"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": result["error"]},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
         return Response(
             {
                 "accessToken": django_access_token,
                 "signupToken": signup_token,
-                "emailSocial": email,
+                "emailSocial": email_address,
             },
             status=status.HTTP_201_CREATED,
         )
-    else:
-        LOGGER.error(f"Failed to subscribe user {username} to listeners")
-        user.delete()
-        LOGGER.info(f"User {username} deleted successfully")
-        return Response(
-            {"error": "Could not subscribe to listener"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-
-def create_default_agents(user: User, language: str) -> dict:
-    """
-    Creates default agents for the user based on the preferred language (English or French).
-
-    Args:
-        user (User): The user for whom agents will be created.
-        language (str): The preferred language ('en' or 'fr').
-
-    Returns:
-        dict: A dictionary indicating the success or failure of the operation.
-              - On success: {'message': 'Default agents created successfully'}
-              - On failure: {'error': <error_message>}
-    """
-    try:
-        default_agents_en = [
-            {
-                "agent_name": "Bob : to talk to friends",
-                "agent_ai_model": "gpt-3.5-turbo",
-                "ai_template": "Quick and informal as if talking to a friend.",
-                "email_example": "",
-                "length": "short",
-                "formality": "informal",
-                "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png",
-                "icon_name": "default_aomail_agent_bob.png",
-            },
-            {
-                "agent_name": "AO : to talk to colleagues",
-                "agent_ai_model": "gpt-3.5-turbo",
-                "ai_template": "Fast and formal as if talking to colleagues.",
-                "email_example": "",
-                "length": "short",
-                "formality": "formal",
-                "language": language,
-                "picture": "/app/media/agent_icon/aomail_agent_ao.png",
-                "icon_name": "aomail_agent_ao.png",
-            },
-            {
-                "agent_name": "Jhon : to talk to supervisors",
-                "agent_ai_model": "gpt-3.5-turbo",
-                "ai_template": "Medium-paced and highly formal as if talking to supervisors.",
-                "email_example": "",
-                "length": "medium",
-                "formality": "very formal",
-                "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png",
-                "icon_name": "default_aomail_agent_jhon.png",
-            },
-        ]
-
-        default_agents_fr = [
-            {
-                "agent_name": "Bob",
-                "agent_ai_model": "gpt-3.5-turbo",
-                "ai_template": "Rapide et informel comme si vous parliez à un ami.",
-                "email_example": "",
-                "length": "court",
-                "formality": "informel",
-                "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png",
-                "icon_name": "default_aomail_agent_bob.png",
-            },
-            {
-                "agent_name": "AO",
-                "agent_ai_model": "gpt-3.5-turbo",
-                "ai_template": "Rapide et formel comme si vous parliez à des collègues.",
-                "email_example": "",
-                "length": "court",
-                "formality": "formel",
-                "language": language,
-                "picture": "/app/media/agent_icon/aomail_agent_ao.png",
-                "icon_name": "aomail_agent_ao.png",
-            },
-            {
-                "agent_name": "Jhon",
-                "agent_ai_model": "gpt-3.5-turbo",
-                "ai_template": "Modéré et très formel comme si vous parliez à des décideurs.",
-                "email_example": "",
-                "length": "moyen",
-                "formality": "formel",
-                "language": language,
-                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png",
-                "icon_name": "default_aomail_agent_jhon.png",
-            },
-        ]
-
-        if language.lower() == "fr" or language.lower() == "french":
-            agents_to_create = default_agents_fr
-            LOGGER.info(f"Creating default French agents for user {user.username}")
-        else:
-            agents_to_create = default_agents_en
-            LOGGER.info(f"Creating default English agents for user {user.username}")
-
-        for agent_data in agents_to_create:
-            Agent.objects.create(
-                agent_name=agent_data["agent_name"],
-                agent_ai_model=agent_data["agent_ai_model"],
-                ai_template=agent_data["ai_template"],
-                email_example=agent_data["email_example"],
-                user=user,
-                length=agent_data["length"],
-                formality=agent_data["formality"],
-                language=agent_data["language"],
-                last_used=False,
-                picture=agent_data["picture"],
-                icon_name=agent_data["icon_name"],
-            )
-        LOGGER.info(f"Default agents created for user {user.username}")
-        return {"message": "Default agents created successfully"}
-    except Exception as e:
-        LOGGER.error(
-            f"Failed to create default agents for user {user.username}: {str(e)}"
-        )
-        return {"error": "An error occurred during agent creation."}
 
 
 @api_view(["POST"])
@@ -507,7 +486,7 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
                     "error": "Failed to obtain access or refresh token from Google API"
                 }
 
-            result_get_email = profile_google.get_email(access_token, refresh_token)
+            result_get_email = google_profile.get_email(access_token, refresh_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
@@ -520,7 +499,7 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
                     "error": "Failed to obtain access or refresh token from Microsoft API"
                 }
 
-            result_get_email = profile_microsoft.get_email(access_token)
+            result_get_email = microsoft_profile.get_email(access_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
@@ -608,6 +587,8 @@ def save_user_data(
     language: str,
     timezone: str,
     theme: str,
+    imap_config: EmailServerConfig = None,
+    smtp_config: EmailServerConfig = None,
 ) -> dict:
     """
     Store user credentials and settings in the database.
@@ -619,17 +600,21 @@ def save_user_data(
         email (str): User's email address.
         access_token (str): Access token for API authentication.
         refresh_token (str): Refresh token for API authentication.
-        theme (str): Preferred theme for the user interface.
         language (str): Preferred language setting.
         timezone (str): Preferred timezone.
+        theme (str): Preferred theme for the user interface.
+        imap_config (EmailServerConfig): IMAP configuration.
+        smtp_config (EmailServerConfig): SMTP configuration.
 
     Returns:
         dict: {'message': 'User data saved successfully'} on success,
               {'error': <error_message>} on failure.
     """
     try:
-        refresh_token_encrypted = security.encrypt_text(
-            SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token
+        refresh_token_encrypted = (
+            security.encrypt_text(SOCIAL_API_REFRESH_TOKEN_KEY, refresh_token)
+            if refresh_token
+            else ""
         )
         SocialAPI.objects.create(
             user=user,
@@ -637,8 +622,12 @@ def save_user_data(
             email=email,
             access_token=access_token,
             refresh_token=refresh_token_encrypted,
+            imap_config=imap_config,
+            smtp_config=smtp_config,
         )
-        Preference.objects.create(language=language, timezone=timezone, user=user)
+        Preference.objects.create(
+            language=language, timezone=timezone, user=user, theme=theme
+        )
 
         Statistics.objects.create(user=user)
 
@@ -647,3 +636,11 @@ def save_user_data(
     except Exception as e:
         LOGGER.error(f"Unexpected error occured while saving user data: {str(e)}")
         return {"error": "Internal server error"}
+
+
+def signup_with_oauth(parameters: dict) -> dict:
+    pass
+
+
+def signup_with_imap_smtp(parameters: dict) -> dict:
+    pass

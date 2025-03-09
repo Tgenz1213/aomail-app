@@ -6,6 +6,7 @@ from rest_framework import status
 from aomail.utils.serializers import AgentSerializer
 from aomail.models import Agent
 from django.http import HttpRequest
+from django.contrib.auth.models import User
 
 LOGGER = logging.getLogger(__name__)
 
@@ -191,3 +192,120 @@ def get_all_agents_info(request: HttpRequest) -> Response:
             {"error": "An error occurred while fetching agents."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         ) 
+    
+
+
+def create_default_agents(user: User, language: str) -> dict:
+    """
+    Creates default agents for the user based on the preferred language (English or French).
+
+    Args:
+        user (User): The user for whom agents will be created.
+        language (str): The preferred language ('en' or 'fr').
+
+    Returns:
+        dict: A dictionary indicating the success or failure of the operation.
+              - On success: {'message': 'Default agents created successfully'}
+              - On failure: {'error': <error_message>}
+    """
+    try:
+        default_agents_en = [
+            {
+                "agent_name": "Bob : to talk to friends",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Quick and informal as if talking to a friend.",
+                "email_example": "",
+                "length": "short",
+                "formality": "informal",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png",
+                "icon_name": "default_aomail_agent_bob.png",
+            },
+            {
+                "agent_name": "AO : to talk to colleagues",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Fast and formal as if talking to colleagues.",
+                "email_example": "",
+                "length": "short",
+                "formality": "formal",
+                "language": language,
+                "picture": "/app/media/agent_icon/aomail_agent_ao.png",
+                "icon_name": "aomail_agent_ao.png",
+            },
+            {
+                "agent_name": "Jhon : to talk to supervisors",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Medium-paced and highly formal as if talking to supervisors.",
+                "email_example": "",
+                "length": "medium",
+                "formality": "very formal",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png",
+                "icon_name": "default_aomail_agent_jhon.png",
+            },
+        ]
+
+        default_agents_fr = [
+            {
+                "agent_name": "Bob",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Rapide et informel comme si vous parliez à un ami.",
+                "email_example": "",
+                "length": "court",
+                "formality": "informel",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_bob.png",
+                "icon_name": "default_aomail_agent_bob.png",
+            },
+            {
+                "agent_name": "AO",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Rapide et formel comme si vous parliez à des collègues.",
+                "email_example": "",
+                "length": "court",
+                "formality": "formel",
+                "language": language,
+                "picture": "/app/media/agent_icon/aomail_agent_ao.png",
+                "icon_name": "aomail_agent_ao.png",
+            },
+            {
+                "agent_name": "Jhon",
+                "agent_ai_model": "gpt-3.5-turbo",
+                "ai_template": "Modéré et très formel comme si vous parliez à des décideurs.",
+                "email_example": "",
+                "length": "moyen",
+                "formality": "formel",
+                "language": language,
+                "picture": "/app/media/agent_icon/default_aomail_agent_jhon.png",
+                "icon_name": "default_aomail_agent_jhon.png",
+            },
+        ]
+
+        if language.lower() == "fr" or language.lower() == "french":
+            agents_to_create = default_agents_fr
+            LOGGER.info(f"Creating default French agents for user {user.username}")
+        else:
+            agents_to_create = default_agents_en
+            LOGGER.info(f"Creating default English agents for user {user.username}")
+
+        for agent_data in agents_to_create:
+            Agent.objects.create(
+                agent_name=agent_data["agent_name"],
+                agent_ai_model=agent_data["agent_ai_model"],
+                ai_template=agent_data["ai_template"],
+                email_example=agent_data["email_example"],
+                user=user,
+                length=agent_data["length"],
+                formality=agent_data["formality"],
+                language=agent_data["language"],
+                last_used=False,
+                picture=agent_data["picture"],
+                icon_name=agent_data["icon_name"],
+            )
+        LOGGER.info(f"Default agents created for user {user.username}")
+        return {"message": "Default agents created successfully"}
+    except Exception as e:
+        LOGGER.error(
+            f"Failed to create default agents for user {user.username}: {str(e)}"
+        )
+        return {"error": "An error occurred during agent creation."}

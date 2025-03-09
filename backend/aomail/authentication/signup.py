@@ -222,7 +222,7 @@ def signup(request: HttpRequest) -> Response:
 @permission_classes([AllowAny])
 def process_demo_data(request: HttpRequest) -> Response:
     """
-    Process the 10 most recent emails for a newly signed up user.
+    Process the 5 most recent emails for a newly signed up user.
     This endpoint should only be accessible during the signup process.
 
     Args:
@@ -420,8 +420,8 @@ def validate_signup_data(parameters: dict) -> dict:
         # check imap config
         if not parameters.get("imapAppPassword", ""):
             return {"error": "IMAP app password is required"}
-        if not validate_email_address(parameters.get("imapHost", "")):
-            return {"error": "IMAP host must be a valid email address"}
+        if not parameters.get("imapHost", ""):
+            return {"error": "IMAP host is required"}
         if not parameters.get("imapPort", ""):
             return {"error": "IMAP port is required"}
         if not isinstance(parameters.get("imapPort", ""), int):
@@ -432,8 +432,8 @@ def validate_signup_data(parameters: dict) -> dict:
         # check smtp config
         if not parameters.get("smtpAppPassword", ""):
             return {"error": "SMTP app password is required"}
-        if not validate_email_address(parameters.get("smtpHost", "")):
-            return {"error": "SMTP host must be a valid email address"}
+        if not parameters.get("smtpHost", ""):
+            return {"error": "SMTP host is required"}
         if not isinstance(parameters.get("smtpPort", ""), int):
             return {"error": "SMTP port must be an integer"}
         if not parameters.get("smtpEncryption", "") in ["tls", "ssl", "none"]:
@@ -599,13 +599,13 @@ def get_imap_smtp_configs(parameters: dict) -> dict:
     imap_config = EmailServerConfig.objects.create(
         host=imap_host,
         port=imap_port,
-        app_password=imap_app_password,
+        app_password=imap_app_password_encrypted,
         encryption=imap_encryption,
     )
     smtp_config = EmailServerConfig.objects.create(
         host=smtp_host,
         port=smtp_port,
-        app_password=smtp_app_password,
+        app_password=smtp_app_password_encrypted,
         encryption=smtp_encryption,
     )
 

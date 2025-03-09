@@ -1,5 +1,10 @@
 <template>
-    <ImapSmtpModal :isOpen="isImapSmtpModalOpen" @closeModal="closeImapSmtpModal" />
+    <ImapSmtpModal
+        :isOpen="isImapSmtpModalOpen"
+        @closeModal="closeImapSmtpModal"
+        :isSignup="true"
+        :saveImapSmtpConfigs="saveImapSmtpConfigs"
+    />
     <div class="flex flex-col">
         <div class="relative">
             <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -44,7 +49,10 @@
                 <div class="relative items-stretch mt-2 flex justify-center items-center">
                     <button
                         type="button"
-                        class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        :class="[
+                            'inline-flex items-center gap-x-2 rounded-md px-3 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                            isImapSmtpLinked ? 'bg-emerald-500 cursor-default' : 'bg-gray-700 hover:bg-gray-600',
+                        ]"
                         @click="openImapSmtpModal"
                     >
                         <InboxIcon class="w-5 h-5" />
@@ -173,35 +181,81 @@ import ImapSmtpModal from "@/global/components/ImapSmtpModal.vue";
 const submitSignupData = inject<() => void>("submitSignupData");
 const isGoogleLinked = ref(false);
 const isMicrosoftLinked = ref(false);
+const isImapSmtpLinked = ref(false);
 
 const isImapSmtpModalOpen = inject<Ref<boolean>>("isImapSmtpModalOpen", ref(false));
 
+const typeApiRef = inject<Ref<string>>("typeApi", ref(""));
+const emailAddressRef = inject<Ref<string>>("emailAddress", ref(""));
+const userDescriptionRef = inject<Ref<string>>("userDescription", ref(""));
+const imapHostRef = inject<Ref<string>>("imapHost", ref(""));
+const imapPortRef = inject<Ref<number>>("imapPort", ref(0));
+const imapAppPasswordRef = inject<Ref<string>>("imapAppPassword", ref(""));
+const imapEncryptionRef = inject<Ref<string>>("imapEncryption", ref(""));
+const smtpHostRef = inject<Ref<string>>("smtpHost", ref(""));
+const smtpPortRef = inject<Ref<number>>("smtpPort", ref(0));
+const smtpAppPasswordRef = inject<Ref<string>>("smtpAppPassword", ref(""));
+const smtpEncryptionRef = inject<Ref<string>>("smtpEncryption", ref(""));
+
 onMounted(() => {
     const typeApi = sessionStorage.getItem("typeApi");
-    if (typeApi === GOOGLE) {
+    const oauth = sessionStorage.getItem("oauth");
+    if (typeApi === GOOGLE && oauth === "true") {
         isGoogleLinked.value = true;
-    } else if (typeApi === MICROSOFT) {
+    } else if (typeApi === MICROSOFT && oauth === "true") {
         isMicrosoftLinked.value = true;
     }
 });
 
 function authorizeGoogle(event: Event) {
     event.preventDefault();
+    sessionStorage.setItem("oauth", "true");
     sessionStorage.setItem("typeApi", GOOGLE);
     window.location.replace(`${API_BASE_URL}google/auth_url/`);
 }
 
 function authorizeMicrosoft(event: Event) {
     event.preventDefault();
+    sessionStorage.setItem("oauth", "true");
     sessionStorage.setItem("typeApi", MICROSOFT);
     window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
 }
 
 function openImapSmtpModal() {
     isImapSmtpModalOpen.value = true;
+    isImapSmtpLinked.value = false;
 }
 
 function closeImapSmtpModal() {
     isImapSmtpModalOpen.value = false;
+}
+
+function saveImapSmtpConfigs(
+    typeApi: string,
+    emailAddress: string,
+    userDescription: string,
+    imapHost: string,
+    imapPort: number,
+    imapAppPassword: string,
+    imapEncryption: string,
+    smtpHost: string,
+    smtpPort: number,
+    smtpAppPassword: string,
+    smtpEncryption: string
+) {
+    typeApiRef.value = typeApi;
+    emailAddressRef.value = emailAddress;
+    userDescriptionRef.value = userDescription;
+    imapHostRef.value = imapHost;
+    imapPortRef.value = imapPort;
+    imapAppPasswordRef.value = imapAppPassword;
+    imapEncryptionRef.value = imapEncryption;
+    smtpHostRef.value = smtpHost;
+    smtpPortRef.value = smtpPort;
+    smtpAppPasswordRef.value = smtpAppPassword;
+    smtpEncryptionRef.value = smtpEncryption;
+    isImapSmtpLinked.value = true;
+
+    sessionStorage.setItem("typeApi", typeApi);
 }
 </script>

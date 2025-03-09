@@ -13,13 +13,13 @@ LOGGER = logging.getLogger(__name__)
 
 def validate_imap_connection(
     email_address: str,
-    app_password: str,
+    app_password_encrypted: str,
     imap_host: str,
     imap_port: int,
     imap_encryption: str,
 ) -> bool:
     mailbox = connect_to_imap(
-        email_address, app_password, imap_host, imap_port, imap_encryption
+        email_address, app_password_encrypted, imap_host, imap_port, imap_encryption
     )
     if mailbox:
         mailbox.logout()

@@ -2,7 +2,7 @@
     <AddUserDescriptionModal :isOpen="isAddUserDescriptionModalOpen" @closeModal="closeAddUserDescriptionModal" />
     <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @closeModal="closeAccountDeletionModal" />
     <TroubleshootingMenuModal :isOpen="isTroubleshootingMenuModalOpen" @closeModal="closeTroubleshootingMenu" />
-    <ImapSmtpModal :isOpen="isImapSmtpModalOpen" @closeModal="closeImapSmtpModal" />
+    <ImapSmtpModal :isOpen="isImapSmtpModalOpen" @closeModal="closeImapSmtpModal" :isSignup="false" />
     <div class="flex-1 h-full">
         <div class="h-full w-full flex items-center justify-center">
             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">

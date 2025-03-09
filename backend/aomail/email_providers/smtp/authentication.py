@@ -13,13 +13,13 @@ LOGGER = logging.getLogger(__name__)
 
 def validate_smtp_connection(
     email_address: str,
-    app_password: str,
+    app_password_encrypted: str,
     smtp_host: str,
     smtp_port: int,
     smtp_encryption: str,
 ) -> bool:
     smtp = connect_to_smtp(
-        email_address, app_password, smtp_host, smtp_port, smtp_encryption
+        email_address, app_password_encrypted, smtp_host, smtp_port, smtp_encryption
     )
     if smtp:
         smtp.quit()

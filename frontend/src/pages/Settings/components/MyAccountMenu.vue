@@ -138,7 +138,7 @@
                                     <span
                                         class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block"
                                     >
-                                        Any IMAP & SMTP provider
+                                        Link any IMAP & SMTP provider
                                     </span>
                                 </button>
                             </div>

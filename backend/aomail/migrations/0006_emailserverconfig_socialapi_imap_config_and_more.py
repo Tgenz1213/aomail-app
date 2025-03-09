@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='EmailServerConfig',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('app_password', models.CharField(max_length=100)),
+                ('app_password', models.CharField(max_length=2000)),
                 ('host', models.CharField(max_length=30)),
                 ('port', models.IntegerField()),
                 ('encryption', models.CharField(max_length=10)),

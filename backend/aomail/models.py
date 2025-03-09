@@ -123,7 +123,7 @@ class Preference(models.Model):
 class EmailServerConfig(models.Model):
     """Stores configuration details for IMAP and SMTP email servers."""
 
-    app_password = models.CharField(max_length=100)
+    app_password = models.CharField(max_length=2000)
     host = models.CharField(max_length=30)
     port = models.IntegerField()
     encryption = models.CharField(max_length=10)

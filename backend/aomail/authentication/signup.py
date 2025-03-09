@@ -571,13 +571,28 @@ def get_imap_smtp_configs(parameters: dict) -> dict:
         LOGGER.error("Email address already used by another account")
         return {"error": "Email address already used by another account"}
 
+    imap_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, imap_app_password
+    )
+    smtp_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, smtp_app_password
+    )
+
     if not validate_imap_connection(
-        email_address, imap_app_password, imap_host, imap_port, imap_encryption
+        email_address,
+        imap_app_password_encrypted,
+        imap_host,
+        imap_port,
+        imap_encryption,
     ):
         return {"error": "Failed to validate IMAP connection"}
 
     if not validate_smtp_connection(
-        email_address, smtp_app_password, smtp_host, smtp_port, smtp_encryption
+        email_address,
+        smtp_app_password_encrypted,
+        smtp_host,
+        smtp_port,
+        smtp_encryption,
     ):
         return {"error": "Failed to validate SMTP connection"}
 
@@ -654,7 +669,7 @@ def setup_user_contacts(user: User, social_api: SocialAPI, access_token: str) ->
                 return {"error": "No license associated with the account"}
         elif social_api.imap_config and social_api.smtp_config:
             threading.Thread(
-                target=imap_profile.set_all_contacts, args=(social_api)
+                target=imap_profile.set_all_contacts, args=(social_api,)
             ).start()
         return {"success": True}
     except Exception as e:

@@ -460,8 +460,19 @@ def link_email_config_account(
     smtp_port: int,
     smtp_encryption: str,
 ) -> dict:
+    imap_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, imap_app_password
+    )
+    smtp_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, smtp_app_password
+    )
+
     imap_valid = validate_imap_connection(
-        email_address, imap_app_password, imap_host, imap_port, imap_encryption
+        email_address,
+        imap_app_password_encrypted,
+        imap_host,
+        imap_port,
+        imap_encryption,
     )
     if not imap_valid:
         return {
@@ -471,7 +482,11 @@ def link_email_config_account(
         }
 
     smtp_valid = validate_smtp_connection(
-        email_address, smtp_app_password, smtp_host, smtp_port, smtp_encryption
+        email_address,
+        smtp_app_password_encrypted,
+        smtp_host,
+        smtp_port,
+        smtp_encryption,
     )
     if not smtp_valid:
         return {
@@ -525,7 +540,7 @@ def link_email_config_account(
             smtp_config=smtp_config,
         )
 
-    threading.Thread(target=imap_profile.set_all_contacts, args=(social_api)).start()
+    threading.Thread(target=imap_profile.set_all_contacts, args=(social_api,)).start()
 
     return {
         "success": True,

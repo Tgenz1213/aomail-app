@@ -111,10 +111,11 @@ def signup(request: HttpRequest) -> Response:
     parameters: dict = json.loads(request.body)
     type_api: str = parameters.get("typeApi", "")
     code: str = parameters.get("code", "")
-    username: str = parameters.get("login", "")
+    username: str = parameters.get("username", "")
     password: str = parameters.get("password", "")
-    user_timezone: str = parameters.get("timezone", "")
-    language: str = parameters.get("language", "")
+    user_timezone: str = parameters.get("timezone", "UTC")
+    language: str = parameters.get("language", "american")
+    theme: str = parameters.get("theme", "light")
 
     validation_result: dict = validate_signup_data(parameters)
     if "error" in validation_result:
@@ -177,6 +178,7 @@ def signup(request: HttpRequest) -> Response:
         refresh_token,
         language,
         user_timezone,
+        theme,
     )
     if "error" in result:
         LOGGER.error(f"Failed to save user data: {result['error']}")
@@ -555,55 +557,46 @@ def validate_signup_data(parameters: dict) -> dict:
     username = parameters.get("username", "")
     password = parameters.get("password", "")
 
+    if User.objects.filter(username=username).exists():
+        return {"error": "Username already exists"}
+    if " " in username:
+        return {"error": "Username must not contain spaces"}
+    if not (PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH):
+        return {"error": "Password length must be between 8 and 128 characters"}
+
     # oauth connection attempt
     if code:
         if not code:
             return {"error": "No authorization code provided"}
-        elif User.objects.filter(username=username).exists():
-            return {"error": "Username already exists"}
-        elif " " in username:
-            return {"error": "Username must not contain spaces"}
-        elif not (PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH):
-            return {"error": "Password length must be between 8 and 128 characters"}
-
-        return {"message": "User signup data validated successfully"}
 
     # imap/smtp connection attempt
     else:
-        if not parameters.get("emailAddress", ""):
-            validate_email_address
+        if not validate_email_address(parameters.get("emailAddress", "")):
+            return {"error": "Email address is not in a valid format"}
 
-            return {"error": "Email address is required"}
         # check imap config
         if not parameters.get("imapAppPassword", ""):
             return {"error": "IMAP app password is required"}
-
-        if not parameters.get("imapHost", ""):
-            return {"error": "IMAP host is required"}
-
-        # TODO: validate imap host format
-        # aka an email address format
-
+        if not validate_email_address(parameters.get("imapHost", "")):
+            return {"error": "IMAP host must be a valid email address"}
         if not parameters.get("imapPort", ""):
             return {"error": "IMAP port is required"}
-
         if not isinstance(parameters.get("imapPort", ""), int):
             return {"error": "IMAP port must be an integer"}
-
-        if not parameters.get("imapEncryption", ""):
-            return {"error": "IMAP encryption is required"}
-
         if not parameters.get("imapEncryption", "") in ["tls", "none"]:
             return {"error": "IMAP encryption must be either 'tls' or 'none'"}
 
         # check smtp config
-        parameters.get("smtpAppPassword", ""),
-        parameters.get("smtpHost", ""),
-        parameters.get("smtpPort", ""),
-        parameters.get("smtpEncryption", ""),
-
+        if not parameters.get("smtpAppPassword", ""):
+            return {"error": "SMTP app password is required"}
+        if not validate_email_address(parameters.get("smtpHost", "")):
+            return {"error": "SMTP host must be a valid email address"}
+        if not isinstance(parameters.get("smtpPort", ""), int):
+            return {"error": "SMTP port must be an integer"}
         if not parameters.get("smtpEncryption", "") in ["tls", "ssl", "none"]:
             return {"error": "SMTP encryption must be either 'tls' or 'ssl' or 'none'"}
+
+    return {"message": "User signup data validated successfully"}
 
 
 def save_user_data(
@@ -614,6 +607,7 @@ def save_user_data(
     refresh_token: str,
     language: str,
     timezone: str,
+    theme: str,
 ) -> dict:
     """
     Store user credentials and settings in the database.
@@ -626,8 +620,6 @@ def save_user_data(
         access_token (str): Access token for API authentication.
         refresh_token (str): Refresh token for API authentication.
         theme (str): Preferred theme for the user interface.
-        categories (dict): Dictionary containing categories data.
-                           Expected format: {'name': str, 'description': str}
         language (str): Preferred language setting.
         timezone (str): Preferred timezone.
 

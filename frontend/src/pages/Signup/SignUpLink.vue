@@ -125,7 +125,7 @@ async function submitSignupData(event: Event) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            login: sessionStorage.getItem("email"),
+            username: sessionStorage.getItem("email"),
             password: sessionStorage.getItem("password"),
             timezone: localStorage.getItem("timezone"),
             language: localStorage.getItem("language"),

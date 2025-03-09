@@ -525,9 +525,7 @@ def link_email_config_account(
             smtp_config=smtp_config,
         )
 
-    threading.Thread(
-        target=imap_profile.set_all_contacts, args=(user, social_api)
-    ).start()
+    threading.Thread(target=imap_profile.set_all_contacts, args=(social_api)).start()
 
     return {
         "success": True,

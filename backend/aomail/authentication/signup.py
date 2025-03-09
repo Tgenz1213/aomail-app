@@ -95,14 +95,14 @@ def signup(request: HttpRequest) -> Response:
         request (HttpRequest): The HTTP request object containing the following user data in the body:
             type_api (str): Type of API (e.g., 'google' or 'microsoft').
             code (str): OAuth2.0 authorization code.
-            login (str): User's login or username.
+            username (str): User's username.
             password (str): User's password.
             timezone (str): User's preferred timezone.
             language (str): User's preferred language.
 
     Returns:
         Response: JSON response with user ID, access token, and email on success,
-                      or error message on failure.
+                 or error message on failure.
     """
     ip = security.get_ip_with_port(request)
     LOGGER.info(f"Signup request received from IP: {ip}")
@@ -120,8 +120,6 @@ def signup(request: HttpRequest) -> Response:
     user_timezone: str = parameters.get("timezone", "UTC")
     language: str = parameters.get("language", "american")
     theme: str = parameters.get("theme", "light")
-    imap_config = None
-    smtp_config = None
 
     validation_result: dict = validate_signup_data(parameters)
     if "error" in validation_result:
@@ -130,117 +128,39 @@ def signup(request: HttpRequest) -> Response:
 
     LOGGER.info("User signup data validated successfully")
 
+    auth_result = {}
     # Oauth connection attempt
     if code:
-        authorization_result: dict = validate_authorization_code(type_api, code)
-        if "error" in authorization_result:
-            LOGGER.error(f"Authorization failed: {authorization_result['error']}")
-            return Response(
-                {"error": authorization_result["error"]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        LOGGER.info(f"Successfully validated authorization code for {type_api} API")
-
-        access_token = authorization_result.get("access_token", "")
-        refresh_token = authorization_result.get("refresh_token", "")
-        email = authorization_result.get("email", "")
-
-        if email:
-            social_api = SocialAPI.objects.filter(email=email)
-            if social_api.exists() and social_api.first().user:
-                LOGGER.error("Email address already used by another account")
-                return Response(
-                    {"error": "Email address already used by another account"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            elif " " in email:
-                LOGGER.error("Email address must not contain spaces")
-                return Response(
-                    {"error": "Email address must not contain spaces"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        else:
-            LOGGER.error("No email received")
-            return Response(
-                {"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST
-            )
-    # IMAP/SMTP connection attempt
+        auth_result = get_oauth_tokens(code, type_api, username)
+    # imap/smtp connection attempt
     else:
-        email_address = parameters.get("emailAddress", "")
-        imap_app_password = parameters.get("imapAppPassword", "")
-        imap_host = parameters.get("imapHost", "")
-        imap_port = parameters.get("imapPort", "")
-        imap_encryption = parameters.get("imapEncryption", "")
-        smtp_app_password = parameters.get("smtpAppPassword", "")
-        smtp_host = parameters.get("smtpHost", "")
-        smtp_port = parameters.get("smtpPort", "")
-        smtp_encryption = parameters.get("smtpEncryption", "")
+        auth_result = get_imap_smtp_configs(parameters)
 
-        social_api = SocialAPI.objects.filter(email=email_address)
-        if social_api.exists() and social_api.first().user:
-            LOGGER.error("Email address already used by another account")
-            return Response(
-                {"error": "Email address already used by another account"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        imap_valid = validate_imap_connection(
-            email_address, imap_app_password, imap_host, imap_port, imap_encryption
-        )
-        if not imap_valid:
-            return Response(
-                {"error": "Failed to validate IMAP connection"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        smtp_valid = validate_smtp_connection(
-            email_address, smtp_app_password, smtp_host, smtp_port, smtp_encryption
-        )
-        if not smtp_valid:
-            return Response(
-                {"error": "Failed to validate SMTP connection"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        imap_config = EmailServerConfig.objects.create(
-            host=imap_host,
-            port=imap_port,
-            app_password=imap_app_password,
-            encryption=imap_encryption,
-        )
-        smtp_config = EmailServerConfig.objects.create(
-            host=smtp_host,
-            port=smtp_port,
-            app_password=smtp_app_password,
-            encryption=smtp_encryption,
-        )
-
-    user = User.objects.create_user(username, "", password)
-    LOGGER.info(f"User {username} created successfully")
-
-    try:
-        django_refresh_token: RefreshToken = RefreshToken.for_user(user)
-        django_access_token = str(django_refresh_token.access_token)
-    except Exception as e:
-        LOGGER.error(f"Failed to generate access token: {str(e)}")
-        user.delete()
-        LOGGER.info(f"User {username} deleted successfully")
+    if "error" in auth_result:
         return Response(
-            {"error": "Internal server error"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": auth_result["error"]}, status=status.HTTP_400_BAD_REQUEST
         )
+
+    account_result = create_user_account(username, password)
+    if "error" in account_result:
+        return Response(
+            {"error": account_result["error"]}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = account_result["user"]
+    django_access_token = account_result["access_token"]
 
     result = save_user_data(
         user,
         type_api,
-        email,
-        access_token,
-        refresh_token,
+        auth_result.get("email", ""),
+        auth_result.get("access_token", ""),
+        auth_result.get("refresh_token", ""),
         language,
         user_timezone,
         theme,
-        imap_config,
-        smtp_config,
+        auth_result.get("imap_config"),
+        auth_result.get("smtp_config"),
     )
     if "error" in result:
         LOGGER.error(f"Failed to save user data: {result['error']}")
@@ -250,36 +170,17 @@ def signup(request: HttpRequest) -> Response:
 
     LOGGER.info(f"User data saved successfully for {username}")
 
-    try:
-        if type_api == GOOGLE and not imap_config:
-            threading.Thread(
-                target=google_profile.set_all_contacts, args=(user, email)
-            ).start()
-        elif type_api == MICROSOFT and not imap_config:
-            if microsoft_profile.verify_license(access_token):
-                threading.Thread(
-                    target=microsoft_profile.set_all_contacts, args=(user, email)
-                ).start()
-            else:
-                LOGGER.error("No license associated with the account")
-                user.delete()
-                LOGGER.info(f"User {username} deleted successfully")
-                return Response(
-                    {"error": "No license associated with the account"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        elif imap_config and smtp_config:
-            threading.Thread(
-                target=imap_profile.set_all_contacts, args=(user, social_api)
-            ).start()
-    except Exception as e:
-        LOGGER.error(f"Failed to set contacts: {str(e)}")
+    social_api = result["social_api"]
+    contacts_result = setup_user_contacts(
+        user, social_api, auth_result.get("access_token", "")
+    )
+    if "error" in contacts_result:
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
         return Response(
-            {"error": "Internal server error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            {"error": contacts_result["error"]}, status=status.HTTP_400_BAD_REQUEST
         )
+
     Subscription.objects.create(
         user=user,
         plan=PREMIUM_PLAN,
@@ -287,37 +188,8 @@ def signup(request: HttpRequest) -> Response:
     LOGGER.info(f"User {username} subscribed to premium plan (free trial)")
 
     if code:
-        subscribed = subscribe_listeners(type_api, user, email)
-        if subscribed:
-            signup_token = jwt.encode(
-                {
-                    "user_id": user.id,
-                    "type": "signup",
-                    "exp": timezone.now() + timezone.timedelta(minutes=30),
-                },
-                settings.SECRET_KEY,
-                algorithm="HS256",
-            )
-            LOGGER.info(f"User {username} subscribed to listeners successfully")
-
-            result = create_default_agents(user, language)
-
-            if "error" in result:
-                LOGGER.error(f"Default agent creation failed: {result['error']}")
-                return Response(
-                    {"error": result["error"]},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-            return Response(
-                {
-                    "accessToken": django_access_token,
-                    "signupToken": signup_token,
-                    "emailSocial": email,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        else:
+        subscribed = subscribe_listeners(type_api, user, auth_result["email"])
+        if not subscribed:
             LOGGER.error(f"Failed to subscribe user {username} to listeners")
             user.delete()
             LOGGER.info(f"User {username} deleted successfully")
@@ -325,33 +197,25 @@ def signup(request: HttpRequest) -> Response:
                 {"error": "Could not subscribe to listener"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-    else:
-        signup_token = jwt.encode(
-            {
-                "user_id": user.id,
-                "type": "signup",
-                "exp": timezone.now() + timezone.timedelta(minutes=30),
-            },
-            settings.SECRET_KEY,
-            algorithm="HS256",
-        )
+        LOGGER.info(f"User {username} subscribed to listeners successfully")
 
-        result = create_default_agents(user, language)
-
-        if "error" in result:
-            LOGGER.error(f"Default agent creation failed: {result['error']}")
-            return Response(
-                {"error": result["error"]},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+    agent_result = create_default_agents(user, language)
+    if "error" in agent_result:
+        LOGGER.error(f"Default agent creation failed: {agent_result['error']}")
         return Response(
-            {
-                "accessToken": django_access_token,
-                "signupToken": signup_token,
-                "emailSocial": email_address,
-            },
-            status=status.HTTP_201_CREATED,
+            {"error": agent_result["error"]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+    signup_token = generate_signup_token(user.id)
+    return Response(
+        {
+            "accessToken": django_access_token,
+            "signupToken": signup_token,
+            "emailSocial": auth_result.get("email", ""),
+        },
+        status=status.HTTP_201_CREATED,
+    )
 
 
 @api_view(["POST"])
@@ -616,7 +480,7 @@ def save_user_data(
             if refresh_token
             else ""
         )
-        SocialAPI.objects.create(
+        social_api = SocialAPI.objects.create(
             user=user,
             type_api=type_api,
             email=email,
@@ -631,16 +495,189 @@ def save_user_data(
 
         Statistics.objects.create(user=user)
 
-        return {"message": "User data saved successfully"}
+        return {"message": "User data saved successfully", "social_api": social_api}
 
     except Exception as e:
         LOGGER.error(f"Unexpected error occured while saving user data: {str(e)}")
         return {"error": "Internal server error"}
 
 
-def signup_with_oauth(parameters: dict) -> dict:
-    pass
+def get_oauth_tokens(code: str, type_api: str, email: str) -> dict:
+    """
+    Get OAuth tokens and validate email for OAuth-based signup.
+
+    Args:
+        code (str): OAuth authorization code
+        type_api (str): Type of API (google/microsoft)
+        email (str): User's email address
+
+    Returns:
+        dict: Contains access_token, refresh_token, email and success status
+              or error message if validation fails
+    """
+    authorization_result = validate_authorization_code(type_api, code)
+    if "error" in authorization_result:
+        LOGGER.error(f"Authorization failed: {authorization_result['error']}")
+        return {"error": authorization_result["error"]}
+
+    access_token = authorization_result.get("access_token", "")
+    refresh_token = authorization_result.get("refresh_token", "")
+    email = authorization_result.get("email", "")
+
+    if not email:
+        LOGGER.error("No email received")
+        return {"error": "No email received"}
+
+    if " " in email:
+        LOGGER.error("Email address must not contain spaces")
+        return {"error": "Email address must not contain spaces"}
+
+    social_apis = SocialAPI.objects.filter(email=email)
+    if social_apis.exists() and social_apis.first().user:
+        LOGGER.error("Email address already used by another account")
+        return {"error": "Email address already used by another account"}
+
+    return {
+        "success": True,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "email": email,
+    }
 
 
-def signup_with_imap_smtp(parameters: dict) -> dict:
-    pass
+def get_imap_smtp_configs(parameters: dict) -> dict:
+    """
+    Validate and create IMAP/SMTP configurations for email-based signup.
+
+    Args:
+        parameters (dict): Request parameters containing IMAP/SMTP configuration
+
+    Returns:
+        dict: Contains imap_config, smtp_config objects and success status
+              or error message if validation fails
+    """
+    email_address = parameters.get("emailAddress", "")
+    imap_app_password = parameters.get("imapAppPassword", "")
+    imap_host = parameters.get("imapHost", "")
+    imap_port = parameters.get("imapPort", "")
+    imap_encryption = parameters.get("imapEncryption", "")
+    smtp_app_password = parameters.get("smtpAppPassword", "")
+    smtp_host = parameters.get("smtpHost", "")
+    smtp_port = parameters.get("smtpPort", "")
+    smtp_encryption = parameters.get("smtpEncryption", "")
+
+    social_apis = SocialAPI.objects.filter(email=email_address)
+    if social_apis.exists() and social_apis.first().user:
+        LOGGER.error("Email address already used by another account")
+        return {"error": "Email address already used by another account"}
+
+    if not validate_imap_connection(
+        email_address, imap_app_password, imap_host, imap_port, imap_encryption
+    ):
+        return {"error": "Failed to validate IMAP connection"}
+
+    if not validate_smtp_connection(
+        email_address, smtp_app_password, smtp_host, smtp_port, smtp_encryption
+    ):
+        return {"error": "Failed to validate SMTP connection"}
+
+    imap_config = EmailServerConfig.objects.create(
+        host=imap_host,
+        port=imap_port,
+        app_password=imap_app_password,
+        encryption=imap_encryption,
+    )
+    smtp_config = EmailServerConfig.objects.create(
+        host=smtp_host,
+        port=smtp_port,
+        app_password=smtp_app_password,
+        encryption=smtp_encryption,
+    )
+
+    return {
+        "success": True,
+        "imap_config": imap_config,
+        "smtp_config": smtp_config,
+        "email": email_address,
+    }
+
+
+def create_user_account(username: str, password: str) -> dict:
+    """
+    Create a new user account and generate access token.
+
+    Args:
+        username (str): Username for the new account
+        password (str): Password for the new account
+
+    Returns:
+        dict: Contains user object and access token or error message if creation fails
+    """
+    try:
+        user = User.objects.create_user(username, "", password)
+        LOGGER.info(f"User {username} created successfully")
+
+        django_refresh_token: RefreshToken = RefreshToken.for_user(user)
+        django_access_token = str(django_refresh_token.access_token)
+
+        return {"success": True, "user": user, "access_token": django_access_token}
+    except Exception as e:
+        LOGGER.error(f"Failed to create user account: {str(e)}")
+        return {"error": "Failed to create user account"}
+
+
+def setup_user_contacts(user: User, social_api: SocialAPI, access_token: str) -> dict:
+    """
+    Set up user contacts based on the email provider type.
+
+    Args:
+        user (User): User object
+        social_api (SocialAPI): Social API configuration
+        access_token (str): Access token for OAuth providers
+
+    Returns:
+        dict: Success status or error message
+    """
+    try:
+        if social_api.type_api == GOOGLE and not social_api.imap_config:
+            threading.Thread(
+                target=google_profile.set_all_contacts, args=(user, social_api.email)
+            ).start()
+        elif social_api.type_api == MICROSOFT and not social_api.imap_config:
+            if microsoft_profile.verify_license(access_token):
+                threading.Thread(
+                    target=microsoft_profile.set_all_contacts,
+                    args=(user, social_api.email),
+                ).start()
+            else:
+                LOGGER.error("No license associated with the account")
+                return {"error": "No license associated with the account"}
+        elif social_api.imap_config and social_api.smtp_config:
+            threading.Thread(
+                target=imap_profile.set_all_contacts, args=(social_api)
+            ).start()
+        return {"success": True}
+    except Exception as e:
+        LOGGER.error(f"Failed to set up contacts: {str(e)}")
+        return {"error": "Failed to set up contacts"}
+
+
+def generate_signup_token(user_id: int) -> str:
+    """
+    Generate a signup token for the user.
+
+    Args:
+        user_id (int): User ID to encode in the token
+
+    Returns:
+        str: Generated signup token
+    """
+    return jwt.encode(
+        {
+            "user_id": user_id,
+            "type": "signup",
+            "exp": timezone.now() + timezone.timedelta(minutes=30),
+        },
+        settings.SECRET_KEY,
+        algorithm="HS256",
+    )

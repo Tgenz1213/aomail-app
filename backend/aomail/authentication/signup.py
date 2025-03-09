@@ -54,6 +54,7 @@ from aomail.email_providers.imap import (
 )
 from aomail.email_providers.utils import email_to_db
 from aomail.authentication.authentication import subscribe_listeners
+from aomail.utils.email_processing import validate_email_address
 
 
 LOGGER = logging.getLogger(__name__)
@@ -115,7 +116,7 @@ def signup(request: HttpRequest) -> Response:
     user_timezone: str = parameters.get("timezone", "")
     language: str = parameters.get("language", "")
 
-    validation_result: dict = validate_signup_data(username, password, code)
+    validation_result: dict = validate_signup_data(parameters)
     if "error" in validation_result:
         LOGGER.error(f"Validation failed for signup data: {validation_result['error']}")
         return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
@@ -537,7 +538,7 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
         return {"error": "An unexpected error occurred during validation"}
 
 
-def validate_signup_data(username: str, password: str, code: str) -> dict:
+def validate_signup_data(parameters: dict) -> dict:
     """
     Validates user signup data to ensure all requirements are met.
 
@@ -550,16 +551,59 @@ def validate_signup_data(username: str, password: str, code: str) -> dict:
         dict: {'error': <error_message>} if validation fails,
               {'message': 'User signup data validated successfully'} with appropriate success message if validation passes.
     """
-    if not code:
-        return {"error": "No authorization code provided"}
-    elif User.objects.filter(username=username).exists():
-        return {"error": "Username already exists"}
-    elif " " in username:
-        return {"error": "Username must not contain spaces"}
-    elif not (PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH):
-        return {"error": "Password length must be between 8 and 128 characters"}
+    code = parameters.get("code", "")
+    username = parameters.get("username", "")
+    password = parameters.get("password", "")
 
-    return {"message": "User signup data validated successfully"}
+    # oauth connection attempt
+    if code:
+        if not code:
+            return {"error": "No authorization code provided"}
+        elif User.objects.filter(username=username).exists():
+            return {"error": "Username already exists"}
+        elif " " in username:
+            return {"error": "Username must not contain spaces"}
+        elif not (PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH):
+            return {"error": "Password length must be between 8 and 128 characters"}
+
+        return {"message": "User signup data validated successfully"}
+
+    # imap/smtp connection attempt
+    else:
+        if not parameters.get("emailAddress", ""):
+            validate_email_address
+
+            return {"error": "Email address is required"}
+        # check imap config
+        if not parameters.get("imapAppPassword", ""):
+            return {"error": "IMAP app password is required"}
+
+        if not parameters.get("imapHost", ""):
+            return {"error": "IMAP host is required"}
+
+        # TODO: validate imap host format
+        # aka an email address format
+
+        if not parameters.get("imapPort", ""):
+            return {"error": "IMAP port is required"}
+
+        if not isinstance(parameters.get("imapPort", ""), int):
+            return {"error": "IMAP port must be an integer"}
+
+        if not parameters.get("imapEncryption", ""):
+            return {"error": "IMAP encryption is required"}
+
+        if not parameters.get("imapEncryption", "") in ["tls", "none"]:
+            return {"error": "IMAP encryption must be either 'tls' or 'none'"}
+
+        # check smtp config
+        parameters.get("smtpAppPassword", ""),
+        parameters.get("smtpHost", ""),
+        parameters.get("smtpPort", ""),
+        parameters.get("smtpEncryption", ""),
+
+        if not parameters.get("smtpEncryption", "") in ["tls", "ssl", "none"]:
+            return {"error": "SMTP encryption must be either 'tls' or 'ssl' or 'none'"}
 
 
 def save_user_data(

@@ -480,17 +480,23 @@ def link_email_config_account(
             "status_code": status.HTTP_400_BAD_REQUEST,
         }
 
+    imap_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, imap_app_password
+    )
+    smtp_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, smtp_app_password
+    )
     try:
         social_api = SocialAPI.objects.get(user=user, email=email_address)
 
         social_api.imap_config.host = imap_host
         social_api.imap_config.port = imap_port
-        social_api.imap_config.app_password = imap_app_password
+        social_api.imap_config.app_password = imap_app_password_encrypted
         social_api.imap_config.encryption = imap_encryption
 
         social_api.smtp_config.host = smtp_host
         social_api.smtp_config.port = smtp_port
-        social_api.smtp_config.app_password = smtp_app_password
+        social_api.smtp_config.app_password = smtp_app_password_encrypted
         social_api.smtp_config.encryption = smtp_encryption
 
         social_api.save()
@@ -499,13 +505,13 @@ def link_email_config_account(
         imap_config = EmailServerConfig.objects.create(
             host=imap_host,
             port=imap_port,
-            app_password=imap_app_password,
+            app_password=imap_app_password_encrypted,
             encryption=imap_encryption,
         )
         smtp_config = EmailServerConfig.objects.create(
             host=smtp_host,
             port=smtp_port,
-            app_password=smtp_app_password,
+            app_password=smtp_app_password_encrypted,
             encryption=smtp_encryption,
         )
         social_api = SocialAPI.objects.create(

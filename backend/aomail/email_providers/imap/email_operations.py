@@ -9,7 +9,7 @@ from aomail.models import SocialAPI
 from aomail.email_providers.imap.authentication import connect_to_imap
 from aomail.utils import email_processing
 from django.contrib.auth.models import User
-from aomail.email_providers.utils import get_imap_email_id
+from aomail.email_providers.imap.utils import get_imap_email_id
 
 
 LOGGER = logging.getLogger(__name__)

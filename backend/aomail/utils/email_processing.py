@@ -16,6 +16,11 @@ from django.contrib.auth.models import User
 LOGGER = logging.getLogger(__name__)
 
 
+def validate_email_address(email_address: str) -> bool:
+    # https://stackoverflow.com/questions/8022530/how-to-check-for-valid-email-address
+    return "@" in email_address
+
+
 # ----------------------- CONVERTERS -----------------------#
 def camel_to_snake(name: str) -> str:
     """

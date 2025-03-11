@@ -36,6 +36,7 @@ def extract_json_from_response(response_text: str) -> dict:
     Raises:
         json.JSONDecodeError: If the response does not contain valid JSON or
                               cannot be parsed.
+        IndexError: If the response does not contain a JSON block.
     """
     try:
         if "```json" in response_text:
@@ -48,8 +49,10 @@ def extract_json_from_response(response_text: str) -> dict:
         else:
             json_text = response_text.split("```")[1].split("```")[0]
         return json.loads(json_text)
+    except IndexError as e:
+        raise IndexError(f"Error decoding JSON: {str(e)}")
     except json.JSONDecodeError as e:
-        raise json.JSONDecodeError(f"Error decoding JSON: {str(e)}")
+        raise
 
 
 def count_corrections(

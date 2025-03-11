@@ -3,12 +3,12 @@ Utils module for IMAP operations
 """
 
 
-def get_imap_email_id(message_id: str) -> str:
+def get_imap_email_id(message_id: tuple) -> str:
     """
     Extracts the email ID from a message ID string.
 
     Args:
-        message_id (str): The message ID string.
+        message_id (tuple): The message ID string.
 
     Returns:
         str: The email ID.

@@ -10,7 +10,8 @@ from django.contrib.auth.models import User
 
 LOGGER = logging.getLogger(__name__)
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_agent(request: HttpRequest) -> Response:
     """
@@ -22,18 +23,18 @@ def create_agent(request: HttpRequest) -> Response:
     Returns:
         Response: JSON response with agent data or error messages.
     """
-    serializer = AgentSerializer(data=request.data, context={'request': request})
+    serializer = AgentSerializer(data=request.data, context={"request": request})
 
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(
-            {"error": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
 
-@api_view(['PUT'])
+
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def update_agent(request: HttpRequest, agent_id: int) -> Response:
     """
@@ -46,18 +47,19 @@ def update_agent(request: HttpRequest, agent_id: int) -> Response:
     Returns:
         Response: JSON response with updated agent data or error messages.
     """
-    LOGGER.info(f"Received update request for agent_id: {agent_id} by user: {request.user.username}")
-    
+    LOGGER.info(
+        f"Received update request for agent_id: {agent_id} by user: {request.user.username}"
+    )
+
     try:
         agent = Agent.objects.get(id=agent_id, user=request.user)
         LOGGER.debug(f"Agent before update: {agent}")
     except Agent.DoesNotExist:
-        LOGGER.error(f"Agent with id {agent_id} not found for user {request.user.username}")
-        return Response(
-            {"error": "Agent not found."},
-            status=status.HTTP_404_NOT_FOUND
+        LOGGER.error(
+            f"Agent with id {agent_id} not found for user {request.user.username}"
         )
-    
+        return Response({"error": "Agent not found."}, status=status.HTTP_404_NOT_FOUND)
+
     serializer = AgentSerializer(agent, data=request.data, partial=True)
     LOGGER.debug(f"Serialized data: {serializer.initial_data}")
 
@@ -68,11 +70,11 @@ def update_agent(request: HttpRequest, agent_id: int) -> Response:
     else:
         LOGGER.error(f"Serializer errors: {serializer.errors}")
         return Response(
-            {"error": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_agents(request: HttpRequest) -> Response:
     """
@@ -88,7 +90,8 @@ def list_agents(request: HttpRequest) -> Response:
     serializer = AgentSerializer(agents, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['DELETE'])
+
+@api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def delete_agent(request: HttpRequest, agent_id: int) -> Response:
     """
@@ -105,16 +108,13 @@ def delete_agent(request: HttpRequest, agent_id: int) -> Response:
         agent = Agent.objects.get(id=agent_id, user=request.user)
         agent.delete()
         return Response(
-            {"message": "Agent deleted successfully."},
-            status=status.HTTP_200_OK
+            {"message": "Agent deleted successfully."}, status=status.HTTP_200_OK
         )
     except Agent.DoesNotExist:
-        return Response(
-            {"error": "Agent not found."},
-            status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"error": "Agent not found."}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def check_last_used_agent(request: HttpRequest) -> Response:
     """
@@ -131,16 +131,13 @@ def check_last_used_agent(request: HttpRequest) -> Response:
 
     if agent:
         return Response(
-            {"exists": True, "agent_id": agent.id},
-            status=status.HTTP_200_OK
+            {"exists": True, "agent_id": agent.id}, status=status.HTTP_200_OK
         )
     else:
-        return Response(
-            {"exists": False},
-            status=status.HTTP_200_OK
-        )
+        return Response({"exists": False}, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_agent(request: HttpRequest, agent_id: int) -> Response:
     """
@@ -156,15 +153,13 @@ def get_agent(request: HttpRequest, agent_id: int) -> Response:
     try:
         agent = Agent.objects.get(id=agent_id, user=request.user)
     except Agent.DoesNotExist:
-        return Response(
-            {"error": "Agent not found."},
-            status=status.HTTP_404_NOT_FOUND
-        )
-    
+        return Response({"error": "Agent not found."}, status=status.HTTP_404_NOT_FOUND)
+
     serializer = AgentSerializer(agent)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_agents_info(request: HttpRequest) -> Response:
     """
@@ -180,19 +175,17 @@ def get_all_agents_info(request: HttpRequest) -> Response:
         agents = Agent.objects.filter(user=request.user)
         if not agents.exists():
             return Response(
-                {"message": "No agents found for the user."},
-                status=status.HTTP_200_OK
+                {"message": "No agents found for the user."}, status=status.HTTP_200_OK
             )
-        
+
         serializer = AgentSerializer(agents, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Error fetching agents for user {request.user.id}: {str(e)}")
         return Response(
             {"error": "An error occurred while fetching agents."},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        ) 
-    
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def create_default_agents(user: User, language: str) -> dict:

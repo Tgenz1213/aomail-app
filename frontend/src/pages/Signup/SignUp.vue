@@ -198,7 +198,7 @@ async function goStepLinkEmail() {
         return;
     }
 
-    sessionStorage.setItem("login", login.value);
+    sessionStorage.setItem("username", login.value);
     sessionStorage.setItem("userDescription", userDescription.value);
     sessionStorage.setItem("password", password.value);
 

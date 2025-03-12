@@ -32,7 +32,7 @@ def test_extract_json_from_response():
 
 
 def test_extract_json_from_response_errors():
-    with pytest.raises(IndexError):
+    with pytest.raises(json.JSONDecodeError):
         extract_json_from_response("```Hello, world!")
     with pytest.raises(json.JSONDecodeError):
         extract_json_from_response("")

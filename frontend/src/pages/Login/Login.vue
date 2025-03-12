@@ -16,14 +16,13 @@
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form class="space-y-6">
                 <div>
-                    <label for="username" class="block text-sm font-medium leading-6 text-gray-900">
-                        {{ $t("constants.emailUppercase") }}
+                    <label for="login" class="block text-sm font-medium leading-6 text-gray-900">
+                        {{ $t("constants.loginUppercase") }}
                     </label>
                     <div class="mt-2">
                         <input
-                            id="username"
+                            id="login"
                             v-model="username"
-                            autocomplete="email"
                             required
                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
                         />
@@ -170,10 +169,10 @@ function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Tab") {
         event.preventDefault();
         const target = document.activeElement as HTMLElement;
-        if (target.id === "username") {
+        if (target.id === "login") {
             (document.getElementById("password") as HTMLElement).focus();
         } else {
-            (document.getElementById("username") as HTMLElement).focus();
+            (document.getElementById("login") as HTMLElement).focus();
         }
     } else if (event.key === "Enter") {
         event.preventDefault();
@@ -206,7 +205,7 @@ async function login() {
         displayPopup(
             "error",
             i18n.global.t("userLoginPage.loginError"),
-            i18n.global.t("userLoginPage.maxUsernameLength")
+            i18n.global.t("constants.popUpConstants.errorMessages.maxLoginLength150Characters")
         );
         return;
     }

@@ -466,6 +466,18 @@ def update_emails(request: HttpRequest) -> Response:
 
             elif action == "archive":
                 email.archive = True
+                email.read = True
+                email.read_date = timezone.now()
+                social_api = email.social_api
+                if social_api:
+                    if social_api.type_api == GOOGLE:
+                        email_operations_google.set_email_read(
+                            user, social_api.email, email.provider_id
+                        )
+                    elif social_api.type_api == MICROSOFT:
+                        email_operations_microsoft.set_email_read(
+                            social_api, email.provider_id
+                        )
             elif action == "unarchive":
                 email.archive = False
 

@@ -1,6 +1,6 @@
 <template>
     <SeeMailModal
-        v-if="isSeeMailOpen"
+        v-if="isSeeMailOpen && selectedEmail"
         :isOpen="isSeeMailOpen"
         :email="selectedEmail"
         @closeModal="closeSeeMailModal"
@@ -119,6 +119,7 @@ async function markEmailAsUnread() {
 async function archiveEmail() {
     if (selectedEmail?.value) {
         selectedEmail.value.archive = true;
+        selectedEmail.value.read = true;
     }
     const result = await putData("user/emails/update/", {
         ids: [selectedEmail?.value?.id],

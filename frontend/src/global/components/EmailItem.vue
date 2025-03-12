@@ -721,41 +721,112 @@ async function deleteEmail() {
 }
 
 async function archiveEmail() {
-    for (const category in emails.value) {
-        for (const subCategory in emails.value[category]) {
-            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
-            if (index !== -1) {
-                emails.value[category][subCategory][index].archive = true;
-                break;
+    if (isMarking.value) return;
+    isMarking.value = true;
+
+    try {
+        localEmail.value.archive = true;
+        localEmail.value.read = true;
+
+        for (const category in emails.value) {
+            for (const subCategory in emails.value[category]) {
+                const index = emails.value[category][subCategory].findIndex(
+                    (email) => email.id === props.email.id
+                );
+                if (index !== -1) {
+                    emails.value[category][subCategory][index].archive = true;
+                    emails.value[category][subCategory][index].read = true;
+                    break;
+                }
             }
         }
-    }
-    const result = await putData("user/emails/update/", {
-        ids: [localEmail.value.id],
-        action: "archive",
-    });
-    if (!result.success) {
-        displayPopup?.("error", i18n.global.t("constants.popUpConstants.archiveEmailFailure"), result.error as string);
+
+        const result = await putData("user/emails/update/", {
+            ids: [props.email.id],
+            action: "archive",
+        });
+
+        if (!result.success) {
+            localEmail.value.archive = false;
+            
+            for (const category in emails.value) {
+                for (const subCategory in emails.value[category]) {
+                    const index = emails.value[category][subCategory].findIndex(
+                        (email) => email.id === props.email.id
+                    );
+                    if (index !== -1) {
+                        emails.value[category][subCategory][index].archive = false;
+                        break;
+                    }
+                }
+            }
+            throw new Error(result.error);
+        }
+
+        fetchCategoriesAndTotals?.();
+        
+    } catch (error) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.archiveEmailFailure"),
+            error as string
+        );
+    } finally {
+        isMarking.value = false;
     }
 }
 
 async function unarchiveEmail() {
-    for (const category in emails.value) {
-        for (const subCategory in emails.value[category]) {
-            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
-            if (index !== -1) {
-                emails.value[category][subCategory][index].archive = false;
-                break;
+    if (isMarking.value) return;
+    isMarking.value = true;
+
+    try {
+        localEmail.value.archive = false;
+
+        for (const category in emails.value) {
+            for (const subCategory in emails.value[category]) {
+                const index = emails.value[category][subCategory].findIndex(
+                    (email) => email.id === props.email.id
+                );
+                if (index !== -1) {
+                    emails.value[category][subCategory][index].archive = false;
+                    break;
+                }
             }
         }
-    }
-    const result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unarchive" });
-    if (!result.success) {
+
+        const result = await putData("user/emails/update/", { 
+            ids: [props.email.id], 
+            action: "unarchive" 
+        });
+
+        if (!result.success) {
+            localEmail.value.archive = true;
+            
+            for (const category in emails.value) {
+                for (const subCategory in emails.value[category]) {
+                    const index = emails.value[category][subCategory].findIndex(
+                        (email) => email.id === props.email.id
+                    );
+                    if (index !== -1) {
+                        emails.value[category][subCategory][index].archive = true;
+                        break;
+                    }
+                }
+            }
+            throw new Error(result.error);
+        }
+
+        fetchCategoriesAndTotals?.();
+        
+    } catch (error) {
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.unarchiveEmailFailure"),
-            result.error as string
+            error as string
         );
+    } finally {
+        isMarking.value = false;
     }
 }
 

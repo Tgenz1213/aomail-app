@@ -200,6 +200,7 @@ async function markEmailAsUnread() {
 
 async function archiveEmail() {
     localEmail.value.archive = true;
+    localEmail.value.read = true;
 
     const result = await putData("user/emails/update/", {
         ids: [localEmail.value.id],

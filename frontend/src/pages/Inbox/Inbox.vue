@@ -674,6 +674,7 @@ const archiveReadEmails = async () => {
 
             readEmailsInCategory.forEach((email) => {
                 email.archive = true;
+                email.read = true;
             });
 
             displayPopup?.(

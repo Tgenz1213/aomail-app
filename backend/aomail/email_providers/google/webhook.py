@@ -10,6 +10,7 @@ import logging
 import threading
 import json
 from rest_framework import status
+from django.utils import timezone
 from django.http import HttpRequest
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -21,16 +22,16 @@ from aomail.constants import (
     GOOGLE_TOPIC_NAME,
 )
 from aomail.email_providers.google.authentication import authenticate_service
-from aomail.models import SocialAPI, Subscription
+from aomail.models import GoogleListener, SocialAPI, Subscription
 from aomail.email_providers.utils import email_to_db
-from aomail.authentication.authentication import subscribe_listeners
+from aomail.email_providers.google import authentication as auth_google
 
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 
 
-def check_and_resubscribe_to_missing_resources(type_api: str, user: User, email: str):
+def check_and_resubscribe_to_missing_resources(user: User, email: str):
     """
     Check all subscriptions for the given user and resubscribe to missing resources (email).
 
@@ -39,7 +40,12 @@ def check_and_resubscribe_to_missing_resources(type_api: str, user: User, email:
         user (User): The Django User object.
         email (str): The email address of the user.
     """
-    subscribe_listeners(type_api, user, email)
+    subscribed = subscribe_to_email_notifications(user, email)
+    if subscribed:
+        social_api = auth_google.get_social_api(user, email)
+        GoogleListener.objects.create(
+            last_modified=timezone.now(), social_api=social_api
+        )
 
 
 @api_view(["POST"])

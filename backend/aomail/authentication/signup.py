@@ -409,8 +409,8 @@ def validate_signup_data(parameters: dict) -> dict:
 
     # oauth connection attempt
     if code:
-        if not code:
-            return {"error": "No authorization code provided"}
+        if not type(code) == str:
+            return {"error": "Code must be a string"}
 
     # imap/smtp connection attempt
     else:
@@ -422,8 +422,6 @@ def validate_signup_data(parameters: dict) -> dict:
             return {"error": "IMAP app password is required"}
         if not parameters.get("imapHost", ""):
             return {"error": "IMAP host is required"}
-        if not parameters.get("imapPort", ""):
-            return {"error": "IMAP port is required"}
         if not isinstance(parameters.get("imapPort", ""), int):
             return {"error": "IMAP port must be an integer"}
         if not parameters.get("imapEncryption", "") in ["tls", "none"]:

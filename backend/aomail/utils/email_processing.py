@@ -270,50 +270,6 @@ def process_part(part: dict, plaintext_var: list) -> str | None:
     return decoded_data
 
 
-def count_corrections(
-    original_subject: str,
-    original_body: str,
-    corrected_subject: str,
-    corrected_body: str,
-) -> int:
-    """
-    Count and compare corrections in original and corrected texts.
-
-    Args:
-        original_subject (str): The original subject of the email.
-        original_body (str): The original body content of the email.
-        corrected_subject (str): The corrected subject of the email.
-        corrected_body (str): The corrected body content of the email.
-
-    Returns:
-        int: The total number of corrections made between the original and corrected texts.
-    """
-    # Splitting the original and corrected texts into words
-    original_subject_words = original_subject.split()
-    corrected_subject_words = corrected_subject.split()
-    original_body_words = original_body.split()
-    corrected_body_words = corrected_body.split()
-
-    # Counting the differences in the subject
-    subject_corrections = sum(
-        1
-        for orig, corr in zip(original_subject_words, corrected_subject_words)
-        if orig != corr
-    )
-
-    # Counting the differences in the body
-    body_corrections = sum(
-        1
-        for orig, corr in zip(original_body_words, corrected_body_words)
-        if orig != corr
-    )
-
-    # Total corrections
-    total_corrections = subject_corrections + body_corrections
-
-    return total_corrections
-
-
 def preprocess_email(email_content: str) -> str:
     """
     Removes links, email addresses, unnecessary spacings, and converts line endings.

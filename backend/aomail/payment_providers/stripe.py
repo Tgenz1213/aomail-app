@@ -251,7 +251,7 @@ def handle_checkout_session_completed(event: dict):
         for social_api in social_apis:
             if social_api.type_api == GOOGLE and not social_api.imap_config:
                 webhook_google.check_and_resubscribe_to_missing_resources(
-                    social_api.type_api, user, social_api.email
+                    user, social_api.email
                 )
             elif social_api.type_api == MICROSOFT and not social_api.imap_config:
                 webhook_microsoft.check_and_resubscribe_to_missing_resources(
@@ -331,7 +331,7 @@ def handle_updated_subscription(event: dict):
         for social_api in social_apis:
             if social_api.type_api == GOOGLE and not social_api.imap_config:
                 webhook_google.check_and_resubscribe_to_missing_resources(
-                    social_api.type_api, subscription.user, social_api.email
+                    subscription.user, social_api.email
                 )
             elif social_api.type_api == MICROSOFT and not social_api.imap_config:
                 webhook_microsoft.check_and_resubscribe_to_missing_resources(

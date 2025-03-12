@@ -1,6 +1,8 @@
+import pytest
 from aomail.authentication.signup import validate_signup_data
 
 
+@pytest.mark.django_db
 def test_validate_signup_data():
     assert validate_signup_data({"username": "test test"}) == {
         "error": "Username must not contain spaces"
@@ -25,6 +27,7 @@ def test_validate_signup_data():
     ) == {"message": "User signup data validated successfully"}
 
 
+@pytest.mark.django_db
 def test_validate_signup_data_oauth():
     assert validate_signup_data(
         {"username": "test", "password": "testtest", "code": 100}
@@ -34,6 +37,7 @@ def test_validate_signup_data_oauth():
     ) == {"message": "User signup data validated successfully"}
 
 
+@pytest.mark.django_db
 def test_validate_signup_data_imap_errors():
     assert validate_signup_data(
         {
@@ -85,6 +89,7 @@ def test_validate_signup_data_imap_errors():
     ) == {"error": "IMAP encryption must be either 'tls' or 'none'"}
 
 
+@pytest.mark.django_db
 def test_validate_signup_data_imap_errors():
     assert validate_signup_data(
         {

@@ -30,8 +30,7 @@ from aomail.email_providers.imap import (
     email_operations as email_operations_imap,
 )
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 from aomail.utils.security import subscription
@@ -150,7 +149,16 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    type_api = social_api.type_api
+    type_api = (
+        social_api.type_api
+        if not (api_method == "send_email" and social_api.imap_config)
+        else "smtp"
+    )
+    if social_api.imap_config and api_method != "send_email":
+        return Response(
+            {"error": "Unsupported method for IMAP"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     module_name = f"aomail.email_providers.{type_api}.{api_module}"
     try:
         module = importlib.import_module(module_name)

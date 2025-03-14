@@ -3,12 +3,33 @@
     <div class="inline-flex rounded-lg shadow-lg items-stretch">
         <button
             @click="sendEmail"
-            class="bg-gray-700 rounded-l-lg px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg"
+            :class="[
+                emailsLinked.filter(
+                    (emailLinked) =>
+                        emailLinked.email === emailSelected &&
+                        !emailLinked.isServerConfig &&
+                        emailLinked.typeApi === MICROSOFT
+                ).length === 1
+                    ? 'rounded-l-lg'
+                    : 'rounded-lg',
+                'bg-gray-700 px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg',
+            ]"
         >
             {{ $t("constants.userActions.send") }}
             <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
         </button>
-        <Menu as="div" class="relative -ml-px block items-stretch">
+        <Menu
+            v-if="
+                emailsLinked.filter(
+                    (emailLinked) =>
+                        emailLinked.email === emailSelected &&
+                        !emailLinked.isServerConfig &&
+                        emailLinked.typeApi === MICROSOFT
+                ).length === 1
+            "
+            as="div"
+            class="relative -ml-px block items-stretch"
+        >
             <MenuButton
                 @click="toggleMenu"
                 class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3"

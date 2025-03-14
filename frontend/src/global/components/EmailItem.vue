@@ -83,7 +83,7 @@
                             </span>
                         </div>
                         <div class="flex flex-col bg-white rounded-lg p-4 max-w-xl border border-gray-200">
-                            <p class="text-gray-800">{{ email.shortSummary }}</p>
+                            <p class="text-gray-800" v-html="processShortSummary(email.shortSummary)"></p>
                             <div
                                 v-if="email.hasAttachments"
                                 class="attachments-container overflow-y-auto max-h-32 flex flex-wrap gap-x-2 mt-3"
@@ -868,6 +868,18 @@ const getIconComponent = (fileName: string) => {
     } else {
         return DocumentIcon;
     }
+};
+
+const processShortSummary = (summary: string | undefined): string => {
+    if (!summary) return '';
+    
+    // URL regex pattern to detect links in text
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    
+    // Replace URLs with anchor tags
+    return summary.replace(urlRegex, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">link</a>`;
+    });
 };
 
 const downloadAttachment = async (emailId: number, attachmentName: string) => {

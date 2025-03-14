@@ -194,7 +194,7 @@ Return this JSON object completed with the requested information:
     }},
     "summary": {{
         "one_line": One sentence summary,
-        "short": Short summary of the email
+        "short": Summary of the email (MUST INCLUDE links, dates, technical details, and action items of the email)
     }}
 }}"""
 CATEGORIZE_AND_SUMMARIZE_EMAIL_PROMPT_VARIABLES = [

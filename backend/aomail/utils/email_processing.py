@@ -313,9 +313,9 @@ def preprocess_email(email_content: str) -> str:
              unnecessary spacings, and converted line endings.
     """
     # Remove links enclosed in <http...> or http... followed by a space
-    email_content = re.sub(r"<http(.*?)>", "", email_content)
-    email_content = re.sub(r"http(.*?)\ ", "", email_content)
-    email_content = re.sub(r"http\S+", "", email_content)
+    #email_content = re.sub(r"<http(.*?)>", "", email_content)
+    #email_content = re.sub(r"http(.*?)\ ", "", email_content)
+    #email_content = re.sub(r"http\S+", "", email_content)
 
     # Remove email addresses enclosed in <mailto...> or mailto... followed by a space
     email_content = re.sub(r"<mailto:(.*?)>", "", email_content)

@@ -314,6 +314,7 @@
     "markEmailReadFailure": "Failed to mark email as read",
     "markEmailReplyLaterFailure": "Failed to mark email for reply later",
     "unmarkEmailReplyLaterFailure": "Failed to unmark email for reply later",
+    "emailRemovedFromReplyLater": "",
     "transferEmailFailure": "Failed to transfer email",
     "blockEmailAddressFailure": "Failed to block email address",
     "flag": {

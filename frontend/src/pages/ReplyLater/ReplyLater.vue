@@ -83,6 +83,7 @@ const fetchEmailsData = async () => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
+
     let response: FetchDataResult;
 
     response = await postData("user/emails_ids/", { advanced: true, replyLater: true });
@@ -91,6 +92,12 @@ const fetchEmailsData = async () => {
 
     await loadMoreEmails();
 };
+
+const refreshEmails = async () => {
+    await fetchEmailsData();
+};
+
+provide("refreshReplyLaterEmails", refreshEmails);
 
 const loadMoreEmails = async () => {
     if (isLoading.value) return;

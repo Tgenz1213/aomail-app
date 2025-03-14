@@ -235,6 +235,53 @@
                             </div>
                         </div>
 
+                        <!-- Unmark Reply Later Button (only shown on Reply Later page) -->
+                        <div v-if="replyLater" class="relative group">
+                            <button
+                                @click="markEmailAsUnreplyLater"
+                                class="flex text-gray-600 hover:text-gray-800 rounded-full p-2.5 hover:bg-gray-200/80 focus:outline-none items-center justify-center"
+                            >
+                                <svg
+                                    class="w-5 h-5"
+                                    viewBox="0 0 28 28"
+                                    version="1.1"
+                                    stroke="currentColor"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    xml:space="preserve"
+                                    xmlns:serif="http://www.serif.com/"
+                                    style="
+                                        fill-rule: evenodd;
+                                        clip-rule: evenodd;
+                                        stroke-linecap: round;
+                                        stroke-linejoin: round;
+                                    "
+                                >
+                                    <path
+                                        d="M13.435,17.391l-6.783,-6.782m0,0l6.783,-6.783m-6.783,6.783l13.565,0c3.721,0 6.783,3.061 6.783,6.782c0,3.721 -3.062,6.783 -6.783,6.783l-3.391,0"
+                                        style="fill: none; stroke-width: 1.7px"
+                                    />
+                                    <path
+                                        d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
+                                        style="fill: none; stroke-width: 1.7px"
+                                    />
+                                </svg>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-4 h-4 absolute top-1 right-1 text-red-500"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                {{ $t("constants.userActions.unreplyLater") }}
+                            </div>
+                        </div>
+
                         <!-- Add Rule Button -->
                         <div class="relative group">
                             <button
@@ -356,11 +403,11 @@
                                                     >
                                                         <path
                                                             d="M13.435,17.391l-6.783,-6.782m0,0l6.783,-6.783m-6.783,6.783l13.565,0c3.721,0 6.783,3.061 6.783,6.782c0,3.721 -3.062,6.783 -6.783,6.783l-3.391,0"
-                                                            style="fill: none; stroke: #000; stroke-width: 1.7px"
+                                                            style="fill: none; stroke-width: 1.7px"
                                                         />
                                                         <path
                                                             d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
-                                                            style="fill: none; stroke: #000; stroke-width: 1.7px"
+                                                            style="fill: none; stroke-width: 1.7px"
                                                         />
                                                     </svg>
                                                     <span>{{ $t("constants.userActions.replyLater") }}</span>
@@ -396,11 +443,11 @@
                                                     >
                                                         <path
                                                             d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
-                                                            style="fill: none; stroke: #000; stroke-width: 1.7px"
+                                                            style="fill: none; stroke-width: 1.7px"
                                                         />
                                                         <path
                                                             d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
-                                                            style="fill: none; stroke: #000; stroke-width: 1.7px"
+                                                            style="fill: none; stroke-width: 1.7px"
                                                         />
                                                     </svg>
                                                     <span>{{ $t("constants.userActions.transfer") }}</span>
@@ -470,6 +517,7 @@ const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Pro
 const emails = inject("emails") as Ref<{ [key: string]: { [key: string]: Email[] } }>;
 const readCount = inject("readCount") as Ref<number>;
 const uselessCount = inject("uselessCount") as Ref<number>;
+const refreshReplyLaterEmails = inject("refreshReplyLaterEmails", null) as (() => Promise<void>) | null;
 
 const toggleShortSummary = () => {
     isShortSummaryVisible.value = !isShortSummaryVisible.value;
@@ -650,6 +698,12 @@ async function markEmailAsUnreplyLater() {
     let result = await putData("user/emails/update/", { ids: [localEmail.value.id], action: "unreplyLater" });
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
+        return;
+    }
+    
+    if (refreshReplyLaterEmails) {
+        refreshReplyLaterEmails();
+        displayPopup?.("success", i18n.global.t("constants.popUpConstants.success"), i18n.global.t("constants.userActions.unreplyLater"));
     }
 }
 

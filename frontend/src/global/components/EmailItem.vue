@@ -730,6 +730,8 @@ async function openAnswer() {
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
     sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));
     sessionStorage.setItem("importance", JSON.stringify(localEmail.value.priority));
+    sessionStorage.setItem("emailId", JSON.stringify(localEmail.value.id));
+    sessionStorage.setItem("markAsRead", JSON.stringify(!localEmail.value.read));
 
     router.push({ name: "answer" });
 }

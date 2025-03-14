@@ -404,6 +404,22 @@ onMounted(async () => {
         aiEmailWidth.value = parseInt(storedAiWidth, 10);
     }
 
+    const markAsRead = JSON.parse(sessionStorage.getItem("markAsRead") || "false");
+    const emailId = JSON.parse(sessionStorage.getItem("emailId") || "null");
+    if (markAsRead && emailId) {
+        try {
+            const result = await putData("user/emails/update/", { 
+                ids: [emailId], 
+                action: "read" 
+            });
+            if (!result.success) {
+                console.error("Failed to mark email as read:", result.error);
+            }
+        } catch (error) {
+            console.error("Error marking email as read:", error);
+        }
+    }
+
     try {
         isLoadingAgentSelection.value = true;
 

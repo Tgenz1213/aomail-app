@@ -144,8 +144,8 @@ class GenerateEmailConversation:
 
         Returns:
             dict: A dictionary containing:
-                new_subject (str): The improved subject of the email.
-                new_body (str): The improved body of the email in HTML format.
+                subject (str): The improved subject of the email.
+                body (str): The improved body of the email in HTML format.
                 tokens_input (int): The number of tokens used for the input.
                 tokens_output (int): The number of tokens used for the output.
         """
@@ -168,8 +168,21 @@ class GenerateEmailConversation:
             preference.llm_provider,
             preference.llm_model,
         )
-        new_subject = result_json.get("subject", "")
-        new_body = result_json.get("body", "")
-        self.update_history(user_input, new_subject, new_body)
+        
+        # Get the subject and body from the result
+        subject = result_json.get("subject", "")
+        body = result_json.get("body", "")
+        
+        # Ensure proper spacing in the HTML content
+        import re
+        # Add spaces between words if they're missing (camelCase or after punctuation)
+        body = re.sub(r'([a-zA-Z0-9])([A-Z])', r'\1 \2', body)
+        body = re.sub(r'([.!?])([A-Za-z])', r'\1 \2', body)
+        
+        # Update the result with the properly formatted body
+        result_json["body"] = body
+        
+        # Update history with the improved content
+        self.update_history(user_input, subject, body)
 
         return result_json

@@ -305,8 +305,8 @@ def improve_draft(request: HttpRequest) -> Response:
 
             return Response(
                 {
-                    "subject": result["new_subject"],
-                    "emailBody": result["new_body"],
+                    "subject": result["subject"],
+                    "emailBody": result["body"],
                     "history": gen_email_conv.history.dict(),
                 },
                 status=status.HTTP_200_OK,
@@ -1083,8 +1083,8 @@ def handle_email_action(request: HttpRequest) -> Response:
 
             response_data.update(
                 {
-                    "subject": result.get("new_subject", ""),
-                    "emailBody": result.get("new_body", ""),
+                    "subject": result.get("subject", ""),
+                    "emailBody": result.get("body", ""),
                     "history": gen_email_conv.history.dict(),
                 }
             )

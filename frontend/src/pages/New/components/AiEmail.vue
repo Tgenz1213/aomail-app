@@ -258,6 +258,8 @@ async function handleAIClick() {
             signature: signatures.value.find((sig) => sig.id)?.signature_content,
         });
 
+        console.log("response", response.data);
+
         if (!response.success) {
             displayMessage?.(
                 i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"),
@@ -517,7 +519,16 @@ function handleScenarioImproveDraft(data: any) {
     const quillInstance = getQuill?.();
     if (!quillInstance || !AIContainer.value) return;
 
-    quillInstance.root.innerHTML = data.emailBody.replace(/<\/p>/g, "</p><p></p>");
+    // Apply the same formatting as in handleScenarioGenerateEmail
+    const formattedContent = data.emailBody
+        .replace(/<\/p>(?!<div>)/g, "</p><p></p>")
+        .replace(/<div>/g, "<p>")
+        .replace(/<\/div>/g, "</p>")
+        // Add spaces between words if they're missing
+        .replace(/([a-zA-Z0-9])([A-Z])/g, "$1 $2")
+        .replace(/([.!?])([A-Za-z])/g, "$1 $2");
+
+    quillInstance.root.innerHTML = formattedContent;
     subjectInput.value = data.subject;
     emailBody.value = data.emailBody;
 
@@ -571,7 +582,19 @@ function displayMultipleEmailsMessage() {
 }
 
 function displayImprovedDraft(emailBody: string, subject: string) {
-    displayMessage?.(i18n.global.t("newPage.draftImproved"), selectedAgent.value.picture);
+    // Format the email body for display
+    const formattedBody = emailBody
+        .replace(/<\/p>(?!<div>)/g, "</p><p></p>")
+        .replace(/<div>/g, "<p>")
+        .replace(/<\/div>/g, "</p>")
+        .replace(/([a-zA-Z0-9])([A-Z])/g, "$1 $2")
+        .replace(/([.!?])([A-Za-z])/g, "$1 $2");
+    
+    // Display a message with the improved draft
+    displayMessage?.(
+        `${i18n.global.t("newPage.draftImproved")}<br><br><strong>${i18n.global.t("newPage.subject")}:</strong> ${subject}<br><strong>${i18n.global.t("newPage.emailContent")}:</strong> ${formattedBody}`, 
+        selectedAgent.value.picture
+    );
 }
 
 function toggleDropdown() {

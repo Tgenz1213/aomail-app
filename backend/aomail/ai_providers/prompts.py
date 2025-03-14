@@ -383,7 +383,7 @@ If you hesitate or there is contradictory information, always prioritize the las
 Keep the same email body length: '{length}' AND level of speech: '{formality}' unless a change is explicitly mentioned by the user.
 
 ---
-Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
+Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format with proper spacing and formatting. Use <p> tags for paragraphs and maintain readable text with appropriate spaces between words.
 """
 IMPROVE_EMAIL_DRAFT_PROMPT_VARIABLES = [
     "language",

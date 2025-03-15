@@ -30,20 +30,10 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
     LOGGER.info(f"Replication of labels on Outlook for {social_api.email} started")
 
     category_colors = {
-        "important": "Preset0",  # Red
+        "important": "Preset16",  # Orange
         "informative": "Preset7",  # Blue
         "useless": "Preset12",  # Gray
-        "spam": "Preset15",  # Dark Red
-        "scam": "Preset24",  # Dark Cranberry
-        "newsletter": "Preset4",  # Green
-        "notification": "Preset3",  # Yellow
-        "meeting": "Preset7",  # Blue
-        "Answer Required": "Preset9",  # Cranberry
-        "Might Require Answer": "Preset16",  # Dark Orange
-        "No Answer Required": "Preset8",  # Purple
-        "Highly Relevant": "Preset4",  # Green
-        "Possibly Relevant": "Preset20",  # Dark Teal
-        "Not Relevant": "Preset12",  # Gray
+        "Answer Required": "Preset9",  # Amber/Gold
     }
 
     try:
@@ -53,15 +43,13 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
 
         categories_to_apply = []
 
-        # Add non-flag categories
-        for label, value in ai_output.items():
-            if label not in ["topic", "flags"] and value:
+        # Process AI output - only apply specific categories
+        for key, value in ai_output.items():
+            if key == "importance" or key == "topic":
+                if value:  
+                    categories_to_apply.append(value)
+            elif key == "response" and value == "Answer Required":
                 categories_to_apply.append(value)
-
-        # Add flag categories
-        for flag, active in ai_output.get("flags", {}).items():
-            if active:
-                categories_to_apply.append(flag)
 
         # Create categories if they don't exist
         existing_categories = get_existing_categories(headers)

@@ -157,20 +157,10 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
     }
 
     label_colors = {
-        "important": "#fb4c2f",
-        "informative": "#4a86e8",
-        "useless": "#999999",
-        "spam": "#cc3a21",
-        "scam": "#994a64",
-        "newsletter": "#16a766",
-        "notification": "#fad165",
-        "meeting": "#6d9eeb",
-        "Answer Required": "#ffc8af",
-        "Might Require Answer": "#ffad46",
-        "No Answer Required": "#98d7e4",
-        "Highly Relevant": "#43d692",
-        "Possibly Relevant": "#a2dcc1",
-        "Not Relevant": "#cccccc",
+        "important": "#ffe6c7",  # Light orange background
+        "informative": "#c9daf8",  # Light blue background
+        "useless": "#f3f3f3",  # Light gray background
+        "Answer Required": "#fdedc1",  # Light amber background
     }
 
     # Remove colors already used in existing labels
@@ -190,16 +180,21 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
                 return label.get("id")
 
         label_color = label_colors.get(name, allowed_colors.pop())
+        text_color = {
+            "important": "#ffad47",  # Orange
+            "informative": "#4a86e8",  # Blue
+            "useless": "#666666",  # Gray
+            "Answer Required": "#ffad47",  # Amber
+        }.get(name, "#000000")
+
         label_body = {
             "name": name,
             "color": {
-                "textColor": "#000000",
+                "textColor": text_color,
                 "backgroundColor": label_color,
             },
-            "messageListVisibility": "hide" if name in HIDE_LABEL_NAMES else "show",
-            "labelListVisibility": (
-                "labelHide" if name in HIDE_LABEL_NAMES else "labelShow"
-            ),
+            "messageListVisibility": "show",
+            "labelListVisibility": "labelShow",
         }
         response = gmail.users().labels().create(userId="me", body=label_body).execute()
         return response.get("id")
@@ -207,13 +202,11 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
     # Process AI output
     label_ids = []
     for key, value in ai_output.items():
-        if key == "flags":
-            for flag, active in value.items():
-                if active:
-                    label_id = find_or_create_label(flag)
-                    label_ids.append(label_id)
-
-        else:
+        if key == "importance" or key == "topic":
+            if value:  
+                label_id = find_or_create_label(value)
+                label_ids.append(label_id)
+        elif key == "response" and value == "Answer Required":
             label_id = find_or_create_label(value)
             label_ids.append(label_id)
 

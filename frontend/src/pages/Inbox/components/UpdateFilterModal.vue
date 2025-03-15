@@ -340,7 +340,7 @@ const updateFilter = async () => {
     if (response.success) {
         selectedFilter.value = { ...response.data };
         activeFilters.value[selectedCategory.value] = { ...response.data };
-        
+
         localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
 
         currentPage.value = 1;
@@ -387,11 +387,11 @@ const deleteFilter = async () => {
         return;
     }
 
-    const response = await deleteData(`delete_filter/`, { 
+    const response = await deleteData(`delete_filter/`, {
         filterName: props.filter?.name,
-        category: filterData.value.category 
+        category: filterData.value.category,
     });
-    
+
     if (response.success) {
         const allEmailsFilter: Filter = {
             id: 0,
@@ -405,15 +405,15 @@ const deleteFilter = async () => {
             spam: true,
             scam: true,
             meeting: true,
-            category: filterData.value.category
+            category: filterData.value.category,
         };
-        
+
         const filterIndex = categoryFilters.findIndex((filter) => filter.name === props.filter?.name);
         if (filterIndex !== -1) {
             categoryFilters.splice(filterIndex, 1);
         }
 
-        const existingAllEmailsIndex = categoryFilters.findIndex(f => f.id === 0);
+        const existingAllEmailsIndex = categoryFilters.findIndex((f) => f.id === 0);
         if (existingAllEmailsIndex !== -1) {
             categoryFilters.splice(existingAllEmailsIndex, 1);
         }
@@ -421,7 +421,7 @@ const deleteFilter = async () => {
 
         selectedFilter.value = allEmailsFilter;
         activeFilters.value[selectedCategory.value] = allEmailsFilter;
-        
+
         localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
 
         currentPage.value = 1;

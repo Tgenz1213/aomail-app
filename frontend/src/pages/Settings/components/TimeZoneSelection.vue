@@ -12,7 +12,12 @@
             <ListboxButton
                 class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6"
             >
-                <span class="block truncate">{{ selectedTimeZone || i18n.global.t('settingsPage.preferencesPage.timeZoneSelection.selectPlaceholder') }}</span>
+                <span class="block truncate">
+                    {{
+                        selectedTimeZone ||
+                        i18n.global.t("settingsPage.preferencesPage.timeZoneSelection.selectPlaceholder")
+                    }}
+                </span>
                 <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                     <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
@@ -30,7 +35,7 @@
                         v-if="filteredTimezones.length === 0"
                         class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-500"
                     >
-                        {{ i18n.global.t('settingsPage.preferencesPage.timeZoneSelection.noResults') }}
+                        {{ i18n.global.t("settingsPage.preferencesPage.timeZoneSelection.noResults") }}
                     </li>
                     <ListboxOption
                         v-else

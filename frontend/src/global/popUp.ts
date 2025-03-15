@@ -1,5 +1,5 @@
-import { Ref } from "vue"
-import { POP_UP_ERROR_COLOR, POP_UP_SUCCESS_COLOR } from "./const"
+import { Ref } from "vue";
+import { POP_UP_ERROR_COLOR, POP_UP_SUCCESS_COLOR } from "./const";
 
 export function displayErrorPopup(
     showNotification: Ref<boolean>,
@@ -9,14 +9,14 @@ export function displayErrorPopup(
     title: string,
     message: string
 ) {
-    backgroundColor.value = POP_UP_ERROR_COLOR
-    notificationTitle.value = title
-    notificationMessage.value = message
-    showNotification.value = true
+    backgroundColor.value = POP_UP_ERROR_COLOR;
+    notificationTitle.value = title;
+    notificationMessage.value = message;
+    showNotification.value = true;
 
     setTimeout(() => {
-        showNotification.value = false
-    }, 4000)
+        showNotification.value = false;
+    }, 4000);
 }
 
 export function displaySuccessPopup(
@@ -27,12 +27,12 @@ export function displaySuccessPopup(
     title: string,
     message: string
 ) {
-    backgroundColor.value = POP_UP_SUCCESS_COLOR
-    notificationTitle.value = title
-    notificationMessage.value = message
-    showNotification.value = true
+    backgroundColor.value = POP_UP_SUCCESS_COLOR;
+    notificationTitle.value = title;
+    notificationMessage.value = message;
+    showNotification.value = true;
 
     setTimeout(() => {
-        showNotification.value = false
-    }, 4000)
+        showNotification.value = false;
+    }, 4000);
 }

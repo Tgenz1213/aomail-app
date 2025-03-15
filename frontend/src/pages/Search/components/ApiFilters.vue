@@ -4,17 +4,17 @@
             <div class="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
                 <div class="max-h-[400px] overflow-y-auto py-2 pl-2 pr-4 space-y-4">
                     <div class="flex items-center mb-2">
-                        <h2 class="text-lg font-semibold">{{ t('apiFilters.title') }}</h2>
+                        <h2 class="text-lg font-semibold">{{ t("apiFilters.title") }}</h2>
                         <button
                             @click="resetFilters"
                             class="bg-gray-100 px-3 py-2 text-gray-600 text-sm rounded-md hover:bg-gray-200 ml-auto"
                         >
-                            {{ t('apiFilters.clearAll') }}
+                            {{ t("apiFilters.clearAll") }}
                         </button>
                     </div>
                     <div>
                         <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
-                            {{ t('apiFilters.emailProviders.title') }}
+                            {{ t("apiFilters.emailProviders.title") }}
                         </h3>
                         <div class="flex items-center space-x-2 pl-1">
                             <input
@@ -24,7 +24,9 @@
                                 v-model="emailProviders"
                                 class="rounded text-gray-600 focus:ring-gray-500"
                             />
-                            <label for="gmail" class="flex items-center">{{ t('apiFilters.emailProviders.gmail') }}</label>
+                            <label for="gmail" class="flex items-center">
+                                {{ t("apiFilters.emailProviders.gmail") }}
+                            </label>
                         </div>
                         <div class="flex items-center space-x-2 pl-1">
                             <input
@@ -34,13 +36,15 @@
                                 v-model="emailProviders"
                                 class="rounded text-gray-600 focus:ring-gray-500"
                             />
-                            <label for="outlook" class="flex items-center">{{ t('apiFilters.emailProviders.outlook') }}</label>
+                            <label for="outlook" class="flex items-center">
+                                {{ t("apiFilters.emailProviders.outlook") }}
+                            </label>
                         </div>
                     </div>
 
                     <!-- Subject -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('apiFilters.subject') }}</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t("apiFilters.subject") }}</h3>
                         <input
                             type="text"
                             v-model="apiSearchFilters.subject"
@@ -51,7 +55,9 @@
 
                     <!-- Sender Email -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('apiFilters.senderEmail') }}</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
+                            {{ t("apiFilters.senderEmail") }}
+                        </h3>
                         <input
                             type="text"
                             v-model="fromAddress"
@@ -62,7 +68,9 @@
 
                     <!-- To Address -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('apiFilters.recipientEmail') }}</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
+                            {{ t("apiFilters.recipientEmail") }}
+                        </h3>
                         <input
                             type="text"
                             v-model="toAddress"
@@ -73,7 +81,9 @@
 
                     <!-- Body -->
                     <div>
-                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">{{ t('apiFilters.emailBody') }}</h3>
+                        <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
+                            {{ t("apiFilters.emailBody") }}
+                        </h3>
                         <input
                             type="text"
                             v-model="apiSearchFilters.body"
@@ -85,8 +95,8 @@
                     <!-- Received Date -->
                     <div>
                         <h3 class="text-sm font-medium leading-6 text-gray-900 mb-1">
-                            {{ t('apiFilters.receivedDate') }}
-                            ({{ t('apiFilters.receivedDateDescription') }})
+                            {{ t("apiFilters.receivedDate") }}
+                            ({{ t("apiFilters.receivedDateDescription") }})
                         </h3>
                         <input
                             type="date"
@@ -97,7 +107,9 @@
 
                     <!-- Attachment Types Multi-select -->
                     <div class="relative">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('apiFilters.attachmentTypes.title') }}</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ t("apiFilters.attachmentTypes.title") }}
+                        </label>
                         <div
                             @click="toggleAttachmentDropdown"
                             class="border rounded-md p-2 flex justify-between items-center cursor-pointer bg-white"
@@ -112,7 +124,9 @@
                                         {{ t(`apiFilters.attachmentTypes.types.${key.slice(1)}`) }}
                                     </span>
                                 </template>
-                                <span v-else class="text-gray-500 text-sm">{{ t('apiFilters.attachmentTypes.placeholder') }}</span>
+                                <span v-else class="text-gray-500 text-sm">
+                                    {{ t("apiFilters.attachmentTypes.placeholder") }}
+                                </span>
                             </div>
                             <svg
                                 class="w-4 h-4 text-gray-400"
@@ -142,7 +156,9 @@
                                         v-model="selectedAttachments"
                                         class="rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                                     />
-                                    <span class="ml-2">{{ t(`apiFilters.attachmentTypes.types.${type.key.slice(1)}`) }}</span>
+                                    <span class="ml-2">
+                                        {{ t(`apiFilters.attachmentTypes.types.${type.key.slice(1)}`) }}
+                                    </span>
                                 </label>
                             </div>
                         </div>
@@ -150,7 +166,9 @@
 
                     <!-- Search In Folders Multi-select -->
                     <div class="relative">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('apiFilters.searchIn.title') }}</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ t("apiFilters.searchIn.title") }}
+                        </label>
                         <div
                             @click="toggleSearchDropdown"
                             class="border rounded-md p-2 flex justify-between items-center cursor-pointer bg-white"
@@ -165,7 +183,9 @@
                                         {{ t(`apiFilters.searchIn.options.${key}`) }}
                                     </span>
                                 </template>
-                                <span v-else class="text-gray-500 text-sm">{{ t('apiFilters.searchIn.placeholder') }}</span>
+                                <span v-else class="text-gray-500 text-sm">
+                                    {{ t("apiFilters.searchIn.placeholder") }}
+                                </span>
                             </div>
                             <svg
                                 class="w-4 h-4 text-gray-400"

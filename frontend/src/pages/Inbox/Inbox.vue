@@ -21,15 +21,11 @@
     <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div
-                :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']"
-            >
+            <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
                 <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <!-- TO IMPLEMENT LATER :style="{ width: emailsContainerWidth + '%' }"-->
-            <div
-                class="bg-white ring-1 shadow-sm ring-black ring-opacity-5 h-full w-full"
-            >
+            <div class="bg-white ring-1 shadow-sm ring-black ring-opacity-5 h-full w-full">
                 <div class="flex flex-col h-full relative">
                     <div
                         v-if="showFeedbackForm"
@@ -57,10 +53,7 @@
                         class="relative bg-gradient-to-r from-gray-800 via-gray-950 to-gray-800 bg-[length:200%_100%] animate-gradient border-b border-black shadow-sm border-opacity-10"
                     >
                         <div class="flex justify-center items-center py-3">
-                            <button
-                                @click="goToSubscriptionSection"
-                                class="text-sm font-semibold text-white"
-                            >
+                            <button @click="goToSubscriptionSection" class="text-sm font-semibold text-white">
                                 {{ $t("constants.freeTrialExpired") }}
                                 {{ $t("constants.freeTrialExpiredDesc") }}
                             </button>
@@ -216,8 +209,8 @@ const isMarking = ref({
     archiveRead: false,
 });
 
-const emailsContainerWidth = ref<number>(parseFloat(localStorage.getItem("inboxEmailsWidth") || '70')); // Default to 70%
-const assistantChatWidth = ref<number>(parseFloat(localStorage.getItem("inboxAssistantChatWidth") || '30')); // Default to 30%
+const emailsContainerWidth = ref<number>(parseFloat(localStorage.getItem("inboxEmailsWidth") || "70")); // Default to 70%
+const assistantChatWidth = ref<number>(parseFloat(localStorage.getItem("inboxAssistantChatWidth") || "30")); // Default to 30%
 
 let totalPages = computed(() => {
     return Math.ceil(allEmailIds.value.length / emailsPerPage);
@@ -228,9 +221,9 @@ watch(
     () => {
         const currentCategoryFilter = activeFilters.value[selectedCategory.value];
         const categoryFilters = filters.value[selectedCategory.value];
-        
+
         if (!currentCategoryFilter && categoryFilters?.length > 0) {
-            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+            const allEmailsFilter = categoryFilters.find((f) => f.id === 0);
             if (allEmailsFilter) {
                 activeFilters.value[selectedCategory.value] = allEmailsFilter;
                 selectedFilter.value = allEmailsFilter;
@@ -404,7 +397,7 @@ async function loadPage(pageNumber: number) {
             }
             const existingIds = new Set(emails.value[category][type].map((email: Email) => email.id));
             const uniqueNewEmails = newEmails[category][type].filter((email: Email) => !existingIds.has(email.id));
-            
+
             if (uniqueNewEmails.length > 0) {
                 emails.value[category][type].push(...uniqueNewEmails);
             }
@@ -414,7 +407,7 @@ async function loadPage(pageNumber: number) {
 
 const loadMoreEmails = async (pagesToLoad = 1) => {
     if (isLoading.value || currentPage.value > totalPages.value) return;
-    
+
     isLoading.value = true;
     console.log("Loading more emails...", currentPage.value, totalPages.value);
 
@@ -466,9 +459,14 @@ const handleScroll = debounce(() => {
 
     const threshold = 800;
     const remainingScroll = scrollHeight - (scrollTop + clientHeight);
-    
+
     if (remainingScroll <= threshold && !isLoading.value && currentPage.value <= totalPages.value) {
-        console.log("Triggering load more...", { remainingScroll, threshold, currentPage: currentPage.value, totalPages: totalPages.value });
+        console.log("Triggering load more...", {
+            remainingScroll,
+            threshold,
+            currentPage: currentPage.value,
+            totalPages: totalPages.value,
+        });
         if (speed > 1.5) {
             loadMoreEmails(2);
         } else {
@@ -508,7 +506,7 @@ async function fetchCategoriesAndTotals() {
 const fetchFiltersData = async (categoryName: string) => {
     try {
         const response = await postData("user/filters/", { category: categoryName });
-        
+
         if (!filters.value[categoryName]) {
             filters.value[categoryName] = [];
         }
@@ -526,18 +524,42 @@ const fetchFiltersData = async (categoryName: string) => {
                 spam: true,
                 scam: true,
                 meeting: true,
-                category: categoryName
+                category: categoryName,
             };
 
-            const customFilters = response.data.filter(f => f.id !== 0);
+            const customFilters = response.data.filter((f) => f.id !== 0);
             filters.value[categoryName] = [allEmailsFilter, ...customFilters];
         } else {
             localStorage.removeItem("activeFilters");
             activeFilters.value = {};
             selectedCategory.value = DEFAULT_CATEGORY;
-            
+
             console.warn(`Failed to fetch filters for category ${categoryName}`);
-            filters.value[selectedCategory.value] = [{
+            filters.value[selectedCategory.value] = [
+                {
+                    id: 0,
+                    name: "All emails",
+                    important: true,
+                    informative: true,
+                    useless: true,
+                    read: true,
+                    notification: true,
+                    newsletter: true,
+                    spam: true,
+                    scam: true,
+                    meeting: true,
+                    category: selectedCategory.value,
+                },
+            ];
+        }
+    } catch (error) {
+        localStorage.removeItem("activeFilters");
+        activeFilters.value = {};
+        selectedCategory.value = DEFAULT_CATEGORY;
+
+        console.error(`Error fetching filters for category ${categoryName}:`, error);
+        filters.value[selectedCategory.value] = [
+            {
                 id: 0,
                 name: "All emails",
                 important: true,
@@ -549,29 +571,9 @@ const fetchFiltersData = async (categoryName: string) => {
                 spam: true,
                 scam: true,
                 meeting: true,
-                category: selectedCategory.value
-            }];
-        }
-    } catch (error) {
-        localStorage.removeItem("activeFilters");
-        activeFilters.value = {};
-        selectedCategory.value = DEFAULT_CATEGORY;
-        
-        console.error(`Error fetching filters for category ${categoryName}:`, error);
-        filters.value[selectedCategory.value] = [{
-            id: 0,
-            name: "All emails",
-            important: true,
-            informative: true,
-            useless: true,
-            read: true,
-            notification: true,
-            newsletter: true,
-            spam: true,
-            scam: true,
-            meeting: true,
-            category: selectedCategory.value
-        }];
+                category: selectedCategory.value,
+            },
+        ];
     }
 };
 
@@ -794,7 +796,7 @@ const selectCategory = async (category: Category) => {
     if (!activeFilters.value[category.name]) {
         const categoryFilters = filters.value[category.name];
         if (categoryFilters && categoryFilters.length > 0) {
-            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+            const allEmailsFilter = categoryFilters.find((f) => f.id === 0);
             if (allEmailsFilter) {
                 activeFilters.value[category.name] = allEmailsFilter;
                 selectedFilter.value = allEmailsFilter;
@@ -806,7 +808,7 @@ const selectCategory = async (category: Category) => {
 
     await fetchEmailsData(selectedCategory.value);
     await fetchEmailCounts(selectedCategory.value);
-    
+
     localStorage.setItem("selectedCategory", category.name);
     localStorage.setItem("activeFilters", JSON.stringify(activeFilters.value));
 
@@ -869,7 +871,7 @@ const loadActiveFilters = async () => {
                     activeFilters.value[category] = filter;
                 } else {
                     // If stored filter not found, set to "All emails" filter
-                    const allEmailsFilter = filterArray.find(f => f.id === 0);
+                    const allEmailsFilter = filterArray.find((f) => f.id === 0);
                     if (allEmailsFilter) {
                         activeFilters.value[category] = allEmailsFilter;
                     }
@@ -912,7 +914,7 @@ const initDrag = (event: MouseEvent) => {
     startEmailsWidth.value = emailsContainerWidth.value;
     startAssistantWidth.value = assistantChatWidth.value;
 
-    const container = (event.target as HTMLElement).closest('.flex');
+    const container = (event.target as HTMLElement).closest(".flex");
     initialContainerWidth.value = container ? container.clientWidth : 0;
 
     window.addEventListener("mousemove", onDrag);
@@ -969,11 +971,11 @@ const saveWidths = () => {
 
 onMounted(async () => {
     processFeedBackForm();
-    
+
     await fetchCategoriesAndTotals();
 
     const storedTopic = localStorage.getItem("selectedCategory");
-    if (storedTopic && categories.value.some(cat => cat.name === storedTopic)) {
+    if (storedTopic && categories.value.some((cat) => cat.name === storedTopic)) {
         selectedCategory.value = storedTopic;
     } else {
         selectedCategory.value = DEFAULT_CATEGORY;
@@ -987,9 +989,7 @@ onMounted(async () => {
         }
     }
 
-    const loadFiltersPromises = categories.value.map(category => 
-        fetchFiltersData(category.name)
-    );
+    const loadFiltersPromises = categories.value.map((category) => fetchFiltersData(category.name));
     await Promise.all(loadFiltersPromises);
 
     const storedFilters = localStorage.getItem("activeFilters");
@@ -1000,8 +1000,12 @@ onMounted(async () => {
 
     for (const category of categories.value) {
         const categoryFilters = filters.value[category.name];
-        if (categoryFilters && (!activeFilters.value[category.name] || !categoryFilters.find(f => f.name === activeFilters.value[category.name]?.name))) {
-            const allEmailsFilter = categoryFilters.find(f => f.id === 0);
+        if (
+            categoryFilters &&
+            (!activeFilters.value[category.name] ||
+                !categoryFilters.find((f) => f.name === activeFilters.value[category.name]?.name))
+        ) {
+            const allEmailsFilter = categoryFilters.find((f) => f.id === 0);
             if (allEmailsFilter) {
                 activeFilters.value[category.name] = allEmailsFilter;
                 if (category.name === selectedCategory.value) {
@@ -1075,9 +1079,15 @@ onBeforeUnmount(() => {
 }
 
 @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .animate-gradient {

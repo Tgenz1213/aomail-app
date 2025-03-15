@@ -9,7 +9,9 @@
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center">
-                                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
+                                <span
+                                    class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm"
+                                >
                                     {{ $t("constants.language") }}
                                 </span>
                             </div>
@@ -24,7 +26,9 @@
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center">
-                                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
+                                <span
+                                    class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm"
+                                >
                                     {{ $t("constants.timezone") }}
                                 </span>
                             </div>
@@ -40,13 +44,18 @@
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center">
-                                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
+                                <span
+                                    class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm"
+                                >
                                     E-commerce (Vinted)
                                 </span>
                             </div>
                         </div>
                         <div class="pt-8 flex justify-center">
-                            <a href="/labels" class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
+                            <a
+                                href="/labels"
+                                class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+                            >
                                 Shipping Labels
                             </a>
                         </div>
@@ -60,7 +69,9 @@
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center">
-                                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
+                                <span
+                                    class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm"
+                                >
                                     {{ $t("constants.theme") }}
                                 </span>
                             </div>
@@ -76,7 +87,9 @@
                                 <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center">
-                                <span class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm">
+                                <span
+                                    class="bg-gray-100/70 px-4 py-1 text-md text-gray-600 rounded-full backdrop-blur-sm"
+                                >
                                     {{ $t("settingsPage.preferencesPage.signatureManagement") }}
                                 </span>
                             </div>
@@ -94,7 +107,9 @@
                                                     : $t("settingsPage.preferencesPage.signaturePlaceholder")
                                             }}
                                         </span>
-                                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <span
+                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                                        >
                                             <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                                         </span>
                                     </ListboxButton>

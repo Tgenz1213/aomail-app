@@ -3,9 +3,11 @@
         <div v-if="isOpen" class="absolute left-0 right-0 z-50">
             <div class="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
                 <div class="space-y-4">
-                    <h2 class="text-lg font-semibold mb-4">{{ $t('labelsPage.filters.title') }}</h2>
+                    <h2 class="text-lg font-semibold mb-4">{{ $t("labelsPage.filters.title") }}</h2>
                     <div class="mb-4">
-                        <label for="platform" class="block text-sm font-medium text-gray-700">{{ $t('labelsPage.filters.platform') }}</label>
+                        <label for="platform" class="block text-sm font-medium text-gray-700">
+                            {{ $t("labelsPage.filters.platform") }}
+                        </label>
                         <input
                             id="platform"
                             v-model="platform"
@@ -14,7 +16,9 @@
                         />
                     </div>
                     <div class="mb-4">
-                        <label for="itemName" class="block text-sm font-medium text-gray-700">{{ $t('labelsPage.filters.itemName') }}</label>
+                        <label for="itemName" class="block text-sm font-medium text-gray-700">
+                            {{ $t("labelsPage.filters.itemName") }}
+                        </label>
                         <input
                             id="itemName"
                             v-model="itemName"
@@ -23,7 +27,9 @@
                         />
                     </div>
                     <div class="mb-4">
-                        <label for="carrier" class="block text-sm font-medium text-gray-700">{{ $t('labelsPage.filters.carrier') }}</label>
+                        <label for="carrier" class="block text-sm font-medium text-gray-700">
+                            {{ $t("labelsPage.filters.carrier") }}
+                        </label>
                         <input
                             id="carrier"
                             v-model="carrier"
@@ -33,7 +39,7 @@
                     </div>
                     <div class="mb-4">
                         <label for="postageDeadline" class="block text-sm font-medium text-gray-700">
-                            {{ $t('labelsPage.filters.postageDeadline') }}
+                            {{ $t("labelsPage.filters.postageDeadline") }}
                         </label>
                         <Datepicker v-model="postageDeadline" />
                     </div>

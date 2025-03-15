@@ -160,7 +160,11 @@ async function openSeeMailModal() {
     if (props.searchMode === AOMAIL_SEARCH_KEY) {
         const result = await postData("user/get_email_content/", { id: props.email.id });
         if (!result.success) {
-            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"), result.error as string);
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"),
+                result.error as string
+            );
             return;
         }
         localEmail.value.htmlContent = result.data.content;
@@ -172,7 +176,11 @@ async function openSeeMailModal() {
         );
         console.log(result);
         if (!result.success) {
-            displayPopup?.("error", i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"), result.error as string);
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.noHtmlContent"),
+                result.error as string
+            );
             return;
         }
         localEmail.value.htmlContent = result.data.htmlContent;

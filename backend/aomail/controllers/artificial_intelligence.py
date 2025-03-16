@@ -177,7 +177,10 @@ def get_new_email_response(request: HttpRequest) -> Response:
                 if preference.generate_email_response_prompt
                 else GENERATE_EMAIL_RESPONSE_PROMPT
             )
-            result = llm_functions.generate_email_response( base_prompt,  subject,   emailBody,
+            result = llm_functions.generate_email_response(
+                base_prompt,
+                subject,
+                emailBody,
                 user_input,
                 agent_settings,
                 signature,

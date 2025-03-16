@@ -5,9 +5,21 @@ on: [push, pull_request]
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - uses: actions/checkout@v4
-      - uses: psf/black@stable
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-            options: "--check --diff --exclude aomail/migrations/*|aomail/urls.py"
-            src: "./backend"
+          python-version: '3.11'
+      - name: Run black formatter
+        run: |
+          pip install git+https://github.com/psf/black
+          python -m black . --exclude 'aomail/migrations/*|aomail/urls.py'
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply backend code formatting changes
+          branch: ${{ github.head_ref }}

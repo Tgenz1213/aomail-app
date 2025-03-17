@@ -380,8 +380,9 @@ def get_dashboard_data(request: HttpRequest) -> Response:
         nb_rules = Rule.objects.count()
         nb_created_categories = Category.objects.exclude(name=DEFAULT_CATEGORY).count()
         social_api_counts = SocialAPI.objects.aggregate(
-            microsoft_count=Count(Case(When(type_api=MICROSOFT, then=1))),
-            google_count=Count(Case(When(type_api=GOOGLE, then=1))),
+            microsoft_count=Count(Case(When(type_api=MICROSOFT, imap_config=None, then=1))),
+            google_count=Count(Case(When(type_api=GOOGLE, imap_config=None, then=1))),
+            imap_count=Count(Case(When(imap_config=not None, then=1))),
             total=Count("id"),
         )
         user_counts = User.objects.aggregate(
@@ -403,6 +404,7 @@ def get_dashboard_data(request: HttpRequest) -> Response:
                 "avgCreatedCategoriesPerUser": nb_created_categories
                 / regular_user_count,
                 "socialApiCount": {
+                    "imap": social_api_counts["imap_count"],
                     MICROSOFT: social_api_counts["microsoft_count"],
                     GOOGLE: social_api_counts["google_count"],
                     "total": social_api_counts["total"],

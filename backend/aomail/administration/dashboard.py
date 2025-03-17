@@ -380,7 +380,9 @@ def get_dashboard_data(request: HttpRequest) -> Response:
         nb_rules = Rule.objects.count()
         nb_created_categories = Category.objects.exclude(name=DEFAULT_CATEGORY).count()
         social_api_counts = SocialAPI.objects.aggregate(
-            microsoft_count=Count(Case(When(type_api=MICROSOFT, imap_config=None, then=1))),
+            microsoft_count=Count(
+                Case(When(type_api=MICROSOFT, imap_config=None, then=1))
+            ),
             google_count=Count(Case(When(type_api=GOOGLE, imap_config=None, then=1))),
             imap_count=Count(Case(When(imap_config=not None, then=1))),
             total=Count("id"),

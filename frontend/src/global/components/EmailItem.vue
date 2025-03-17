@@ -292,7 +292,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
-                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <div
+                                class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                            >
                                 {{ $t("constants.userActions.unreplyLater") }}
                             </div>
                         </div>
@@ -699,10 +701,14 @@ async function markEmailAsUnreplyLater() {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
         return;
     }
-    
+
     if (refreshReplyLaterEmails) {
         refreshReplyLaterEmails();
-        displayPopup?.("success", i18n.global.t("constants.popUpConstants.success"), i18n.global.t("constants.userActions.unreplyLater"));
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.success"),
+            i18n.global.t("constants.userActions.unreplyLater")
+        );
     }
 }
 
@@ -785,9 +791,7 @@ async function archiveEmail() {
 
         for (const category in emails.value) {
             for (const subCategory in emails.value[category]) {
-                const index = emails.value[category][subCategory].findIndex(
-                    (email) => email.id === props.email.id
-                );
+                const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                 if (index !== -1) {
                     emails.value[category][subCategory][index].archive = true;
                     emails.value[category][subCategory][index].read = true;
@@ -803,12 +807,10 @@ async function archiveEmail() {
 
         if (!result.success) {
             localEmail.value.archive = false;
-            
+
             for (const category in emails.value) {
                 for (const subCategory in emails.value[category]) {
-                    const index = emails.value[category][subCategory].findIndex(
-                        (email) => email.id === props.email.id
-                    );
+                    const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                     if (index !== -1) {
                         emails.value[category][subCategory][index].archive = false;
                         break;
@@ -819,13 +821,8 @@ async function archiveEmail() {
         }
 
         fetchCategoriesAndTotals?.();
-        
     } catch (error) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.archiveEmailFailure"),
-            error as string
-        );
+        displayPopup?.("error", i18n.global.t("constants.popUpConstants.archiveEmailFailure"), error as string);
     } finally {
         isMarking.value = false;
     }
@@ -840,9 +837,7 @@ async function unarchiveEmail() {
 
         for (const category in emails.value) {
             for (const subCategory in emails.value[category]) {
-                const index = emails.value[category][subCategory].findIndex(
-                    (email) => email.id === props.email.id
-                );
+                const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                 if (index !== -1) {
                     emails.value[category][subCategory][index].archive = false;
                     break;
@@ -850,19 +845,17 @@ async function unarchiveEmail() {
             }
         }
 
-        const result = await putData("user/emails/update/", { 
-            ids: [props.email.id], 
-            action: "unarchive" 
+        const result = await putData("user/emails/update/", {
+            ids: [props.email.id],
+            action: "unarchive",
         });
 
         if (!result.success) {
             localEmail.value.archive = true;
-            
+
             for (const category in emails.value) {
                 for (const subCategory in emails.value[category]) {
-                    const index = emails.value[category][subCategory].findIndex(
-                        (email) => email.id === props.email.id
-                    );
+                    const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                     if (index !== -1) {
                         emails.value[category][subCategory][index].archive = true;
                         break;
@@ -873,13 +866,8 @@ async function unarchiveEmail() {
         }
 
         fetchCategoriesAndTotals?.();
-        
     } catch (error) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.unarchiveEmailFailure"),
-            error as string
-        );
+        displayPopup?.("error", i18n.global.t("constants.popUpConstants.unarchiveEmailFailure"), error as string);
     } finally {
         isMarking.value = false;
     }
@@ -926,11 +914,11 @@ const getIconComponent = (fileName: string) => {
 };
 
 const processShortSummary = (summary: string | undefined): string => {
-    if (!summary) return '';
-    
+    if (!summary) return "";
+
     // URL regex pattern to detect links in text
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    
+
     // Replace URLs with anchor tags
     return summary.replace(urlRegex, (url) => {
         return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">link</a>`;

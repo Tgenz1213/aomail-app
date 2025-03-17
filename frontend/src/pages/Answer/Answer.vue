@@ -410,9 +410,9 @@ onMounted(async () => {
     const emailId = JSON.parse(sessionStorage.getItem("emailId") || "null");
     if (markAsRead && emailId) {
         try {
-            const result = await putData("user/emails/update/", { 
-                ids: [emailId], 
-                action: "read" 
+            const result = await putData("user/emails/update/", {
+                ids: [emailId],
+                action: "read",
             });
             if (!result.success) {
                 console.error("Failed to mark email as read:", result.error);

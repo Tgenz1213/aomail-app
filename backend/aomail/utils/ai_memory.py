@@ -168,20 +168,21 @@ class GenerateEmailConversation:
             preference.llm_provider,
             preference.llm_model,
         )
-        
+
         # Get the subject and body from the result
         subject = result_json.get("subject", "")
         body = result_json.get("body", "")
-        
+
         # Ensure proper spacing in the HTML content
         import re
+
         # Add spaces between words if they're missing (camelCase or after punctuation)
-        body = re.sub(r'([a-zA-Z0-9])([A-Z])', r'\1 \2', body)
-        body = re.sub(r'([.!?])([A-Za-z])', r'\1 \2', body)
-        
+        body = re.sub(r"([a-zA-Z0-9])([A-Z])", r"\1 \2", body)
+        body = re.sub(r"([.!?])([A-Za-z])", r"\1 \2", body)
+
         # Update the result with the properly formatted body
         result_json["body"] = body
-        
+
         # Update history with the improved content
         self.update_history(user_input, subject, body)
 

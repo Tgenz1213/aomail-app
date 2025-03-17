@@ -46,7 +46,7 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
         # Process AI output - only apply specific categories
         for key, value in ai_output.items():
             if key == "importance" or key == "topic":
-                if value:  
+                if value:
                     categories_to_apply.append(value)
             elif key == "response" and value == "Answer Required":
                 categories_to_apply.append(value)

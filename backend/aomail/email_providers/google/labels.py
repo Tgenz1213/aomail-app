@@ -203,7 +203,7 @@ def replicate_labels(social_api: SocialAPI, ai_output: dict, email_id: str):
     label_ids = []
     for key, value in ai_output.items():
         if key == "importance" or key == "topic":
-            if value:  
+            if value:
                 label_id = find_or_create_label(value)
                 label_ids.append(label_id)
         elif key == "response" and value == "Answer Required":

@@ -90,7 +90,7 @@ def synchronize(request: HttpRequest) -> Response:
 
     # Resubscribe user to email notifications in case
     social_api = SocialAPI.objects.get(user=user, email=email)
-    check_and_resubscribe_to_missing_resources(social_api.type_api, user, email)
+    check_and_resubscribe_to_missing_resources(user, email)
 
     services = authenticate_service(user, email, ["gmail"])
 

@@ -16,6 +16,11 @@ from django.contrib.auth.models import User
 LOGGER = logging.getLogger(__name__)
 
 
+def validate_email_address(email_address: str) -> bool:
+    # https://stackoverflow.com/questions/8022530/how-to-check-for-valid-email-address
+    return "@" in email_address
+
+
 # ----------------------- CONVERTERS -----------------------#
 def camel_to_snake(name: str) -> str:
     """
@@ -60,7 +65,9 @@ def is_no_reply_email(sender_email: str) -> bool:
     return any(pattern in sender_email.lower() for pattern in no_reply_patterns)
 
 
-def save_email_sender(user: User, sender_name: str, sender_email: str, sender_id: int):
+def save_email_sender(
+    user: User, sender_name: str, sender_email: str, sender_id: int = None
+) -> bool:
     """
     Saves the email sender's details to the database if the email is not from a no-reply address.
 
@@ -69,6 +76,9 @@ def save_email_sender(user: User, sender_name: str, sender_email: str, sender_id
         sender_name (str): The name of the email sender.
         sender_email (str): The email address of the sender.
         sender_id (int): The unique identifier for the sender provided by the email service.
+
+    Returns:
+        bool: True if the email sender was saved, False otherwise.
     """
     if not is_no_reply_email(sender_email):
         existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
@@ -81,8 +91,11 @@ def save_email_sender(user: User, sender_name: str, sender_email: str, sender_id
                     user=user,
                     provider_id=sender_id,
                 )
+                return True
             except IntegrityError:
-                pass
+                return False
+        else:
+            return False
 
 
 # ----------------------- SAVE CONTACTS AFTER SENDING EMAIL -----------------------#
@@ -257,50 +270,6 @@ def process_part(part: dict, plaintext_var: list) -> str | None:
     return decoded_data
 
 
-def count_corrections(
-    original_subject: str,
-    original_body: str,
-    corrected_subject: str,
-    corrected_body: str,
-) -> int:
-    """
-    Count and compare corrections in original and corrected texts.
-
-    Args:
-        original_subject (str): The original subject of the email.
-        original_body (str): The original body content of the email.
-        corrected_subject (str): The corrected subject of the email.
-        corrected_body (str): The corrected body content of the email.
-
-    Returns:
-        int: The total number of corrections made between the original and corrected texts.
-    """
-    # Splitting the original and corrected texts into words
-    original_subject_words = original_subject.split()
-    corrected_subject_words = corrected_subject.split()
-    original_body_words = original_body.split()
-    corrected_body_words = corrected_body.split()
-
-    # Counting the differences in the subject
-    subject_corrections = sum(
-        1
-        for orig, corr in zip(original_subject_words, corrected_subject_words)
-        if orig != corr
-    )
-
-    # Counting the differences in the body
-    body_corrections = sum(
-        1
-        for orig, corr in zip(original_body_words, corrected_body_words)
-        if orig != corr
-    )
-
-    # Total corrections
-    total_corrections = subject_corrections + body_corrections
-
-    return total_corrections
-
-
 def preprocess_email(email_content: str) -> str:
     """
     Removes links, email addresses, unnecessary spacings, and converts line endings.
@@ -316,16 +285,6 @@ def preprocess_email(email_content: str) -> str:
     #email_content = re.sub(r"<http(.*?)>", "", email_content)
     #email_content = re.sub(r"http(.*?)\ ", "", email_content)
     #email_content = re.sub(r"http\S+", "", email_content)
-
-    # Remove email addresses enclosed in <mailto...> or mailto... followed by a space
-    email_content = re.sub(r"<mailto:(.*?)>", "", email_content)
-    email_content = re.sub(r"mailto:(.*?)\ ", "", email_content)
-    email_content = re.sub(
-        r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", email_content
-    )
-    email_content = re.sub(
-        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", email_content
-    )
 
     # Delete patterns like "[image: ...]"
     email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)

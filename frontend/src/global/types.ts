@@ -110,6 +110,7 @@ export interface EmailDetails {
 export interface EmailLinked {
     email: string;
     typeApi: string;
+    isServerConfig: boolean;
 }
 
 export interface UploadedFile {

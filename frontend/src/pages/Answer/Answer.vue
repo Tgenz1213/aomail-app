@@ -357,7 +357,9 @@ async function displayEmailContent() {
         <div class="flex pb-12">
           <div class="mr-4 flex flex-shrink-0">
             <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
-                <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                <img src="${API_BASE_URL}agent_icon/${
+        selectedAgent.value.icon_name
+    }" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
             </span>
           </div>
           <div class="flex flex-col space-y-1 bg-white rounded-lg p-4 border border-gray-200">
@@ -436,12 +438,7 @@ onMounted(async () => {
 
         await Promise.all([fetchSignatures(), fetchAgents()]);
 
-        await Promise.all([
-            initializeQuill(),
-            checkSignature(),
-            getProfileImage(),
-            fetchRecipients(),
-        ]);
+        await Promise.all([initializeQuill(), checkSignature(), getProfileImage(), fetchRecipients()]);
 
         if (signatures.value.length > 0) {
             insertSignature(signatures.value[0].signature_content);
@@ -491,7 +488,6 @@ onMounted(async () => {
                 }
             }
         });
-
     } catch (error) {
         displayPopup(
             "error",
@@ -565,14 +561,15 @@ async function fetchRecipients() {
 
 function handleKeyDown(event: KeyboardEvent) {
     const target = event.target as HTMLElement;
-    
-    if (showSignatureModal.value || target.closest('#dynamicTextarea')) {
+
+    if (showSignatureModal.value || target.closest("#dynamicTextarea")) {
         return;
     }
-    
-    if (event.key === "Enter" && 
-        (target.closest('.ql-editor') || 
-         target.matches('input, textarea, [contenteditable="true"]'))) {
+
+    if (
+        event.key === "Enter" &&
+        (target.closest(".ql-editor") || target.matches('input, textarea, [contenteditable="true"]'))
+    ) {
         return;
     }
 
@@ -810,7 +807,7 @@ const checkSignature = () => {
 };
 
 const handleSignatureCreated = async (newSignature: any) => {
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
     signatures.value.push(newSignature);
     if (quill) {
         insertSignature(newSignature.signature_content);

@@ -1,4 +1,4 @@
-export const VERSION = "v 1.4";
+export const VERSION = "v 1.5";
 export const BASE_URL = process.env.VUE_APP_BASE_URL;
 export const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 export const PASSWORD_MIN_LENGTH = 8;

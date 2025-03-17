@@ -9,7 +9,7 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div
                 :style="{ width: manualEmailWidth + '%' }"
@@ -92,7 +92,7 @@ const contacts: Recipient[] = [];
 const queryGetRecipients = ref("");
 const emailIds = ref<number[]>([]);
 const emailList = ref<Email[]>([]);
-const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 const manualEmailWidth = ref(65);
 const aiEmailWidth = ref(35);
 const isDragging = ref(false);
@@ -108,7 +108,10 @@ const searchModes: KeyValuePair[] = [
     { key: AOMAIL_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.aomail") },
     { key: API_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.allEmails") },
 ];
-const selectedSearchMode = ref<KeyValuePair>({ key: AOMAIL_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.aomail") });
+const selectedSearchMode = ref<KeyValuePair>({
+    key: AOMAIL_SEARCH_KEY,
+    value: i18n.global.t("searchPage.searchModes.aomail"),
+});
 
 watch(selectedSearchMode, (newMode) => {
     console.log("Search mode changed to:", newMode.key);
@@ -122,7 +125,7 @@ onMounted(() => {
         manualEmailWidth.value = parseInt(storedManualWidth, 10);
         aiEmailWidth.value = parseInt(storedAiWidth, 10);
     }
-    
+
     checkLoginStatus();
     fetchEmailLinked();
     fetchRecipients();
@@ -232,7 +235,7 @@ const initDrag = (event: MouseEvent) => {
     startManualWidth.value = manualEmailWidth.value;
     startAiWidth.value = aiEmailWidth.value;
 
-    const container = (event.target as HTMLElement).closest('.flex');
+    const container = (event.target as HTMLElement).closest(".flex");
     initialContainerWidth.value = container ? container.clientWidth : 0;
 
     window.addEventListener("mousemove", onDrag);

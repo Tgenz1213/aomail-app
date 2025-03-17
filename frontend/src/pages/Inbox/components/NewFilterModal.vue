@@ -365,12 +365,12 @@ const addFilter = async () => {
     const response = await postData("create_filter/", newFilter.value);
     if (response.success) {
         selectedFilter.value = { ...response.data };
-        
+
         currentPage.value = 1;
         emails.value = {};
         allEmailIds.value = [];
         isLoading.value = false;
-        
+
         newFilter.value.category = response.data.category;
         filters.value[selectedCategory.value].push(newFilter.value);
 

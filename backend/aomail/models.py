@@ -120,15 +120,37 @@ class Preference(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
+class EmailServerConfig(models.Model):
+    """Stores configuration details for IMAP and SMTP email servers."""
+
+    app_password = models.CharField(max_length=2000)
+    host = models.CharField(max_length=30)
+    port = models.IntegerField()
+    encryption = models.CharField(max_length=10)
+
+
 class SocialAPI(models.Model):
     """Table that contains email credentials."""
 
+    last_fetched_date = models.DateTimeField(auto_now=True)
     type_api = models.CharField(max_length=50)
     email = models.CharField(max_length=524, unique=True)
     access_token = models.CharField(max_length=3000)
     refresh_token = models.CharField(max_length=2000)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     user_description = models.CharField(max_length=200, default="")
+    imap_config = models.ForeignKey(
+        EmailServerConfig,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="imap_config",
+    )
+    smtp_config = models.ForeignKey(
+        EmailServerConfig,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="smtp_config",
+    )
 
 
 class Rule(models.Model):

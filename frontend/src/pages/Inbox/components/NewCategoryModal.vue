@@ -183,7 +183,7 @@ const addCategory = async () => {
         });
 
         await createDefaultFilters(categoryName.value);
-        
+
         await fetchCategoriesAndTotals();
         await fetchFiltersData(categoryName.value);
         await fetchEmailsData(categoryName.value);

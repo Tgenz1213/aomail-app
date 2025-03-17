@@ -57,6 +57,30 @@ const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
 const step = ref(1);
 
+const typeApi = ref<string>("");
+const emailAddress = ref<string>("");
+const userDescription = ref<string>("");
+const imapHost = ref<string>("");
+const imapPort = ref<number>(0);
+const imapAppPassword = ref<string>("");
+const imapEncryption = ref<string>("");
+const smtpHost = ref<string>("");
+const smtpPort = ref<number>(0);
+const smtpAppPassword = ref<string>("");
+const smtpEncryption = ref<string>("");
+
+provide("typeApi", typeApi);
+provide("emailAddress", emailAddress);
+provide("userDescription", userDescription);
+provide("imapHost", imapHost);
+provide("imapPort", imapPort);
+provide("imapAppPassword", imapAppPassword);
+provide("imapEncryption", imapEncryption);
+provide("smtpHost", smtpHost);
+provide("smtpPort", smtpPort);
+provide("smtpAppPassword", smtpAppPassword);
+provide("smtpEncryption", smtpEncryption);
+
 provide("step", step);
 provide("submitSignupData", submitSignupData);
 provide("createCategories", createCategories);
@@ -111,7 +135,7 @@ async function submitSignupData(event: Event) {
     const authorizationCode = urlParams.get("code");
     if (authorizationCode) {
         sessionStorage.setItem("code", authorizationCode);
-    } else {
+    } else if (sessionStorage.getItem("oauth") === "true") {
         displayPopup(
             "error",
             i18n.global.t("signUpLinkPage.authorizationError"),
@@ -125,12 +149,22 @@ async function submitSignupData(event: Event) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            login: sessionStorage.getItem("login"),
+            username: sessionStorage.getItem("username"),
             password: sessionStorage.getItem("password"),
             timezone: localStorage.getItem("timezone"),
             language: localStorage.getItem("language"),
             code: sessionStorage.getItem("code"),
-            typeApi: sessionStorage.getItem("typeApi"),
+            typeApi: sessionStorage.getItem("typeApi") || typeApi.value,
+            emailAddress: emailAddress.value,
+            userDescription: userDescription.value,
+            imapHost: imapHost.value,
+            imapPort: imapPort.value,
+            imapAppPassword: imapAppPassword.value,
+            imapEncryption: imapEncryption.value,
+            smtpHost: smtpHost.value,
+            smtpPort: smtpPort.value,
+            smtpAppPassword: smtpAppPassword.value,
+            smtpEncryption: smtpEncryption.value,
         }),
     };
 

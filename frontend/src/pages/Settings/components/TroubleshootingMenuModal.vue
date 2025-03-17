@@ -50,7 +50,7 @@
                 <div v-if="!isLoading" class="max-h-60 w-full overflow-y-auto p-4">
                     <ul role="list" class="space-y-2 w-full">
                         <li
-                            v-for="email in emailsLinked"
+                            v-for="email in emailsLinked.filter((email) => !email.isServerConfig)"
                             :key="email?.email"
                             class="border border-gray-300 rounded-md bg-gray-100 flex items-center p-2 shadow hover:shadow-md"
                         >
@@ -88,7 +88,11 @@
                                         href="https://learn.microsoft.com/en-us/entra/identity-platform/refresh-tokens"
                                         class="text-blue-500 hover:underline"
                                     >
-                                        {{ $t("settingsPage.accountPage.troubleshootingModal.microsoftRefreshTokenLink") }}
+                                        {{
+                                            $t(
+                                                "settingsPage.accountPage.troubleshootingModal.microsoftRefreshTokenLink"
+                                            )
+                                        }}
                                     </a>
                                 </span>
                             </p>
@@ -154,7 +158,11 @@
                         :disabled="!selectedEmail"
                         @click="checkConnectivity"
                         class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-800"
-                        :title="$t('settingsPage.accountPage.troubleshootingModal.connectivityCheckTitle', { provider: providerName })"
+                        :title="
+                            $t('settingsPage.accountPage.troubleshootingModal.connectivityCheckTitle', {
+                                provider: providerName,
+                            })
+                        "
                     >
                         {{ $t("settingsPage.accountPage.troubleshootingModal.checkConnectivity") }}
                     </button>
@@ -235,8 +243,6 @@ const resetMessages = () => {
     warningMessage.value = null;
 };
 
- 
-
 const synchronize = async () => {
     if (!selectedEmail.value) return;
 
@@ -272,7 +278,10 @@ const synchronize = async () => {
             nbProcessedEmails === 1
                 ? "settingsPage.accountPage.singleMissedEmailProcessed"
                 : "settingsPage.accountPage.allMissedEmailsProcessed";
-        successMessage.value = i18n.global.t(successMessageKey) + " " + i18n.global.t("settingsPage.accountPage.troubleshootingModal.closeModal");
+        successMessage.value =
+            i18n.global.t(successMessageKey) +
+            " " +
+            i18n.global.t("settingsPage.accountPage.troubleshootingModal.closeModal");
     }
 };
 
@@ -305,23 +314,28 @@ const checkConnectivity = async () => {
 
     if (data.isTokenValid) {
         if (data.nbMissedEmails === 0) {
-            successMessage.value = i18n.global.t("settingsPage.accountPage.troubleshootingModal.connectivityCheckSuccess", {
-                provider: providerName
-            });
+            successMessage.value = i18n.global.t(
+                "settingsPage.accountPage.troubleshootingModal.connectivityCheckSuccess",
+                {
+                    provider: providerName,
+                }
+            );
         } else if (data.nbMissedEmails && data.nbMissedEmails > 0) {
             nbMissedEmails.value = data.nbMissedEmails;
 
             warningMessage.value = i18n.global.t(
-                `settingsPage.accountPage.troubleshootingModal.connectivityCheckMissedEmails.${data.nbMissedEmails > 1 ? 'plural' : 'singular'}`,
+                `settingsPage.accountPage.troubleshootingModal.connectivityCheckMissedEmails.${
+                    data.nbMissedEmails > 1 ? "plural" : "singular"
+                }`,
                 {
                     provider: providerName,
-                    count: data.nbMissedEmails
+                    count: data.nbMissedEmails,
                 }
             );
         }
     } else {
         errorMessage.value = i18n.global.t("settingsPage.accountPage.troubleshootingModal.connectivityCheckFailed", {
-            provider: providerName
+            provider: providerName,
         });
     }
 };

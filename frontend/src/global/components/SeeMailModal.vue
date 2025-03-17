@@ -24,7 +24,9 @@
                         leave-from="opacity-100 scale-100"
                         leave-to="opacity-0 scale-95"
                     >
-                        <DialogPanel class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white py-6 shadow-xl transition-all">
+                        <DialogPanel
+                            class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white py-6 shadow-xl transition-all"
+                        >
                             <div class="flex justify-between items-center mb-4 px-6">
                                 <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
                                     {{ email.subject }}
@@ -91,18 +93,31 @@
                                                 leave-from-class="transform opacity-100 scale-100"
                                                 leave-to-class="transform opacity-0 scale-95"
                                             >
-                                                <MenuItems class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
+                                                <MenuItems
+                                                    class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer"
+                                                >
                                                     <!-- Archive/Unarchive Option -->
                                                     <div class="py-1">
                                                         <MenuItem v-slot="{ active }">
                                                             <a
-                                                                @click.prevent="email.archive ? unarchiveEmail() : archiveEmail()"
-                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']"
+                                                                @click.prevent="
+                                                                    email.archive ? unarchiveEmail() : archiveEmail()
+                                                                "
+                                                                :class="[
+                                                                    active
+                                                                        ? 'bg-gray-100 text-gray-900'
+                                                                        : 'text-gray-700',
+                                                                    'block px-4 py-1 text-sm',
+                                                                ]"
                                                             >
                                                                 <span class="flex gap-x-2 items-center">
                                                                     <ArchiveBoxIcon class="w-4 h-4" />
                                                                     <span>
-                                                                        {{ email.archive ? $t("constants.userActions.unarchive") : $t("constants.userActions.archive") }}
+                                                                        {{
+                                                                            email.archive
+                                                                                ? $t("constants.userActions.unarchive")
+                                                                                : $t("constants.userActions.archive")
+                                                                        }}
                                                                     </span>
                                                                 </span>
                                                             </a>
@@ -113,13 +128,28 @@
                                                     <div class="py-1">
                                                         <MenuItem v-slot="{ active }">
                                                             <a
-                                                                @click.prevent="email.answerLater ? markEmailAsUnreplyLater() : markEmailReplyLater()"
-                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']"
+                                                                @click.prevent="
+                                                                    email.answerLater
+                                                                        ? markEmailAsUnreplyLater()
+                                                                        : markEmailReplyLater()
+                                                                "
+                                                                :class="[
+                                                                    active
+                                                                        ? 'bg-gray-100 text-gray-900'
+                                                                        : 'text-gray-700',
+                                                                    'block px-4 py-1 text-sm',
+                                                                ]"
                                                             >
                                                                 <span class="flex gap-x-2 items-center">
                                                                     <ClockIcon class="w-4 h-4" />
                                                                     <span>
-                                                                        {{ email.answerLater ? $t("constants.userActions.unreplyLater") : $t("constants.userActions.replyLater") }}
+                                                                        {{
+                                                                            email.answerLater
+                                                                                ? $t(
+                                                                                      "constants.userActions.unreplyLater"
+                                                                                  )
+                                                                                : $t("constants.userActions.replyLater")
+                                                                        }}
                                                                     </span>
                                                                 </span>
                                                             </a>
@@ -131,11 +161,18 @@
                                                         <MenuItem v-slot="{ active }">
                                                             <a
                                                                 @click.prevent="transferEmail"
-                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']"
+                                                                :class="[
+                                                                    active
+                                                                        ? 'bg-gray-100 text-gray-900'
+                                                                        : 'text-gray-700',
+                                                                    'block px-4 py-1 text-sm',
+                                                                ]"
                                                             >
                                                                 <span class="flex gap-x-2 items-center">
                                                                     <ArrowPathRoundedSquareIcon class="w-4 h-4" />
-                                                                    <span>{{ $t("constants.userActions.transfer") }}</span>
+                                                                    <span>
+                                                                        {{ $t("constants.userActions.transfer") }}
+                                                                    </span>
                                                                 </span>
                                                             </a>
                                                         </MenuItem>
@@ -146,11 +183,18 @@
                                                         <MenuItem v-slot="{ active }">
                                                             <a
                                                                 @click.prevent="deleteEmail"
-                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']"
+                                                                :class="[
+                                                                    active
+                                                                        ? 'bg-gray-100 text-gray-900'
+                                                                        : 'text-gray-700',
+                                                                    'block px-4 py-1 text-sm',
+                                                                ]"
                                                             >
                                                                 <span class="flex gap-x-2 items-center">
                                                                     <TrashIcon class="w-4 h-4" />
-                                                                    <span>{{ $t("constants.userActions.delete") }}</span>
+                                                                    <span>
+                                                                        {{ $t("constants.userActions.delete") }}
+                                                                    </span>
                                                                 </span>
                                                             </a>
                                                         </MenuItem>
@@ -159,7 +203,7 @@
                                             </transition>
                                         </Menu>
                                     </div>
-                                    
+
                                     <button
                                         @click="closeModal"
                                         class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
@@ -180,13 +224,19 @@
                                     <span>{{ formatSentDateAndTime(email.sentDate, email.sentTime) }}</span>
                                 </div>
 
-                                <div v-if="email.cc?.length" class="flex items-center space-x-2 text-sm text-gray-500 px-6">
+                                <div
+                                    v-if="email.cc?.length"
+                                    class="flex items-center space-x-2 text-sm text-gray-500 px-6"
+                                >
                                     <span class="font-semibold">{{ $t("transferPage.cc") }}</span>
                                     <span>{{ formatCCRecipients(email.cc) }}</span>
                                 </div>
 
                                 <div class="mt-4 border-t pt-4 max-h-[60vh] overflow-y-auto">
-                                    <div v-html="email.htmlContent" class="prose max-w-none px-6 pr-0 mr-0 custom-email-content"></div>
+                                    <div
+                                        v-html="email.htmlContent"
+                                        class="prose max-w-none px-6 pr-0 mr-0 custom-email-content"
+                                    ></div>
                                 </div>
                             </div>
                         </DialogPanel>
@@ -198,8 +248,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
+import { ref } from "vue";
+import {
+    Dialog,
+    DialogPanel,
+    DialogTitle,
+    TransitionChild,
+    TransitionRoot,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems,
+} from "@headlessui/vue";
 import {
     XMarkIcon,
     CheckIcon,
@@ -210,9 +270,9 @@ import {
     ClockIcon,
     ArrowPathRoundedSquareIcon,
     SparklesIcon,
-} from '@heroicons/vue/24/outline';
-import { Email } from '@/global/types';
-import { formatSentDateAndTime } from '@/global/formatters';
+} from "@heroicons/vue/24/outline";
+import { Email } from "@/global/types";
+import { formatSentDateAndTime } from "@/global/formatters";
 
 const props = defineProps<{
     isOpen: boolean;
@@ -220,74 +280,74 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'closeModal'): void;
-    (e: 'markEmailAsRead'): void;
-    (e: 'markEmailAsUnread'): void;
-    (e: 'archiveEmail'): void;
-    (e: 'unarchiveEmail'): void;
-    (e: 'deleteEmail'): void;
-    (e: 'markEmailReplyLater'): void;
-    (e: 'markEmailAsUnreplyLater'): void;
-    (e: 'openAnswer'): void;
-    (e: 'transferEmail'): void;
-    (e: 'createRuleForSender'): void;
+    (e: "closeModal"): void;
+    (e: "markEmailAsRead"): void;
+    (e: "markEmailAsUnread"): void;
+    (e: "archiveEmail"): void;
+    (e: "unarchiveEmail"): void;
+    (e: "deleteEmail"): void;
+    (e: "markEmailReplyLater"): void;
+    (e: "markEmailAsUnreplyLater"): void;
+    (e: "openAnswer"): void;
+    (e: "transferEmail"): void;
+    (e: "createRuleForSender"): void;
 }>();
 
 const closeModal = () => {
-    emit('closeModal');
+    emit("closeModal");
 };
 
 const markEmailAsRead = () => {
-    emit('markEmailAsRead');
+    emit("markEmailAsRead");
     closeModal();
 };
 
 const markEmailAsUnread = () => {
-    emit('markEmailAsUnread');
+    emit("markEmailAsUnread");
     closeModal();
 };
 
 const archiveEmail = () => {
-    emit('archiveEmail');
+    emit("archiveEmail");
     closeModal();
 };
 
 const unarchiveEmail = () => {
-    emit('unarchiveEmail');
+    emit("unarchiveEmail");
     closeModal();
 };
 
 const deleteEmail = () => {
-    emit('deleteEmail');
+    emit("deleteEmail");
     closeModal();
 };
 
 const markEmailReplyLater = () => {
-    emit('markEmailReplyLater');
+    emit("markEmailReplyLater");
     closeModal();
 };
 
 const markEmailAsUnreplyLater = () => {
-    emit('markEmailAsUnreplyLater');
+    emit("markEmailAsUnreplyLater");
     closeModal();
 };
 
 const openAnswer = () => {
-    emit('openAnswer');
+    emit("openAnswer");
     closeModal();
 };
 
 const transferEmail = () => {
-    emit('transferEmail');
+    emit("transferEmail");
     closeModal();
 };
 
 const createRuleForSender = () => {
-    emit('createRuleForSender');
+    emit("createRuleForSender");
     closeModal();
 };
 
 const formatCCRecipients = (cc: { email: string; name: string }[]) => {
-    return cc.map(recipient => `${recipient.name} (${recipient.email})`).join(', ');
+    return cc.map((recipient) => `${recipient.name} (${recipient.email})`).join(", ");
 };
 </script>

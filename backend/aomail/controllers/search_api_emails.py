@@ -6,14 +6,12 @@ Endpoints:
 - ✅ get_api_emails_data: Retrieves formatted email basic data to be displayed.
 """
 
-import datetime
 import json
 import logging
 import threading
 from django.http import HttpRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.request import Request
 from rest_framework.response import Response
 from aomail.utils.security import subscription
 from aomail.email_providers.microsoft import (
@@ -21,6 +19,9 @@ from aomail.email_providers.microsoft import (
 )
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
+)
+from aomail.email_providers.imap import (
+    email_operations as email_operations_imap,
 )
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
@@ -113,7 +114,9 @@ def get_api_emails_data(request: HttpRequest) -> Response:
                                     else []
                                 ),
                                 "attachments": email_data["attachments"],
-                                "sentDate": email_data["sent_date"].strftime("%Y-%m-%d"),
+                                "sentDate": email_data["sent_date"].strftime(
+                                    "%Y-%m-%d"
+                                ),
                                 "sentTime": email_data["sent_date"].strftime("%H:%M"),
                             }
                         else:
@@ -201,7 +204,7 @@ def get_api_emails_ids(request: HttpRequest) -> Response:
             social_api = SocialAPI.objects.get(email=email)
             type_api = social_api.type_api
 
-            if type_api == GOOGLE:
+            if type_api == GOOGLE and not social_api.imap_config:
                 services = auth_google.authenticate_service(user, email, ["gmail"])
                 search_result = threading.Thread(
                     target=append_to_result,
@@ -224,7 +227,7 @@ def get_api_emails_ids(request: HttpRequest) -> Response:
                         ),
                     ),
                 )
-            elif type_api == MICROSOFT:
+            elif type_api == MICROSOFT and not social_api.imap_config:
                 access_token = auth_microsoft.refresh_access_token(
                     auth_microsoft.get_social_api(user, email)
                 )
@@ -235,6 +238,28 @@ def get_api_emails_ids(request: HttpRequest) -> Response:
                         email,
                         email_operations_microsoft.search_emails_manually(
                             access_token,
+                            query,
+                            max_results,
+                            file_extensions,
+                            filenames,
+                            advanced,
+                            search_in,
+                            from_addresses,
+                            to_addresses,
+                            subject,
+                            body,
+                            date_from,
+                        ),
+                    ),
+                )
+            elif social_api.imap_config:
+                search_result = threading.Thread(
+                    target=append_to_result,
+                    args=(
+                        social_api.type_api,
+                        social_api.email,
+                        email_operations_imap.search_emails_manually(
+                            social_api,
                             query,
                             max_results,
                             file_extensions,

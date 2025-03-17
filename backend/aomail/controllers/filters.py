@@ -130,16 +130,14 @@ def update_filter(request: HttpRequest) -> Response:
 
     try:
         filter = Filter.objects.get(
-            name=current_name, 
-            user=request.user,
-            category_id=category_id
+            name=current_name, user=request.user, category_id=category_id
         )
-        LOGGER.info(f"Found filter to update: ID: {filter.id}, Name: {filter.name}, Category: {filter.category.name}")
+        LOGGER.info(
+            f"Found filter to update: ID: {filter.id}, Name: {filter.name}, Category: {filter.category.name}"
+        )
 
     except Filter.DoesNotExist:
-        return Response(
-            {"error": "Filter not found"}, status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"error": "Filter not found"}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = FilterSerializer(filter, data=data, partial=True)
     if serializer.is_valid():
@@ -178,15 +176,13 @@ def delete_filter(request: HttpRequest) -> Response:
 
     try:
         filter = Filter.objects.get(
-            name=current_name, 
-            user=request.user,
-            category_id=category_id
+            name=current_name, user=request.user, category_id=category_id
         )
-        LOGGER.info(f"Deleting filter: ID: {filter.id}, Name: {filter.name}, Category: {filter.category.name}")
+        LOGGER.info(
+            f"Deleting filter: ID: {filter.id}, Name: {filter.name}, Category: {filter.category.name}"
+        )
     except Filter.DoesNotExist:
-        return Response(
-            {"error": "Filter not found"}, status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"error": "Filter not found"}, status=status.HTTP_404_NOT_FOUND)
 
     filter.delete()
     return Response(

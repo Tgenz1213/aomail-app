@@ -60,12 +60,16 @@ from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.email_providers.google import webhook as webhook_google
 from aomail.email_providers.microsoft import webhook as webhook_microsoft
 from aomail.models import (
+    EmailServerConfig,
     GoogleListener,
     MicrosoftListener,
     SocialAPI,
     Subscription,
 )
 from aomail.payment_providers import stripe
+from aomail.email_providers.imap.authentication import validate_imap_connection
+from aomail.email_providers.smtp.authentication import validate_smtp_connection
+from aomail.email_providers.imap import profile as imap_profile
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -114,12 +118,15 @@ def unsubscribe_listeners(user: User, email: str = None):
         user (User): The authenticated user object.
         email (str, optional): Specific email to unsubscribe from Microsoft listeners.
     """
-    social_apis = SocialAPI.objects.filter(user=user)
+    if email:
+        social_apis = SocialAPI.objects.filter(user=user, email=email)
+    else:
+        social_apis = SocialAPI.objects.filter(user=user)
 
     # Unsubscribe from Google APIs
     if social_apis.exists():
         for social_api in social_apis:
-            if social_api.type_api == GOOGLE:
+            if not social_api.imap_config and social_api.type_api == GOOGLE:
                 for i in range(MAX_RETRIES):
                     if webhook_google.unsubscribe_from_email_notifications(
                         user, social_api.email
@@ -156,9 +163,13 @@ def unsubscribe_listeners(user: User, email: str = None):
 
     if microsoft_listeners.exists():
         for listener in microsoft_listeners:
+            social_api = SocialAPI.objects.get(user=user, email=listener.email)
             for i in range(MAX_RETRIES):
-                if webhook_microsoft.delete_subscription(
-                    user, listener.email, listener.subscription_id
+                if (
+                    not social_api.imap_config
+                    and webhook_microsoft.delete_subscription(
+                        user, listener.email, listener.subscription_id
+                    )
                 ):
                     break
                 else:
@@ -408,12 +419,147 @@ def link_email(request: HttpRequest) -> Response:
     ip = security.get_ip_with_port(request)
     LOGGER.info(f"Link email request received from IP: {ip} and user ID: {user.id}")
 
+    # Oauth connection attempt
+    if code:
+        result = link_oauth_account(type_api, code, user, user_description)
+
+    # IMAP/SMTP connection attempt
+    else:
+        result = link_email_config_account(
+            user,
+            type_api,
+            user_description,
+            parameters.get("emailAddress"),
+            parameters.get("imapAppPassword"),
+            parameters.get("imapHost"),
+            parameters.get("imapPort"),
+            parameters.get("imapEncryption"),
+            parameters.get("smtpAppPassword"),
+            parameters.get("smtpHost"),
+            parameters.get("smtpPort"),
+            parameters.get("smtpEncryption"),
+        )
+
+    if result["success"]:
+        return Response({"message": result["message"]}, status=result["status_code"])
+    else:
+        return Response({"error": result["error"]}, status=result["status_code"])
+
+
+def link_email_config_account(
+    user: User,
+    type_api: str,
+    user_description: str,
+    email_address: str,
+    imap_app_password: str,
+    imap_host: str,
+    imap_port: int,
+    imap_encryption: str,
+    smtp_app_password: str,
+    smtp_host: str,
+    smtp_port: int,
+    smtp_encryption: str,
+) -> dict:
+    imap_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, imap_app_password
+    )
+    smtp_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, smtp_app_password
+    )
+
+    imap_valid = validate_imap_connection(
+        email_address,
+        imap_app_password_encrypted,
+        imap_host,
+        imap_port,
+        imap_encryption,
+    )
+    if not imap_valid:
+        return {
+            "success": False,
+            "error": "Failed to validate IMAP connection",
+            "status_code": status.HTTP_400_BAD_REQUEST,
+        }
+
+    smtp_valid = validate_smtp_connection(
+        email_address,
+        smtp_app_password_encrypted,
+        smtp_host,
+        smtp_port,
+        smtp_encryption,
+    )
+    if not smtp_valid:
+        return {
+            "success": False,
+            "error": "Failed to validate SMTP connection",
+            "status_code": status.HTTP_400_BAD_REQUEST,
+        }
+
+    imap_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, imap_app_password
+    )
+    smtp_app_password_encrypted = security.encrypt_text(
+        SOCIAL_API_REFRESH_TOKEN_KEY, smtp_app_password
+    )
+    try:
+        social_api = SocialAPI.objects.get(user=user, email=email_address)
+
+        social_api.imap_config.host = imap_host
+        social_api.imap_config.port = imap_port
+        social_api.imap_config.app_password = imap_app_password_encrypted
+        social_api.imap_config.encryption = imap_encryption
+
+        social_api.smtp_config.host = smtp_host
+        social_api.smtp_config.port = smtp_port
+        social_api.smtp_config.app_password = smtp_app_password_encrypted
+        social_api.smtp_config.encryption = smtp_encryption
+
+        social_api.save()
+        LOGGER.info(f"Social API for user ID: {user.id} tokens updated successfully")
+    except SocialAPI.DoesNotExist:
+        imap_config = EmailServerConfig.objects.create(
+            host=imap_host,
+            port=imap_port,
+            app_password=imap_app_password_encrypted,
+            encryption=imap_encryption,
+        )
+        smtp_config = EmailServerConfig.objects.create(
+            host=smtp_host,
+            port=smtp_port,
+            app_password=smtp_app_password_encrypted,
+            encryption=smtp_encryption,
+        )
+        social_api = SocialAPI.objects.create(
+            user=user,
+            email=email_address,
+            type_api=type_api,
+            user_description=user_description,
+            access_token="",
+            refresh_token="",
+            imap_config=imap_config,
+            smtp_config=smtp_config,
+        )
+
+    threading.Thread(target=imap_profile.set_all_contacts, args=(social_api,)).start()
+
+    return {
+        "success": True,
+        "message": "Email linked to account successfully!",
+        "status_code": status.HTTP_201_CREATED,
+    }
+
+
+def link_oauth_account(
+    type_api: str, code: str, user: User, user_description: str
+) -> dict:
     authorization_result = validate_code_link_email(type_api, code)
     if "error" in authorization_result:
         LOGGER.error(f"Authorization failed: {authorization_result['error']}")
-        return Response(
-            {"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return {
+            "success": False,
+            "error": authorization_result["error"],
+            "status_code": status.HTTP_400_BAD_REQUEST,
+        }
 
     access_token = authorization_result["access_token"]
     refresh_token = authorization_result["refresh_token"]
@@ -441,10 +587,11 @@ def link_email(request: HttpRequest) -> Response:
         )
         LOGGER.info(f"Social API for user ID: {user.id} created successfully")
     except IntegrityError:
-        return Response(
-            {"error": "Email address already used by another account"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        return {
+            "success": False,
+            "error": "Email address already used by another account",
+            "status_code": status.HTTP_400_BAD_REQUEST,
+        }
 
     try:
         if type_api == GOOGLE:
@@ -459,18 +606,20 @@ def link_email(request: HttpRequest) -> Response:
         LOGGER.error(
             f"Failed to save all contacts for Social API email: {social_api.email}. Error: {str(e)}"
         )
-        return Response(
-            {"error": "Internal server error"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+        return {
+            "success": False,
+            "error": "Internal server error",
+            "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+        }
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
         LOGGER.info(f"Email account linked successfully for user ID: {user.id}")
-        return Response(
-            {"message": "Email linked to account successfully!"},
-            status=status.HTTP_201_CREATED,
-        )
+        return {
+            "success": True,
+            "message": "Email linked to account successfully!",
+            "status_code": status.HTTP_201_CREATED,
+        }
     else:
         LOGGER.error(
             f"Failed to subscribe to listener for Social API: {social_api.email}"
@@ -478,10 +627,12 @@ def link_email(request: HttpRequest) -> Response:
         if not regrant:
             social_api.delete()
             LOGGER.info(f"Social API: {social_api.email} deleted successfully")
-        return Response(
-            {"error": "Could not subscribe to listener"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+
+        return {
+            "success": False,
+            "error": "Could not subscribe to listenerr",
+            "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+        }
 
 
 def validate_code_link_email(type_api: str, code: str) -> dict:

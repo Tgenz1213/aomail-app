@@ -14,8 +14,8 @@ Endpoints:
 
 import json
 import logging
-from datetime import timedelta
 import os
+from datetime import timedelta
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -43,6 +43,9 @@ from aomail.email_providers.microsoft import (
 )
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
+)
+from aomail.email_providers.imap import (
+    email_operations as email_operations_imap,
 )
 
 
@@ -111,10 +114,9 @@ def get_mail_by_id(request: HttpRequest) -> Response:
             formatted = []
             for recipient in recipients:
                 if isinstance(recipient, (list, tuple)) and len(recipient) >= 2:
-                    formatted.append({
-                        "name": recipient[0] or "",
-                        "email": recipient[1] or ""
-                    })
+                    formatted.append(
+                        {"name": recipient[0] or "", "email": recipient[1] or ""}
+                    )
             return formatted
 
         def format_single_recipient(recipient):
@@ -125,7 +127,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                 return {"name": recipient[0] or "", "email": recipient[1] or ""}
             return {"name": "", "email": ""}
 
-        if type_api == GOOGLE:
+        if type_api == GOOGLE and not social_api.imap_config:
             services = auth_google.authenticate_service(user, email_user, ["gmail"])
             if not services:
                 return Response(
@@ -137,8 +139,12 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                     email_operations_google.get_mail(services, None, mail_id)
                 )
                 from_info = format_single_recipient(from_data)
-                cc = format_recipients(cc_data if isinstance(cc_data, (list, tuple)) else [cc_data])
-                bcc = format_recipients(bcc_data if isinstance(bcc_data, (list, tuple)) else [bcc_data])
+                cc = format_recipients(
+                    cc_data if isinstance(cc_data, (list, tuple)) else [cc_data]
+                )
+                bcc = format_recipients(
+                    bcc_data if isinstance(bcc_data, (list, tuple)) else [bcc_data]
+                )
             except Exception as e:
                 LOGGER.error(f"Error fetching Google mail: {str(e)}")
                 return Response(
@@ -146,7 +152,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-        elif type_api == MICROSOFT:
+        elif type_api == MICROSOFT and not social_api.imap_config:
             access_token = auth_microsoft.refresh_access_token(
                 auth_microsoft.get_social_api(user, email_user)
             )
@@ -168,14 +174,20 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                     {"error": "Failed to fetch email from Microsoft"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
+        elif social_api.imap_config:
+            email_data = email_operations_imap.get_mail_to_db(social_api, mail_id)
+            subject = email_data["subject"]
+            decoded_data = email_data["safe_html"]
+            from_info = format_single_recipient(email_data["from_info"])
+            cc = email_data["cc_info"]
+            bcc = email_data["bcc_info"]
+            date = email_data["sent_date"]
 
         if not subject or not decoded_data:
             return Response(
                 {"error": "Failed to retrieve email content"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-        LOGGER.debug(f"Email response data - From: {from_info}, CC: {cc}, BCC: {bcc}")
 
         all_recipients = []
         if from_info and from_info["email"] != email_user:
@@ -368,13 +380,14 @@ def delete_emails(request: HttpRequest) -> Response:
                     if os.path.exists(pdf_file_path):
                         os.remove(pdf_file_path)
 
-                if type_api == GOOGLE:
+                if type_api == GOOGLE and not social_api.imap_config:
                     email_operations_google.delete_email(
                         user, social_api.email, provider_id
                     )
-                elif type_api == MICROSOFT:
-                    email_operations_microsoft.delete_email(provider_id, social_api)
-
+                elif type_api == MICROSOFT and not social_api.imap_config:
+                    email_operations_microsoft.delete_email(social_api, provider_id)
+                elif social_api.imap_config:
+                    email_operations_imap.delete_email(social_api, provider_id)
                 email.delete()
 
             except Email.DoesNotExist:
@@ -435,12 +448,18 @@ def update_emails(request: HttpRequest) -> Response:
                 email.read_date = timezone.now()
                 social_api = email.social_api
                 if social_api:
-                    if social_api.type_api == GOOGLE:
+                    if social_api.type_api == GOOGLE and not social_api.imap_config:
                         email_operations_google.set_email_read(
                             user, social_api.email, email.provider_id
                         )
-                    elif social_api.type_api == MICROSOFT:
+                    elif (
+                        social_api.type_api == MICROSOFT and not social_api.imap_config
+                    ):
                         email_operations_microsoft.set_email_read(
+                            social_api, email.provider_id
+                        )
+                    elif social_api.imap_config:
+                        email_operations_imap.set_email_read(
                             social_api, email.provider_id
                         )
 
@@ -449,12 +468,18 @@ def update_emails(request: HttpRequest) -> Response:
                 email.read_date = None
                 social_api = email.social_api
                 if social_api:
-                    if social_api.type_api == GOOGLE:
+                    if social_api.type_api == GOOGLE and not social_api.imap_config:
                         email_operations_google.set_email_unread(
                             user, social_api.email, email.provider_id
                         )
-                    elif social_api.type_api == MICROSOFT:
+                    elif (
+                        social_api.type_api == MICROSOFT and not social_api.imap_config
+                    ):
                         email_operations_microsoft.set_email_unread(
+                            social_api, email.provider_id
+                        )
+                    elif social_api.imap_config:
+                        email_operations_imap.set_email_unread(
                             social_api, email.provider_id
                         )
 
@@ -515,11 +540,11 @@ def retrieve_attachment_data(
     email = get_object_or_404(Email, user=user, id=email_id)
     social_api = email.social_api
 
-    if social_api.type_api == GOOGLE:
+    if social_api.type_api == GOOGLE and not social_api.imap_config:
         attachment_data = email_operations_google.get_attachment_data(
             user, social_api.email, email.provider_id, attachment_name
         )
-    elif social_api.type_api == MICROSOFT:
+    elif social_api.type_api == MICROSOFT and not social_api.imap_config:
         attachment_data = email_operations_microsoft.get_attachment_data(
             social_api, email.provider_id, attachment_name
         )
@@ -620,10 +645,12 @@ def get_email_content(request: HttpRequest) -> Response:
             SocialAPI, user=request.user, email=provider_email
         )
 
-        if social_api.type_api == GOOGLE:
+        if social_api.type_api == GOOGLE and not social_api.imap_config:
             email_data = email_operations_google.get_mail_to_db(social_api, email_id)
-        elif social_api.type_api == MICROSOFT:
+        elif social_api.type_api == MICROSOFT and not social_api.imap_config:
             email_data = email_operations_microsoft.get_mail_to_db(social_api, email_id)
+        elif social_api.imap_config:
+            email_data = email_operations_imap.get_mail_to_db(social_api, email_id)
         else:
             return Response(
                 {"error": f"Unsupported provider type: {social_api.type_api}"},
@@ -632,26 +659,32 @@ def get_email_content(request: HttpRequest) -> Response:
 
         if not email_data:
             return Response(
-                {"error": "Email not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        return Response({
-            "subject": email_data["subject"],
-            "from": {
-                "email": email_data["from_info"][1],
-                "name": email_data["from_info"][0]
+        return Response(
+            {
+                "subject": email_data["subject"],
+                "from": {
+                    "email": email_data["from_info"][1],
+                    "name": email_data["from_info"][0],
+                },
+                "htmlContent": email_data["safe_html"],
+                "cc": [
+                    {"email": c[1], "name": c[0]} for c in [email_data["cc_info"]] if c
+                ],
+                "bcc": [
+                    {"email": b[1], "name": b[0]} for b in [email_data["bcc_info"]] if b
+                ],
+                "date": email_data["sent_date"],
+                "hasAttachments": email_data["has_attachments"],
+                "attachments": [
+                    {"name": att["attachmentName"], "id": att["attachmentId"]}
+                    for att in email_data["attachments"]
+                ],
             },
-            "htmlContent": email_data["safe_html"],
-            "cc": [{"email": c[1], "name": c[0]} for c in [email_data["cc_info"]] if c],
-            "bcc": [{"email": b[1], "name": b[0]} for b in [email_data["bcc_info"]] if b],
-            "date": email_data["sent_date"],
-            "hasAttachments": email_data["has_attachments"],
-            "attachments": [
-                {"name": att["attachmentName"], "id": att["attachmentId"]}
-                for att in email_data["attachments"]
-            ]
-        }, status=status.HTTP_200_OK)
+            status=status.HTTP_200_OK,
+        )
 
     except Exception as e:
         LOGGER.error(f"Error in get_email_content: {str(e)}")

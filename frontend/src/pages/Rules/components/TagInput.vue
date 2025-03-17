@@ -11,12 +11,7 @@
                     class="flex items-center bg-gray-100 rounded px-2 py-1 text-sm"
                 >
                     <span>{{ tag }}</span>
-                    <button
-                        @click="removeTag(index)"
-                        class="ml-1 text-gray-500 hover:text-gray-700"
-                    >
-                        ×
-                    </button>
+                    <button @click="removeTag(index)" class="ml-1 text-gray-500 hover:text-gray-700">×</button>
                 </div>
 
                 <!-- Input -->
@@ -40,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const props = defineProps<{
     modelValue: string[];
@@ -49,35 +44,35 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string[]): void;
+    (e: "update:modelValue", value: string[]): void;
 }>();
 
 const inputRef = ref<HTMLInputElement | null>(null);
-const inputValue = ref('');
-const error = ref('');
+const inputValue = ref("");
+const error = ref("");
 
 const addTag = () => {
-    const value = inputValue.value.trim().replace(',', '');
-    
+    const value = inputValue.value.trim().replace(",", "");
+
     if (!value) return;
-    
+
     if (props.validate && !props.validate(value)) {
-        error.value = 'Invalid format';
+        error.value = "Invalid format";
         return;
     }
 
     if (!props.modelValue.includes(value)) {
-        emit('update:modelValue', [...props.modelValue, value]);
+        emit("update:modelValue", [...props.modelValue, value]);
     }
-    
-    inputValue.value = '';
-    error.value = '';
+
+    inputValue.value = "";
+    error.value = "";
 };
 
 const removeTag = (index: number) => {
     const newTags = [...props.modelValue];
     newTags.splice(index, 1);
-    emit('update:modelValue', newTags);
+    emit("update:modelValue", newTags);
 };
 
 const handleBackspace = (event: KeyboardEvent) => {
@@ -88,9 +83,9 @@ const handleBackspace = (event: KeyboardEvent) => {
 };
 
 const handleKeydown = (event: KeyboardEvent) => {
-    if (event.key === ',') {
+    if (event.key === ",") {
         event.preventDefault();
         addTag();
     }
 };
-</script> 
+</script>

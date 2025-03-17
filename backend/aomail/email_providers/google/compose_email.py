@@ -2,7 +2,7 @@
 Handles email composition and transfer operations using the Gmail API.
 
 Endpoints:
-- ✅ send_email: Sends an email using the Gmail API. 
+- ✅ send_email: Sends an email using the Gmail API.
 """
 
 import logging

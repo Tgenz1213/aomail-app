@@ -9,6 +9,7 @@ Endpoints:
 
 import json
 import logging
+import threading
 from collections import defaultdict
 from django.db.models import Q
 from django.db.models.manager import BaseManager
@@ -28,6 +29,7 @@ from aomail.constants import (
 from aomail.models import Category, SocialAPI, Email
 from aomail.utils.security import subscription, decrypt_text
 from django.contrib.auth.models import User
+from aomail.email_providers.imap.emails_sync import save_emails_to_db
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -387,6 +389,9 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             }
     """
     try:
+        # starts to process imap emails in the background
+        threading.Thread(target=save_emails_to_db, args=(request.user,)).start()
+
         user = request.user
         valid_data = validate_and_parse_parameters(request)
         parameters: dict = valid_data["parameters"]

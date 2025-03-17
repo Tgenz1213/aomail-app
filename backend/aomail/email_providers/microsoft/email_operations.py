@@ -1,8 +1,5 @@
 """
 Provides email search and operation functions using Microsoft Graph API.
-
-Endpoints:
-- ✅ get_mail: Retrieves email details by index or message ID.
 """
 
 import datetime
@@ -25,7 +22,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def parse_name_and_email(
-    sender: dict[str, dict]
+    sender: dict[str, dict],
 ) -> tuple[str, str] | tuple[None, None]:
     """
     Parses the name and email address from a sender dictionary.
@@ -86,13 +83,13 @@ def parse_message_body(message_data: dict) -> str | None:
     return None
 
 
-def delete_email(email_id: int, social_api: SocialAPI) -> dict:
+def delete_email(social_api: SocialAPI, email_id: str) -> dict:
     """
     Moves the email to the bin of the user using the Microsoft Graph API.
 
     Args:
-        email_id (int): The ID of the email to be moved to the bin.
         social_api (SocialAPI): The SocialAPI instance containing the user's access and refresh tokens.
+        email_id (str): The ID of the email to be moved to the bin.
 
     Returns:
         dict: A dictionary containing a success message if the email is moved to the trash successfully,
@@ -408,7 +405,7 @@ def search_emails_manually(
 
 def get_demo_list(user: User, email: str) -> list[str]:
     """
-    Retrieves a list of up to 10 email message IDs from the user's Microsoft Outlook inbox.
+    Retrieves a list of up to 5 email message IDs from the user's Microsoft Outlook inbox.
 
     Args:
         user (User): The user object representing the email account owner.

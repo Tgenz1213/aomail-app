@@ -26,9 +26,11 @@ from aomail.email_providers.microsoft import (
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
 )
+from aomail.email_providers.imap import (
+    email_operations as email_operations_imap,
+)
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 from aomail.utils.security import subscription
@@ -147,7 +149,16 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    type_api = social_api.type_api
+    type_api = (
+        social_api.type_api
+        if not (api_method == "send_email" and social_api.imap_config)
+        else "smtp"
+    )
+    if social_api.imap_config and api_method != "send_email":
+        return Response(
+            {"error": "Unsupported method for IMAP"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     module_name = f"aomail.email_providers.{type_api}.{api_module}"
     try:
         module = importlib.import_module(module_name)
@@ -161,7 +172,7 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
             )
     except ImportError:
         return Response(
-            {"error": f"Unsupported API module: {module_name}"},
+            {"error": f"Unsupported API: {type_api}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -280,7 +291,11 @@ def get_emails_linked(request: HttpRequest) -> Response:
         emails_linked = []
         for social_api in social_apis:
             emails_linked.append(
-                {"email": social_api.email, "typeApi": social_api.type_api}
+                {
+                    "email": social_api.email,
+                    "typeApi": social_api.type_api,
+                    "isServerConfig": social_api.imap_config != None,
+                }
             )
         return Response(emails_linked, status=status.HTTP_200_OK)
     except Exception as e:
@@ -322,6 +337,7 @@ def search_emails(request: HttpRequest) -> Response:
     max_results: int = data["max_results"]
     query: str = data["query"]
     file_extensions: list = data["file_extensions"]
+    filenames: list = data.get("filenames", [])
     advanced: bool = data["advanced"]
     from_addresses: list = data["from_addresses"]
     to_addresses: list = data["to_addresses"]
@@ -341,7 +357,7 @@ def search_emails(request: HttpRequest) -> Response:
         social_api = SocialAPI.objects.get(email=email)
         type_api = social_api.type_api
 
-        if type_api == GOOGLE:
+        if type_api == GOOGLE and not social_api.imap_config:
             services = auth_google.authenticate_service(user, email, ["gmail"])
             search_result = threading.Thread(
                 target=append_to_result,
@@ -353,6 +369,7 @@ def search_emails(request: HttpRequest) -> Response:
                         query,
                         max_results,
                         file_extensions,
+                        filenames,
                         advanced,
                         search_in,
                         from_addresses,
@@ -363,7 +380,7 @@ def search_emails(request: HttpRequest) -> Response:
                     ),
                 ),
             )
-        elif type_api == MICROSOFT:
+        elif type_api == MICROSOFT and not social_api.imap_config:
             access_token = auth_microsoft.refresh_access_token(
                 auth_microsoft.get_social_api(user, email)
             )
@@ -377,6 +394,29 @@ def search_emails(request: HttpRequest) -> Response:
                         query,
                         max_results,
                         file_extensions,
+                        filenames,
+                        advanced,
+                        search_in,
+                        from_addresses,
+                        to_addresses,
+                        subject,
+                        body,
+                        date_from,
+                    ),
+                ),
+            )
+        elif social_api.imap_config:
+            search_result = threading.Thread(
+                target=append_to_result,
+                args=(
+                    social_api.type_api,
+                    social_api.email,
+                    email_operations_imap.search_emails_manually(
+                        social_api,
+                        query,
+                        max_results,
+                        file_extensions,
+                        filenames,
                         advanced,
                         search_in,
                         from_addresses,

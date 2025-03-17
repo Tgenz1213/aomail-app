@@ -1,13 +1,6 @@
 <template>
     <div v-if="hasEmails">
-        <div 
-            class="sticky bg-white z-[50]"
-            :class="[
-                replyLater 
-                    ? 'top-[0px]' 
-                    : 'top-[48.5px] 2xl:top-[56.5px]'
-            ]"
-        >
+        <div class="sticky bg-white z-[50]" :class="[replyLater ? 'top-[0px]' : 'top-[48.5px] 2xl:top-[56.5px]']">
             <div class="py-6 mr-6 ml-6">
                 <div class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md">
                     <div class="flex px-3 py-2">
@@ -23,7 +16,7 @@
                                 class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md flex items-center gap-1"
                                 :disabled="isMarking?.useless"
                             >
-                                <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless"/>
+                                <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless" />
                                 {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
                             </button>
                         </div>
@@ -45,7 +38,9 @@
                         {{ $t("homePage.uselessEmails") }}
                     </span>
                 </p>
-                <div :class="`hidden group-hover:block bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md px-2 text-sm text-gray-700`">
+                <div
+                    :class="`hidden group-hover:block bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md px-2 text-sm text-gray-700`"
+                >
                     <div class="flex gap-x-1 items-center">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -85,22 +80,15 @@
                 </div>
             </div>
         </div>
-        <div class="bg-white py-1 sticky z-[25]"
-            :class="[
-                replyLater 
-                    ? 'top-[85px] 2xl:top-[90px]' 
-                    : 'top-[137px] 2xl:top-[146px]'
-            ]"
+        <div
+            class="bg-white py-1 sticky z-[25]"
+            :class="[replyLater ? 'top-[85px] 2xl:top-[90px]' : 'top-[137px] 2xl:top-[146px]']"
         ></div>
         <div v-if="showEmailDescriptions">
             <div v-for="(emailsByDate, date) in groupedEmails" :key="date" class="px-4">
-                <div 
+                <div
                     class="sticky z-[30] bg-transparent"
-                    :class="[
-                        replyLater 
-                            ? 'top-[85px] 2xl:top-[90px]' 
-                            : 'top-[137px] 2xl:top-[146px]'
-                    ]"
+                    :class="[replyLater ? 'top-[85px] 2xl:top-[90px]' : 'top-[137px] 2xl:top-[146px]']"
                 >
                     <div class="mx-4 relative z-[40]">
                         <div class="relative">
@@ -108,7 +96,9 @@
                                 <div class="w-full border-t border-gray-200"></div>
                             </div>
                             <div class="relative flex justify-center z-[40]">
-                                <span class="bg-white px-2 text-xs text-gray-500 relative z-[40]">{{ formatSentDate(date) }}</span>
+                                <span class="bg-white px-2 text-xs text-gray-500 relative z-[40]">
+                                    {{ formatSentDate(date) }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -116,7 +106,11 @@
                 <div class="flex px-4 -my-[7.5px]">
                     <div class="w-full">
                         <ul role="list" class="divide-y divide-gray-200">
-                            <li v-for="email in emailsByDate" :key="email.id" class="pl-5 relative hover:bg-gray-50 transition-colors duration-150">
+                            <li
+                                v-for="email in emailsByDate"
+                                :key="email.id"
+                                class="pl-5 relative hover:bg-gray-50 transition-colors duration-150"
+                            >
                                 <div class="py-6">
                                     <EmailItem :email="email" :block="true" :replyLater="replyLater" />
                                 </div>
@@ -184,7 +178,7 @@ function toggleEmailVisibility() {
     localStorage.setItem("showUseless", JSON.stringify(showEmailDescriptions.value));
 }
 
-const markCategoryAsRead = inject<(category: 'important' | 'informative' | 'useless') => void>("markCategoryAsRead");
+const markCategoryAsRead = inject<(category: "important" | "informative" | "useless") => void>("markCategoryAsRead");
 const isMarking = inject<{
     important: boolean;
     informative: boolean;
@@ -192,7 +186,7 @@ const isMarking = inject<{
 }>("isMarking");
 
 const markAllAsRead = () => {
-    markCategoryAsRead && markCategoryAsRead('useless');
+    markCategoryAsRead && markCategoryAsRead("useless");
 };
 
 onMounted(() => {

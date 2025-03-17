@@ -9,7 +9,7 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div :class="['ring-1 shadow-sm ring-black ring-opacity-5', isNavMinimized ? 'w-20' : 'w-60']">
-                <Navbar @update:isMinimized="(value) => isNavMinimized = value" />
+                <Navbar @update:isMinimized="(value) => (isNavMinimized = value)" />
             </div>
             <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="flex flex-col h-full relative divide-y divide-gray-200">
@@ -75,7 +75,7 @@ const currentPage = ref(1);
 const allEmailIds = ref<string[]>([]);
 const isLoading = ref(false);
 const emailsPerPage = 10;
-const isNavMinimized = ref(localStorage.getItem('navbarMinimized') === 'true');
+const isNavMinimized = ref(localStorage.getItem("navbarMinimized") === "true");
 
 provide("emails", emails);
 

@@ -38,18 +38,21 @@ def extract_json_from_response(response_text: str) -> dict:
                               cannot be parsed.
     """
     try:
-        if "```json" in response_text:
-            json_text = (
-                response_text.replace("Content: ```json", "")
-                .replace("```", "")
-                .replace("json\n", "")
-                .strip()
-            )
+        if "```" in response_text:
+            if "```json" in response_text:
+                json_text = (
+                    response_text.replace("Content: ```json", "")
+                    .replace("```", "")
+                    .replace("json\n", "")
+                    .strip()
+                )
+            else:
+                json_text = response_text.split("```")[1].split("```")[0]
         else:
-            json_text = response_text.split("```")[1].split("```")[0]
+            json_text = response_text
         return json.loads(json_text)
-    except json.JSONDecodeError as e:
-        raise json.JSONDecodeError(f"Error decoding JSON: {str(e)}")
+    except json.JSONDecodeError:
+        raise
 
 
 def count_corrections(
@@ -92,46 +95,46 @@ def ensure_proper_spacing(text: str, signature: str = "") -> str:
     """
     Ensures EXACTLY ONE blank line between content lines in main content.
     Preserves EXACT spacing in signature block.
-    
+
     Args:
         text (str): The text to process
         signature (str): The signature text to identify signature section
     """
     if not text:
         return text
-    
+
     # Normalize paragraph spacing with exactly one line break
-    text = re.sub(r'</p>\s*<p>', '</p>\n<p>', text)
-    
+    text = re.sub(r"</p>\s*<p>", "</p>\n<p>", text)
+
     # Convert <br> to newlines to handle them as normal line breaks
-    text = re.sub(r'<br\s*/?>(?!</)', '\n', text, flags=re.IGNORECASE)
-    
+    text = re.sub(r"<br\s*/?>(?!</)", "\n", text, flags=re.IGNORECASE)
+
     # Split content and signature if signature exists
     main_content = text
     sig_part = ""
-    
+
     if signature and signature.strip() in text:
         # Find the signature position and split
         sig_pos = text.find(signature.strip())
         if sig_pos != -1:
             main_content = text[:sig_pos].rstrip()
             sig_part = text[sig_pos:]  # Keep everything after signature start
-    
+
     # Process main content - ensure one blank line between content
-    lines = main_content.split('\n')
+    lines = main_content.split("\n")
     result = []
-    
+
     # Add lines with exactly one blank line between content
     for line in lines:
         if line.strip():  # If line has actual content
             if result and result[-1].strip():  # If previous line had content
-                result.append('')  # Add exactly one blank line
+                result.append("")  # Add exactly one blank line
             result.append(line)
-    
+
     # Add signature if it exists - preserve its exact spacing
     if sig_part:
         if result and result[-1].strip():
-            result.append('')
+            result.append("")
         result.append(sig_part.rstrip())  # Just add it as is, only trim end
-    
-    return '\n'.join(result)
+
+    return "\n".join(result)

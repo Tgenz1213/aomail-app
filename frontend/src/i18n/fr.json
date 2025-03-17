@@ -284,6 +284,7 @@
     "cyberScoreAssessor": "Évaluateur de sécurité TAC Security",
     "emailsAreEncryptedAtRest": "Le contenu des e-mails est crypté au repos dans notre base de données",
     "emailsFallbackToProviders": "Les e-mails restent disponibles dans Gmail ou Outlook en tant que solution de secours",
+    "transparency": "Transparence: Notre code est open source",
     "startApp": "Démarrer l'application 🚀",
     "linkYourMailAccount": "Liez votre compte Gmail ou Outlook"
   },

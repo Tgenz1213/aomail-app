@@ -310,11 +310,24 @@ def get_data(social_api: SocialAPI) -> dict:
     headers = get_headers(access_token)
 
     # Use the Microsoft Graph API to get counts directly
-    num_emails_received = requests.get(f"{GRAPH_URL}/me/messages/$count", headers=headers).json()
-    num_emails_read = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=isRead eq true", headers=headers).json()
-    num_emails_archived = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'archive')", headers=headers).json()
-    num_emails_starred = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'starred')", headers=headers).json()
-    num_emails_sent = requests.get(f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'sent')", headers=headers).json()
+    num_emails_received = requests.get(
+        f"{GRAPH_URL}/me/messages/$count", headers=headers
+    ).json()
+    num_emails_read = requests.get(
+        f"{GRAPH_URL}/me/messages/$count?$filter=isRead eq true", headers=headers
+    ).json()
+    num_emails_archived = requests.get(
+        f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'archive')",
+        headers=headers,
+    ).json()
+    num_emails_starred = requests.get(
+        f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'starred')",
+        headers=headers,
+    ).json()
+    num_emails_sent = requests.get(
+        f"{GRAPH_URL}/me/messages/$count?$filter=categories/any(c:c eq 'sent')",
+        headers=headers,
+    ).json()
 
     return {
         "num_emails_received": num_emails_received,

@@ -79,7 +79,11 @@
                     <div class="flex mt-3">
                         <div class="mr-3 flex-shrink-0">
                             <span class="inline-flex h-12 w-12 items-center justify-center rounded-full">
-                                <img :src="`${API_BASE_URL}agent_icon/default-agent.png`" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+                                <img
+                                    :src="`${API_BASE_URL}agent_icon/default-agent.png`"
+                                    alt="Agent Icon"
+                                    class="h-12 w-12 rounded-full object-cover"
+                                />
                             </span>
                         </div>
                         <div class="flex flex-col bg-white rounded-lg p-4 max-w-xl border border-gray-200">
@@ -98,17 +102,20 @@
                                         :is="getIconComponent(attachment.attachmentName)"
                                         class="w-5 h-5 text-gray-600 group-hover:text-white"
                                     />
-                                    <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
+                                    <p class="text-sm text-gray-600 group-hover:text-white">
+                                        {{ attachment.attachmentName }}
+                                    </p>
                                 </div>
                             </div>
-                            <div 
+                            <div
                                 class="flex gap-x-2 justify-end"
                                 :class="{
-                                    'pt-2': email?.flags?.meeting || 
-                                            email?.flags?.newsletter || 
-                                            email?.flags?.notification || 
-                                            email?.flags?.scam || 
-                                            email?.flags?.spam
+                                    'pt-2':
+                                        email?.flags?.meeting ||
+                                        email?.flags?.newsletter ||
+                                        email?.flags?.notification ||
+                                        email?.flags?.scam ||
+                                        email?.flags?.spam,
                                 }"
                             >
                                 <span
@@ -168,7 +175,7 @@
         <div class="col-span-2">
             <div class="flex justify-end">
                 <span class="isolate inline-flex items-center rounded-2xl pr-6">
-                    <div class="flex items-center space-x-1" :class="{ 'hidden': !isHovered }">
+                    <div class="flex items-center space-x-1" :class="{ hidden: !isHovered }">
                         <!-- See Email Button -->
                         <div class="relative group">
                             <button
@@ -177,7 +184,9 @@
                             >
                                 <eye-icon class="w-5 h-5" />
                             </button>
-                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <div
+                                class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                            >
                                 {{ $t("constants.userActions.open") }}
                             </div>
                         </div>
@@ -190,14 +199,18 @@
                             >
                                 <hand-raised-icon class="w-5 h-5" />
                             </button>
-                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <div
+                                class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                            >
                                 {{ $t("homePage.block") }}
                             </div>
                         </div>
 
                         <!-- Read/Unread Button -->
                         <div class="relative group">
-                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <div
+                                class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                            >
                                 {{ email.read ? $t("homePage.unread") : $t("homePage.read") }}
                             </div>
                             <button
@@ -230,7 +243,9 @@
                             >
                                 <arrow-uturn-left-icon class="w-5 h-5" />
                             </button>
-                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <div
+                                class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                            >
                                 {{ $t("homePage.answer") }}
                             </div>
                         </div>
@@ -290,7 +305,9 @@
                             >
                                 <sparkles-icon class="w-5 h-5" />
                             </button>
-                            <div class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <div
+                                class="absolute hidden group-hover:block px-3 py-1.5 bg-gray-800 text-white text-xs rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                            >
                                 {{ $t("constants.userActions.createARule") }}
                             </div>
                         </div>
@@ -314,7 +331,7 @@
                                     class="fixed z-[100] mt-1 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer"
                                     :style="{
                                         top: `${menuPosition.y}px`,
-                                        left: `${menuPosition.x}px`
+                                        left: `${menuPosition.x}px`,
                                     }"
                                 >
                                     <div class="py-1">
@@ -485,7 +502,7 @@ import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
 import { formatSentTime } from "@/global/formatters";
 import { Teleport } from "vue";
-import { API_BASE_URL } from '@/global/const';
+import { API_BASE_URL } from "@/global/const";
 
 const props = withDefaults(
     defineProps<{
@@ -567,9 +584,7 @@ async function markEmailAsRead() {
 
         for (const category in emails.value) {
             for (const subCategory in emails.value[category]) {
-                const index = emails.value[category][subCategory].findIndex(
-                    (email) => email.id === props.email.id
-                );
+                const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                 if (index !== -1) {
                     emails.value[category][subCategory][index].read = true;
                     break;
@@ -577,9 +592,9 @@ async function markEmailAsRead() {
             }
         }
 
-        const result = await putData("user/emails/update/", { 
-            ids: [props.email.id], 
-            action: "read" 
+        const result = await putData("user/emails/update/", {
+            ids: [props.email.id],
+            action: "read",
         });
 
         if (!result.success) {
@@ -587,9 +602,7 @@ async function markEmailAsRead() {
             readCount.value--;
             for (const category in emails.value) {
                 for (const subCategory in emails.value[category]) {
-                    const index = emails.value[category][subCategory].findIndex(
-                        (email) => email.id === props.email.id
-                    );
+                    const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                     if (index !== -1) {
                         emails.value[category][subCategory][index].read = false;
                         break;
@@ -600,13 +613,8 @@ async function markEmailAsRead() {
         }
 
         fetchCategoriesAndTotals?.();
-        
     } catch (error) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("homepage.markEmailReadFailure"),
-            error as string
-        );
+        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), error as string);
     } finally {
         isMarking.value = false;
     }
@@ -622,9 +630,7 @@ async function markEmailAsUnread() {
 
         for (const category in emails.value) {
             for (const subCategory in emails.value[category]) {
-                const index = emails.value[category][subCategory].findIndex(
-                    (email) => email.id === props.email.id
-                );
+                const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                 if (index !== -1) {
                     emails.value[category][subCategory][index].read = false;
                     break;
@@ -632,9 +638,9 @@ async function markEmailAsUnread() {
             }
         }
 
-        const result = await putData("user/emails/update/", { 
-            ids: [props.email.id], 
-            action: "unread" 
+        const result = await putData("user/emails/update/", {
+            ids: [props.email.id],
+            action: "unread",
         });
 
         if (!result.success) {
@@ -642,9 +648,7 @@ async function markEmailAsUnread() {
             readCount.value++;
             for (const category in emails.value) {
                 for (const subCategory in emails.value[category]) {
-                    const index = emails.value[category][subCategory].findIndex(
-                        (email) => email.id === props.email.id
-                    );
+                    const index = emails.value[category][subCategory].findIndex((email) => email.id === props.email.id);
                     if (index !== -1) {
                         emails.value[category][subCategory][index].read = true;
                         break;
@@ -655,13 +659,8 @@ async function markEmailAsUnread() {
         }
 
         fetchCategoriesAndTotals?.();
-        
     } catch (error) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("homepage.markEmailUnreadFailure"),
-            error as string
-        );
+        displayPopup?.("error", i18n.global.t("homepage.markEmailUnreadFailure"), error as string);
     } finally {
         isMarking.value = false;
     }
@@ -887,35 +886,35 @@ async function unarchiveEmail() {
 }
 
 const toggleMenu = (event: MouseEvent) => {
-    const button = (event.target as HTMLElement)?.closest('button')
+    const button = (event.target as HTMLElement)?.closest("button");
     if (button) {
-        const rect = button.getBoundingClientRect()
+        const rect = button.getBoundingClientRect();
         menuPosition.value = {
             x: rect.left - 150,
-            y: rect.bottom + window.scrollY
-        }
+            y: rect.bottom + window.scrollY,
+        };
     }
     if (!isMenuOpen.value) {
-        isMenuOpen.value = true
+        isMenuOpen.value = true;
     }
-}
+};
 
 const handleButtonMouseLeave = () => {
     setTimeout(() => {
         if (!isHovered.value) {
-            isMenuOpen.value = false
+            isMenuOpen.value = false;
         }
-    }, 100)
-}
+    }, 100);
+};
 
 const handleMenuMouseLeave = () => {
-    isHovered.value = false
+    isHovered.value = false;
     setTimeout(() => {
         if (!isHovered.value) {
-            isMenuOpen.value = false
+            isMenuOpen.value = false;
         }
-    }, 100)
-}
+    }, 100);
+};
 
 const getIconComponent = (fileName: string) => {
     const extension = fileName.split(".").pop()?.toLowerCase();
@@ -963,11 +962,11 @@ const downloadAttachment = async (emailId: number, attachmentName: string) => {
 
 const createRuleForSender = () => {
     router.push({
-        name: 'rules',
-        query: { 
-            createRule: 'true',
-            senderEmail: localEmail.value.sender.email
-        }
+        name: "rules",
+        query: {
+            createRule: "true",
+            senderEmail: localEmail.value.sender.email,
+        },
     });
 };
 </script>

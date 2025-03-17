@@ -15,7 +15,10 @@
                         {{ filter.name }}
                     </span>
                 </button>
-                <div class="w-0 group-hover:w-6 overflow-hidden transition-all duration-200 flex items-center h-full" v-if="filter.id !== 0">
+                <div
+                    class="w-0 group-hover:w-6 overflow-hidden transition-all duration-200 flex items-center h-full"
+                    v-if="filter.id !== 0"
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -140,14 +143,14 @@ const setActiveFilter = async (filterName: string) => {
         if (filter) {
             selectedFilter.value = filter;
             activeFilters.value[selectedCategory.value] = filter;
-            
+
             currentPage.value = 1;
             emails.value = {};
             allEmailIds.value = [];
             isLoading.value = false;
-            
+
             await fetchEmailsData(selectedCategory.value);
-            
+
             const container = document.querySelector(".custom-scrollbar");
             if (container) {
                 container.scrollTop = 0;

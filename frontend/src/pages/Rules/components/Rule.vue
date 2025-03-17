@@ -242,7 +242,9 @@
 
                     <!-- Reply Actions -->
                     <div v-if="rule.actionReplyPrompt" class="flex flex-col gap-1">
-                        <span class="text-xs">{{ $t("rulesPage.modals.common.actions.types.setReplyPrompt.prompt") }}:</span>
+                        <span class="text-xs">
+                            {{ $t("rulesPage.modals.common.actions.types.setReplyPrompt.prompt") }}:
+                        </span>
                         <span class="text-xs text-gray-600">"{{ rule.actionReplyPrompt }}"</span>
                     </div>
 

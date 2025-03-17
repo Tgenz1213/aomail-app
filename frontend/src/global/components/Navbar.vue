@@ -34,7 +34,8 @@
                     <a
                         :href="item.href"
                         :class="[
-                            (useRoute().path === item.href || (item.activePaths && item.activePaths.includes(useRoute().path)))
+                            useRoute().path === item.href ||
+                            (item.activePaths && item.activePaths.includes(useRoute().path))
                                 ? 'bg-gray-200 text-gray-900'
                                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
                             'group flex items-center rounded-md py-2 text-sm font-medium',
@@ -144,11 +145,11 @@ onMounted(() => {
 
 // Main navigation items (excluding 'New Email')
 const mainNavigation: NavigationPage[] = [
-    { 
-        name: i18n.global.t("constants.AiNavbar"), 
-        href: "/rules", 
+    {
+        name: i18n.global.t("constants.AiNavbar"),
+        href: "/rules",
         icon: SparklesIcon,
-        activePaths: ["/rules", "/ai-assistant", "/custom-categorization", "/prompt-customization"]
+        activePaths: ["/rules", "/ai-assistant", "/custom-categorization", "/prompt-customization"],
     },
     { name: i18n.global.t("constants.inboxNavbar"), href: "/inbox", icon: InboxIcon },
     { name: i18n.global.t("constants.analyticsNavbar"), href: "/analytics", icon: ChartBarIcon },
@@ -162,7 +163,7 @@ const bottomNavigation: NavigationPage[] = [
     { name: i18n.global.t("constants.subscriptionNavbar"), href: "/subscription", icon: RocketLaunchIcon },
     {
         name: i18n.global.t("constants.discordNavbar"),
-        href: "https://discord.gg/JxbPZNDd",
+        href: "https://discord.gg/XHTcEDbvh9",
         icon: ChatBubbleLeftRightIcon,
         target: "_blank",
     },

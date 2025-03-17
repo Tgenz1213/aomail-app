@@ -53,6 +53,9 @@ from aomail.email_providers.microsoft import (
 from aomail.email_providers.google import (
     email_operations as email_operations_google,
 )
+from aomail.email_providers.imap import (
+    email_operations as email_operations_imap,
+)
 from aomail.ai_providers.utils import update_tokens_stats
 from aomail.controllers.labels import is_shipping_label, process_label
 from aomail.utils.security import encrypt_text
@@ -101,10 +104,11 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             if not email_data:
                 return False
 
-            if Email.objects.select_for_update(skip_locked=True).filter(
-                provider_id=email_data["email_id"],
-                user=user
-            ).exists():
+            if (
+                Email.objects.select_for_update(skip_locked=True)
+                .filter(provider_id=email_data["email_id"], user=user)
+                .exists()
+            ):
                 LOGGER.info(
                     f"Email ID: {email_data['email_id']} already exists for user ID: {user.id}. Skipping."
                 )
@@ -123,11 +127,11 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             ai_output: dict = processed_email["email_processed"].copy()
             ai_output.pop("summary")
 
-            if social_api.type_api == GOOGLE:
+            if social_api.type_api == GOOGLE and not social_api.imap_config:
                 google_labels.replicate_labels(
                     social_api, ai_output, email_data["email_id"]
                 )
-            elif social_api.type_api == MICROSOFT:
+            elif social_api.type_api == MICROSOFT and not social_api.imap_config:
                 microsoft_labels.replicate_labels(
                     social_api, ai_output, email_data["email_id"]
                 )
@@ -150,17 +154,19 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             return True
 
     except Exception as e:
-        if 'duplicate key value violates unique constraint' in str(e):
+        if "duplicate key value violates unique constraint" in str(e):
             LOGGER.info(
                 f"Email ID already saved by another process for user ID: {user.id}. Skipping."
             )
             return False
-        LOGGER.error(f"Error saving email for user ID: {user.id}: {str(e)}")
+        LOGGER.error(
+            f"Error saving email ID: {email_data['email_id']} for user ID: {user.id}: {str(e)}"
+        )
         return False
 
 
 def delete_email(social_api: SocialAPI, email_data: dict, user: User):
-    if social_api.type_api == GOOGLE:
+    if social_api.type_api == GOOGLE and not social_api.imap_config:
         result = email_operations_google.delete_email(
             user, social_api.email, email_data["email_id"]
         )
@@ -170,7 +176,7 @@ def delete_email(social_api: SocialAPI, email_data: dict, user: User):
             LOGGER.info(
                 f"Result after deleting email via Google: {result.get('message')}"
             )
-    elif social_api.type_api == MICROSOFT:
+    elif social_api.type_api == MICROSOFT and not social_api.imap_config:
         result = email_operations_microsoft.delete_email(
             email_data["email_id"], social_api
         )
@@ -179,6 +185,14 @@ def delete_email(social_api: SocialAPI, email_data: dict, user: User):
         else:
             LOGGER.info(
                 f"Result after deleting email via Microsoft: {result.get('message')}"
+            )
+    elif social_api.imap_config:
+        result = email_operations_imap.delete_email(email_data["email_id"], social_api)
+        if "error" in result:
+            LOGGER.error(f"Error deleting email via IMAP: {result.get('error')}")
+        else:
+            LOGGER.info(
+                f"Result after deleting email via IMAP: {result.get('message')}"
             )
 
 
@@ -355,10 +369,12 @@ def get_email_data(social_api: SocialAPI, email_id: str = None) -> dict:
     Returns:
         dict: A dictionary containing the fetched email data.
     """
-    if social_api.type_api == MICROSOFT:
+    if social_api.type_api == MICROSOFT and not social_api.imap_config:
         return email_operations_microsoft.get_mail_to_db(social_api, email_id)
-    elif social_api.type_api == GOOGLE:
+    elif social_api.type_api == GOOGLE and not social_api.imap_config:
         return email_operations_google.get_mail_to_db(social_api, email_id)
+    elif social_api.imap_config:
+        return email_operations_imap.get_mail_to_db(social_api, email_id)
     else:
         raise ValueError(f"Unsupported API type: {social_api.type_api}")
 
@@ -470,17 +486,11 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
         LOGGER.critical(
             f"Failed to process email with AI for email: {social_api.email}"
         )
-        if social_api.type_api == GOOGLE:
-            email_provider = GOOGLE
-        elif social_api.type_api == MICROSOFT:
-            email_provider = MICROSOFT
-        else:
-            email_provider = "Unknown"
 
         context = {
             "error": str(e),
             "email": social_api.email,
-            "email_provider": email_provider,
+            "email_provider": social_api.type_api,
             "user": social_api.user,
         }
         email_html = render_to_string("ai_failed_email.html", context)
@@ -577,7 +587,8 @@ def process_email_entities(
     Get or create the email category, sender, and contact.
 
     Args:
-        processed_email (dict): A dictionary containing the processed email data.
+        topic (str): The topic of the email.
+        from_info (tuple): A tuple containing the sender's name and email.
         user (User): The user object associated with the email.
 
     Returns:
@@ -724,10 +735,10 @@ def create_cc_bcc_senders(processed_email: dict, email_entry: Email):
         if isinstance(sender_info, (list, tuple)):
             if not sender_info:
                 return None, ""
-            
+
             if len(sender_info) == 1:
                 return str(sender_info[0]).strip(), ""
-            
+
             return str(sender_info[0]).strip(), str(sender_info[1]).strip()
 
         if hasattr(sender_info, "email"):
@@ -741,10 +752,10 @@ def create_cc_bcc_senders(processed_email: dict, email_entry: Email):
         """Helper function to safely create sender entries"""
         try:
             email, name = extract_email_and_name(sender_info)
-            
+
             if not email:
                 return
-                
+
             if "@" not in email:
                 return
 

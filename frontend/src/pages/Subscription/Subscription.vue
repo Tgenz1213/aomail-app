@@ -338,8 +338,8 @@ const redirectPaymentPage = async (product: string) => {
 
     if (!result.success) {
         displayPopup(
-            "error", 
-            i18n.global.t("settingsPage.subscriptionPage.failedToCreateSession"), 
+            "error",
+            i18n.global.t("settingsPage.subscriptionPage.failedToCreateSession"),
             result.error as string
         );
         return;

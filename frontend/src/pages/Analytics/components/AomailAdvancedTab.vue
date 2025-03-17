@@ -6,7 +6,7 @@
             <div class="w-full">
                 <label for="metric-select" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                     <i class="fas fa-chart-bar text-gray-900 mr-2"></i>
-                    {{ $t('analyticsPage.metrics') }}
+                    {{ $t("analyticsPage.metrics") }}
                 </label>
                 <select
                     id="metric-select"
@@ -25,7 +25,7 @@
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                         <i class="fas fa-clock text-gray-900 mr-2"></i>
-                        {{ $t('analyticsPage.selectSince') }}
+                        {{ $t("analyticsPage.selectSince") }}
                     </label>
                     <div class="space-y-2">
                         <div v-for="sinceOption in sinceOptions" :key="sinceOption" class="flex items-center">
@@ -44,7 +44,7 @@
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                         <i class="fas fa-calendar-alt text-gray-900 mr-2"></i>
-                        {{ $t('analyticsPage.selectPeriod') }}
+                        {{ $t("analyticsPage.selectPeriod") }}
                     </label>
                     <div class="space-y-2">
                         <div v-for="periodOption in periodOptions" :key="periodOption" class="flex items-center">
@@ -63,7 +63,7 @@
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                         <i class="fas fa-database text-gray-900 mr-2"></i>
-                        {{ $t('analyticsPage.selectDataOptions') }}
+                        {{ $t("analyticsPage.selectDataOptions") }}
                     </label>
                     <div class="space-y-2">
                         <label class="flex items-center">
@@ -72,7 +72,7 @@
                                 v-model="selectedDataOptions.avg"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">{{ $t('analyticsPage.average') }}</span>
+                            <span class="text-sm">{{ $t("analyticsPage.average") }}</span>
                         </label>
                         <label class="flex items-center">
                             <input
@@ -80,7 +80,7 @@
                                 v-model="selectedDataOptions.min"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">{{ $t('analyticsPage.minimum') }}</span>
+                            <span class="text-sm">{{ $t("analyticsPage.minimum") }}</span>
                         </label>
                         <label class="flex items-center">
                             <input
@@ -88,7 +88,7 @@
                                 v-model="selectedDataOptions.max"
                                 class="mr-2 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
                             />
-                            <span class="text-sm">{{ $t('analyticsPage.maximum') }}</span>
+                            <span class="text-sm">{{ $t("analyticsPage.maximum") }}</span>
                         </label>
                     </div>
                 </div>
@@ -102,7 +102,7 @@
                 <div class="p-4 flex flex-col">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
                         <i class="fas fa-chart-bar text-green-500 mr-2"></i>
-                        {{ $t('analyticsPage.sinceStatistics') }}
+                        {{ $t("analyticsPage.sinceStatistics") }}
                     </h3>
                     <div class="flex-1 min-h-0">
                         <canvas id="sinceBarChart"></canvas>
@@ -113,7 +113,7 @@
                 <div class="p-4 flex flex-col">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
                         <i class="fas fa-chart-line text-green-500 mr-2"></i>
-                        {{ $t('analyticsPage.periodStatistics') }}
+                        {{ $t("analyticsPage.periodStatistics") }}
                     </h3>
                     <div class="flex-1 min-h-0">
                         <canvas id="periodsErrorBarChart"></canvas>
@@ -133,7 +133,7 @@ import { i18n } from "@/global/preferences";
 
 Chart.register(...registerables);
 
-type MetricKey = 
+type MetricKey =
     | "nbMightRequireAnswer"
     | "nbEmailsReceived"
     | "nbAnswerRequired"
@@ -170,7 +170,7 @@ interface Metric {
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const getMetricLabel = (key: MetricKey) => {
-    if (key.startsWith('nb')) {
+    if (key.startsWith("nb")) {
         return i18n.global.t(`analyticsPage.metricLabels.${key}`);
     }
     return i18n.global.t(`analyticsPage.timeLabels.${key}`);
@@ -224,7 +224,7 @@ const fetchStatistics = async () => {
     });
 
     if (!result.success) {
-        displayPopup?.("error", i18n.global.t('analyticsPage.failedToFetchStatistics'), result.error as string);
+        displayPopup?.("error", i18n.global.t("analyticsPage.failedToFetchStatistics"), result.error as string);
     } else {
         data.value = result.data.stats;
     }
@@ -243,7 +243,7 @@ const renderSinceBarChart = () => {
             labels: selectedSinceOptions.value.map((option) => getMetricLabel(option)),
             datasets: [
                 {
-                    label: i18n.global.t('analyticsPage.sinceStatistics'),
+                    label: i18n.global.t("analyticsPage.sinceStatistics"),
                     data: selectedSinceOptions.value.map(
                         (option) => data.value[selectedMetric.value]?.since?.[option] || 0
                     ),

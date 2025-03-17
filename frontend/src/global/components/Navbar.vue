@@ -163,7 +163,7 @@ const bottomNavigation: NavigationPage[] = [
     { name: i18n.global.t("constants.subscriptionNavbar"), href: "/subscription", icon: RocketLaunchIcon },
     {
         name: i18n.global.t("constants.discordNavbar"),
-        href: "https://discord.gg/JxbPZNDd",
+        href: "https://discord.gg/XHTcEDbvh9",
         icon: ChatBubbleLeftRightIcon,
         target: "_blank",
     },

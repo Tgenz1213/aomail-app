@@ -272,7 +272,7 @@ def process_part(part: dict, plaintext_var: list) -> str | None:
 
 def preprocess_email(email_content: str) -> str:
     """
-    Removes links, email addresses, unnecessary spacings, and converts line endings.
+    Removes unnecessary spacings, and converts line endings.
 
     Args:
         email_content (str): The content of the email to be preprocessed.
@@ -281,11 +281,6 @@ def preprocess_email(email_content: str) -> str:
         str: The preprocessed email content with removed links, email addresses,
              unnecessary spacings, and converted line endings.
     """
-    # Remove links enclosed in <http...> or http... followed by a space
-    # email_content = re.sub(r"<http(.*?)>", "", email_content)
-    # email_content = re.sub(r"http(.*?)\ ", "", email_content)
-    # email_content = re.sub(r"http\S+", "", email_content)
-
     # Delete patterns like "[image: ...]"
     email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)
 

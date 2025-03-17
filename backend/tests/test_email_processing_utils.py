@@ -44,9 +44,9 @@ def test_is_no_reply_email():
 
 
 def test_preprocess_email():
-    assert preprocess_email("<https://aomail.ai>") == ""
-    assert preprocess_email("https://aomail.ai") == ""
-    assert preprocess_email("http://aomail.ai") == ""
+    assert preprocess_email("<https://aomail.ai>") == "<https://aomail.ai>"
+    assert preprocess_email("https://aomail.ai") == "https://aomail.ai"
+    assert preprocess_email("http://aomail.ai") == "http://aomail.ai"
     assert preprocess_email("random text\r\nend of text") == "random text\nend of text"
     assert (
         preprocess_email("random text\n\n\n\n\nend of text")
@@ -54,7 +54,7 @@ def test_preprocess_email():
     )
     assert preprocess_email("[image:[myImageStuff]") == ""
     assert preprocess_email("  spaces  at  ends  ") == "spaces at ends"
-    assert preprocess_email("http://link.com some text") == "some text"
+    assert preprocess_email("http://link.com some text") == "http://link.com some text"
     assert (
         preprocess_email("mixed\r\nline\nending\r\nstyles")
         == "mixed\nline\nending\nstyles"

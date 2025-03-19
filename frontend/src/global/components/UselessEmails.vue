@@ -2,31 +2,45 @@
     <div v-if="hasEmails">
         <div class="sticky bg-white z-[50]" :class="[replyLater ? 'top-[0px]' : 'top-[48.5px] 2xl:top-[56.5px]']">
             <div class="py-6 mr-6 ml-6">
-                <div class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md">
-                    <div class="flex px-3 py-2">
-                        <div class="flex items-center gap-2">
-                            <trash-icon class="w-6 h-6 text-gray-500" />
-                            <p class="text-sm font-semibold tracking-wide text-gray-600">
-                                {{ $t("constants.ruleModalConstants.useless") }}
-                            </p>
-                        </div>
-                        <div class="ml-auto flex items-center space-x-2">
-                            <button
-                                @click="markAllAsRead"
-                                class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md flex items-center gap-1"
-                                :disabled="isMarking?.useless"
+                <div class="group">
+                    <div
+                        class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md cursor-pointer hover:bg-gray-200 transition-colors duration-150"
+                        @click="toggleEmailVisibility"
+                    >
+                        <div class="flex px-3 py-2">
+                            <div class="flex items-center gap-2">
+                                <trash-icon class="w-6 h-6 text-gray-500" />
+                                <p class="text-sm font-semibold tracking-wide text-gray-600">
+                                    {{ $t("constants.ruleModalConstants.useless") }}
+                                </p>
+                            </div>
+                            <div
+                                class="ml-2 flex gap-x-1 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                             >
-                                <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless" />
-                                {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
-                            </button>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-4 h-4"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
+                                    />
+                                </svg>
+                                <p>{{ $t("constants.userActions.clickToSeeUselessEmails") }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="flex gap-x-2">
-            <div class="flex gap-x-2 px-12 pb-4 w-full group" @click="toggleEmailVisibility">
-                <p class="cursor-pointer">
+        <div class="flex gap-x-2" v-if="!showEmailDescriptions">
+            <div class="flex gap-x-2 px-12 pb-4 w-full group">
+                <p>
                     {{ $t("homePage.youReceived") }}
                     <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
                         {{ uselessCount }}
@@ -38,46 +52,14 @@
                         {{ $t("homePage.uselessEmails") }}
                     </span>
                 </p>
-                <div
-                    :class="`hidden group-hover:block bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md px-2 text-sm text-gray-700`"
+                <button
+                    @click="markAllAsRead"
+                    class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md flex items-center gap-1"
+                    :disabled="isMarking?.useless"
                 >
-                    <div class="flex gap-x-1 items-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-4 h-4"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
-                            />
-                        </svg>
-                        <p>{{ $t("constants.userActions.clickToSeeUselessEmails") }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="hidden group-hover/main:block px-2 py-0.5 bg-gray-400 text-white text-sm shadow rounded-xl">
-                <div class="flex gap-x-1 items-center">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
-                        />
-                    </svg>
-                    <p @click="toggleEmailVisibility" class="cursor-pointer">{{ $t("homePage.clickToSeeTheEmail") }}</p>
-                </div>
+                    <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless" />
+                    {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
+                </button>
             </div>
         </div>
         <div

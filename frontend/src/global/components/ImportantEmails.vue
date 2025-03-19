@@ -32,7 +32,7 @@
                                             d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
                                         />
                                     </svg>
-                                    <p>{{ $t("constants.userActions.clickToSeeUselessEmails") }}</p>
+                                    <p>{{ $t("constants.userActions.clickToSeeImportantEmails") }}</p>
                                 </div>
                             </div>
                         </div>
@@ -57,10 +57,10 @@
                 <button
                     @click="markAllAsRead"
                     class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md flex items-center gap-1"
-                    :disabled="isMarking?.useless"
+                    :disabled="isMarking?.important"
                 >
-                    <CheckIcon class="h-4 w-4 text-gray-700" v-if="!isMarking?.useless" />
-                    {{ isMarking?.useless ? $t("loading") : $t("markAllAsRead") }}
+                    <CheckIcon class="h-4 w-4 text-orange-700" v-if="!isMarking?.important" />
+                    {{ isMarking?.important ? $t("loading") : $t("markAllAsRead") }}
                 </button>
             </div>
         </div>
@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, computed, watch, Ref } from "vue";
+import { ref, inject, computed, watch, Ref, onMounted } from "vue";
 import { ExclamationTriangleIcon, CheckIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
@@ -122,7 +122,7 @@ const isMarking = inject<{
 }>("isMarking");
 
 const importantEmailsCount = inject("importantCount") as Ref<number>;
-let showEmails = ref(false);
+let showEmails = ref(localStorage.getItem("showImportantEmails") === "true" ? true : false);
 
 function toggleEmailVisibility() {
     showEmails.value = !showEmails.value;

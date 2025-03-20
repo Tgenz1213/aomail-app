@@ -392,7 +392,6 @@ function askChoiceRecipier(recipients: AiRecipient[], type: string) {
     //         : type === "cc"
     //         ? i18n.global.t("newPage.ccRecipient")
     //         : i18n.global.t("newPage.bccRecipient");
- 
 
     const messageHTML = `
       <div class="flex pb-6">

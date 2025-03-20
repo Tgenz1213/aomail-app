@@ -282,36 +282,36 @@ const displayAgentSelection = async () => {
     }
 };
 
-const checkLastUsedAgent = async () => {
-    try {
-        if (!agents.value.length) {
-            displayPopup(
-                "error",
-                i18n.global.t("answerPage.error.title"),
-                i18n.global.t("answerPage.error.noAgentsAvailable")
-            );
-            return;
-        }
+// const checkLastUsedAgent = async () => {
+//     try {
+//         if (!agents.value.length) {
+//             displayPopup(
+//                 "error",
+//                 i18n.global.t("answerPage.error.title"),
+//                 i18n.global.t("answerPage.error.noAgentsAvailable")
+//             );
+//             return;
+//         }
 
-        const response = await getData("user/agents/check_last_used/");
+//         const response = await getData("user/agents/check_last_used/");
 
-        if (response.success && response.data.exists) {
-            const selectedAgentData = agents.value.find((agent) => agent.id === response.data.agent_id);
-            if (selectedAgentData) {
-                selectedAgent.value = selectedAgentData;
-            }
-        } else {
-            await displayMessage(i18n.global.t("agent.chooseAiAssistant"), selectedAgent.value.picture);
-            await displayAgentSelection();
-        }
-    } catch (error) {
-        displayPopup(
-            "error",
-            i18n.global.t("answerPage.error.title"),
-            i18n.global.t("answerPage.error.checkingLastUsedAgent")
-        );
-    }
-};
+//         if (response.success && response.data.exists) {
+//             const selectedAgentData = agents.value.find((agent) => agent.id === response.data.agent_id);
+//             if (selectedAgentData) {
+//                 selectedAgent.value = selectedAgentData;
+//             }
+//         } else {
+//             await displayMessage(i18n.global.t("agent.chooseAiAssistant"), selectedAgent.value.picture);
+//             await displayAgentSelection();
+//         }
+//     } catch (error) {
+//         displayPopup(
+//             "error",
+//             i18n.global.t("answerPage.error.title"),
+//             i18n.global.t("answerPage.error.checkingLastUsedAgent")
+//         );
+//     }
+// };
 
 async function fetchAgents() {
     try {
@@ -630,7 +630,7 @@ function hideLoading() {
     }
 }
 
-function askContentAdvice(keyword?: string) {
+function askContentAdvice() {
     if (!AIContainer.value || isWriting.value) {
         return;
     }

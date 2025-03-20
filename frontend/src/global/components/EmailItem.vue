@@ -503,7 +503,6 @@ import { i18n } from "@/global/preferences";
 import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
 import { formatSentTime } from "@/global/formatters";
-import { Teleport } from "vue";
 import { API_BASE_URL } from "@/global/const";
 
 const props = withDefaults(
@@ -535,7 +534,6 @@ const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => P
 const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Promise<void>;
 const emails = inject("emails") as Ref<{ [key: string]: { [key: string]: Email[] } }>;
 const readCount = inject("readCount") as Ref<number>;
-const uselessCount = inject("uselessCount") as Ref<number>;
 const refreshReplyLaterEmails = inject("refreshReplyLaterEmails", null) as (() => Promise<void>) | null;
 
 const toggleShortSummary = () => {

@@ -46,25 +46,27 @@
 </template>
 
 <script setup lang="ts">
-import { i18n } from "@/global/preferences";
-import { KeyValuePair } from "@/global/types";
-import { inject, Ref, ref } from "vue";
+import { inject } from "vue";
 
-const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
-const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
-const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
+// import { i18n } from "@/global/preferences";
+// import { KeyValuePair } from "@/global/types";
+// import { inject, Ref, ref } from "vue";
+
+// const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
+// const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
+// const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
 
 const handleAIClick = inject<() => void>("handleAIClick");
 
-const emailLengthOptions: KeyValuePair[] = [
-    { key: "very short", value: i18n.global.t("newPage.veryBrief") },
-    { key: "short", value: i18n.global.t("newPage.brief") },
-    { key: "long", value: i18n.global.t("newPage.long") },
-];
+// const emailLengthOptions: KeyValuePair[] = [
+//     { key: "very short", value: i18n.global.t("newPage.veryBrief") },
+//     { key: "short", value: i18n.global.t("newPage.brief") },
+//     { key: "long", value: i18n.global.t("newPage.long") },
+// ];
 
-const formalityOptions: KeyValuePair[] = [
-    { key: "very informal", value: i18n.global.t("newPage.informal") },
-    { key: "formal", value: i18n.global.t("newPage.formal") },
-    { key: "very formal", value: i18n.global.t("newPage.veryFormal") },
-];
+// const formalityOptions: KeyValuePair[] = [
+//     { key: "very informal", value: i18n.global.t("newPage.informal") },
+//     { key: "formal", value: i18n.global.t("newPage.formal") },
+//     { key: "very formal", value: i18n.global.t("newPage.veryFormal") },
+// ];
 </script>

@@ -247,7 +247,7 @@ async function transferEmail() {
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const displayUserMsg = inject<(message: string) => void>("displayUserMsg");
-const waitForUserInput = inject<() => Promise<string>>("waitForUserInput");
+// const waitForUserInput = inject<() => Promise<string>>("waitForUserInput");
 
 const displayAIMsg = (message: string, options: KeyValuePair[] | undefined = undefined) => {
     messages.value.push({

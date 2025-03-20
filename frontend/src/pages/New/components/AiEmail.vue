@@ -172,10 +172,10 @@ const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
 const imageURL = inject<Ref<string>>("imageURL") || ref("");
 const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
-const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
+// const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
 const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
 const emailBody = inject<Ref<string>>("emailBody") || ref("");
-const contacts = inject<Ref<Recipient[]>>("contacts", ref([]));
+// const contacts = inject<Ref<Recipient[]>>("contacts", ref([]));
 const agents = inject<Ref<Agent[]>>("agents") || ref<Agent[]>([]);
 const selectedAgent =
     inject<Ref<Agent>>("selectedAgent") ||
@@ -386,14 +386,13 @@ function processMultipleEmailRecipients(recipients: AiRecipient[], type: string)
 function askChoiceRecipier(recipients: AiRecipient[], type: string) {
     if (!recipients.length) return;
 
-    const userLabel =
-        type === "main"
-            ? i18n.global.t("newPage.mainRecipient")
-            : type === "cc"
-            ? i18n.global.t("newPage.ccRecipient")
-            : i18n.global.t("newPage.bccRecipient");
-
-    console.log("recipients", recipients);
+    // const userLabel =
+    //     type === "main"
+    //         ? i18n.global.t("newPage.mainRecipient")
+    //         : type === "cc"
+    //         ? i18n.global.t("newPage.ccRecipient")
+    //         : i18n.global.t("newPage.bccRecipient");
+ 
 
     const messageHTML = `
       <div class="flex pb-6">
@@ -551,26 +550,26 @@ function displayUserMessage() {
     scrollToBottom?.();
 }
 
-function displayMultipleEmailsMessage() {
-    if (!AIContainer.value) return;
-    const messageHTML = `
-        <div class="flex pb-6">
-            <div class="mr-3 flex-shrink-0">
-                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-                    <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
-                </span>
-            </div>
-            <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
-                <p class="text-gray-800">I found the following recipients:</p>
-                <ul class="mt-2 list-disc pl-4">
-                    <li>Main recipient: Fabien fasson</li>
-                </ul>
-                <p class="mt-2 text-gray-800">Would you like me to help you compose an email for these recipients?</p>
-            </div>
-        </div>
-    `;
-    AIContainer.value.innerHTML += messageHTML;
-}
+// function displayMultipleEmailsMessage() {
+//     if (!AIContainer.value) return;
+//     const messageHTML = `
+//         <div class="flex pb-6">
+//             <div class="mr-3 flex-shrink-0">
+//                 <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
+//                     <img src="${API_BASE_URL}agent_icon/${selectedAgent.value.icon_name}" alt="Agent Icon" class="h-12 w-12 rounded-full object-cover">
+//                 </span>
+//             </div>
+//             <div class="flex flex-col bg-white rounded-lg p-4 max-w-md border border-gray-200">
+//                 <p class="text-gray-800">I found the following recipients:</p>
+//                 <ul class="mt-2 list-disc pl-4">
+//                     <li>Main recipient: Fabien fasson</li>
+//                 </ul>
+//                 <p class="mt-2 text-gray-800">Would you like me to help you compose an email for these recipients?</p>
+//             </div>
+//         </div>
+//     `;
+//     AIContainer.value.innerHTML += messageHTML;
+// }
 
 function displayImprovedDraft() {
     displayMessage?.(i18n.global.t("newPage.draftImproved"), selectedAgent.value.picture);

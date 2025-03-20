@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch, computed, onBeforeUnmount } from "vue";
+import { ref, onMounted, nextTick, provide, onUnmounted, watch, onBeforeUnmount } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -920,7 +920,7 @@ const onDrag = (event: MouseEvent) => {
 
     // Set boundaries to prevent widths from becoming too small or too large
     const MIN_WIDTH = 20;
-    const MAX_WIDTH = 80;
+    // const MAX_WIDTH = 80;
 
     if (newManualWidth < MIN_WIDTH) {
         newManualWidth = MIN_WIDTH;

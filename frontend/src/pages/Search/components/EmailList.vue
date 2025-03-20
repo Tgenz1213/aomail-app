@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { GOOGLE, IMPORTANT, INFORMATIVE, MICROSOFT, USELESS } from "@/global/const";
+import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { Email, KeyValuePair } from "@/global/types";
 import { computed, inject, Ref, ref, watch } from "vue";
 import EmailItem from "./EmailItem.vue";

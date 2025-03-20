@@ -114,12 +114,12 @@ import { postData } from "@/global/fetchData";
 import { AomailSearchFilter, ApiSearchFilter, Email, EmailDetails, EmailProvider, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon, ChevronUpDownIcon } from "@heroicons/vue/24/outline";
-import { inject, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
+import { inject, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import AomailFilters from "./AomailFilters.vue";
 import ApiFilters from "./ApiFilters.vue";
 import { EmailApiIds, EmailApiListType } from "../utils/types";
 import { i18n } from "@/global/preferences";
-import { AOMAIL_SEARCH_KEY } from "@/global/const";
+import { AOMAIL_SEARCH_KEY, API_SEARCH_KEY } from "@/global/const";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
@@ -130,8 +130,18 @@ const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
 const emailApiIds = inject<Ref<EmailApiIds>>("emailApiIds") || ref<EmailApiIds>({});
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const emailApiList = inject<Ref<EmailApiListType>>("emailApiList") || ref<EmailApiListType>({});
-const selectedSearchMode = inject<Ref<KeyValuePair>>("selectedSearchMode")!;
-const searchModes = inject<Ref<KeyValuePair[]>>("searchModes")!;
+const selectedSearchMode =
+    inject<Ref<KeyValuePair>>("selectedSearchMode") ||
+    ref<KeyValuePair>({
+        key: AOMAIL_SEARCH_KEY,
+        value: i18n.global.t("searchPage.searchModes.aomail"),
+    });
+const searchModes =
+    inject<Ref<KeyValuePair[]>>("searchModes") ||
+    ref<KeyValuePair[]>([
+        { key: AOMAIL_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.aomail") },
+        { key: API_SEARCH_KEY, value: i18n.global.t("searchPage.searchModes.allEmails") },
+    ]);
 
 const inputValue = ref("");
 const isFocused = ref(false);

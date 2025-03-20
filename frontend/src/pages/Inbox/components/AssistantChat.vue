@@ -45,13 +45,13 @@ const displayUserMsg = (message: string) => {
     messages.value.push({ textHtml: message, isUser: true });
 };
 
-const handleUserResponse = (response: string) => {
-    displayUserMsg(response);
-    if (userInputResolver.value) {
-        userInputResolver.value(response);
-        userInputResolver.value = null;
-    }
-};
+// const handleUserResponse = (response: string) => {
+//     displayUserMsg(response);
+//     if (userInputResolver.value) {
+//         userInputResolver.value(response);
+//         userInputResolver.value = null;
+//     }
+// };
 
 async function waitForUserInput(): Promise<string> {
     return new Promise((resolve) => {

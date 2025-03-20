@@ -196,9 +196,9 @@ const hasEmails = computed(() => {
     return Object.keys(groupedEmails.value).length > 0;
 });
 
-const nbrEmailsRead = computed(() => {
-    return Object.values(groupedEmails.value).reduce((acc, emails) => acc + emails.length, 0);
-});
+// const nbrEmailsRead = computed(() => {
+//     return Object.values(groupedEmails.value).reduce((acc, emails) => acc + emails.length, 0);
+// });
 
 function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;

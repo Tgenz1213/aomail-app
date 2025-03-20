@@ -142,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, onMounted, onUnmounted, watch, onBeforeUnmount } from "vue";
+import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
 import { getData, postData, putData } from "@/global/fetchData";
 import { Email, Category, FetchDataResult, Filter } from "@/global/types";
 import { DEFAULT_CATEGORY, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
@@ -157,7 +157,7 @@ import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
 import ReadEmail from "./components/ReadEmails.vue";
-import AssistantChat from "./components/AssistantChat.vue";
+// import AssistantChat from "./components/AssistantChat.vue";
 import Categories from "./components/Categories.vue";
 import SearchBar from "./components/SearchBar.vue";
 import { XMarkIcon } from "@heroicons/vue/20/solid";
@@ -859,28 +859,28 @@ function dismissPopup() {
     }
 }
 
-const loadActiveFilters = async () => {
-    const storedFilters = localStorage.getItem("activeFilters");
-    if (storedFilters) {
-        const parsedFilters = JSON.parse(storedFilters);
-        for (const category in parsedFilters) {
-            await fetchFiltersData(category);
-            const filterArray = filters.value[category];
-            if (filterArray) {
-                const filter = filterArray.find((f) => f.name === parsedFilters[category].name);
-                if (filter) {
-                    activeFilters.value[category] = filter;
-                } else {
-                    // If stored filter not found, set to "All emails" filter
-                    const allEmailsFilter = filterArray.find((f) => f.id === 0);
-                    if (allEmailsFilter) {
-                        activeFilters.value[category] = allEmailsFilter;
-                    }
-                }
-            }
-        }
-    }
-};
+// const loadActiveFilters = async () => {
+//     const storedFilters = localStorage.getItem("activeFilters");
+//     if (storedFilters) {
+//         const parsedFilters = JSON.parse(storedFilters);
+//         for (const category in parsedFilters) {
+//             await fetchFiltersData(category);
+//             const filterArray = filters.value[category];
+//             if (filterArray) {
+//                 const filter = filterArray.find((f) => f.name === parsedFilters[category].name);
+//                 if (filter) {
+//                     activeFilters.value[category] = filter;
+//                 } else {
+//                     // If stored filter not found, set to "All emails" filter
+//                     const allEmailsFilter = filterArray.find((f) => f.id === 0);
+//                     if (allEmailsFilter) {
+//                         activeFilters.value[category] = allEmailsFilter;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// };
 
 const processFeedBackForm = async () => {
     const result = await getData("user/preferences/plan/");
@@ -909,18 +909,18 @@ const startAssistantWidth = ref(0);
 const initialContainerWidth = ref(0);
 
 // Initialize drag
-const initDrag = (event: MouseEvent) => {
-    isDragging.value = true;
-    startX.value = event.clientX;
-    startEmailsWidth.value = emailsContainerWidth.value;
-    startAssistantWidth.value = assistantChatWidth.value;
+// const initDrag = (event: MouseEvent) => {
+//     isDragging.value = true;
+//     startX.value = event.clientX;
+//     startEmailsWidth.value = emailsContainerWidth.value;
+//     startAssistantWidth.value = assistantChatWidth.value;
 
-    const container = (event.target as HTMLElement).closest(".flex");
-    initialContainerWidth.value = container ? container.clientWidth : 0;
+//     const container = (event.target as HTMLElement).closest(".flex");
+//     initialContainerWidth.value = container ? container.clientWidth : 0;
 
-    window.addEventListener("mousemove", onDrag);
-    window.addEventListener("mouseup", stopDrag);
-};
+//     window.addEventListener("mousemove", onDrag);
+//     window.addEventListener("mouseup", stopDrag);
+// };
 
 // Handle dragging
 const onDrag = (event: MouseEvent) => {

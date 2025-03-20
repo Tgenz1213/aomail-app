@@ -248,7 +248,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import {
     Dialog,
     DialogPanel,
@@ -274,7 +273,7 @@ import {
 import { Email } from "@/global/types";
 import { formatSentDateAndTime } from "@/global/formatters";
 
-const props = defineProps<{
+defineProps<{
     isOpen: boolean;
     email: Email;
 }>();

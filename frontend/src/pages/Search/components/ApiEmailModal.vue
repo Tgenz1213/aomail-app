@@ -74,13 +74,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from "@headlessui/vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import { formatSentDateAndTime } from "@/global/formatters";
-import { getData } from "@/global/fetchData";
-import { inject } from "vue";
 
 const props = defineProps<{
     isOpen: boolean;

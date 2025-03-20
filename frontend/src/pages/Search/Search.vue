@@ -131,11 +131,11 @@ onMounted(() => {
     fetchRecipients();
 });
 
-async function getProfileImage() {
-    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
-    if (!result.success) return;
-    imageURL.value = result.data.profileImageUrl;
-}
+// async function getProfileImage() {
+//     const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+//     if (!result.success) return;
+//     imageURL.value = result.data.profileImageUrl;
+// }
 
 const filteredPeople = computed(() => {
     if (!contacts || queryGetRecipients.value === "") {
@@ -172,7 +172,6 @@ provide("hideLoading", () => {
     isLoading.value = false;
 });
 provide("searchModes", searchModes);
-provide("selectedSearchMode", selectedSearchMode);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

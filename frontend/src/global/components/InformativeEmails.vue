@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, computed, watch, Ref, onMounted } from "vue";
+import { ref, inject, computed, watch, Ref } from "vue";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "../formatters";

@@ -1,56 +1,55 @@
 <template>
-    <div class="overflow-y-auto max-h-32 flex flex-wrap">
+    <div class="overflow-y-auto max-h-32 flex flex-wrap gap-2">
         <div
             v-for="(file, index) in uploadedFiles"
             :key="file.name"
-            class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1 2xl:px-3 2xl:py-2 2xl:mr-2"
+            class="flex items-center gap-2 px-2 py-1 rounded-md bg-gray-50 border border-gray-200"
+            v-tooltip="file.name"
         >
             {{ file.name }}
             <button
                 @click="removeFile(index)"
-                class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full p-1 transition-colors duration-300"
+                class="text-gray-400 hover:text-gray-600 focus:outline-none"
                 aria-label="Remove file"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke="currentColor"
-                    class="w-4 h-4"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                 >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <path
+                        fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd"
+                    />
                 </svg>
             </button>
         </div>
     </div>
     <div class="flex items-stretch gap-1 2xl:gap-2">
         <div class="flex-grow">
-            <div
-                class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-800 w-full"
-            >
-                <div class="relative w-full">
-                    <div
-                        v-if="!isFocused && !subjectInput"
-                        class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3 z-10"
+            <div class="relative w-full">
+                <div
+                    v-if="!isFocused && !subjectInput"
+                    class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full z-10"
+                >
+                    <Bars2Icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
+                    <label
+                        for="username"
+                        class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base"
                     >
-                        <Bars2Icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
-                        <label
-                            for="username"
-                            class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base"
-                        >
-                            {{ $t("constants.subject") }}
-                        </label>
-                    </div>
-                    <input
-                        id="subjectInput"
-                        v-model="subjectInput"
-                        type="text"
-                        class="block h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:pl-4 2xl:text-base"
-                        @focus="handleFocusObject"
-                        @blur="handleBlur"
-                    />
+                        {{ $t("constants.subject") }}
+                    </label>
                 </div>
+                <input
+                    id="subjectInput"
+                    v-model="subjectInput"
+                    type="text"
+                    class="block h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:text-base border-b border-gray-200 focus:border-gray-400 transition-colors duration-200"
+                    @focus="handleFocusObject"
+                    @blur="handleBlur"
+                />
             </div>
         </div>
         <div class="flex">
@@ -58,7 +57,7 @@
             <button
                 @click="triggerFileInput"
                 type="button"
-                class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-transparent hover:bg-gray-600 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 2xl:px-3 2xl:py-2 2xl:text-base"
+                class="inline-flex items-center justify-center rounded-full w-10 h-10 2xl:w-11 2xl:h-11 bg-gray-100 text-gray-400 hover:bg-gray-200 transition-all duration-200 focus:outline-none"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +65,7 @@
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
                     stroke="currentColor"
-                    class="w-6 h-6 2xl:w-7 2xl:h-7"
+                    class="w-5 h-5 2xl:w-6 2xl:h-6"
                 >
                     <path
                         stroke-linecap="round"

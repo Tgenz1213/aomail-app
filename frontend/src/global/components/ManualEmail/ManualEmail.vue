@@ -29,9 +29,9 @@
                 <div class="">
                     <SubjectAttachmentsSection />
                 </div>
-                <div class="flex flex-col h-full space-y-5 pb-4 2xl:pb-6 overflow-hidden">
-                    <div class="flex-1 overflow-hidden h-screen border-b-2 rounded-lg">
-                        <div id="editor-container" class="flex-1 h-full w-full flex flex-col border-solid">
+                <div class="flex flex-col h-full space-y-5 pb-4 2xl:pb-6 pt-2 2xl:pt-3 overflow-hidden">
+                    <div class="flex-1 overflow-hidden h-screen">
+                        <div id="editor-container" class="flex-1 h-full w-full flex flex-col border rounded-lg">
                             <div id="editor" class="flex-1"></div>
                         </div>
                     </div>

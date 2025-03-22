@@ -5,7 +5,7 @@
           <div class="relative w-full">
             <div
               v-if="!isFocus && !query"
-              class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3"
+              class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full z-10"
             >
               <UserGroupIcon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
               <label
@@ -20,7 +20,7 @@
                 id="recipients"
                 :value="query"
                 @input="query = $event.target.value"
-                class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
+                class="w-full h-10 2xl:h-11 border-0 bg-transparent py-2 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6 2xl:py-3 2xl:text-base border-b border-gray-200 focus:border-gray-400 transition-colors duration-200"
                 :display-value="(person: any) => person?.name || ''"
                 @focus="handleFocus"
                 @blur="handleBlur"
@@ -83,23 +83,23 @@
           type="button"
           @click="toggleCC"
           :class="[
-            'inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white',
-            activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400',
+            'inline-flex items-center justify-center rounded-full w-10 h-10 2xl:w-11 2xl:h-11 text-sm font-semibold transition-all duration-200',
+            activeType === 'CC' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-200',
           ]"
-          class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 2xl:px-3 2xl:py-2 2xl:text-base"
+          class="focus:outline-none"
         >
-          {{ $t("newPage.carbonCopyInitials") }}
+          CC
         </button>
         <button
           type="button"
           @click="toggleBCC"
           :class="[
-            'inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white',
-            activeType === 'BCC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400',
+            'inline-flex items-center justify-center rounded-full w-10 h-10 2xl:w-11 2xl:h-11 text-sm font-semibold transition-all duration-200',
+            activeType === 'BCC' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-200',
           ]"
-          class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 2xl:px-3 2xl:py-2 2xl:text-base"
+          class="focus:outline-none"
         >
-          {{ $t("newPage.blindCarbonCopyInitials") }}
+          CCI
         </button>
       </div>
     </div>

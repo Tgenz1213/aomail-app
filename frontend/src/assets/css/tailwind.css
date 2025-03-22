@@ -2,10 +2,56 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-.ql-container,
-.ql-toolbar {
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+.ql-container {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background-color: #ffffff !important;
+    min-height: 200px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: #1f2937 !important;
+    padding: 1rem !important;
+}
+
+.ql-editor {
+    padding: 0 !important;
+    min-height: 200px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: #1f2937 !important;
+}
+
+.ql-snow {
+    border: none !important;
+    border-radius: 8px !important;
+    overflow: visible !important;
+}
+
+.ql-snow .ql-toolbar {
+    border: none !important;
+    background-color: #f8fafc !important;
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.ql-snow .ql-container {
+    border: none !important;
+    background-color: #ffffff !important;
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+.ql-snow .ql-picker {
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+.ql-snow .ql-picker-options {
+    position: absolute !important;
+    z-index: 50 !important;
 }
 
 .ql-snow .ql-picker-label:hover .ql-stroke,

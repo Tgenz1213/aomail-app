@@ -20,7 +20,7 @@
                             id="recipients"
                             :value="query"
                             @input="query = $event.target.value"
-                            class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
+                            class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
                             :display-value="(person: any) => person?.name || ''"
                             @focus="handleFocus"
                             @blur="handleBlur"
@@ -46,7 +46,7 @@
                                 <li
                                     :class="[
                                         'relative cursor-default select-none py-2 pl-3 pr-9',
-                                        active ? 'bg-gray-500 text-white' : 'text-gray-900',
+                                        active ? 'bg-gray-800 text-white' : 'text-gray-900',
                                     ]"
                                 >
                                     <div class="flex">
@@ -55,8 +55,8 @@
                                         </span>
                                         <span
                                             :class="[
-                                                'ml-2 truncate text-gray-800',
-                                                active ? 'text-gray-200' : 'text-gray-800',
+                                                'ml-2 truncate text-gray-800 opacity-80',
+                                                active ? 'text-white' : 'text-gray-800',
                                             ]"
                                         >
                                             {{ person.email }}

@@ -27,7 +27,7 @@
     <div class="flex items-stretch gap-1 2xl:gap-2">
         <div class="flex-grow">
             <div
-                class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full"
+                class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-800 w-full"
             >
                 <div class="relative w-full">
                     <div

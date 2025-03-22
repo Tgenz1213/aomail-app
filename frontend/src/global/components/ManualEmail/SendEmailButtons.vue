@@ -161,10 +161,10 @@ async function sendEmail() {
     const formData = new FormData();
 
     const formattedBody = emailBody
-        .replace(/<p>/g, '')  
-        .replace(/<\/p>/g, '<br>')  
-        .replace(/<br><br>/g, '<br>') 
-        .replace(/<br>$/, ''); 
+        .replace(/<p>/g, "")
+        .replace(/<\/p>/g, "<br>")
+        .replace(/<br><br>/g, "<br>")
+        .replace(/<br>$/, "");
 
     formData.append("subject", emailSubject);
     formData.append("message", formattedBody);

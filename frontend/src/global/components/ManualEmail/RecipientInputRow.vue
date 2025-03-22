@@ -131,6 +131,7 @@
     if (query.value === "") {
       filtered = contacts;
     } else {
+      const searchTerms = query.value.toLowerCase().split(/\s+/).filter(term => term.length > 0);
       filtered = contacts.filter((person: Recipient) => {
         if (!person.username) {
           if (person.email) {
@@ -145,9 +146,10 @@
         }
         const usernameLower = person.username.toLowerCase();
         const emailLower = person.email.toLowerCase();
-        return (
-          usernameLower.includes(query.value.toLowerCase()) ||
-          emailLower.includes(query.value.toLowerCase())
+        
+        // Check if all search terms match either username or email
+        return searchTerms.every(term => 
+          usernameLower.includes(term) || emailLower.includes(term)
         );
       });
     }

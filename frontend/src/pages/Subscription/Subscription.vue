@@ -270,7 +270,7 @@ const tiers: Tier[] = reactive([
     {
         name: "Start",
         plan: "start",
-        price: { monthly: "15$", yearly: "120$" },
+        price: { monthly: "8$", yearly: "72$" },
         description: i18n.global.t("settingsPage.subscriptionPage.basic.description"),
         features: i18n.global.tm("settingsPage.subscriptionPage.basic.features"),
         selected: false,
@@ -279,7 +279,7 @@ const tiers: Tier[] = reactive([
     {
         name: "Premium",
         plan: "premium",
-        price: { monthly: "20$", yearly: "180$" },
+        price: { monthly: "12$", yearly: "108$" },
         description: i18n.global.t("settingsPage.subscriptionPage.premium.description"),
         features: i18n.global.tm("settingsPage.subscriptionPage.premium.features"),
         selected: false,

@@ -258,8 +258,6 @@ async function handleAIClick() {
             signature: signatures.value.find((sig) => sig.id)?.signature_content,
         });
 
-        console.log("response", response.data);
-
         if (!response.success) {
             displayMessage?.(
                 i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"),

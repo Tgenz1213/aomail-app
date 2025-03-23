@@ -1006,6 +1006,7 @@
     "severalUser": "J'ai trouvé plusieurs utilisateurs avec ce nom, à qui souhaitez-vous envoyer l'email ?",
     "emailGenerated": "Voici le mail, êtes-vous satisfait ?",
     "noRecipientsFoundPleaseTryAgainOrEnterManually": "Aucun destinataire trouvé, veuillez réessayer ou entrer manuellement",
+    "noRecipientsFoundButEmailGenerated": "Aucun destinataire trouvé, mais voici le mail, êtes-vous satisfait ?",
     "mainRecipient": "Principal",
     "ccRecipient": "Copie",
     "bccRecipient": "Copie cachée",

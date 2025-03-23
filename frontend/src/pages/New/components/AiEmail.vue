@@ -292,12 +292,13 @@ async function handleAIClick() {
                 const recipientsAdded = handleScenarioExtractContacts(data);
                 if (!recipientsAdded) {
                     displayMessage?.(
-                        i18n.global.t("newPage.noRecipientsFoundPleaseTryAgainOrEnterManually"),
+                        i18n.global.t("newPage.noRecipientsFoundButEmailGenerated"),
                         selectedAgent.value.picture
                     );
+                } else {
+                    displayMessage?.(i18n.global.t("newPage.emailGenerated"), selectedAgent.value.picture);
                 }
                 handleScenarioGenerateEmail(data);
-                displayMessage?.(i18n.global.t("newPage.emailGenerated"), selectedAgent.value.picture);
                 break;
             }
             case 3: {

@@ -306,13 +306,13 @@ async function initializeQuill() {
     if (editorElement) {
         quill = new Quill(editorElement, {
             theme: "snow",
-            modules: { 
+            modules: {
                 toolbar: toolbarOptions,
                 link: {
                     showLinkTooltip: true,
                     linkTooltip: true,
-                    linkTooltipText: "Visit URL:"
-                }
+                    linkTooltipText: "Visit URL:",
+                },
             },
         });
     }

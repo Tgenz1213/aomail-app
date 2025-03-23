@@ -12,12 +12,7 @@
                     class="text-gray-400 hover:text-gray-600 focus:outline-none"
                     aria-label="Remove file"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-2.5 w-2.5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor">
                         <path
                             fill-rule="evenodd"
                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -26,11 +21,11 @@
                     </svg>
                 </button>
             </div>
-            
+
             <!-- File Preview Thumbnail -->
             <div v-if="isImageFile(file.name)" class="w-16 h-12 overflow-hidden rounded-md">
-                <img 
-                    :src="getFilePreview(fileObjects[index])" 
+                <img
+                    :src="getFilePreview(fileObjects[index])"
                     class="w-full h-full object-contain"
                     alt="File preview"
                 />
@@ -103,18 +98,18 @@ const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB, Gmail's limit
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const isImageFile = (filename: string) => {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-    return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+    return imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
 };
 
 const getFilePreview = (file: File) => {
-    if (!file) return '';
+    if (!file) return "";
     return URL.createObjectURL(file);
 };
 
 // Clean up object URLs when component is unmounted
 onUnmounted(() => {
-    fileObjects.value.forEach(file => {
+    fileObjects.value.forEach((file) => {
         if (isImageFile(file.name)) {
             URL.revokeObjectURL(getFilePreview(file));
         }

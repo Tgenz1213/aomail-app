@@ -1,30 +1,40 @@
 <template>
-    <div class="overflow-y-auto max-h-32 flex flex-wrap gap-2">
+    <div class="overflow-y-auto max-h-32 flex flex-wrap gap-1">
         <div
             v-for="(file, index) in uploadedFiles"
             :key="file.name"
-            class="flex items-center gap-2 px-2 py-1 rounded-md bg-gray-50 border border-gray-200"
-            v-tooltip="file.name"
+            class="flex flex-col gap-0.5 px-1 py-0.5 rounded-md bg-gray-50 border border-gray-200"
         >
-            {{ file.name }}
-            <button
-                @click="removeFile(index)"
-                class="text-gray-400 hover:text-gray-600 focus:outline-none"
-                aria-label="Remove file"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+            <div class="flex items-center gap-0.5">
+                <span class="cursor-pointer text-sm">{{ file.name }}</span>
+                <button
+                    @click="removeFile(index)"
+                    class="text-gray-400 hover:text-gray-600 focus:outline-none"
+                    aria-label="Remove file"
                 >
-                    <path
-                        fill-rule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-            </button>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-2.5 w-2.5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- File Preview Thumbnail -->
+            <div v-if="isImageFile(file.name)" class="w-16 h-12 overflow-hidden rounded-md">
+                <img 
+                    :src="getFilePreview(fileObjects[index])" 
+                    class="w-full h-full object-contain"
+                    alt="File preview"
+                />
+            </div>
         </div>
     </div>
     <div class="flex items-stretch gap-1 2xl:gap-2">
@@ -81,7 +91,7 @@
 <script setup lang="ts">
 import { i18n } from "@/global/preferences";
 import { UploadedFile } from "@/global/types";
-import { inject, onMounted, ref, Ref } from "vue";
+import { inject, onMounted, onUnmounted, ref, Ref } from "vue";
 
 const subjectInput = inject<Ref<string>>("subjectInput", ref(""));
 const uploadedFiles = inject<Ref<UploadedFile[]>>("uploadedFiles", ref([]));
@@ -91,6 +101,25 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB, Gmail's limit
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+
+const isImageFile = (filename: string) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+};
+
+const getFilePreview = (file: File) => {
+    if (!file) return '';
+    return URL.createObjectURL(file);
+};
+
+// Clean up object URLs when component is unmounted
+onUnmounted(() => {
+    fileObjects.value.forEach(file => {
+        if (isImageFile(file.name)) {
+            URL.revokeObjectURL(getFilePreview(file));
+        }
+    });
+});
 
 const handleFileUpload = (event: Event) => {
     const input = event.target as HTMLInputElement;

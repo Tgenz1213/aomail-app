@@ -26,7 +26,9 @@ from aomail.constants import (
     INFORMATIVE,
     USELESS,
 )
-from aomail.models import Category, SocialAPI, Email
+from datetime import timedelta
+from django.utils import timezone
+from aomail.models import Category, SocialAPI, Email, Subscription
 from aomail.utils.security import subscription, decrypt_text
 from django.contrib.auth.models import User
 from aomail.email_providers.imap.emails_sync import save_emails_to_db
@@ -389,10 +391,14 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
             }
     """
     try:
-        # starts to process imap emails in the background
-        threading.Thread(target=save_emails_to_db, args=(request.user,)).start()
-
         user = request.user
+        subscription = Subscription.objects.get(user=user)
+        if subscription.is_trial:
+            trial_period = timedelta(days=14)
+            if not (timezone.now() - subscription.created_at > trial_period):
+                # starts to process imap emails in the background
+                threading.Thread(target=save_emails_to_db, args=(request.user,)).start()
+
         valid_data = validate_and_parse_parameters(request)
         parameters: dict = valid_data["parameters"]
         sort = valid_data["sort"]

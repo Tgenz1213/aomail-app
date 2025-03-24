@@ -144,7 +144,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex-col flex-grow w-full pt-[168px] 2xl:pt-44">
+                    <div
+                        class="flex-col flex-grow w-full pt-[168px] 2xl:pt-44"
+                        v-if="emailsLinked.filter((email) => !email.isServerConfig).length > 0"
+                    >
                         <div class="relative w-full">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                 <div class="w-full border-t border-gray-300"></div>

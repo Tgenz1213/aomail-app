@@ -64,7 +64,7 @@ IMPORTANT: All words (including greetings) must be properly spaced with a single
 {signature_instruction}
 
 ---
-Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
+Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format.
 """
 GENERATE_EMAIL_PROMPT_VARIABLES = [
     "agent_settings",

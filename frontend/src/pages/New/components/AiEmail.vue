@@ -258,8 +258,6 @@ async function handleAIClick() {
             signature: signatures.value.find((sig) => sig.id)?.signature_content,
         });
 
-        console.log("response", response.data);
-
         if (!response.success) {
             displayMessage?.(
                 i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"),
@@ -294,12 +292,13 @@ async function handleAIClick() {
                 const recipientsAdded = handleScenarioExtractContacts(data);
                 if (!recipientsAdded) {
                     displayMessage?.(
-                        i18n.global.t("newPage.noRecipientsFoundPleaseTryAgainOrEnterManually"),
+                        i18n.global.t("newPage.noRecipientsFoundButEmailGenerated"),
                         selectedAgent.value.picture
                     );
+                } else {
+                    displayMessage?.(i18n.global.t("newPage.emailGenerated"), selectedAgent.value.picture);
                 }
                 handleScenarioGenerateEmail(data);
-                displayMessage?.(i18n.global.t("newPage.emailGenerated"), selectedAgent.value.picture);
                 break;
             }
             case 3: {

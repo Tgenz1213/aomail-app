@@ -1,9 +1,13 @@
 <template>
-    <div v-if="people.length > 0" class="flex items-center mb-1">
+    <div v-if="people.length > 0" class="flex items-center mb-1 gap-2">
         <div
             v-for="person in people"
             :key="person.email"
-            class="relative flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2"
+            class="flex items-center gap-2 px-2 py-1 rounded-md bg-gray-50 border border-gray-200"
+            :class="{
+                'bg-red-50 border-red-200': isInvalid,
+                'bg-green-50 border-green-200': isValid,
+            }"
             v-tooltip="person.username ? person.email : ''"
         >
             <span v-if="type === 'cc'" class="font-semibold mr-1 2xl:mr-2">
@@ -14,20 +18,13 @@
             </span>
             {{ person.username || person.email }}
 
-            <button
-                @click="removePerson(person)"
-                class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full p-1 transition-colors duration-300"
-                aria-label="Remove file"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke="currentColor"
-                    class="w-4 h-4"
-                >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <button @click="removePerson(person)" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                        fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd"
+                    />
                 </svg>
             </button>
         </div>

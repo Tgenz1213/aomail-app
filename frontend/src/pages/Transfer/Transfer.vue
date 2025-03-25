@@ -295,7 +295,7 @@ async function initializeQuill() {
     const toolbarOptions = [
         [{ font: [] }],
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
-        ["bold", "italic", "underline"],
+        ["bold", "italic", "underline", "link"],
         [{ color: [] }, { background: [] }],
         [{ list: "ordered" }, { list: "bullet" }],
         [{ align: [] }],
@@ -306,7 +306,14 @@ async function initializeQuill() {
     if (editorElement) {
         quill = new Quill(editorElement, {
             theme: "snow",
-            modules: { toolbar: toolbarOptions },
+            modules: {
+                toolbar: toolbarOptions,
+                link: {
+                    showLinkTooltip: true,
+                    linkTooltip: true,
+                    linkTooltipText: "Visit URL:",
+                },
+            },
         });
     }
 }

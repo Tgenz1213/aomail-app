@@ -446,10 +446,14 @@
       "yearly": "Yearly",
       "monthly": "Monthly",
       "basic": {
-        "description": "Perfect for individuals who want to start organizing their emails",
+        "description": "Perfect for individuals who want to start organizing their emails faster",
         "features": [
-          "Basic email organization",
-          "AI-powered categorization",
+          "Up to 1 email linked",
+          "Smart inbox (AI sorting and filtering)",
+          "Automatic summary",
+          "Custom filtering",
+          "Smart write and reply",
+          "Analytics",
           "Standard support"
         ]
       },
@@ -457,9 +461,9 @@
         "description": "Advanced features for professionals who need more power",
         "features": [
           "All Start features",
-          "Priority support",
-          "Advanced AI features",
-          "Custom categorization"
+          "Unlimited linked emails",
+          "Advanced AI Customization (AI model choice...)",
+          "Priority support"
         ]
       },
       "entreprise": {

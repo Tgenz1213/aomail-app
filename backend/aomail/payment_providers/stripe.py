@@ -37,12 +37,12 @@ SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 WEBHOOK_SECRET = os.getenv(ENV + "_webhook_secret") if ENV else ""
 PRODUCTS = {
     "start": {
-        "monthly": "price_1QaFTRK8H3QtVm1pHDyJyrp5",
-        "yearly": "price_1QaFUCK8H3QtVm1pcEpFL8eI",
+        "monthly": "price_1R5TPEK8H3QtVm1pIzgISyht",
+        "yearly": "price_1R5TPYK8H3QtVm1pjML51Jdt",
     },
     "premium": {
-        "monthly": "price_1QaFXTK8H3QtVm1prTpGnDY4",
-        "yearly": "price_1QaFaoK8H3QtVm1pgEqJYQ1b",
+        "monthly": "price_1R5TMVK8H3QtVm1p35Pq55tZ",
+        "yearly": "price_1R5TNkK8H3QtVm1pOzIyY7rb",
     },
     # "entreprise": {
     #     "monthly": "price_1Q9nbjK8H3QtVm1piHUqrxEf",

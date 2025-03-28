@@ -250,7 +250,7 @@ def get_period_stats_values(
     if "max" in stats:
         result["max"] = max
     if "avg" in stats:
-        result["avg"] = sum(all_counts) / len(all_counts) + 1e-4
+        result["avg"] = sum(all_counts) / len(all_counts) if len(all_counts) > 0 else 0
 
     return result
 

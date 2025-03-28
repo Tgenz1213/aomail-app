@@ -205,17 +205,14 @@ def compute_stat(
             period_days = get_period_duration(period)
 
             stat_result[stat_name]["periods"][period] = get_period_stats_values(
-                stats, user, period_days, stat_name, now)
+                stats, user, period_days, stat_name, now
+            )
 
     return stat_result
 
 
 def get_period_stats_values(
-    stats: list,
-    user: User,
-    period_days: int,
-    stat_name: str,
-    now: datetime
+    stats: list, user: User, period_days: int, stat_name: str, now: datetime
 ) -> dict:
     """Returns a dict with the given stats as keys"""
     result = {}
@@ -229,8 +226,7 @@ def get_period_stats_values(
         email_queryset = get_filtered_queryset(
             Email.objects.filter(
                 user=user,
-                date__range=(date_cursor, date_cursor +
-                             timedelta(period_days))
+                date__range=(date_cursor, date_cursor + timedelta(period_days)),
             ),
             stat_name,
         )
@@ -320,7 +316,7 @@ def get_time_ranges(now: datetime) -> dict:
         "ytd": now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0),
     }
 
- 
+
 def get_min_value(queryset: QuerySet, period_days: int) -> int:
     """
     Get the minimum count for the specified period size.
@@ -475,7 +471,6 @@ def get_avg_value(queryset: QuerySet, period_days: int) -> float:
     return float(result["avg_count"] or 0)
 
 
-
 @api_view(["POST"])
 @subscription(ALLOW_ALL)
 def get_combined_statistics(request) -> Response:
@@ -493,8 +488,7 @@ def get_combined_statistics(request) -> Response:
         parameters: dict = json.loads(request.body)
         emails_selected: list = parameters["emailsSelected"]
 
-        social_apis = SocialAPI.objects.filter(
-            user=user, email__in=emails_selected)
+        social_apis = SocialAPI.objects.filter(user=user, email__in=emails_selected)
 
         aomail_data = get_aomail_data(social_apis)
         email_providers_data = get_email_providers_data(social_apis)
@@ -516,8 +510,7 @@ def get_combined_statistics(request) -> Response:
             status=status.HTTP_404_NOT_FOUND,
         )
     except Exception as e:
-        LOGGER.error(
-            f"Error in get statistics for user ID {user.id}: {str(e)}")
+        LOGGER.error(f"Error in get statistics for user ID {user.id}: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -534,8 +527,7 @@ def get_aomail_data(social_apis: list[SocialAPI]) -> dict:
     Returns:
         dict: A dictionary containing Aomail data statistics.
     """
-    num_emails_received = Email.objects.filter(
-        social_api__in=social_apis).count()
+    num_emails_received = Email.objects.filter(social_api__in=social_apis).count()
     num_emails_read = Email.objects.filter(
         social_api__in=social_apis, read=True
     ).count()

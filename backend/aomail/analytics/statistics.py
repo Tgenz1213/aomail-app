@@ -204,31 +204,58 @@ def compute_stat(
             stat_result[stat_name]["periods"][period] = {}
             period_days = get_period_duration(period)
 
-            # Get base queryset for the statistic
-            email_queryset = get_filtered_queryset(
-                Email.objects.filter(
-                    user=user,
-                    date__gte=now - timedelta(days=period_days),
-                    date__lte=now,
-                ),
-                stat_name,
-            )
-
-            for stat in stats:
-                if stat == "min":
-                    min_value = get_min_value(email_queryset, period_days)
-                    stat_result[stat_name]["periods"][period]["min"] = min_value
-                elif stat == "max":
-                    max_value = get_max_value(email_queryset, period_days)
-                    stat_result[stat_name]["periods"][period]["max"] = max_value
-                elif stat == "avg":
-                    avg_value = get_avg_value(email_queryset, period_days)
-                    stat_result[stat_name]["periods"][period]["avg"] = avg_value
+            stat_result[stat_name]["periods"][period] = get_period_stats_values(
+                stats, user, period_days, stat_name, now)
 
     return stat_result
 
 
-def get_filtered_queryset(queryset: QuerySet, stat_name: str) -> QuerySet:
+def get_period_stats_values(
+    stats: list,
+    user: User,
+    period_days: int,
+    stat_name: str,
+    now: datetime
+) -> dict:
+    """Returns a dict with the given stats as keys"""
+    result = {}
+
+    min = Email.objects.filter(user=user).count()
+    max = 0
+    all_counts = []
+    date_cursor = user.date_joined
+
+    while date_cursor + timedelta(period_days) <= now:
+        email_queryset = get_filtered_queryset(
+            Email.objects.filter(
+                user=user,
+                date__range=(date_cursor, date_cursor +
+                             timedelta(period_days))
+            ),
+            stat_name,
+        )
+
+        count = email_queryset.count()
+        all_counts.append(count)
+
+        if count < min:
+            min = count
+        if count > max:
+            max = count
+
+        date_cursor += timedelta(period_days)
+
+    if "min" in stats:
+        result["min"] = min
+    if "max" in stats:
+        result["max"] = max
+    if "avg" in stats:
+        result["avg"] = sum(all_counts) / len(all_counts) + 1e-4
+
+    return result
+
+
+def get_filtered_queryset(queryset: QuerySet, stat_name: str) -> QuerySet[Email]:
     """
     Filter a queryset based on the given statistic name.
 
@@ -293,7 +320,7 @@ def get_time_ranges(now: datetime) -> dict:
         "ytd": now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0),
     }
 
-
+ 
 def get_min_value(queryset: QuerySet, period_days: int) -> int:
     """
     Get the minimum count for the specified period size.
@@ -448,6 +475,7 @@ def get_avg_value(queryset: QuerySet, period_days: int) -> float:
     return float(result["avg_count"] or 0)
 
 
+
 @api_view(["POST"])
 @subscription(ALLOW_ALL)
 def get_combined_statistics(request) -> Response:
@@ -465,7 +493,8 @@ def get_combined_statistics(request) -> Response:
         parameters: dict = json.loads(request.body)
         emails_selected: list = parameters["emailsSelected"]
 
-        social_apis = SocialAPI.objects.filter(user=user, email__in=emails_selected)
+        social_apis = SocialAPI.objects.filter(
+            user=user, email__in=emails_selected)
 
         aomail_data = get_aomail_data(social_apis)
         email_providers_data = get_email_providers_data(social_apis)
@@ -487,7 +516,8 @@ def get_combined_statistics(request) -> Response:
             status=status.HTTP_404_NOT_FOUND,
         )
     except Exception as e:
-        LOGGER.error(f"Error in get statistics for user ID {user.id}: {str(e)}")
+        LOGGER.error(
+            f"Error in get statistics for user ID {user.id}: {str(e)}")
         return Response(
             {"error": "Internal server error"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -504,7 +534,8 @@ def get_aomail_data(social_apis: list[SocialAPI]) -> dict:
     Returns:
         dict: A dictionary containing Aomail data statistics.
     """
-    num_emails_received = Email.objects.filter(social_api__in=social_apis).count()
+    num_emails_received = Email.objects.filter(
+        social_api__in=social_apis).count()
     num_emails_read = Email.objects.filter(
         social_api__in=social_apis, read=True
     ).count()

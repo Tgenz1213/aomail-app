@@ -57,27 +57,20 @@
                     class="text-xs text-stone-700 bg-stone-200 hover:bg-stone-300 px-3 py-1 rounded-md flex items-center gap-1"
                     :disabled="isMarking.read"
                 >
-                    <ArchiveBoxIcon class="h-4 w-4 text-stone-700" v-if="!isMarking?.read"/>
+                    <ArchiveBoxIcon class="h-4 w-4 text-stone-700" v-if="!isMarking?.read" />
                     {{ isMarking?.read ? $t("loading") : $t("markAllAsArchive") }}
                 </button>
             </div>
         </div>
-        <div class="bg-white py-1 sticky z-[25]"
-            :class="[
-                replyLater 
-                    ? 'top-[85px] 2xl:top-[90px]' 
-                    : 'top-[137px] 2xl:top-[146px]'
-            ]"
+        <div
+            class="bg-white py-1 sticky z-[25]"
+            :class="[replyLater ? 'top-[85px] 2xl:top-[90px]' : 'top-[137px] 2xl:top-[146px]']"
         ></div>
         <div v-if="showEmailDescriptions">
             <div v-for="(emailsByDate, date) in groupedEmails" :key="date" class="px-4">
-                <div 
+                <div
                     class="sticky z-[30] bg-transparent"
-                    :class="[
-                        replyLater 
-                            ? 'top-[85px] 2xl:top-[90px]' 
-                            : 'top-[137px] 2xl:top-[146px]'
-                    ]"
+                    :class="[replyLater ? 'top-[85px] 2xl:top-[90px]' : 'top-[137px] 2xl:top-[146px]']"
                 >
                     <div class="mx-4 relative z-[40]">
                         <div class="relative">
@@ -85,7 +78,9 @@
                                 <div class="w-full border-t border-gray-200"></div>
                             </div>
                             <div class="relative flex justify-center z-[40]">
-                                <span class="bg-white px-2 text-xs text-gray-500 relative z-[40]">{{ formatSentDate(date) }}</span>
+                                <span class="bg-white px-2 text-xs text-gray-500 relative z-[40]">
+                                    {{ formatSentDate(date) }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -93,7 +88,11 @@
                 <div class="flex px-4 -my-[7.5px]">
                     <div class="w-full">
                         <ul role="list" class="divide-y divide-gray-200">
-                            <li v-for="email in emailsByDate" :key="email.id" class="pl-5 relative hover:bg-gray-50 transition-colors duration-150">
+                            <li
+                                v-for="email in emailsByDate"
+                                :key="email.id"
+                                class="pl-5 relative hover:bg-gray-50 transition-colors duration-150"
+                            >
                                 <div class="py-6">
                                     <EmailItem :email="email" color="stone" :replyLater="replyLater" />
                                 </div>
@@ -105,7 +104,6 @@
         </div>
     </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch, onMounted, inject } from "vue";

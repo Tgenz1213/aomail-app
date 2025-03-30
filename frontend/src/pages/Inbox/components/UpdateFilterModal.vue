@@ -58,7 +58,7 @@
                                 />
                                 <label :for="IMPORTANT" class="flex items-center">
                                     <span
-                                        class="bg-orange-100 text-orange-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
+                                        class="bg-indigo-100 text-indigo-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full"
                                     >
                                         <ExclamationCircleIcon class="h-4 w-4 items-center inline mr-1" />
                                         {{ $t("homePage.modals.filterModal.important") }}

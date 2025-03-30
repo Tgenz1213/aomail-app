@@ -4,13 +4,13 @@
             <div class="py-6 mr-6 ml-6">
                 <div class="group">
                     <div
-                        class="bg-orange-100 border border-orange-200 bg-opacity-90 rounded-md cursor-pointer transition-colors duration-150"
+                        class="bg-indigo-100 border border-indigo-200 bg-opacity-90 rounded-md cursor-pointer transition-colors duration-150"
                         @click="toggleEmailVisibility"
                     >
                         <div class="flex px-3 py-2">
                             <div class="flex items-center gap-2">
-                                <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
-                                <p class="text-sm font-semibold tracking-wide text-orange-600">
+                                <exclamation-circle-icon class="w-6 h-6 text-indigo-500" />
+                                <p class="text-sm font-semibold tracking-wide text-indigo-600">
                                     {{ $t("constants.ruleModalConstants.important") }}
                                 </p>
                             </div>
@@ -57,7 +57,7 @@
                     class="text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md flex items-center gap-1"
                     :disabled="isMarking?.important"
                 >
-                    <CheckIcon class="h-4 w-4 text-orange-700" v-if="!isMarking?.important" />
+                    <CheckIcon class="h-4 w-4 text-indigo-700" v-if="!isMarking?.important" />
                     {{ isMarking?.important ? $t("loading") : $t("markAllAsRead") }}
                 </button>
             </div>
@@ -94,7 +94,7 @@
                                 class="pl-5 relative hover:bg-gray-50 transition-colors duration-150"
                             >
                                 <div class="py-6">
-                                    <EmailItem :email="email" color="orange" :replyLater="replyLater" />
+                                    <EmailItem :email="email" color="indigo" :replyLater="replyLater" />
                                 </div>
                             </li>
                         </ul>
@@ -107,7 +107,7 @@
 
 <script setup lang="ts">
 import { ref, inject, computed, watch, Ref } from "vue";
-import { ExclamationTriangleIcon, CheckIcon } from "@heroicons/vue/24/outline";
+import { ExclamationCircleIcon, CheckIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import EmailItem from "@/global/components/EmailItem.vue";
 import { formatSentDate } from "../formatters";

@@ -4,36 +4,34 @@
             <div class="py-6 mr-6 ml-6">
                 <div class="group">
                     <div
-                        class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md cursor-pointer hover:bg-gray-200 transition-colors duration-150"
+                        class="bg-orange-100 border border-orange-200 bg-opacity-90 rounded-md cursor-pointer transition-colors duration-150"
                         @click="toggleEmailVisibility"
                     >
-                        <div class="bg-orange-100 z-[60] border border-orange-200 bg-opacity-90 rounded-md">
-                            <div class="flex px-3 py-2">
-                                <div class="flex items-center gap-2">
-                                    <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
-                                    <p class="text-sm font-semibold tracking-wide text-orange-600">
-                                        {{ $t("constants.ruleModalConstants.important") }}
-                                    </p>
-                                </div>
-                                <div
-                                    class="ml-2 flex gap-x-1 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                        <div class="flex px-3 py-2">
+                            <div class="flex items-center gap-2">
+                                <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
+                                <p class="text-sm font-semibold tracking-wide text-orange-600">
+                                    {{ $t("constants.ruleModalConstants.important") }}
+                                </p>
+                            </div>
+                            <div
+                                class="ml-2 flex gap-x-1 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-4 h-4"
                                 >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.5"
-                                        stroke="currentColor"
-                                        class="w-4 h-4"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
-                                        />
-                                    </svg>
-                                    <p>{{ $t("constants.userActions.clickToSeeImportantEmails") }}</p>
-                                </div>
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
+                                    />
+                                </svg>
+                                <p>{{ $t("constants.userActions.clickToSeeImportantEmails") }}</p>
                             </div>
                         </div>
                     </div>

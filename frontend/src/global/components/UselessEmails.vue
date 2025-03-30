@@ -4,7 +4,7 @@
             <div class="py-6 mr-6 ml-6">
                 <div class="group">
                     <div
-                        class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md cursor-pointer hover:bg-gray-200 transition-colors duration-150"
+                        class="bg-gray-100 border border-gray-200 bg-opacity-90 rounded-md cursor-pointer transition-colors duration-150"
                         @click="toggleEmailVisibility"
                     >
                         <div class="flex px-3 py-2">

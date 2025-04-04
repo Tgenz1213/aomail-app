@@ -23,6 +23,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from aomail.utils import security
 from aomail.constants import (
+    DEFAULT_CATEGORY,
     GOOGLE,
     GOOGLE,
     MICROSOFT,
@@ -38,6 +39,7 @@ from aomail.email_providers.imap import profile as imap_profile
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
 from aomail.models import (
+    Category,
     EmailServerConfig,
     SocialAPI,
     Preference,
@@ -180,6 +182,12 @@ def signup(request: HttpRequest) -> Response:
         return Response(
             {"error": contacts_result["error"]}, status=status.HTTP_400_BAD_REQUEST
         )
+
+    Category.objects.create(
+        name=DEFAULT_CATEGORY,
+        description="",
+        user=request.user,
+    )
 
     Subscription.objects.create(
         user=user,

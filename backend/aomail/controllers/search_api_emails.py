@@ -79,7 +79,11 @@ def get_api_emails_data(request: HttpRequest) -> Response:
                 for id in list_ids:
                     try:
                         social_api = SocialAPI.objects.get(email=email, user=user)
-                        if provider == GOOGLE:
+                        if social_api.imap_config:
+                            email_data = email_operations_imap.get_mail_to_db(
+                                social_api, id
+                            )
+                        elif provider == GOOGLE:
                             email_data = email_operations_google.get_mail_to_db(
                                 social_api, id
                             )

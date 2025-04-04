@@ -129,13 +129,28 @@ onMounted(() => {
     checkLoginStatus();
     fetchEmailLinked();
     fetchRecipients();
+    fetchPrimaryEmail();
 });
 
-// async function getProfileImage() {
-//     const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
-//     if (!result.success) return;
-//     imageURL.value = result.data.profileImageUrl;
-// }
+async function fetchPrimaryEmail() {
+    if (
+        !emailSelected.value ||
+        emailsLinked.value.filter((emailLinked) => emailSelected.value === emailLinked.email).length === 0
+    ) {
+        const result = await getData("user/get_first_email/");
+
+        if (!result.success) {
+            displayPopup(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.primaryEmailFetchError"),
+                result.error as string
+            );
+        } else {
+            emailSelected.value = result.data.email;
+            localStorage.setItem("email", result.data.email);
+        }
+    }
+}
 
 const filteredPeople = computed(() => {
     if (!contacts || queryGetRecipients.value === "") {

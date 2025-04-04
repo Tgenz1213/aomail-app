@@ -387,7 +387,10 @@ async function animateText(text: string, target: Element | null) {
 }
 
 async function fetchPrimaryEmail() {
-    if (!emailSelected.value) {
+    if (
+        !emailSelected.value ||
+        emailsLinked.value.filter((emailLinked) => emailSelected.value === emailLinked.email).length === 0
+    ) {
         const result = await getData("user/get_first_email/");
 
         if (!result.success) {

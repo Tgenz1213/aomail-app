@@ -1,3 +1,11 @@
+---
+name: Refactor
+about: Template for refactor issues
+title: "refactor: "
+labels: refactor
+assignees: 
+---
+
 ## Refactor Issue Template
 
 ### **Refactor Description**
